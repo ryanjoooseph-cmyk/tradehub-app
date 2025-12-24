@@ -1,13 +1,3 @@
 export async function GET() {
-  return new Response('ok', {
-    status: 200,
-    headers: { 'content-type': 'text/plain' }
-  });
-}
-
-export async function POST() {
-  return new Response('ok', {
-    status: 200,
-    headers: { 'content-type': 'text/plain' }
-  });
+  return new Response('ok', { status: 200 });
 }
