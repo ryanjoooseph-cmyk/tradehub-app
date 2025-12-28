@@ -1,6 +1,7 @@
+// app/api/health/route.ts
 export async function GET() {
-  return new Response('ok', { status: 200, headers: { 'content-type': 'text/plain' } });
+  return Response.json({ ok: true }, { status: 200 });
 }
 export async function POST() {
-  return new Response('ok', { status: 200, headers: { 'content-type': 'text/plain' } });
+  return Response.json({ ok: true }, { status: 200 });
 }
