@@ -15,40 +15,36 @@ function getClient():
   return { client: createClient(url, key), error: null };
 }
 
-// Optional, avoids any static caching surprises on /api
+// avoid static caching on /api
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const { client, error } = getClient();
-  if (!client) {
-    return NextResponse.json({ ok: false, error }, { status: 500 });
-  }
+  if (!client) return NextResponse.json({ ok: false, error }, { status: 500 });
 
   const { data, error: qerr } = await client
-    .from<Job>('jobs')
+    .from('jobs')
     .select('id,title,created_at')
     .order('created_at', { ascending: false });
 
   if (qerr) return NextResponse.json({ ok: false, error: qerr.message }, { status: 500 });
-  return NextResponse.json(data ?? []);
+  return NextResponse.json((data ?? []) as Job[]);
 }
 
 export async function POST(req: Request) {
   const { client, error } = getClient();
-  if (!client) {
-    return NextResponse.json({ ok: false, error }, { status: 500 });
-  }
+  if (!client) return NextResponse.json({ ok: false, error }, { status: 500 });
 
   const body = await req.json().catch(() => ({}));
   const title = (body?.title ?? '').toString().trim();
   if (!title) return NextResponse.json({ ok: false, error: 'title required' }, { status: 400 });
 
   const { data, error: ierr } = await client
-    .from<Job>('jobs')
+    .from('jobs')
     .insert({ title })
     .select()
     .limit(1);
 
   if (ierr) return NextResponse.json({ ok: false, error: ierr.message }, { status: 500 });
-  return NextResponse.json(data?.[0] ?? null, { status: 201 });
+  return NextResponse.json((data?.[0] as Job) ?? null, { status: 201 });
 }
