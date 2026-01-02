@@ -1,8 +1,7 @@
-// lib/getBaseUrl.ts
 export function getBaseUrl(): string {
-  const render = process.env.RENDER_EXTERNAL_URL; // e.g. tradehub-app.onrender.com
-  if (render) return `https://${render}`;
+  const ext = process.env.RENDER_EXTERNAL_URL;
+  if (ext) return ext.startsWith('http') ? ext : `https://${ext}`;
   const vercel = process.env.VERCEL_URL;
   if (vercel) return `https://${vercel}`;
-  return "http://localhost:3000";
+  return 'http://localhost:3000';
 }
