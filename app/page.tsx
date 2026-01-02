@@ -1,15 +1,9 @@
-// app/page.tsx
-import Link from "next/link";
-
-export default function Home() {
+// app/market/page.tsx
+export default function MarketPage() {
   return (
     <div>
-      <h2>Welcome</h2>
-      <p>This is the starter UI scaffold.</p>
-      <ul>
-        <li><Link href="/jobs">Jobs</Link></li>
-        <li><Link href="/market">Market</Link></li>
-      </ul>
+      <h2>Market</h2>
+      <p>Scaffold page for the marketplace UI.</p>
     </div>
   );
 }
