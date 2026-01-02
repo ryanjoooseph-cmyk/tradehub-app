@@ -1,34 +1,36 @@
 // app/page.tsx
-import getBaseUrl from '@/lib/getBaseUrl';
+import { getBaseUrl } from "@/lib/getBaseUrl";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-type Job = { id: string; title: string; created_at: string };
-
-async function getJobs(): Promise<Job[]> {
+async function getJobs() {
   const base = getBaseUrl();
-  const res = await fetch(`${base}/api/jobs`, { cache: 'no-store' });
-  if (!res.ok) return [];
-  return res.json();
+  const r = await fetch(`${base}/api/jobs`, { cache: "no-store" });
+  if (!r.ok) return [];
+  return r.json();
 }
 
-export default async function Home() {
+export default async function Page() {
   const jobs = await getJobs();
 
   return (
     <main style={{ padding: 24 }}>
-      <h1>Jobs</h1>
-      <ul style={{ marginTop: 12, lineHeight: 1.5 }}>
-        {jobs.length === 0 && <li>No jobs yet.</li>}
-        {jobs.map((j) => (
-          <li key={j.id}>
-            <strong>{j.title}</strong>
-            <div style={{ fontSize: 12, opacity: 0.75 }}>
-              {new Date(j.created_at).toLocaleString()}
-            </div>
-          </li>
-        ))}
+      <h1>TradeHub</h1>
+      <p>Jobs queued: {Array.isArray(jobs) ? jobs.length : 0}</p>
+      <ul>
+        {Array.isArray(jobs) &&
+          jobs.map((j: any, i: number) => (
+            <li key={i}>{j.title ?? "Untitled job"}</li>
+          ))}
       </ul>
+      <p>
+        <a href="/jobs">Open jobs page →</a>
+      </p>
+      <p>
+        <a href="/api/ai/ping" target="_blank" rel="noreferrer">
+          Run OpenAI smoke test →
+        </a>
+      </p>
     </main>
   );
 }
