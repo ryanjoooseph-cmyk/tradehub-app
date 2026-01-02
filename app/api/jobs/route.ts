@@ -1,34 +1,44 @@
+// app/api/jobs/route.ts
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE!;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE!; // server-only
 
-const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: { persistSession: false }
+const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE, {
+  auth: { persistSession: false },
 });
 
 export async function GET() {
-  try {
-    const { data, error } = await supabase
-      .from('jobs')
-      .select('id,title,created_at')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return NextResponse.json(data ?? []);
-  } catch (err) {
-    return NextResponse.json({ ok: true }); // keep GET non-fatal while the table is empty
+  const { data, error } = await admin
+    .from('jobs')
+    .select('id,title,created_at')
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  return NextResponse.json(data ?? []);
 }
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json().catch(() => ({}));
-    const title = (body?.title ?? '').toString().trim() || 'Untitled';
-    const { error } = await supabase.from('jobs').insert({ title });
-    if (error) throw error;
-    return new NextResponse(null, { status: 201 });
-  } catch (err) {
-    return NextResponse.json({ ok: false }, { status: 500 });
+  const body = await req.json().catch(() => ({}));
+  const raw = (body?.title ?? '').toString();
+  const title = raw.slice(0, 120).trim();
+
+  if (!title) {
+    return NextResponse.json({ error: 'title required' }, { status: 400 });
   }
+
+  const { data, error } = await admin
+    .from('jobs')
+    .insert({ title })
+    .select('id')
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true, id: data.id });
 }
