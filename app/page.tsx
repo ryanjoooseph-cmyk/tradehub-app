@@ -1,49 +1,31 @@
-// app/page.tsx  (Dashboard)
+// app/market/page.tsx
 import React from 'react';
 
-export default function Home() {
-  return (
-    <div style={{ maxWidth: 900 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Dashboard</h1>
-      <p style={{ color: '#6b7280', marginBottom: 24 }}>
-        Welcome to TradeHub. Use the quick actions below to get moving.
-      </p>
+export const dynamic = 'force-dynamic';
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: 16,
-        }}
-      >
-        <a href="/jobs" style={cardStyle}>
-          <div style={cardTitle}>Jobs</div>
-          <div style={cardText}>View and create job requests.</div>
-        </a>
-        <a href="/market" style={cardStyle}>
-          <div style={cardTitle}>Market</div>
-          <div style={cardText}>Browse tradespeople and services.</div>
-        </a>
-        <a href="/messages" style={cardStyle}>
-          <div style={cardTitle}>Messages</div>
-          <div style={cardText}>Keep conversations in one place.</div>
-        </a>
-        <a href="/profile" style={cardStyle}>
-          <div style={cardTitle}>Profile</div>
-          <div style={cardText}>Update your business details.</div>
-        </a>
+const mock = [
+  { id: 'p1', title: 'Licensed Electrician', blurb: 'Switchboards • EV chargers • Rewiring', region: 'Melbourne' },
+  { id: 'p2', title: 'Plumber', blurb: 'Hot water • Gas fitting • Blocked drains', region: 'Geelong' },
+  { id: 'p3', title: 'Carpenter', blurb: 'Decks • Framing • Doors & windows', region: 'Mornington' },
+];
+
+export default async function MarketPage() {
+  return (
+    <div style={{ maxWidth: 960 }}>
+      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Market</h1>
+      <p style={{ color: '#6b7280', marginBottom: 24 }}>
+        Browse trades and services. (Hook to real data next.)
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px,1fr))', gap: 16 }}>
+        {mock.map(m => (
+          <div key={m.id} style={{ border: '1px solid #e5e7eb', padding: 16, borderRadius: 12 }}>
+            <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 6 }}>{m.title}</div>
+            <div style={{ color: '#6b7280', marginBottom: 8 }}>{m.blurb}</div>
+            <div style={{ fontSize: 12, color: '#6b7280' }}>{m.region}</div>
+            <a href="/messages" style={{ display: 'inline-block', marginTop: 12, fontWeight: 600 }}>Message</a>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
-
-const cardStyle: React.CSSProperties = {
-  display: 'block',
-  padding: 16,
-  border: '1px solid #e5e7eb',
-  borderRadius: 12,
-  textDecoration: 'none',
-  color: '#111827',
-};
-const cardTitle: React.CSSProperties = { fontWeight: 700, marginBottom: 6 };
-const cardText: React.CSSProperties = { color: '#6b7280' };
