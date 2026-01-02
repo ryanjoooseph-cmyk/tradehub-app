@@ -1,50 +1,83 @@
-// app/api/jobs/route.ts
-import { NextResponse } from 'next/server';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-type Job = { id: number; title: string; created_at: string };
-
-function getClient():
-  | { client: SupabaseClient; error: null }
-  | { client: null; error: string } {
+// Create the client only when handling a request (avoids build-time env checks)
+function getClient() {
   const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE;
-  if (!url || !key) {
-    return { client: null, error: 'Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE' };
+  const key = process.env.SUPABASE_SERVICE_ROLE; // server-only
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { persistSession: false } });
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const client = getClient();
+    if (!client) {
+      return NextResponse.json(
+        { ok: false, error: 'Supabase env not set' },
+        { status: 500 },
+      );
+    }
+
+    const { data, error } = await client
+      .from('jobs')
+      .select('id,title,created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return NextResponse.json(
+        { ok: false, error: error.message },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json(data ?? [], { status: 200 });
+  } catch (e: any) {
+    return NextResponse.json(
+      { ok: false, error: e?.message ?? 'Unexpected error' },
+      { status: 500 },
+    );
   }
-  return { client: createClient(url, key), error: null };
 }
 
-// avoid static caching on /api
-export const dynamic = 'force-dynamic';
+export async function POST(req: NextRequest) {
+  try {
+    const client = getClient();
+    if (!client) {
+      return NextResponse.json(
+        { ok: false, error: 'Supabase env not set' },
+        { status: 500 },
+      );
+    }
 
-export async function GET() {
-  const { client, error } = getClient();
-  if (!client) return NextResponse.json({ ok: false, error }, { status: 500 });
+    const body = await req.json().catch(() => ({} as any));
+    const title = typeof body?.title === 'string' ? body.title.trim() : '';
 
-  const { data, error: qerr } = await client
-    .from('jobs')
-    .select('id,title,created_at')
-    .order('created_at', { ascending: false });
+    if (!title || title.length > 140) {
+      return NextResponse.json(
+        { ok: false, error: 'Invalid title' },
+        { status: 400 },
+      );
+    }
 
-  if (qerr) return NextResponse.json({ ok: false, error: qerr.message }, { status: 500 });
-  return NextResponse.json((data ?? []) as Job[]);
-}
+    const { data, error } = await client
+      .from('jobs')
+      .insert({ title })
+      .select('id,title,created_at')
+      .single();
 
-export async function POST(req: Request) {
-  const { client, error } = getClient();
-  if (!client) return NextResponse.json({ ok: false, error }, { status: 500 });
+    if (error) {
+      return NextResponse.json(
+        { ok: false, error: error.message },
+        { status: 500 },
+      );
+    }
 
-  const body = await req.json().catch(() => ({}));
-  const title = (body?.title ?? '').toString().trim();
-  if (!title) return NextResponse.json({ ok: false, error: 'title required' }, { status: 400 });
-
-  const { data, error: ierr } = await client
-    .from('jobs')
-    .insert({ title })
-    .select()
-    .limit(1);
-
-  if (ierr) return NextResponse.json({ ok: false, error: ierr.message }, { status: 500 });
-  return NextResponse.json((data?.[0] as Job) ?? null, { status: 201 });
+    return NextResponse.json({ ok: true, item: data }, { status: 201 });
+  } catch (e: any) {
+    return NextResponse.json(
+      { ok: false, error: e?.message ?? 'Unexpected error' },
+      { status: 500 },
+    );
+  }
 }
