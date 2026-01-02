@@ -1,36 +1,75 @@
 // app/profile/page.tsx
-import React from 'react';
+"use client";
+import { useEffect, useState } from "react";
+import { getBrowserClient } from "../../lib/supabase";
 
-export const dynamic = 'force-dynamic';
+type Profile = { id: string; full_name: string | null; bio: string | null };
 
-export default async function ProfilePage() {
+export default function ProfilePage() {
+  const supabase = getBrowserClient();
+  const [loading, setLoading] = useState(true);
+  const [p, setP] = useState<Profile | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        await supabase.auth.signInWithOtp({ email: prompt("Enter email for magic link login") || "" });
+        setMsg("Magic link sent. Check your inbox and reload this page.");
+        setLoading(false);
+        return;
+      }
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      if (error) setMsg(error.message);
+      else setP(data ?? { id: user.id, full_name: "", bio: "" });
+      setLoading(false);
+    })();
+  }, []);
+
+  async function onSave(e: React.FormEvent) {
+    e.preventDefault();
+    if (!p) return;
+    setMsg(null);
+    const { error } = await supabase.from("profiles").upsert({
+      id: p.id, full_name: p.full_name, bio: p.bio, updated_at: new Date().toISOString()
+    });
+    setMsg(error ? error.message : "Saved.");
+  }
+
+  if (loading) return <p>Loading…</p>;
+
   return (
-    <div style={{ maxWidth: 720 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 12 }}>Profile</h1>
-      <p style={{ color: '#6b7280', marginBottom: 16 }}>
-        Company and contact details. (We’ll wire persistence next.)
-      </p>
-
-      <form style={{ display: 'grid', gap: 12, maxWidth: 520 }}>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Display name</span>
-          <input style={inp} placeholder="e.g., Rye J." />
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Company</span>
-          <input style={inp} placeholder="e.g., TradeHub Pty Ltd" />
-        </label>
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span>Region</span>
-          <input style={inp} placeholder="e.g., Melbourne, VIC" />
-        </label>
-        <button type="button" style={btn}>Save (disabled)</button>
-      </form>
+    <div style={{ maxWidth: 520 }}>
+      <h1 style={{ fontSize: 24, margin: "8px 0 16px" }}>Profile</h1>
+      {msg && <p style={{ fontSize: 12, opacity: .8 }}>{msg}</p>}
+      {p && (
+        <form onSubmit={onSave} style={{ display: "grid", gap: 12 }}>
+          <label>
+            <div style={{ fontSize: 12, opacity: .7, marginBottom: 4 }}>Full name</div>
+            <input
+              value={p.full_name ?? ""}
+              onChange={(e) => setP({ ...p, full_name: e.target.value })}
+              style={{ width: "100%", padding: 10, background: "#0f1216", color: "#e6e6e6",
+                       border: "1px solid #1b1f24", borderRadius: 8 }}
+            />
+          </label>
+          <label>
+            <div style={{ fontSize: 12, opacity: .7, marginBottom: 4 }}>Bio</div>
+            <textarea
+              value={p.bio ?? ""}
+              onChange={(e) => setP({ ...p, bio: e.target.value })}
+              rows={4}
+              style={{ width: "100%", padding: 10, background: "#0f1216", color: "#e6e6e6",
+                       border: "1px solid #1b1f24", borderRadius: 8, resize: "vertical" }}
+            />
+          </label>
+          <button type="submit" style={{
+            padding: "10px 12px", borderRadius: 8, background: "#1976d2",
+            border: 0, color: "white", fontWeight: 600, cursor: "pointer"
+          }}>Save</button>
+        </form>
+      )}
     </div>
   );
 }
-
-const inp: React.CSSProperties = { padding: 10, border: '1px solid #e5e7eb', borderRadius: 8 };
-const btn: React.CSSProperties = {
-  padding: '10px 14px', borderRadius: 8, border: '1px solid #111827', fontWeight: 600, cursor: 'not-allowed',
-};
