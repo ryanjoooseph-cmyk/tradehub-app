@@ -1,9 +1,11 @@
 // lib/getBaseUrl.ts
 export function getBaseUrl(): string {
-  if (typeof window !== "undefined") return "";        // client: keep relative fetch
+  // Browser: relative paths are fine
+  if (typeof window !== "undefined") return "";
+  // Server: use an absolute base
   return (
-    process.env.NEXT_PUBLIC_BASE_URL ||                // optional override
-    process.env.RENDER_EXTERNAL_URL ||                 // Render injects this
-    "http://localhost:3000"                            // dev fallback
+    process.env.NEXT_PUBLIC_BASE_URL ||   // optional explicit
+    process.env.RENDER_EXTERNAL_URL ||    // Render sets this automatically
+    "http://localhost:3000"               // dev fallback
   );
 }
