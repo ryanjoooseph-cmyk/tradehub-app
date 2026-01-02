@@ -1,23 +1,27 @@
 // app/api/ai/ping/route.ts
-export const dynamic = 'force-dynamic';
+import { NextResponse } from "next/server";
 
 export async function GET() {
   const key = process.env.OPENAI_API_KEY;
-  if (!key) return Response.json({ ok: false, error: 'OPENAI_API_KEY not set' }, { status: 500 });
+  if (!key) return NextResponse.json({ ok: false, error: "OPENAI_API_KEY missing" }, { status: 400 });
 
-  const r = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
     headers: {
-      'authorization': `Bearer ${key}`,
-      'content-type': 'application/json',
+      "Authorization": `Bearer ${key}`,
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: 'pong' }],
-      max_tokens: 5,
-    }),
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: "ping" }],
+      max_tokens: 4
+    })
   });
 
+  if (!r.ok) {
+    const t = await r.text();
+    return NextResponse.json({ ok: false, status: r.status, body: t }, { status: 500 });
+  }
   const json = await r.json();
-  return Response.json({ ok: r.ok, id: json.id ?? null });
+  return NextResponse.json({ ok: true, id: json.id ?? "n/a" });
 }
