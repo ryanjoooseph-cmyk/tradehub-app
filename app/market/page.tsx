@@ -1,8 +1,8 @@
 export default function MarketPage() {
   return (
     <div>
-      <h1>Market</h1>
-      <p>Coming soon: browse & post jobs/quotes.</p>
+      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>Market</h1>
+      <p>Browse and post jobs here.</p>
     </div>
   );
 }
