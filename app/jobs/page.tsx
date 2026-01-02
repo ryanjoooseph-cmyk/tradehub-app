@@ -1,30 +1,21 @@
-// app/jobs/page.tsx
-import { getBaseUrl } from "../../lib/getBaseUrl";
+import { getBaseUrl } from '@/lib/getBaseUrl';
 
-export const dynamic = "force-dynamic";
-
-type Job = { id: string | number; title: string; created_at?: string };
-
-async function getJobs(): Promise<Job[]> {
-  const res = await fetch(`${getBaseUrl()}/api/jobs`, { cache: "no-store" });
-  if (!res.ok) return [];
-  return res.json();
-}
+type Job = { id: number; title: string; created_at: string };
 
 export default async function JobsPage() {
-  const data = await getJobs();
+  const res = await fetch(`${getBaseUrl()}/api/jobs`, { cache: 'no-store' });
+  const data = (await res.json()) as Job[] | { ok: true };
+  const rows = Array.isArray(data) ? data : [];
 
   return (
     <div>
-      <h2>Jobs</h2>
-      {data.length ? (
-        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-          {data.map((j) => (
-            <li key={j.id} style={{ border: "1px solid #eee7eb", borderRadius: 8, padding: 12, marginBottom: 10 }}>
-              <div style={{ fontWeight: 600 }}>{j.title || "(untitled)"}</div>
-              <div style={{ fontSize: 12, opacity: 0.7 }}>
-                {j.created_at ? new Date(j.created_at).toLocaleString() : null}
-              </div>
+      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>Jobs</h1>
+      {rows.length ? (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {rows.map((j) => (
+            <li key={j.id} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, marginBottom: 8 }}>
+              <div style={{ fontWeight: 700 }}>{j.title}</div>
+              <div style={{ fontSize: 12, opacity: 0.7 }}>{new Date(j.created_at).toLocaleString()}</div>
             </li>
           ))}
         </ul>
