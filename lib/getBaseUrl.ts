@@ -1,23 +1,15 @@
 // lib/getBaseUrl.ts
-export function getBaseUrl(): URL {
-  // Prefer a fully-qualified external URL if Render provided it
-  const external =
-    process.env.RENDER_EXTERNAL_URL ||
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    process.env.VERCEL_URL;
-
-  if (external) {
-    // Accept either "example.com" or "https://example.com"
-    const url = external.startsWith("http") ? external : `https://${external}`;
-    return new URL(url);
-  }
-
-  // Fallback for local dev
-  return new URL("http://localhost:3000");
+export function getBaseUrl(): string {
+  // Prefer Render’s external URL, then NEXT_PUBLIC_BASE_URL, then localhost
+  const ext = process.env.RENDER_EXTERNAL_URL ?? process.env.NEXT_PUBLIC_BASE_URL ?? '';
+  const origin = ext
+    ? (ext.startsWith('http') ? ext : `https://${ext}`)
+    : 'http://localhost:3000';
+  const u = new URL(origin);
+  return u.origin; // "https://tradehub-app.onrender.com"
 }
 
 export function api(path: string): string {
   const base = getBaseUrl();
-  const normalized = path.startsWith("/") ? path : `/${path}`;
-  return new URL(normalized, base).toString();
+  return `${base}${path.startsWith('/') ? path : `/${path}`}`;
 }
