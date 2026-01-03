@@ -1,21 +1,17 @@
-"use client";
+// app/profile/page.tsx
+'use client';
 
-import { useEffect, useState } from "react";
-import { getBrowserClient } from "@/lib/supabase";
+import getBrowserClient from '@/lib/supabase';
+import { useEffect, useState } from 'react';
 
 export default function ProfilePage() {
-  const [ok] = useState(true);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // verify the client can be created on the browser
-    const sb = getBrowserClient();
-    void sb; // no-op
+    // this will throw immediately if envs are not present
+    const supabase = getBrowserClient();
+    if (supabase) setReady(true);
   }, []);
 
-  return (
-    <main style={{ padding: 16 }}>
-      <h1>TradeHub is up ✅</h1>
-      <p>Profile page</p>
-    </main>
-  );
+  return <main>Profile {ready ? 'ready' : ''}</main>;
 }
