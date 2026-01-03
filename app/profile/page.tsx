@@ -6,12 +6,22 @@ import { getBrowserClient } from "@/lib/supabase";
 type Profile = { id: string; full_name: string | null; bio: string | null };
 
 export default function ProfilePage() {
-  const [data, setData] = useState<Profile[] | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     const supabase = getBrowserClient();
-    supabase.from("profiles").select("*").then(({ data }) => setData(data as any));
+    supabase
+      .from("profiles")
+      .select("id, full_name, bio")
+      .single()
+      .then(({ data }) => setProfile(data as any))
+      .catch(() => setProfile(null));
   }, []);
 
-  return <pre style={{ padding: 24 }}>{JSON.stringify(data, null, 2) || "null"}</pre>;
+  return (
+    <>
+      <h1>Profile</h1>
+      <pre>{JSON.stringify(profile, null, 2)}</pre>
+    </>
+  );
 }
