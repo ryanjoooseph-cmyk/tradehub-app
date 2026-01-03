@@ -1,4 +1,4 @@
-:root { --bg:#fff; --fg:#111; }
-html,body { margin:0; padding:0; background:var(--bg); color:var(--fg); font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto; }
-a { color:inherit; text-decoration:none; }
-*,*::before,*::after { box-sizing:border-box; }
+:root { --bg:#0b0b0b; --fg:#fff; }
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
+a{color:#91caff;text-decoration:none}
+main{padding:2rem;max-width:880px;margin:0 auto}v
