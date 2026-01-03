@@ -1,20 +1,15 @@
-// app/layout.tsx
-import React from "react";
-// If you have a global stylesheet at app/styles.css, keep this import.
-// If not, it's safe to remove.
-import "./styles.css";
-import AppShell from "a/components/AppShell";
+import "./globals.css";
+import type { Metadata } from "next";
 
-export default function RootLayout({
-  children
-}: {
-  children: React.ReactNode;
-}) {
+export const metadata: Metadata = {
+  title: "TradeHub",
+  description: "TradeHub app"
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <AppShell>{children}</AppShell>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
