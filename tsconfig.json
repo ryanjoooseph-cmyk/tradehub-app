@@ -2,9 +2,9 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["dom", "dom.iterable", "es2022"],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
-    "strict": false,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -12,9 +12,9 @@
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "incremental": true,
     "baseUrl": ".",
-    "paths": { "@/*": ["*"] }
+    "paths": { "@/*": ["./*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
