@@ -1,13 +1,19 @@
-export function getBaseUrl(): string {
-  if (typeof window !== "undefined") return "";
-  const url =
-    process.env.NEXT_PUBLIC_SITE_URL ||
+export const getBaseUrl = (): string => {
+  const env =
+    process.env.NEXT_PUBLIC_BASE_URL ||
     process.env.RENDER_EXTERNAL_URL ||
-    process.env.VERCEL_URL ||
-    process.env.URL;
-  return url ? (url.startsWith("http") ? url : `https://${url}`) : "http://localhost:3000";
-}
+    process.env.VERCEL_URL;
 
-// keep both to satisfy any old imports your pages had
-export const api = { baseUrl: getBaseUrl() };
+  if (env) {
+    const url = env.startsWith('http') ? env : `https://${env}`;
+    try {
+      const u = new URL(url);
+      return `${u.protocol}//${u.host}`;
+    } catch {
+      // fall through
+    }
+  }
+  return 'http://localhost:3000';
+};
+
 export default getBaseUrl;
