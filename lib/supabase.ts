@@ -1,22 +1,24 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl =
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "";
+  process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
 const supabaseKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY ?? "";
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  "";
 
-if (!supabaseUrl || !supabaseKey) {
-  console.warn("Supabase env vars are missing");
-}
-
-export function getBrowserClient() {
+// named export used by /app/profile/page.tsx
+export function getBrowserClient(): SupabaseClient<any, "public", any> {
   return createClient(supabaseUrl, supabaseKey);
 }
 
-export function getServerClient() {
-  return createClient(supabaseUrl, supabaseKey, {
-    auth: { persistSession: false }
-  });
+// optional server helper
+export function getServerClient(): SupabaseClient<any, "public", any> {
+  return createClient(
+    process.env.SUPABASE_URL || supabaseUrl,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey
+  );
 }
 
-export default { getBrowserClient, getServerClient };
+// default export too (covers default-import usages)
+export default getBrowserClient;
