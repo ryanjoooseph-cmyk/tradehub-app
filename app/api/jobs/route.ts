@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  // Placeholder empty list to prove routing works.
-  return Response.json([]);
+  const rows: any[] = [];
+  return new Response(JSON.stringify(rows), {
+    headers: { "content-type": "application/json" }
+  });
 }
