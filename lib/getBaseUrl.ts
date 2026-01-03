@@ -1,15 +1,23 @@
-import { headers } from 'next/headers';
-
 export function getBaseUrl(): string {
-  const h = headers();
-  const proto = h.get('x-forwarded-proto') ?? 'https';
-  const host  = h.get('x-forwarded-host') ?? h.get('host');
+  const fromEnv =
+    process.env.RENDER_EXTERNAL_URL ||
+    process.env.VERCEL_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "";
 
-  if (host) return `${proto}://${host}`;
-  if (process.env.RENDER_EXTERNAL_URL) return `https://${process.env.RENDER_EXTERNAL_URL}`;
-  return 'http://localhost:3000';
+  if (fromEnv) {
+    const full = fromEnv.startsWith("http") ? fromEnv : `https://${fromEnv}`;
+    return full.replace(/\/+$/, "");
+  }
+
+  const port = process.env.PORT || "3000";
+  return `http://localhost:${port}`;
 }
 
-// compatibility exports for existing imports
+export function api(path = "/"): string {
+  const base = getBaseUrl();
+  const clean = path.startsWith("/") ? path : `/${path}`;
+  return `${base}${clean}`;
+}
+
 export default getBaseUrl;
-export const api = getBaseUrl;
