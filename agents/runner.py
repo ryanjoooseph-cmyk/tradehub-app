@@ -1,94 +1,161 @@
-from pathlib import Path
-import subprocess as sp
-import sys, uuid, json
+import json, os, subprocess, tempfile, textwrap, pathlib, re, uuid
+from dataclasses import dataclass
+from typing import List, Dict, Any
+from openai import OpenAI
+import requests
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO = pathlib.Path(__file__).resolve().parents[1]  # repo root
+TASKS_FILE = REPO / "agents" / "tasks.json"
 
-def run(cmd, cwd=REPO_ROOT):
-    r = sp.run(cmd, cwd=cwd, text=True, capture_output=True)
-    if r.returncode != 0:
-        print(r.stdout)
-        print(r.stderr, file=sys.stderr)
-        raise SystemExit(r.returncode)
+@dataclass
+class Task:
+    id: str
+    title: str
+    enabled: bool
+    goal: str
+    acceptance: List[str]
+
+def run(cmd: str):
+    print(f"$ {cmd}")
+    subprocess.run(cmd, shell=True, check=True, cwd=REPO)
+
+def build(build_cmd: str):
+    run(build_cmd)
+
+def git(*args: str) -> str:
+    r = subprocess.run(["git", *args], cwd=REPO, capture_output=True, text=True, check=True)
     return r.stdout.strip()
 
-def ensure_file(path: Path, content: str) -> bool:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if path.exists() and path.read_text(encoding="utf-8") == content:
-        return False
-    path.write_text(content, encoding="utf-8")
-    return True
+def load_tasks() -> (Dict[str, Any], List[Task]):
+    data = json.loads(TASKS_FILE.read_text())
+    cfg = data["config"]
+    tasks = [Task(**t) for t in data["tasks"] if t.get("enabled")]
+    return cfg, tasks
 
-def main():
-    changed = 0
+def repo_glob_allow(path: str, allowed_globs: List[str]) -> bool:
+    from fnmatch import fnmatch
+    return any(fnmatch(path, g) for g in allowed_globs)
 
-    # Minimal layout (only create if missing)
-    layout = REPO_ROOT / "app" / "layout.tsx"
-    if not layout.exists():
-        changed |= ensure_file(layout, """\
-export const metadata = { title: 'TradeHub' };
+def blocked(path: str, blocks: List[str]) -> bool:
+    from fnmatch import fnmatch
+    return any(fnmatch(path, b) for b in blocks)
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body style={{display:'flex',minHeight:'100vh',margin:0}}>
-        <aside style={{width:220,padding:16,borderRight:'1px solid #eee'}}>
-          <h3 style={{marginTop:0}}>TradeHub</h3>
-          <nav style={{display:'grid',gap:8}}>
-            <a href="/dashboard">Dashboard</a>
-            <a href="/jobs">Jobs</a>
-            <a href="/clients">Clients</a>
-            <a href="/quotes">Quotes</a>
-          </nav>
-        </aside>
-        <main style={{flex:1,padding:24}}>{children}</main>
-      </body>
-    </html>
-  );
-}
-""")
+def ensure_changes_safe(files: Dict[str, str], cfg: Dict[str, Any]):
+    for p in files.keys():
+        norm = p.strip("/")
 
-    # Minimal route pages (create only if missing)
-    routes = {
-        "dashboard": "Dashboard",
-        "jobs": "Jobs",
-        "clients": "Clients",
-        "quotes": "Quotes",
-    }
-    for slug, title in routes.items():
-        p = REPO_ROOT / "app" / slug / "page.tsx"
-        if not p.exists():
-            changed |= ensure_file(p, f"""\
-export default function Page() {{
-  return <div style={{fontSize:20}}>{title}</div>;
-}}
-""")
+        if blocked(norm, cfg["paths_blocked"]):
+            raise RuntimeError(f"Blocked file in patch: {norm}")
 
-    if not changed:
-        print("Agent produced no changes; exiting without PR.")
+        if not repo_glob_allow(norm, cfg["paths_allowed_globs"]):
+            raise RuntimeError(f"File outside allowed paths: {norm}")
+
+def write_files(changes: Dict[str, str]):
+    for rel, content in changes.items():
+        target = (REPO / rel).resolve()
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
+
+def create_pr(branch: str, title: str, body: str):
+    # push branch
+    run("git add -A")
+    run(f'git commit -m "{title}" || echo "nothing to commit"')
+    run(f"git push -u origin {branch}")
+
+    token = os.environ.get("GITHUB_TOKEN")
+    if not token:
+        print("No GITHUB_TOKEN; cannot open PR automatically.")
         return
 
-    # New branch for PR
-    branch = f"agent/ui-shell-{uuid.uuid4().hex[:8]}"
-    run(["git", "checkout", "-b", branch])
-    run(["git", "add", "app"])
-    run(["git", "commit", "-m", "agent(ui): scaffold UI shell (dashboard/jobs/clients/quotes)"])
-    run(["git", "push", "origin", branch])
+    # infer owner/repo
+    remote = git("config", "--get", "remote.origin.url")
+    m = re.search(r"[:/]([^/]+)/([^/.]+)(?:\.git)?$", remote)
+    if not m:
+        print("Could not parse remote for PR.")
+        return
+    owner, repo = m.group(1), m.group(2)
 
-    # Handshake files for the workflow to create the PR
-    (REPO_ROOT / ".agent_branch").write_text(branch, encoding="utf-8")
-    (REPO_ROOT / ".agent_title").write_text("agent: scaffold UI shell", encoding="utf-8")
-    body = {
-        "summary": [
-            "Adds minimal App Router shell:",
-            "- /dashboard",
-            "- /jobs",
-            "- /clients",
-            "- /quotes",
-            "Creates layout with left nav. No deps added."
-        ]
-    }
-    (REPO_ROOT / ".agent_body").write_text("\n".join(body["summary"]), encoding="utf-8")
+    url = f"https://api.github.com/repos/{owner}/{repo}/pulls"
+    payload = {"title": title, "head": branch, "base": "main", "body": body}
+    r = requests.post(url, headers={"Authorization": f"Bearer {token}",
+                                    "Accept": "application/vnd.github+json"}, json=payload)
+    print("PR create status:", r.status_code, r.text[:400])
+
+SYSTEM_PROMPT = """You are a careful code collaborator for a Next.js + TypeScript + Supabase project.
+Return ONLY JSON with this schema:
+{
+  "summary": "one-line human summary",
+  "files": {
+    "<path/from/repo/root>": "<full replacement file contents>",
+    "...": "..."
+  }
+}
+Rules:
+- Touch ONLY allowed paths (lib/**, app/**, public/**). NEVER modify package.json, lockfiles, or workflows.
+- Keep code minimal & compiling. Use existing conventions.
+- For API routes use Next.js app router handlers in app/api/**/route.ts or app/api/**/[id]/route.ts.
+- For UI pages under app/**, implement simple functional components with basic forms/tables.
+- Always include complete file contents (not diffs).
+"""
+
+def plan_for_task(task: Task, cfg: Dict[str, Any]) -> Dict[str, Any]:
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    tree = git("ls-files")
+    context = textwrap.dedent(f"""
+    Repo tree (truncated to 400 lines):
+    {os.linesep.join(tree.splitlines()[:400])}
+
+    Task: {task.title}
+    Goal: {task.goal}
+    Acceptance criteria:
+    - {"\n    - ".join(task.acceptance)}
+    """).strip()
+
+    resp = client.chat.completions.create(
+        model=cfg.get("model", "gpt-4.1-mini"),
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": context}
+        ],
+        temperature=0
+    )
+    txt = resp.choices[0].message.content
+    try:
+        data = json.loads(txt)
+    except Exception as e:
+        raise RuntimeError(f"Model did not return JSON: {e}\n----\n{txt[:4000]}")
+    return data
+
+def main():
+    cfg, tasks = load_tasks()
+    if not tasks:
+        print("No enabled tasks. Exiting.")
+        return
+
+    base = git("rev-parse", "--abbrev-ref", "HEAD")
+    for t in tasks:
+        branch = f'{cfg.get("branch_prefix","agent/")}{t.id}-{uuid.uuid4().hex[:8]}'
+        run(f"git checkout -b {branch}")
+
+        plan = plan_for_task(t, cfg)
+        files = plan.get("files", {})
+        ensure_changes_safe(files, cfg)
+
+        write_files(files)
+        # format (best-effort, not mandatory)
+        try:
+            run("npx -y prettier -w .")
+        except Exception:
+            pass
+
+        # build check
+        build(cfg["build_cmd"])
+
+        title = f'agent: {t.title}'
+        body = f'{t.goal}\n\nAuto-generated. Summary: {plan.get("summary","(none)")}'
+        create_pr(branch, title, body)
+
+        run(f"git checkout {base}")
 
 if __name__ == "__main__":
     main()
