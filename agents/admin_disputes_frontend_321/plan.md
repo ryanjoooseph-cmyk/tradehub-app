@@ -4,80 +4,80 @@
 ## Project Structure
 ```
 /src
-  ├── api
-  │   ├── disputes.js
   ├── components
-  │   ├── AdminDisputesTable.js
+  │   ├── AdminDisputesTable.jsx
+  │   ├── FilterBar.jsx
+  │   └── StatusUpdateModal.jsx
   ├── pages
-  │   ├── AdminDisputesPage.js
+  │   └── AdminDisputesPage.jsx
+  ├── services
+  │   └── disputesService.js
   ├── styles
-  │   ├── AdminDisputesPage.css
+  │   └── AdminDisputesPage.css
   ├── utils
-  │   ├── apiUtils.js
+  │   └── api.js
   └── App.js
 ```
 
-## File Responsibilities
+## Responsibilities
 
-### API Layer
-- **`/src/api/disputes.js`**
-  - Implement API calls to `/api/disputes`.
-  - Functions:
-    - `fetchDisputes()`: Fetch all disputes.
-    - `updateDisputeStatus(disputeId, status)`: Update the status of a specific dispute.
+### 1. **AdminDisputesTable.jsx**
+- **Responsibility**: Render the table of disputes with pagination and sorting.
+- **Tasks**:
+  - Fetch disputes data from `/api/disputes`.
+  - Display dispute details and current status.
+  - Integrate filtering options from `FilterBar`.
 
-### Components
-- **`/src/components/AdminDisputesTable.js`**
-  - Create a table to display disputes.
-  - Implement filters for sorting and searching disputes.
-  - Include action buttons to update dispute status (e.g., "Resolve", "Reject").
-  - Handle API calls using functions from `api/disputes.js`.
+### 2. **FilterBar.jsx**
+- **Responsibility**: Provide UI for filtering disputes.
+- **Tasks**:
+  - Create filter inputs (status, date range).
+  - Handle filter changes and pass criteria to `AdminDisputesTable`.
 
-### Pages
-- **`/src/pages/AdminDisputesPage.js`**
-  - Set up the main page for the admin disputes route.
-  - Render `AdminDisputesTable` component.
-  - Manage state for disputes and loading/error handling.
+### 3. **StatusUpdateModal.jsx**
+- **Responsibility**: Modal for updating dispute status.
+- **Tasks**:
+  - Display current status and options for new status.
+  - Call `disputesService.updateStatus` on submission.
+  - Close modal and refresh dispute list upon success.
 
-### Styles
-- **`/src/styles/AdminDisputesPage.css`**
-  - Style the Admin Disputes page and table.
-  - Ensure responsive design for various screen sizes.
+### 4. **AdminDisputesPage.jsx**
+- **Responsibility**: Main page component for `/admin/disputes/321`.
+- **Tasks**:
+  - Render `AdminDisputesTable` and `FilterBar`.
+  - Manage state for loading, error handling, and modal visibility.
 
-### Utilities
-- **`/src/utils/apiUtils.js`**
-  - Create utility functions for API error handling and response parsing.
+### 5. **disputesService.js**
+- **Responsibility**: API calls related to disputes.
+- **Tasks**:
+  - Implement `getDisputes` to fetch disputes from `/api/disputes`.
+  - Implement `updateStatus` to send status updates to `/api/disputes/:id`.
 
-### Main Application
-- **`/src/App.js`**
-  - Define the route for `/admin/disputes/321`.
-  - Ensure proper rendering of `AdminDisputesPage`.
+### 6. **AdminDisputesPage.css**
+- **Responsibility**: Styling for the Admin Disputes page.
+- **Tasks**:
+  - Style table, filters, and modal for a cohesive admin interface.
 
-## Development Steps
-1. **Setup API Layer**
-   - Implement `fetchDisputes` and `updateDisputeStatus` in `disputes.js`.
+### 7. **api.js**
+- **Responsibility**: Centralized API utility.
+- **Tasks**:
+  - Create functions for GET and POST requests.
+  - Handle error responses and logging.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable` with necessary props for data and actions.
-   - Implement filtering and action buttons.
+### 8. **App.js**
+- **Responsibility**: Main application routing.
+- **Tasks**:
+  - Set up routing for `/admin/disputes/321`.
+  - Ensure proper layout and navigation for admin features.
 
-3. **Create Page Structure**
-   - Set up `AdminDisputesPage` to manage state and render the table.
+## Timeline
+- **Week 1**: Component setup and initial API integration.
+- **Week 2**: Implement filtering and status update functionality.
+- **Week 3**: Testing and bug fixes.
+- **Week 4**: Final review and deployment.
 
-4. **Style the Components**
-   - Write CSS for the page and table for a clean UI.
-
-5. **Integrate API with UI**
-   - Connect API calls to the table for fetching and updating disputes.
-
-6. **Testing**
-   - Write unit tests for API functions and component rendering.
-   - Perform integration testing for the complete flow.
-
-7. **Documentation**
-   - Document API endpoints and usage in a README file.
-
-## Deployment
-- Ensure all changes are merged into the main branch.
-- Deploy the application to the staging environment for QA.
+## Notes
+- Ensure accessibility and responsiveness in UI components.
+- Follow coding standards and best practices for React development.
+- Document API responses and expected data structures.
 ```
