@@ -1,98 +1,72 @@
-{
-  "queue": [
-    {
-      "name": "auth_frontend_407",
-      "label": "automerge",
-      "paths": ["app/login/**", "app/register/**", "app/logout/**", "lib/supabase/**", "app/layout.tsx"],
-      "plan": "Add tiny useSession hook (client) and show Login/Logout in nav; redirect links only (no middleware)."
-    },
-    {
-      "name": "auth_hardening_407b",
-      "label": "automerge",
-      "paths": ["app/(components)/**", "lib/**"],
-      "plan": "Add AuthGate client wrapper to hide protected sections when not signed in."
-    },
-    {
-      "name": "tenants_ui_408",
-      "label": "automerge",
-      "paths": ["app/tenants/**", "lib/**"],
-      "plan": "Wire tenantId from localStorage into fetch headers; highlight active tenant in nav."
-    },
-    {
-      "name": "tenants_backend_stub_408b",
-      "label": "automerge",
-      "paths": ["app/api/**", "lib/**"],
-      "plan": "Plumb optional `x-tenant-id` header through /api/jobs, /api/quotes, /api/invoices (no schema changes)."
-    },
-    {
-      "name": "admin_dashboard_409",
-      "label": "automerge",
-      "paths": ["app/admin/**", "lib/ui/**"],
-      "plan": "Add quick links + recent activity list by calling existing APIs with ?limit=10."
-    },
-    {
-      "name": "nav_links_406b",
-      "label": "automerge",
-      "paths": ["app/layout.tsx", "app/(components)/**"],
-      "plan": "Add nav items: Clients, Jobs, Quotes, Invoices, Payments, Disputes, Tenants, Admin."
-    }
-  ]
-}
-{
-  "queue": [
-    {
-      "name": "invoices_frontend_401",
-      "label": "automerge",
-      "paths": ["app/invoices/**", "lib/ui/**"],
-      "plan": "Improve invoices table: pagination, client name lookup, inline status edit."
-    },
-    {
-      "name": "invoices_backend_401",
-      "label": "automerge",
-      "paths": ["app/api/invoices/**", "lib/validators/**"],
-      "plan": "Add server-side validation & pagination params (?limit,?offset)."
-    },
-    {
-      "name": "payments_frontend_402",
-      "label": "automerge",
-      "paths": ["app/payments/**", "lib/ui/**"],
-      "plan": "Add filters (status/method) and link to related invoice."
-    },
-    {
-      "name": "payments_backend_402",
-      "label": "automerge",
-      "paths": ["app/api/payments/**", "lib/validators/**"],
-      "plan": "Add idempotency key header support and server-side sorting."
-    },
-    {
-      "name": "disputes_frontend_403",
-      "label": "automerge",
-      "paths": ["app/disputes/**", "lib/ui/**"],
-      "plan": "Add reason textarea, quick status buttons (open/needs-info/resolved)."
-    },
-    {
-      "name": "disputes_backend_403",
-      "label": "automerge",
-      "paths": ["app/api/disputes/**", "lib/validators/**"],
-      "plan": "Add audit columns (updated_by, updated_at) and basic status transitions."
-    },
-    {
-      "name": "quotes_pdf_404",
-      "label": "automerge",
-      "paths": ["app/api/quotes/**", "lib/pdf/**"],
-      "plan": "Add /api/quotes/:id/pdf that returns a minimal PDF; no deps, server-rendered HTML->PDF stub."
-    },
-    {
-      "name": "invoices_mark_paid_405",
-      "label": "automerge",
-      "paths": ["app/api/invoices/**", "app/invoices/**"],
-      "plan": "Add POST /api/invoices/:id/mark-paid and a button in UI."
-    },
-    {
-      "name": "layout_nav_406",
-      "label": "automerge",
-      "paths": ["app/layout.tsx", "app/(components)/**"],
-      "plan": "Add top nav links to Clients, Jobs, Quotes, Invoices, Payments, Disputes."
-    }
-  ]
-}
+[
+  {
+    "enabled": true,
+    "title": "Scaffold TradeHub dashboard shell",
+    "goal": "Create production-safe UI shell pages.",
+    "paths": ["app", "components", "lib"],
+    "details": "Next.js App Router (TypeScript). Add a left sidebar or top-nav layout and minimal pages for /dashboard, /jobs, /clients, /quotes. Use simple, compilable TSX with lightweight CSS modules. No new dependencies. Do not touch server config or public/sw.js. Keep build green."
+  },
+  {
+    "enabled": true,
+    "title": "Auth gate + nav polish (410)",
+    "goal": "Refine layout navigation and surface auth state without breaking SSR.",
+    "paths": ["app/layout.tsx", "app/(components)", "lib/auth"],
+    "details": "Use the existing client-side session hook to conditionally show Login/Register vs user email and Logout. Add minimal styles and an active-link highlight. Keep styles inline or CSS module; no libraries. Do not change middleware or add new pages. Keep TypeScript strict and compilable."
+  },
+  {
+    "enabled": true,
+    "title": "Admin recent activity (411)",
+    "goal": "Add a recent activity list to /admin using existing endpoints.",
+    "paths": ["app/admin", "lib"],
+    "details": "Create a small component on /admin showing last 10 items across jobs/quotes/invoices if endpoints exist. Use fetch to existing /api/* with ?limit=10. Handle empty states gracefully. Show human-readable timestamps (simple helper). No new deps. If an endpoint returns 404 or fails, skip it and still render the page."
+  },
+  {
+    "enabled": true,
+    "title": "Tenant header propagation (412)",
+    "goal": "Send x-tenant-id from localStorage on all client-side fetches to /api endpoints.",
+    "paths": ["app", "lib"],
+    "details": "Implement a tiny fetch wrapper in lib that reads tenant id from localStorage ('tradehub.tenantId') and attaches it as 'x-tenant-id' header to requests to /api/jobs, /api/quotes, /api/invoices, /api/payments. If no tenant found, send nothing. Do not introduce global state libraries. Replace direct fetch calls in client components with the wrapper. No schema changes."
+  },
+  {
+    "enabled": true,
+    "title": "Jobs UI polish (413)",
+    "goal": "Improve /jobs with client-side search, sort, and optimistic add/delete.",
+    "paths": ["app/jobs", "lib"],
+    "details": "Add a search input that filters jobs client-side by title/reference. Add sortable headers for createdAt and status. Implement optimistic add/delete with rollback on error using existing endpoints (assume POST/DELETE on /api/jobs). Keep code minimal; no external table libs. Maintain green build and handle network errors with inline toasts or messages."
+  },
+  {
+    "enabled": true,
+    "title": "Quotes printable view (414)",
+    "goal": "Provide a print-friendly HTML view for a single quote (PDF stub).",
+    "paths": ["app/quotes", "lib"],
+    "details": "Add a 'Download PDF (beta)' button on quote detail that opens a new print-friendly route (e.g., /quotes/[id]/print) styled with basic CSS for A4. Do not add PDF libraries; rely on browser print-to-PDF. Ensure the print view renders without client errors even if some fields are missing."
+  },
+  {
+    "enabled": true,
+    "title": "Dashboard tiny charts (415)",
+    "goal": "Show lightweight charts of Jobs/Quotes counts over 7/30 days without new deps.",
+    "paths": ["app/admin", "lib"],
+    "details": "Create a small <canvas> bar chart component (vanilla canvas) that visualizes counts returned from existing endpoints. Fallback to text if data unavailable. No chart libraries. Keep code small and typed. Do not block page render on failures; fail soft."
+  },
+  {
+    "enabled": true,
+    "title": "Home page hero/CTA tidy (416)",
+    "goal": "Make / landing more useful with a clean hero and quick links.",
+    "paths": ["app/page.tsx", "app/(components)"],
+    "details": "Add a simple hero section with TradeHub value prop and buttons to /clients, /jobs, /quotes. No images or assets beyond existing ones. Keep styles inline or CSS module, minimal and accessible."
+  },
+  {
+    "enabled": true,
+    "title": "Robust 404 and 500 pages (417)",
+    "goal": "Friendly error pages that keep navigation consistent.",
+    "paths": ["app/not-found.tsx", "app/error.tsx"],
+    "details": "Implement not-found and error pages using Next App Router conventions. Include a short message, a 'Go home' link, and preserve top-nav layout. Ensure error.tsx is a Client Component with reset handling. No external deps."
+  },
+  {
+    "enabled": true,
+    "title": "Accessibility pass (418)",
+    "goal": "Improve a11y: labels, roles, keyboard focus, and color contrast in core pages.",
+    "paths": ["app", "components"],
+    "details": "Add aria-labels for interactive elements in /clients, /jobs, /quotes, /admin. Ensure buttons are visually and programmatically focusable. Use semantic HTML. Do not change visual design materially; keep minimal and non-breaking. Compile cleanly."
+  }
+]
