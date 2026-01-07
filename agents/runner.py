@@ -1,4 +1,3 @@
-# agents/runner.py
 from pathlib import Path
 import subprocess as sp
 import sys, uuid, json
