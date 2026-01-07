@@ -1,46 +1,58 @@
 {
-  "tasks": [
+  "queue": [
     {
-      "id": "invoices_backend_401",
-      "title": "Add invoices API (CRUD)",
-      "plan": "Create app/api/invoices (route.ts, [id]/route.ts) mirroring jobs/quotes. Touch only api/ and lib/supabase/admin.ts imports. Label: automerge.",
-      "paths_allowed": ["app/api/invoices/**", "lib/supabase/admin.ts"],
-      "label": "automerge"
+      "name": "invoices_frontend_401",
+      "label": "automerge",
+      "paths": ["app/invoices/**", "lib/ui/**"],
+      "plan": "Improve invoices table: pagination, client name lookup, inline status edit."
     },
     {
-      "id": "invoices_frontend_402",
-      "title": "Invoices page (list/create/delete)",
-      "plan": "Create app/invoices/page.tsx reusing table/form pattern.",
-      "paths_allowed": ["app/invoices/**"],
-      "label": "automerge"
+      "name": "invoices_backend_401",
+      "label": "automerge",
+      "paths": ["app/api/invoices/**", "lib/validators/**"],
+      "plan": "Add server-side validation & pagination params (?limit,?offset)."
     },
     {
-      "id": "payments_backend_403",
-      "title": "Payments API (record payment)",
-      "plan": "Create app/api/payments with POST to insert payment rows; GET list.",
-      "paths_allowed": ["app/api/payments/**", "lib/supabase/admin.ts"],
-      "label": "automerge"
+      "name": "payments_frontend_402",
+      "label": "automerge",
+      "paths": ["app/payments/**", "lib/ui/**"],
+      "plan": "Add filters (status/method) and link to related invoice."
     },
     {
-      "id": "payments_frontend_404",
-      "title": "Payments page (list/add)",
-      "plan": "Create app/payments/page.tsx like quotes.",
-      "paths_allowed": ["app/payments/**"],
-      "label": "automerge"
+      "name": "payments_backend_402",
+      "label": "automerge",
+      "paths": ["app/api/payments/**", "lib/validators/**"],
+      "plan": "Add idempotency key header support and server-side sorting."
     },
     {
-      "id": "disputes_backend_405",
-      "title": "Disputes API (open/resolve)",
-      "plan": "Create app/api/disputes CRUD; minimal fields.",
-      "paths_allowed": ["app/api/disputes/**", "lib/supabase/admin.ts"],
-      "label": "automerge"
+      "name": "disputes_frontend_403",
+      "label": "automerge",
+      "paths": ["app/disputes/**", "lib/ui/**"],
+      "plan": "Add reason textarea, quick status buttons (open/needs-info/resolved)."
     },
     {
-      "id": "admin_disputes_frontend_406",
-      "title": "Admin disputes page",
-      "plan": "Create app/admin/disputes/page.tsx for internal management.",
-      "paths_allowed": ["app/admin/disputes/**"],
-      "label": "automerge"
+      "name": "disputes_backend_403",
+      "label": "automerge",
+      "paths": ["app/api/disputes/**", "lib/validators/**"],
+      "plan": "Add audit columns (updated_by, updated_at) and basic status transitions."
+    },
+    {
+      "name": "quotes_pdf_404",
+      "label": "automerge",
+      "paths": ["app/api/quotes/**", "lib/pdf/**"],
+      "plan": "Add /api/quotes/:id/pdf that returns a minimal PDF; no deps, server-rendered HTML->PDF stub."
+    },
+    {
+      "name": "invoices_mark_paid_405",
+      "label": "automerge",
+      "paths": ["app/api/invoices/**", "app/invoices/**"],
+      "plan": "Add POST /api/invoices/:id/mark-paid and a button in UI."
+    },
+    {
+      "name": "layout_nav_406",
+      "label": "automerge",
+      "paths": ["app/layout.tsx", "app/(components)/**"],
+      "plan": "Add top nav links to Clients, Jobs, Quotes, Invoices, Payments, Disputes."
     }
   ]
 }
