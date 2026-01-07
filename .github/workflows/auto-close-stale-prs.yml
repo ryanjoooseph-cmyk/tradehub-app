@@ -1,0 +1,33 @@
+name: auto-close-stale-prs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *" # every 6 hours
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close stale automerge PRs
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 3
+          days-before-close: 1
+          only-prs: true
+          stale-pr-label: stale
+          exempt-draft-pr: true
+          remove-stale-when-updated: true
+          ascending: false
+          # Limit to the agent/automerge stream so we don't touch your manual PRs
+          any-of-labels: automerge
+          stale-pr-message: >
+            This PR has been marked stale because it has been open without activity.
+            It will auto-close in 24h unless updated.
+          close-pr-message: >
+            Auto-closing stale agent PR. Re-open or re-queue via agents/tasks.json if still desired.
