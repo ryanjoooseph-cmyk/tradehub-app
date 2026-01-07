@@ -1,116 +1,95 @@
-import os, json, subprocess, time, pathlib, sys
-from datetime import datetime
-from openai import OpenAI
+# agents/runner.py
+from pathlib import Path
+import subprocess as sp
+import sys, uuid, json
 
-REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
-TASKS_FILE = REPO_ROOT / "agents" / "tasks.json"
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
-MODEL = os.getenv("AGENT_MODEL", "gpt-4.1-mini")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+def run(cmd, cwd=REPO_ROOT):
+    r = sp.run(cmd, cwd=cwd, text=True, capture_output=True)
+    if r.returncode != 0:
+        print(r.stdout)
+        print(r.stderr, file=sys.stderr)
+        raise SystemExit(r.returncode)
+    return r.stdout.strip()
 
-if not OPENAI_API_KEY:
-    print("Missing OPENAI_API_KEY secret. Add it in GitHub → Settings → Secrets → Actions.", file=sys.stderr)
-    sys.exit(1)
-
-client = OpenAI(api_key=OPENAI_API_KEY)
-
-def run(cmd, **kw):
-    print("+", " ".join(cmd))
-    subprocess.run(cmd, check=True, cwd=REPO_ROOT, **kw)
-
-def load_tasks():
-    if TASKS_FILE.exists():
-        data = json.loads(TASKS_FILE.read_text())
-        return [t for t in data if t.get("enabled", True)]
-    return [{
-        "title": "Scaffold TradeHub dashboard shell",
-        "goal":  "Create production-safe UI shell pages without touching server config.",
-        "paths": ["app", "components", "lib"],
-        "details": (
-            "Next.js App Router (TS). Add a left sidebar layout with routes: /dashboard, /jobs, /clients, /quotes. "
-            "Create simple, compilable TSX with no external deps. Keep styling minimal (plain CSS modules). "
-            "Do NOT modify package.json scripts; DO NOT delete public/sw.js or public/ping.txt. "
-            "Files must compile under Next 14/15."
-        )
-    }]
-
-def ask_model(task):
-    system = (
-        "You modify a Next.js (App Router, TypeScript) repo. "
-        "Respond ONLY as valid JSON with key 'files': an array of objects "
-        "having {\"path\":\"relative/path\",\"content\":\"file contents\"}. "
-        "Only add or replace files inside allowed paths. Do not delete files. "
-        "No placeholders; code must compile."
-    )
-    user = {
-        "task": task,
-        "constraints": {
-            "allowed_paths": task.get("paths", ["app","components","lib"]),
-            "forbidden": ["package.json", "server.cjs", "public/sw.js", "public/ping.txt", "next.config.*"]
-        },
-        "repo_notes": "Project already deployed. Keep changes additive and safe."
-    }
-    resp = client.chat.completions.create(
-        model=MODEL,
-        response_format={"type":"json_object"},
-        messages=[
-          {"role":"system","content":system},
-          {"role":"user","content":json.dumps(user)}
-        ],
-        temperature=0.2
-    )
-    return json.loads(resp.choices[0].message.content)
-
-def write_files(files):
-    changed = []
-    for f in files:
-        path = f["path"].lstrip("/").replace("\\", "/")
-        content = f["content"]
-        dest = (REPO_ROOT / path).resolve()
-        if not str(dest).startswith(str(REPO_ROOT)):
-            continue
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(content)
-        changed.append(path)
-    return changed
+def ensure_file(path: Path, content: str) -> bool:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.exists() and path.read_text(encoding="utf-8") == content:
+        return False
+    path.write_text(content, encoding="utf-8")
+    return True
 
 def main():
-    tasks = load_tasks()
-    if not tasks:
-        print("No tasks to run.")
-        return
+    changed = 0
 
-    ts = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
-    branch = f"agent/task-{ts}"
-    run(["git", "checkout", "-b", branch])
+    # Minimal layout (only create if missing)
+    layout = REPO_ROOT / "app" / "layout.tsx"
+    if not layout.exists():
+        changed |= ensure_file(layout, """\
+export const metadata = { title: 'TradeHub' };
 
-    summary_lines = []
-    total_changes = 0
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body style={{display:'flex',minHeight:'100vh',margin:0}}>
+        <aside style={{width:220,padding:16,borderRight:'1px solid #eee'}}>
+          <h3 style={{marginTop:0}}>TradeHub</h3>
+          <nav style={{display:'grid',gap:8}}>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/jobs">Jobs</a>
+            <a href="/clients">Clients</a>
+            <a href="/quotes">Quotes</a>
+          </nav>
+        </aside>
+        <main style={{flex:1,padding:24}}>{children}</main>
+      </body>
+    </html>
+  );
+}
+""")
 
-    for task in tasks:
-        result = ask_model(task)
-        files = result.get("files", [])
-        changed = write_files(files)
-        if changed:
-            run(["git", "add"] + changed)
-            run(["git", "commit", "-m", f"agent: {task['title']} ({len(changed)} files)"])
-            total_changes += len(changed)
-            summary_lines.append(f"- {task['title']}: {len(changed)} files")
-        else:
-            summary_lines.append(f"- {task['title']}: no changes produced")
+    # Minimal route pages (create only if missing)
+    routes = {
+        "dashboard": "Dashboard",
+        "jobs": "Jobs",
+        "clients": "Clients",
+        "quotes": "Quotes",
+    }
+    for slug, title in routes.items():
+        p = REPO_ROOT / "app" / slug / "page.tsx"
+        if not p.exists():
+            changed |= ensure_file(p, f"""\
+export default function Page() {{
+  return <div style={{fontSize:20}}>{title}</div>;
+}}
+""")
 
-    if total_changes == 0:
+    if not changed:
         print("Agent produced no changes; exiting without PR.")
         return
 
+    # New branch for PR
+    branch = f"agent/ui-shell-{uuid.uuid4().hex[:8]}"
+    run(["git", "checkout", "-b", branch])
+    run(["git", "add", "app"])
+    run(["git", "commit", "-m", "agent(ui): scaffold UI shell (dashboard/jobs/clients/quotes)"])
     run(["git", "push", "origin", branch])
 
-    pr_title = f"agent: {tasks[0]['title']}"
-    pr_body = "### Agent summary\n" + "\n".join(summary_lines) + "\n\n_This PR was created by the autopilot agent._"
-
-    (REPO_ROOT / ".agent_branch").write_text(branch)
-    (REPO_ROOT / ".agent_title").write_text(pr_title)
-    (REPO_ROOT / ".agent_body").write_text(pr_body)
+    # Handshake files for the workflow to create the PR
+    (REPO_ROOT / ".agent_branch").write_text(branch, encoding="utf-8")
+    (REPO_ROOT / ".agent_title").write_text("agent: scaffold UI shell", encoding="utf-8")
+    body = {
+        "summary": [
+            "Adds minimal App Router shell:",
+            "- /dashboard",
+            "- /jobs",
+            "- /clients",
+            "- /quotes",
+            "Creates layout with left nav. No deps added."
+        ]
+    }
+    (REPO_ROOT / ".agent_body").write_text("\n".join(body["summary"]), encoding="utf-8")
 
 if __name__ == "__main__":
     main()
