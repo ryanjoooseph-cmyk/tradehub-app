@@ -1,94 +1,118 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+## Project Structure
+```
+/disputes_backend_326
+├── api
+│   ├── __init__.py
+│   ├── app.py
+│   ├── routes
+│   │   ├── __init__.py
+│   │   └── disputes.py
+│   ├── models
+│   │   ├── __init__.py
+│   │   └── dispute.py
+│   ├── schemas
+│   │   ├── __init__.py
+│   │   └── dispute_schema.py
+│   └── utils
+│       ├── __init__.py
+│       └── response_helpers.py
+├── ui
+│   ├── index.html
+│   ├── css
+│   │   └── styles.css
+│   ├── js
+│   │   ├── app.js
+│   │   └── api.js
+│   └── components
+│       ├── DisputeList.vue
+│       ├── DisputeForm.vue
+│       └── DisputeDetail.vue
+└── tests
+    ├── __init__.py
+    ├── test_routes.py
+    └── test_models.py
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### File: `api/routes/disputes.py`
+- **Responsibilities:**
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Handle request validation and response formatting.
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**:
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate input data and handle errors.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities**:
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**:
-      - Implement controller functions for:
-        - `createDispute(req, res)`: Open a new dispute.
-        - `getDisputes(req, res)`: List all disputes.
-        - `updateDispute(req, res)`: Update dispute status and evidence URLs.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**:
-      - Set up Express routes for:
-        - `POST /api/disputes`: Create a dispute.
-        - `GET /api/disputes`: List disputes.
-        - `PUT /api/disputes/:id`: Update a dispute.
+### File: `api/models/dispute.py`
+- **Responsibilities:**
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for CRUD operations.
 
-### UI Implementation
+### File: `api/schemas/dispute_schema.py`
+- **Responsibilities:**
+  - Define Pydantic schemas for request and response validation.
 
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**:
-      - Display a list of disputes.
-      - Include filtering options based on status.
-  
-  - `src/components/DisputeForm.js`
-    - **Responsibilities**:
-      - Form for creating and updating disputes.
-      - Fields for status and evidence URLs.
-  
-  - `src/pages/DisputePage.js`
-    - **Responsibilities**:
-      - Main page to manage disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-  
-  - `src/services/disputeService.js`
-    - **Responsibilities**:
-      - API calls to interact with `/api/disputes`.
-      - Functions for creating, listing, and updating disputes.
+### File: `api/utils/response_helpers.py`
+- **Responsibilities:**
+  - Create helper functions for standardized API responses.
 
-### Testing
+## UI Implementation
 
-- **File Paths**
-  - `tests/api/dispute.test.js`
-    - **Responsibilities**:
-      - Unit tests for API endpoints.
-      - Test cases for creating, listing, and updating disputes.
-  
-  - `tests/ui/DisputePage.test.js`
-    - **Responsibilities**:
-      - Unit tests for UI components.
-      - Test rendering of disputes and form submission.
+### File: `ui/index.html`
+- **Responsibilities:**
+  - Set up the main HTML structure.
+  - Include links to CSS and JS files.
 
-### Documentation
+### File: `ui/css/styles.css`
+- **Responsibilities:**
+  - Define styles for the UI components.
 
-- **File Paths**
-  - `docs/api/disputes.md`
-    - **Responsibilities**:
-      - Document API endpoints, request/response formats, and error handling.
-  
-  - `docs/ui/disputes.md`
-    - **Responsibilities**:
-      - Document UI components and their usage.
+### File: `ui/js/app.js`
+- **Responsibilities:**
+  - Initialize Vue.js application.
+  - Manage routing and state.
 
-## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controllers and services.
-- **Week 3**: Develop UI components and integrate with API.
-- **Week 4**: Testing and documentation.
+### File: `ui/js/api.js`
+- **Responsibilities:**
+  - Implement API calls for:
+    - Fetching disputes
+    - Creating a new dispute
+    - Updating a dispute
 
-## Notes
-- Ensure proper error handling and validation throughout the API.
-- Consider user authentication for dispute management.
-- Follow coding standards and best practices for maintainability.
+### File: `ui/components/DisputeList.vue`
+- **Responsibilities:**
+  - Display a list of disputes.
+  - Handle user interactions for viewing details.
+
+### File: `ui/components/DisputeForm.vue`
+- **Responsibilities:**
+  - Provide a form for creating/updating disputes.
+  - Validate user input.
+
+### File: `ui/components/DisputeDetail.vue`
+- **Responsibilities:**
+  - Show detailed information about a selected dispute.
+  - Allow status updates.
+
+## Testing
+
+### File: `tests/test_routes.py`
+- **Responsibilities:**
+  - Write unit tests for API routes.
+
+### File: `tests/test_models.py`
+- **Responsibilities:**
+  - Write unit tests for the Dispute model.
+
+## Additional Notes
+- Ensure proper error handling and logging in both API and UI.
+- Follow RESTful conventions for API design.
+- Use Vue.js for the frontend framework.
+- Consider using a testing framework like pytest for backend tests.
 ```
