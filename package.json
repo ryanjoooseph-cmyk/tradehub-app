@@ -1,9 +1,45 @@
+diff --git a/lib/supabase/admin.ts b/lib/supabase/admin.ts
+index 1111111..2222222 100644
+--- a/lib/supabase/admin.ts
++++ b/lib/supabase/admin.ts
+@@ -1,999 +1,28 @@
+-// (bad import path)
+-import { createClient, SupabaseClient } from 'asupabase/supabase-js';
++import { createClient, SupabaseClient } from '@supabase/supabase-js';
++
++const url = process.env.SUPABASE_URL!;
++const serviceKey = process.env.SUPABASE_SERVICE_ROLE!;
++
++if (!url || !serviceKey) {
++  throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE');
++}
++
++let _admin: SupabaseClient | null = null;
++
++export function getAdminClient(): SupabaseClient {
++  if (_admin) return _admin;
++  _admin = createClient(url, serviceKey, {
++    auth: { persistSession: false },
++    global: { headers: { 'X-Client-Info': 'tradehub-app-admin' } },
++  });
++  return _admin;
++}
 diff --git a/package.json b/package.json
+index 3333333..4444444 100644
 --- a/package.json
 +++ b/package.json
-@@ -1,999 +1,999 @@
+@@ -1,20 +1,21 @@
+ {
+   "name": "tradehub-app",
+   "private": true,
+   "scripts": {
+     "build": "next build",
+     "start": "next start -p $PORT"
+   },
    "dependencies": {
+     "react": "19.0.0",
 -    "react-dom": "19.2.3"
 +    "react-dom": "19.2.3",
 +    "@supabase/supabase-js": "^2.45.0"
    }
+ }
