@@ -1,72 +1,170 @@
-[
-  {
-    "enabled": true,
-    "title": "Scaffold TradeHub dashboard shell",
-    "goal": "Create production-safe UI shell pages.",
-    "paths": ["app", "components", "lib"],
-    "details": "Next.js App Router (TypeScript). Add a left sidebar or top-nav layout and minimal pages for /dashboard, /jobs, /clients, /quotes. Use simple, compilable TSX with lightweight CSS modules. No new dependencies. Do not touch server config or public/sw.js. Keep build green."
+{
+  "version": 1,
+  "policy": {
+    "branch_prefix": "agent",
+    "merge_label": "automerge",
+    "max_parallel_prs": 6,
+    "retry_on_flake": true,
+
+    "allow_paths": [
+      "app/**/*.tsx",
+      "app/**/*.ts",
+      "agents/**/*.md",
+      "agents/**/*.json"
+    ],
+    "block_paths": [
+      ".github/**",
+      "package.json",
+      "package-lock.json",
+      "pnpm-lock.yaml",
+      "yarn.lock",
+      "next.config.*",
+      "tsconfig*.json",
+      "supabase/**",
+      "lib/**/*.ts"
+    ]
   },
-  {
-    "enabled": true,
-    "title": "Auth gate + nav polish (410)",
-    "goal": "Refine layout navigation and surface auth state without breaking SSR.",
-    "paths": ["app/layout.tsx", "app/(components)", "lib/auth"],
-    "details": "Use the existing client-side session hook to conditionally show Login/Register vs user email and Logout. Add minimal styles and an active-link highlight. Keep styles inline or CSS module; no libraries. Do not change middleware or add new pages. Keep TypeScript strict and compilable."
-  },
-  {
-    "enabled": true,
-    "title": "Admin recent activity (411)",
-    "goal": "Add a recent activity list to /admin using existing endpoints.",
-    "paths": ["app/admin", "lib"],
-    "details": "Create a small component on /admin showing last 10 items across jobs/quotes/invoices if endpoints exist. Use fetch to existing /api/* with ?limit=10. Handle empty states gracefully. Show human-readable timestamps (simple helper). No new deps. If an endpoint returns 404 or fails, skip it and still render the page."
-  },
-  {
-    "enabled": true,
-    "title": "Tenant header propagation (412)",
-    "goal": "Send x-tenant-id from localStorage on all client-side fetches to /api endpoints.",
-    "paths": ["app", "lib"],
-    "details": "Implement a tiny fetch wrapper in lib that reads tenant id from localStorage ('tradehub.tenantId') and attaches it as 'x-tenant-id' header to requests to /api/jobs, /api/quotes, /api/invoices, /api/payments. If no tenant found, send nothing. Do not introduce global state libraries. Replace direct fetch calls in client components with the wrapper. No schema changes."
-  },
-  {
-    "enabled": true,
-    "title": "Jobs UI polish (413)",
-    "goal": "Improve /jobs with client-side search, sort, and optimistic add/delete.",
-    "paths": ["app/jobs", "lib"],
-    "details": "Add a search input that filters jobs client-side by title/reference. Add sortable headers for createdAt and status. Implement optimistic add/delete with rollback on error using existing endpoints (assume POST/DELETE on /api/jobs). Keep code minimal; no external table libs. Maintain green build and handle network errors with inline toasts or messages."
-  },
-  {
-    "enabled": true,
-    "title": "Quotes printable view (414)",
-    "goal": "Provide a print-friendly HTML view for a single quote (PDF stub).",
-    "paths": ["app/quotes", "lib"],
-    "details": "Add a 'Download PDF (beta)' button on quote detail that opens a new print-friendly route (e.g., /quotes/[id]/print) styled with basic CSS for A4. Do not add PDF libraries; rely on browser print-to-PDF. Ensure the print view renders without client errors even if some fields are missing."
-  },
-  {
-    "enabled": true,
-    "title": "Dashboard tiny charts (415)",
-    "goal": "Show lightweight charts of Jobs/Quotes counts over 7/30 days without new deps.",
-    "paths": ["app/admin", "lib"],
-    "details": "Create a small <canvas> bar chart component (vanilla canvas) that visualizes counts returned from existing endpoints. Fallback to text if data unavailable. No chart libraries. Keep code small and typed. Do not block page render on failures; fail soft."
-  },
-  {
-    "enabled": true,
-    "title": "Home page hero/CTA tidy (416)",
-    "goal": "Make / landing more useful with a clean hero and quick links.",
-    "paths": ["app/page.tsx", "app/(components)"],
-    "details": "Add a simple hero section with TradeHub value prop and buttons to /clients, /jobs, /quotes. No images or assets beyond existing ones. Keep styles inline or CSS module, minimal and accessible."
-  },
-  {
-    "enabled": true,
-    "title": "Robust 404 and 500 pages (417)",
-    "goal": "Friendly error pages that keep navigation consistent.",
-    "paths": ["app/not-found.tsx", "app/error.tsx"],
-    "details": "Implement not-found and error pages using Next App Router conventions. Include a short message, a 'Go home' link, and preserve top-nav layout. Ensure error.tsx is a Client Component with reset handling. No external deps."
-  },
-  {
-    "enabled": true,
-    "title": "Accessibility pass (418)",
-    "goal": "Improve a11y: labels, roles, keyboard focus, and color contrast in core pages.",
-    "paths": ["app", "components"],
-    "details": "Add aria-labels for interactive elements in /clients, /jobs, /quotes, /admin. Ensure buttons are visually and programmatically focusable. Use semantic HTML. Do not change visual design materially; keep minimal and non-breaking. Compile cleanly."
-  }
-]
+
+  "tasks": [
+    {
+      "id": "layout_shell_001",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Build the app shell (top nav + tabs: Dashboard, Clients, Jobs, Quotes), keep styles simple and consistent.",
+      "deliverables": [
+        "app/layout.tsx",
+        "app/(components)/TopNav.tsx",
+        "app/(components)/Tabs.tsx"
+      ]
+    },
+
+    {
+      "id": "dashboard_ui_001",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Replace scaffold text on /dashboard with a real overview: counts for clients, jobs, quotes, and a simple recent activity list reading from the APIs.",
+      "deliverables": [
+        "app/dashboard/page.tsx"
+      ]
+    },
+
+    {
+      "id": "auth_signin_001",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Add minimal sign-in page (email/password form). Wire up to Supabase client-side signIn if keys are present; otherwise stub handler.",
+      "deliverables": [
+        "app/(auth)/signin/page.tsx"
+      ]
+    },
+    {
+      "id": "auth_signup_001",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Add minimal sign-up page (email/password).",
+      "deliverables": [
+        "app/(auth)/signup/page.tsx"
+      ]
+    },
+
+    {
+      "id": "clients_backend_326",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Harden Clients CRUD API with type-safe handlers that match Next 14 RouteHandlerConfig signatures and our admin Supabase util.",
+      "deliverables": [
+        "app/api/clients/route.ts",
+        "app/api/clients/[id]/route.ts"
+      ]
+    },
+    {
+      "id": "clients_frontend_321",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Clients page with table (name, email, phone), and create/edit form using the above APIs.",
+      "deliverables": [
+        "app/clients/page.tsx"
+      ]
+    },
+
+    {
+      "id": "jobs_backend_326",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Jobs CRUD API: GET/POST in /api/jobs, GET/PUT/DELETE in /api/jobs/[id]; ensure Request/Context types use `{ params: { id: string } }` (no Promise).",
+      "deliverables": [
+        "app/api/jobs/route.ts",
+        "app/api/jobs/[id]/route.ts"
+      ]
+    },
+    {
+      "id": "jobs_frontend_321",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Jobs page: list active/scheduled jobs and a form to create/update. Connect to Jobs API.",
+      "deliverables": [
+        "app/jobs/page.tsx"
+      ]
+    },
+
+    {
+      "id": "quotes_backend_326",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Quotes CRUD API: same patterns as Clients/Jobs with clean types and JSON errors.",
+      "deliverables": [
+        "app/api/quotes/route.ts",
+        "app/api/quotes/[id]/route.ts"
+      ]
+    },
+    {
+      "id": "quotes_frontend_321",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Quotes page: list + create/edit form (client picklist, items, total).",
+      "deliverables": [
+        "app/quotes/page.tsx"
+      ]
+    },
+
+    {
+      "id": "admin_disputes_frontend_321",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Admin Disputes UI (table + detail drawer) – read from /api/disputes; simple status change buttons.",
+      "deliverables": [
+        "app/admin/disputes/page.tsx"
+      ]
+    },
+    {
+      "id": "disputes_backend_326",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Disputes API endpoints similar to other CRUD routes; keep within app/api/disputes/**.",
+      "deliverables": [
+        "app/api/disputes/route.ts",
+        "app/api/disputes/[id]/route.ts"
+      ]
+    },
+
+    {
+      "id": "payments_mark_paid_326",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Add endpoint to mark an invoice/quote as paid; assume Supabase row update by id.",
+      "deliverables": [
+        "app/api/payments/[id]/route.ts"
+      ]
+    },
+
+    {
+      "id": "quotes_pdf_export_321",
+      "labels": ["automerge"],
+      "mode": "code",
+      "goal": "Server route that returns a simple PDF for a quote (basic HTML->PDF or server-rendered printable HTML for now).",
+      "deliverables": [
+        "app/api/quotes/[id]/pdf/route.ts"
+      ]
+    }
+  ]
+}
