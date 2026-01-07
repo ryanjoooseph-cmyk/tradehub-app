@@ -2,7 +2,11 @@ name: agent-autopilot
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 * * * *"  # hourly; disable if you want manual-only
+    - cron: "0 * * * *"   # hourly; change/remove if you prefer
+
+concurrency:
+  group: agent-autopilot
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -16,23 +20,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install agent deps
-        run: |
-          python -m pip install --upgrade pip
-          pip install openai requests pydantic
+      - name: Install runner deps
+        run: pip install requests
 
       - name: Run agent
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python agents/runner.py
+          REPO_FULL: ${{ github.repository }}
+          BASE_BRANCH: main
+        run: |
+          python agents/runner.py
