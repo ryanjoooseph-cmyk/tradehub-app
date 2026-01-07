@@ -3,10 +3,8 @@ const next = require('next');
 const fs = require('fs');
 const path = require('path');
 
-const dev = false;
-const app = next({ dev });
+const app = next({ dev: false });
 const handle = app.getRequestHandler();
-
 const swPath = path.join(__dirname, 'public', 'sw.js');
 
 app.prepare().then(() => {
