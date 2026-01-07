@@ -1,0 +1,48 @@
+name: kick-open-automerge
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"   # runs periodically so you don't have to click anything
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  relabel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Re-label open automerge PRs to retrigger guards
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+
+            // List open PRs
+            const prs = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: 'open', per_page: 100
+            });
+
+            // Only PRs that have the automerge label
+            const autos = prs.filter(pr => pr.labels?.some(l => l.name === 'automerge'));
+
+            core.info(`Found ${autos.length} open PRs with 'automerge'`);
+
+            for (const pr of autos) {
+              try {
+                // Remove then re-add label to fire pull_request_target:labeled
+                await github.rest.issues.removeLabel({
+                  owner, repo, issue_number: pr.number, name: 'automerge'
+                }).catch(() => {}); // ignore if not present
+
+                await github.rest.issues.addLabels({
+                  owner, repo, issue_number: pr.number, labels: ['automerge']
+                });
+
+                core.info(`Re-triggered PR #${pr.number}`);
+              } catch (e) {
+                core.warning(`PR #${pr.number} relabel failed: ${e.message}`);
+              }
+            }
