@@ -1,94 +1,110 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+## Project Structure
+```
+/disputes_backend_326
+├── /api
+│   ├── disputes.js
+│   └── index.js
+├── /models
+│   └── disputeModel.js
+├── /controllers
+│   └── disputeController.js
+├── /routes
+│   └── disputeRoutes.js
+├── /middleware
+│   └── authMiddleware.js
+├── /tests
+│   ├── disputeController.test.js
+│   └── disputeRoutes.test.js
+├── /client
+│   ├── /components
+│   │   └── DisputeForm.js
+│   ├── /pages
+│   │   └── DisputePage.js
+│   └── /services
+│       └── disputeService.js
+└── server.js
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### 1. **Model Definition**
+- **File:** `/models/disputeModel.js`
+- **Responsibilities:**
+  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED).
+  - Implement Mongoose model for MongoDB.
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**:
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate input data and handle errors.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities**:
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**:
-      - Implement controller functions for:
-        - `createDispute(req, res)`: Open a new dispute.
-        - `getDisputes(req, res)`: List all disputes.
-        - `updateDispute(req, res)`: Update dispute status and evidence URLs.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**:
-      - Set up Express routes for:
-        - `POST /api/disputes`: Create a dispute.
-        - `GET /api/disputes`: List disputes.
-        - `PUT /api/disputes/:id`: Update a dispute.
+### 2. **Controller Logic**
+- **File:** `/controllers/disputeController.js`
+- **Responsibilities:**
+  - Implement functions to:
+    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
+    - `listDisputes(req, res)`: Handle GET requests to list all disputes.
+    - `updateDispute(req, res)`: Handle PUT requests to update a dispute's status or evidence URLs.
 
-### UI Implementation
+### 3. **API Routes**
+- **File:** `/routes/disputeRoutes.js`
+- **Responsibilities:**
+  - Define routes for:
+    - `POST /api/disputes`: Create a new dispute.
+    - `GET /api/disputes`: List all disputes.
+    - `PUT /api/disputes/:id`: Update a specific dispute.
 
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**:
-      - Display a list of disputes.
-      - Include filtering options based on status.
-  
-  - `src/components/DisputeForm.js`
-    - **Responsibilities**:
-      - Form for creating and updating disputes.
-      - Fields for status and evidence URLs.
-  
-  - `src/pages/DisputePage.js`
-    - **Responsibilities**:
-      - Main page to manage disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-  
-  - `src/services/disputeService.js`
-    - **Responsibilities**:
-      - API calls to interact with `/api/disputes`.
-      - Functions for creating, listing, and updating disputes.
+### 4. **API Entry Point**
+- **File:** `/api/index.js`
+- **Responsibilities:**
+  - Import and use dispute routes.
+  - Set up middleware for JSON parsing and error handling.
 
-### Testing
+## UI Implementation
 
-- **File Paths**
-  - `tests/api/dispute.test.js`
-    - **Responsibilities**:
-      - Unit tests for API endpoints.
-      - Test cases for creating, listing, and updating disputes.
-  
-  - `tests/ui/DisputePage.test.js`
-    - **Responsibilities**:
-      - Unit tests for UI components.
-      - Test rendering of disputes and form submission.
+### 5. **Dispute Form Component**
+- **File:** `/client/components/DisputeForm.js`
+- **Responsibilities:**
+  - Create a form for users to submit new disputes.
+  - Include fields for evidence URLs and status selection.
 
-### Documentation
+### 6. **Dispute Page**
+- **File:** `/client/pages/DisputePage.js`
+- **Responsibilities:**
+  - Display the list of disputes.
+  - Integrate `DisputeForm` for creating new disputes.
+  - Implement functionality to update dispute status.
 
-- **File Paths**
-  - `docs/api/disputes.md`
-    - **Responsibilities**:
-      - Document API endpoints, request/response formats, and error handling.
-  
-  - `docs/ui/disputes.md`
-    - **Responsibilities**:
-      - Document UI components and their usage.
+### 7. **Service Layer**
+- **File:** `/client/services/disputeService.js`
+- **Responsibilities:**
+  - Implement API calls for:
+    - Creating a dispute.
+    - Fetching disputes.
+    - Updating a dispute.
 
-## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controllers and services.
-- **Week 3**: Develop UI components and integrate with API.
-- **Week 4**: Testing and documentation.
+## Testing
 
-## Notes
-- Ensure proper error handling and validation throughout the API.
-- Consider user authentication for dispute management.
-- Follow coding standards and best practices for maintainability.
+### 8. **Controller Tests**
+- **File:** `/tests/disputeController.test.js`
+- **Responsibilities:**
+  - Write unit tests for dispute controller functions.
+
+### 9. **Route Tests**
+- **File:** `/tests/disputeRoutes.test.js`
+- **Responsibilities:**
+  - Write integration tests for dispute API routes.
+
+## Middleware
+
+### 10. **Authentication Middleware**
+- **File:** `/middleware/authMiddleware.js`
+- **Responsibilities:**
+  - Implement authentication checks for API routes.
+
+## Server Setup
+- **File:** `/server.js`
+- **Responsibilities:**
+  - Set up Express server.
+  - Connect to MongoDB.
+  - Use API routes and middleware.
+
 ```
