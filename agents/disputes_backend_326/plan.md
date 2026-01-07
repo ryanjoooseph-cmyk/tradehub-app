@@ -1,94 +1,96 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+## Project Structure
+```
+/project-root
+│
+├── /src
+│   ├── /api
+│   │   ├── disputes.js               # API routes for disputes
+│   │   └── index.js                  # Main API entry point
+│   ├── /controllers
+│   │   └── disputesController.js      # Business logic for disputes
+│   ├── /models
+│   │   └── disputeModel.js            # Dispute data model
+│   ├── /middlewares
+│   │   └── authMiddleware.js          # Authentication middleware
+│   ├── /validators
+│   │   └── disputeValidator.js         # Input validation for disputes
+│   ├── /utils
+│   │   └── responseFormatter.js        # Utility for formatting API responses
+│   └── /views
+│       └── disputesView.js            # UI component for displaying disputes
+│
+├── /tests
+│   ├── /api
+│   │   └── disputes.test.js            # API tests for disputes
+│   ├── /controllers
+│   │   └── disputesController.test.js   # Tests for dispute controller logic
+│   └── /models
+│       └── disputeModel.test.js        # Tests for dispute model
+│
+├── /config
+│   └── dbConfig.js                     # Database configuration
+│
+└── server.js                           # Main server file
+```
 
-## File Structure
+## Responsibilities
 
 ### API Implementation
+- **`/src/api/disputes.js`**
+  - Define routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
+  - Integrate with controller functions.
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**:
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate input data and handle errors.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities**:
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**:
-      - Implement controller functions for:
-        - `createDispute(req, res)`: Open a new dispute.
-        - `getDisputes(req, res)`: List all disputes.
-        - `updateDispute(req, res)`: Update dispute status and evidence URLs.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**:
-      - Set up Express routes for:
-        - `POST /api/disputes`: Create a dispute.
-        - `GET /api/disputes`: List disputes.
-        - `PUT /api/disputes/:id`: Update a dispute.
+- **`/src/controllers/disputesController.js`**
+  - Implement functions for:
+    - `listDisputes` - Fetch all disputes from the database.
+    - `createDispute` - Validate and save a new dispute.
+    - `updateDispute` - Validate and update an existing dispute.
+
+- **`/src/models/disputeModel.js`**
+  - Define the dispute schema with fields:
+    - `evidence_urls` (array)
+    - `status` (enum: OPEN, REVIEW, RESOLVED)
+
+- **`/src/validators/disputeValidator.js`**
+  - Implement validation logic for dispute creation and updates.
+
+### Middleware
+- **`/src/middlewares/authMiddleware.js`**
+  - Implement authentication checks for API routes.
 
 ### UI Implementation
-
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**:
-      - Display a list of disputes.
-      - Include filtering options based on status.
-  
-  - `src/components/DisputeForm.js`
-    - **Responsibilities**:
-      - Form for creating and updating disputes.
-      - Fields for status and evidence URLs.
-  
-  - `src/pages/DisputePage.js`
-    - **Responsibilities**:
-      - Main page to manage disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-  
-  - `src/services/disputeService.js`
-    - **Responsibilities**:
-      - API calls to interact with `/api/disputes`.
-      - Functions for creating, listing, and updating disputes.
+- **`/src/views/disputesView.js`**
+  - Create UI components to:
+    - Display a list of disputes.
+    - Provide forms for creating and updating disputes.
 
 ### Testing
+- **`/tests/api/disputes.test.js`**
+  - Write tests for API endpoints to ensure correct responses and error handling.
 
-- **File Paths**
-  - `tests/api/dispute.test.js`
-    - **Responsibilities**:
-      - Unit tests for API endpoints.
-      - Test cases for creating, listing, and updating disputes.
-  
-  - `tests/ui/DisputePage.test.js`
-    - **Responsibilities**:
-      - Unit tests for UI components.
-      - Test rendering of disputes and form submission.
+- **`/tests/controllers/disputesController.test.js`**
+  - Write tests for controller logic to verify business rules.
 
-### Documentation
+- **`/tests/models/disputeModel.test.js`**
+  - Write tests for the dispute model to ensure data integrity.
 
-- **File Paths**
-  - `docs/api/disputes.md`
-    - **Responsibilities**:
-      - Document API endpoints, request/response formats, and error handling.
-  
-  - `docs/ui/disputes.md`
-    - **Responsibilities**:
-      - Document UI components and their usage.
+### Configuration
+- **`/config/dbConfig.js`**
+  - Set up database connection settings for dispute storage.
+
+### Main Server
+- **`server.js`**
+  - Set up the Express server and integrate API routes.
 
 ## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controllers and services.
-- **Week 3**: Develop UI components and integrate with API.
-- **Week 4**: Testing and documentation.
-
-## Notes
-- Ensure proper error handling and validation throughout the API.
-- Consider user authentication for dispute management.
-- Follow coding standards and best practices for maintainability.
+- **Week 1**: API and model setup, basic routes.
+- **Week 2**: Controller logic and validation.
+- **Week 3**: UI implementation and testing.
+- **Week 4**: Final testing and deployment preparation.
 ```
