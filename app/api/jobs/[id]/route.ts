@@ -1,28 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
 import getAdminClient from '../../../../lib/supabase/admin';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const supabase = getAdminClient();
-  const id = params.id;
-  const body = await req.json().catch(() => ({}));
-  const updates = { ...body, updated_at: new Date().toISOString() };
+type RouteCtx = { params: { id: string } };
 
+export async function GET(_req: NextRequest, { params }: RouteCtx) {
+  const supabase = getAdminClient();
   const { data, error } = await supabase
     .from('jobs')
-    .update(updates)
-    .eq('id', id)
-    .select()
-    .single();
+    .select('*')
+    .eq('id', params.id)
+    .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ job: data });
+  if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  return NextResponse.json({ job: data }, { status: 200 });
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: RouteCtx) {
   const supabase = getAdminClient();
-  const id = params.id;
+  const payload = await req.json(); // partial update ok
+  const { data, error } = await supabase
+    .from('jobs')
+    .update(payload)
+    .eq('id', params.id)
+    .select('*')
+    .maybeSingle();
 
-  const { error } = await supabase.from('jobs').delete().eq('id', id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ job: data }, { status: 200 });
+}
+
+export async function DELETE(_req: NextRequest, { params }: RouteCtx) {
+  const supabase = getAdminClient();
+  const { error } = await supabase.from('jobs').delete().eq('id', params.id);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(null, { status: 204 });
 }
