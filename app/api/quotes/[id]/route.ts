@@ -1,30 +1,23 @@
-import getAdminClient from '@/lib/supabase/admin';
+import { NextRequest, NextResponse } from 'next/server';
+import getAdminClient from '../../../../lib/supabase/admin';
 
-export const dynamic = 'force-dynamic';
-
-type Ctx = { params: Promise<{ id: string }> };
-
-export async function PUT(request: Request, { params }: Ctx) {
-  const { id } = await params;
-  const updates = await request.json().catch(() => ({} as any));
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = getAdminClient();
-
+  const body = await req.json().catch(() => ({}));
   const { data, error } = await supabase
     .from('quotes')
-    .update(updates)
-    .eq('id', id)
-    .select('*')
+    .update({ ...body, updated_at: new Date().toISOString() })
+    .eq('id', params.id)
+    .select()
     .single();
 
-  if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json({ data });
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ quote: data });
 }
 
-export async function DELETE(_request: Request, { params }: Ctx) {
-  const { id } = await params;
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
   const supabase = getAdminClient();
-
-  const { error } = await supabase.from('quotes').delete().eq('id', id);
-  if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json({ ok: true });
+  const { error } = await supabase.from('quotes').delete().eq('id', params.id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
 }
