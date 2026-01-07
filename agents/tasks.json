@@ -1,35 +1,147 @@
 {
-  "config": {
-    "branch_prefix": "agent/ui-",
-    "model": "gpt-4.1-mini",
-    "max_tokens": 20000,
-    "build_cmd": "npm ci --prefer-offline --no-audit && npm run -s build",
-    "paths_blocked": ["package.json", "package-lock.json", "pnpm-lock.yaml", ".github/workflows/*"],
-    "paths_allowed_globs": ["app/**", "lib/**", "public/**"]
+  "version": 1,
+  "global_guardrails": {
+    "allow": [
+      "app/**/page.tsx",
+      "app/**/layout.tsx",
+      "app/api/**/route.ts",
+      "lib/supabase/**",
+      "agents/**"
+    ],
+    "deny": [
+      "package.json",
+      "package-lock.json",
+      "pnpm-lock.yaml",
+      "yarn.lock",
+      ".github/workflows/**",
+      "next.config.*",
+      "tsconfig.*",
+      "public/**",
+      "styles/**",
+      "eslint*",
+      ".eslintrc*",
+      ".prettier*",
+      ".vscode/**"
+    ]
   },
   "tasks": [
     {
-      "id": "jobs-crud",
-      "title": "Jobs CRUD (list/create/delete)",
-      "enabled": true,
-      "goal": "Implement API routes and UI for /jobs to list, create, and delete jobs using existing DB schema. Match Clients pattern.",
-      "acceptance": [
-        "GET /api/jobs returns array",
-        "POST /api/jobs creates record",
-        "DELETE /api/jobs/{id} deletes record",
-        "app/jobs/page.tsx shows table + simple create form + delete buttons",
-        "TypeScript builds with no errors"
+      "id": "invoices_backend_401",
+      "title": "invoices_backend_401",
+      "scope": {
+        "allow": [
+          "app/api/invoices/route.ts",
+          "app/api/invoices/[id]/route.ts",
+          "lib/supabase/**"
+        ]
+      },
+      "instructions": [
+        "Create Next.js route handlers for invoices with CRUD: list (GET /api/invoices), create (POST /api/invoices), update (PUT /api/invoices/[id]), delete (DELETE /api/invoices/[id]).",
+        "Use the existing supabase admin client from lib/supabase/admin.ts (do not add packages).",
+        "Return JSON { data } on success and { error } with status code on failure.",
+        "Assume a table 'invoices' with columns: id uuid pk default gen_random_uuid(), title text not null, amount numeric not null, status text not null default 'unpaid', client_id uuid null, created_at timestamptz default now().",
+        "Do not touch package.json or workflows."
       ]
     },
     {
-      "id": "quotes-crud",
-      "title": "Quotes CRUD (list/create/delete)",
-      "enabled": true,
-      "goal": "Implement API routes and UI for /quotes mirroring Jobs pattern.",
-      "acceptance": [
-        "GET/POST/DELETE for quotes",
-        "app/quotes/page.tsx table + create + delete",
-        "TypeScript builds clean"
+      "id": "invoices_frontend_401",
+      "title": "invoices_frontend_401",
+      "scope": {
+        "allow": [
+          "app/invoices/page.tsx"
+        ]
+      },
+      "instructions": [
+        "Create a simple client page at /invoices with table list, add form (title, amount, status), inline status selector, and delete button.",
+        "Wire to /api/invoices endpoints; no extra deps; mirror the Jobs/Quotes UX and styles.",
+        "No layout/global changes."
+      ]
+    },
+    {
+      "id": "payments_backend_402",
+      "title": "payments_backend_402",
+      "scope": {
+        "allow": [
+          "app/api/payments/route.ts",
+          "app/api/payments/[id]/route.ts",
+          "lib/supabase/**"
+        ]
+      },
+      "instructions": [
+        "Create CRUD routes for 'payments' with fields: id uuid pk, invoice_id uuid, amount numeric, method text, status text default 'pending', created_at timestamptz default now().",
+        "Expose GET /api/payments (list), POST /api/payments (create), PUT /api/payments/[id], DELETE /api/payments/[id].",
+        "Use supabase admin client; same response shape rules; no package/workflow edits."
+      ]
+    },
+    {
+      "id": "payments_frontend_402",
+      "title": "payments_frontend_402",
+      "scope": {
+        "allow": [
+          "app/payments/page.tsx"
+        ]
+      },
+      "instructions": [
+        "Client page at /payments with list/add/edit-status/delete.",
+        "If invoice linking is not available yet, keep invoice_id as a free text input; do not block on relations.",
+        "Match the same light table+form pattern as Jobs/Quotes."
+      ]
+    },
+    {
+      "id": "disputes_backend_403",
+      "title": "disputes_backend_403",
+      "scope": {
+        "allow": [
+          "app/api/disputes/route.ts",
+          "app/api/disputes/[id]/route.ts",
+          "lib/supabase/**"
+        ]
+      },
+      "instructions": [
+        "CRUD routes for 'disputes': id uuid pk, title text, status text default 'open', notes text null, related_id uuid null, created_at timestamptz default now().",
+        "Same error/success JSON contract; supabase admin client; no package/workflow edits."
+      ]
+    },
+    {
+      "id": "disputes_frontend_403",
+      "title": "disputes_frontend_403",
+      "scope": {
+        "allow": [
+          "app/disputes/page.tsx",
+          "app/admin/disputes/page.tsx"
+        ]
+      },
+      "instructions": [
+        "Two pages: /disputes (basic CRUD like Jobs/Quotes) and /admin/disputes (same table with an extra text area for notes).",
+        "Keep both pages self-contained; no shared component extraction."
+      ]
+    },
+    {
+      "id": "tenants_backend_404",
+      "title": "tenants_backend_404",
+      "scope": {
+        "allow": [
+          "app/api/tenants/route.ts",
+          "app/api/tenants/[id]/route.ts",
+          "lib/supabase/**"
+        ]
+      },
+      "instructions": [
+        "CRUD for 'tenants': id uuid pk, name text not null, domain text null, created_at timestamptz default now().",
+        "This is purely backend scaffolding to unblock future RLS partitioning; do not alter RLS now."
+      ]
+    },
+    {
+      "id": "tenants_frontend_404",
+      "title": "tenants_frontend_404",
+      "scope": {
+        "allow": [
+          "app/tenants/page.tsx"
+        ]
+      },
+      "instructions": [
+        "Simple CRUD page for tenants mirroring the same pattern.",
+        "No navigation/header changes."
       ]
     }
   ]
