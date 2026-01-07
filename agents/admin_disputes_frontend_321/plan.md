@@ -8,76 +8,65 @@
   │   ├── disputes.js
   ├── components
   │   ├── AdminDisputesTable.js
+  │   ├── FilterBar.js
+  │   ├── StatusUpdateModal.js
   ├── pages
   │   ├── AdminDisputesPage.js
   ├── styles
-  │   ├── AdminDisputesPage.css
+  │   ├── AdminDisputes.css
   ├── utils
-  │   ├── apiUtils.js
+  │   ├── apiClient.js
   └── App.js
 ```
 
-## File Responsibilities
+## Responsibilities
 
 ### API Layer
-- **`/src/api/disputes.js`**
-  - Implement API calls to `/api/disputes`.
-  - Functions:
-    - `fetchDisputes()`: Fetch all disputes.
-    - `updateDisputeStatus(disputeId, status)`: Update the status of a specific dispute.
+- **File:** `/src/api/disputes.js`
+  - Implement API calls to fetch disputes data.
+  - Create functions to update dispute status.
+  - Handle error responses and data validation.
 
 ### Components
-- **`/src/components/AdminDisputesTable.js`**
-  - Create a table to display disputes.
-  - Implement filters for sorting and searching disputes.
-  - Include action buttons to update dispute status (e.g., "Resolve", "Reject").
-  - Handle API calls using functions from `api/disputes.js`.
+- **File:** `/src/components/AdminDisputesTable.js`
+  - Render the table of disputes.
+  - Integrate filtering functionality.
+  - Handle row actions for updating dispute status.
+
+- **File:** `/src/components/FilterBar.js`
+  - Provide UI elements for filtering disputes (e.g., by status, date).
+  - Emit filter changes to the parent component.
+
+- **File:** `/src/components/StatusUpdateModal.js`
+  - Display modal for updating dispute status.
+  - Handle form submission and call the API to update status.
 
 ### Pages
-- **`/src/pages/AdminDisputesPage.js`**
-  - Set up the main page for the admin disputes route.
-  - Render `AdminDisputesTable` component.
-  - Manage state for disputes and loading/error handling.
+- **File:** `/src/pages/AdminDisputesPage.js`
+  - Main page component for `/admin/disputes/321`.
+  - Integrate `AdminDisputesTable` and `FilterBar`.
+  - Manage state for disputes data and loading status.
 
 ### Styles
-- **`/src/styles/AdminDisputesPage.css`**
-  - Style the Admin Disputes page and table.
-  - Ensure responsive design for various screen sizes.
+- **File:** `/src/styles/AdminDisputes.css`
+  - Define styles for the disputes table, filter bar, and modal.
+  - Ensure responsive design for admin interface.
 
 ### Utilities
-- **`/src/utils/apiUtils.js`**
-  - Create utility functions for API error handling and response parsing.
+- **File:** `/src/utils/apiClient.js`
+  - Create a reusable API client for making requests.
+  - Include error handling and response parsing.
 
 ### Main Application
-- **`/src/App.js`**
-  - Define the route for `/admin/disputes/321`.
-  - Ensure proper rendering of `AdminDisputesPage`.
+- **File:** `/src/App.js`
+  - Set up routing for `/admin/disputes/321`.
+  - Ensure proper integration of the AdminDisputesPage.
 
-## Development Steps
-1. **Setup API Layer**
-   - Implement `fetchDisputes` and `updateDisputeStatus` in `disputes.js`.
-
-2. **Build UI Components**
-   - Create `AdminDisputesTable` with necessary props for data and actions.
-   - Implement filtering and action buttons.
-
-3. **Create Page Structure**
-   - Set up `AdminDisputesPage` to manage state and render the table.
-
-4. **Style the Components**
-   - Write CSS for the page and table for a clean UI.
-
-5. **Integrate API with UI**
-   - Connect API calls to the table for fetching and updating disputes.
-
-6. **Testing**
-   - Write unit tests for API functions and component rendering.
-   - Perform integration testing for the complete flow.
-
-7. **Documentation**
-   - Document API endpoints and usage in a README file.
+## Testing
+- Implement unit tests for API functions in `/src/api/disputes.test.js`.
+- Write component tests for `AdminDisputesTable`, `FilterBar`, and `StatusUpdateModal`.
 
 ## Deployment
-- Ensure all changes are merged into the main branch.
-- Deploy the application to the staging environment for QA.
+- Ensure all components are integrated and tested.
+- Prepare for deployment by updating documentation and README.
 ```
