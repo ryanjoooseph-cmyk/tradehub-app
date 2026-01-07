@@ -1,6 +1,46 @@
 {
   "queue": [
     {
+      "name": "auth_frontend_407",
+      "label": "automerge",
+      "paths": ["app/login/**", "app/register/**", "app/logout/**", "lib/supabase/**", "app/layout.tsx"],
+      "plan": "Add tiny useSession hook (client) and show Login/Logout in nav; redirect links only (no middleware)."
+    },
+    {
+      "name": "auth_hardening_407b",
+      "label": "automerge",
+      "paths": ["app/(components)/**", "lib/**"],
+      "plan": "Add AuthGate client wrapper to hide protected sections when not signed in."
+    },
+    {
+      "name": "tenants_ui_408",
+      "label": "automerge",
+      "paths": ["app/tenants/**", "lib/**"],
+      "plan": "Wire tenantId from localStorage into fetch headers; highlight active tenant in nav."
+    },
+    {
+      "name": "tenants_backend_stub_408b",
+      "label": "automerge",
+      "paths": ["app/api/**", "lib/**"],
+      "plan": "Plumb optional `x-tenant-id` header through /api/jobs, /api/quotes, /api/invoices (no schema changes)."
+    },
+    {
+      "name": "admin_dashboard_409",
+      "label": "automerge",
+      "paths": ["app/admin/**", "lib/ui/**"],
+      "plan": "Add quick links + recent activity list by calling existing APIs with ?limit=10."
+    },
+    {
+      "name": "nav_links_406b",
+      "label": "automerge",
+      "paths": ["app/layout.tsx", "app/(components)/**"],
+      "plan": "Add nav items: Clients, Jobs, Quotes, Invoices, Payments, Disputes, Tenants, Admin."
+    }
+  ]
+}
+{
+  "queue": [
+    {
       "name": "invoices_frontend_401",
       "label": "automerge",
       "paths": ["app/invoices/**", "lib/ui/**"],
