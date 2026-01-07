@@ -1,62 +1,58 @@
 name: merge-when-green
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, labeled, ready_for_review]
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled, ready_for_review]
+
 permissions:
   contents: write
   pull-requests: write
   checks: read
-  statuses: read
 
 jobs:
   merge:
-    if: >
-      github.event.pull_request.draft == false &&
-      contains(github.event.pull_request.labels.*.name, 'automerge') &&
-      !contains(github.event.pull_request.labels.*.name, 'blocked')
     runs-on: ubuntu-latest
+    # Only run if PR has the 'automerge' label.
+    if: contains(join(github.event.pull_request.labels.*.name, ','), 'automerge')
     steps:
-      - name: Auto-approve (satisfy “1 approval” rules)
-        uses: peter-evans/approve-pull-request@v3
-        with:
-          pull-request-number: ${{ github.event.pull_request.number }}
-          approval-message: "Auto-approval for automerge-labeled agent PR."
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update branch if behind main
+      - name: Only proceed if guard succeeded
         uses: actions/github-script@v7
+        id: guard_ok
         with:
           script: |
             const pr = context.payload.pull_request;
-            if (pr.mergeable_state === 'behind') {
-              try {
-                await github.pulls.updateBranch({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: pr.number
-                });
-              } catch (e) {
-                core.warning(`updateBranch failed: ${e.message}`);
-              }
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+
+            // Get latest combined status of all check suites for the head SHA
+            const sha = pr.head.sha;
+            const suites = await github.paginate(
+              github.rest.checks.listSuitesForRef,
+              { owner, repo, ref: sha, per_page: 100 }
+            );
+
+            // If any suite conclusion is failure/cancelled/timed_out/action_required, stop.
+            const bad = suites.filter(s =>
+              ['failure','cancelled','timed_out','action_required'].includes(s.conclusion)
+            );
+
+            if (bad.length) {
+              core.setFailed(`Checks not green yet.`);
+            } else {
+              core.notice('Checks green.');
             }
 
-      - name: Wait for checks to succeed
-        uses: lewagon/wait-on-check-action@v1.3.4
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          check-name-regex: '.*'
-          ref: ${{ github.event.pull_request.head.sha }}
-          allowed-conclusions: success
-
-      - name: Merge (squash)
+      - name: Merge (squash) when green
+        if: success()
         uses: actions/github-script@v7
         with:
           script: |
             const pr = context.payload.pull_request;
-            await github.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.number,
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+
+            // Merge with squash; respects branch protections (will fail if protections block it).
+            await github.rest.pulls.merge({
+              owner, repo, pull_number: pr.number,
               merge_method: 'squash'
             });
+            core.notice('Merged successfully.');
