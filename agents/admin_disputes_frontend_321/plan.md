@@ -8,76 +8,74 @@
   │   ├── disputes.js
   ├── components
   │   ├── AdminDisputesTable.js
+  │   ├── FilterBar.js
+  │   ├── StatusUpdateModal.js
   ├── pages
   │   ├── AdminDisputesPage.js
   ├── styles
-  │   ├── AdminDisputesPage.css
+  │   ├── AdminDisputes.css
   ├── utils
   │   ├── apiUtils.js
-  └── App.js
+  ├── App.js
+  ├── index.js
 ```
 
 ## File Responsibilities
 
 ### API Layer
 - **`/src/api/disputes.js`**
-  - Implement API calls to `/api/disputes`.
+  - Implement API calls to `/api/disputes` for fetching, updating, and filtering disputes.
   - Functions:
-    - `fetchDisputes()`: Fetch all disputes.
-    - `updateDisputeStatus(disputeId, status)`: Update the status of a specific dispute.
+    - `fetchDisputes(filters)`
+    - `updateDisputeStatus(disputeId, newStatus)`
 
 ### Components
 - **`/src/components/AdminDisputesTable.js`**
-  - Create a table to display disputes.
-  - Implement filters for sorting and searching disputes.
-  - Include action buttons to update dispute status (e.g., "Resolve", "Reject").
-  - Handle API calls using functions from `api/disputes.js`.
+  - Render the admin disputes table with data fetched from the API.
+  - Implement sorting and pagination.
+  - Handle row actions for updating dispute status.
+
+- **`/src/components/FilterBar.js`**
+  - Create a filter interface for disputes (e.g., by status, date).
+  - Trigger API calls to fetch filtered data.
+
+- **`/src/components/StatusUpdateModal.js`**
+  - Modal component for confirming status updates.
+  - Call `updateDisputeStatus` on confirmation.
 
 ### Pages
 - **`/src/pages/AdminDisputesPage.js`**
-  - Set up the main page for the admin disputes route.
-  - Render `AdminDisputesTable` component.
-  - Manage state for disputes and loading/error handling.
+  - Main page component for the route `/admin/disputes/321`.
+  - Integrate `AdminDisputesTable` and `FilterBar`.
+  - Manage state for disputes and filters.
 
 ### Styles
-- **`/src/styles/AdminDisputesPage.css`**
-  - Style the Admin Disputes page and table.
-  - Ensure responsive design for various screen sizes.
+- **`/src/styles/AdminDisputes.css`**
+  - Define styles for the admin disputes page, table, and modal.
 
 ### Utilities
 - **`/src/utils/apiUtils.js`**
-  - Create utility functions for API error handling and response parsing.
+  - Helper functions for API error handling and response formatting.
 
 ### Main Application
 - **`/src/App.js`**
-  - Define the route for `/admin/disputes/321`.
+  - Define routes including `/admin/disputes/321`.
   - Ensure proper rendering of `AdminDisputesPage`.
 
+### Entry Point
+- **`/src/index.js`**
+  - Render the main application.
+
 ## Development Steps
-1. **Setup API Layer**
-   - Implement `fetchDisputes` and `updateDisputeStatus` in `disputes.js`.
-
-2. **Build UI Components**
-   - Create `AdminDisputesTable` with necessary props for data and actions.
-   - Implement filtering and action buttons.
-
-3. **Create Page Structure**
-   - Set up `AdminDisputesPage` to manage state and render the table.
-
-4. **Style the Components**
-   - Write CSS for the page and table for a clean UI.
-
-5. **Integrate API with UI**
-   - Connect API calls to the table for fetching and updating disputes.
-
-6. **Testing**
-   - Write unit tests for API functions and component rendering.
-   - Perform integration testing for the complete flow.
-
-7. **Documentation**
-   - Document API endpoints and usage in a README file.
+1. **Setup API Calls**: Implement `/src/api/disputes.js`.
+2. **Create Components**: Build `AdminDisputesTable`, `FilterBar`, and `StatusUpdateModal`.
+3. **Build Page**: Develop `AdminDisputesPage` to integrate components.
+4. **Style Components**: Apply styles in `AdminDisputes.css`.
+5. **Testing**: Write unit tests for components and API functions.
+6. **Documentation**: Update README with usage instructions and API details.
 
 ## Deployment
-- Ensure all changes are merged into the main branch.
-- Deploy the application to the staging environment for QA.
+- Ensure all changes are committed and pushed to the repository.
+- Create a pull request for code review.
+- Deploy to staging for QA testing before production release.
 ```
