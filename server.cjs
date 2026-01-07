@@ -1,21 +1,30 @@
 const { createServer } = require('http');
+const { readFileSync } = require('fs');
+const { join } = require('path');
 const next = require('next');
-const fs = require('fs');
-const path = require('path');
 
-const app = next({ dev: false });
+const dev = false;
+const app = next({ dev });
 const handle = app.getRequestHandler();
-const swPath = path.join(__dirname, 'public', 'sw.js');
 
 app.prepare().then(() => {
   createServer((req, res) => {
     if (req.url === '/sw.js') {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-      try { res.end(fs.readFileSync(swPath, 'utf8')); }
-      catch { res.end("/* sw missing */"); }
-      return;
+      try {
+        const body = readFileSync(join(__dirname, 'public', 'sw.js'));
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+        res.end(body);
+        return;
+      } catch (e) {
+        res.statusCode = 404;
+        res.end('');
+        return;
+      }
     }
     handle(req, res);
-  }).listen(process.env.PORT || 3000);
+  }).listen(process.env.PORT || 3000, () => {
+    console.log('> Ready on port', process.env.PORT || 3000);
+  });
 });
