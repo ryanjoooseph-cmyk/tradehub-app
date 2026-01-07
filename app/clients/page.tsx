@@ -1,7 +1,3 @@
 export default function Page() {
-  return (
-    <div style={{ fontSize: 20, padding: 16 }}>
-      Clients
-    </div>
-  );
+  return <div style={{ fontSize: 20, padding: 16 }}>Clients</div>;
 }
