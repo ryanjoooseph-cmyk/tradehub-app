@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import useSession from "@/lib/auth/useSession";
 
-// Accept several hook shapes and normalize to { ready, authed }
+// --- keep this normalize helper from my earlier drop (or paste it again) ---
 type HookMaybe =
   | { session?: unknown; ready?: boolean }
   | { status?: "loading" | "authenticated" | "unauthenticated"; data?: unknown }
@@ -25,16 +25,26 @@ function normalize(auth: HookMaybe): { ready: boolean; authed: boolean } {
   }
   return { ready: true, authed: !!auth };
 }
+// ---------------------------------------------------------------------------
+
+const PUBLIC_ROUTES = new Set<string>([
+  "/", "/login", "/register", "/logout", "/not-found"
+]);
 
 export default function AuthGate({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  if (pathname && PUBLIC_ROUTES.has(pathname)) {
+    // Allow public pages to render normally
+    return <>{children}</>;
+  }
+
   const router = useRouter();
   const auth = useSession() as any;
-
   const { ready, authed } = normalize(auth);
 
   if (!ready) return null;
   if (!authed) {
-    router.push("/login");
+    router.replace("/login");
     return null;
   }
   return <>{children}</>;
