@@ -2,93 +2,92 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+This plan outlines the file structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
 
 ## File Structure
 
 ### API Implementation
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**:
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate input data and handle errors.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities**:
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**:
-      - Implement controller functions for:
-        - `createDispute(req, res)`: Open a new dispute.
-        - `getDisputes(req, res)`: List all disputes.
-        - `updateDispute(req, res)`: Update dispute status and evidence URLs.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**:
-      - Set up Express routes for:
-        - `POST /api/disputes`: Create a dispute.
-        - `GET /api/disputes`: List disputes.
-        - `PUT /api/disputes/:id`: Update a dispute.
+- **Backend Directory Structure**
+    ```
+    /backend
+    ├── /controllers
+    │   └── disputesController.js
+    ├── /models
+    │   └── disputeModel.js
+    ├── /routes
+    │   └── disputesRoutes.js
+    ├── /middlewares
+    │   └── validateDispute.js
+    ├── /services
+    │   └── disputesService.js
+    ├── /config
+    │   └── db.js
+    └── server.js
+    ```
+
+- **Responsibilities**
+    - `disputesController.js`: Handle API requests for creating, listing, and updating disputes.
+    - `disputeModel.js`: Define the dispute schema including fields for evidence URLs and status.
+    - `disputesRoutes.js`: Define the Express routes for `/api/disputes` (GET, POST, PUT).
+    - `validateDispute.js`: Middleware for validating incoming dispute data.
+    - `disputesService.js`: Business logic for interacting with the database and managing disputes.
+    - `db.js`: Database connection configuration.
+    - `server.js`: Main server file to initialize the application.
 
 ### UI Implementation
 
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**:
-      - Display a list of disputes.
-      - Include filtering options based on status.
-  
-  - `src/components/DisputeForm.js`
-    - **Responsibilities**:
-      - Form for creating and updating disputes.
-      - Fields for status and evidence URLs.
-  
-  - `src/pages/DisputePage.js`
-    - **Responsibilities**:
-      - Main page to manage disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-  
-  - `src/services/disputeService.js`
-    - **Responsibilities**:
-      - API calls to interact with `/api/disputes`.
-      - Functions for creating, listing, and updating disputes.
+- **Frontend Directory Structure**
+    ```
+    /frontend
+    ├── /components
+    │   ├── DisputeForm.js
+    │   ├── DisputeList.js
+    │   └── DisputeItem.js
+    ├── /pages
+    │   └── DisputesPage.js
+    ├── /services
+    │   └── disputeApi.js
+    ├── /styles
+    │   └── Disputes.css
+    └── App.js
+    ```
 
-### Testing
+- **Responsibilities**
+    - `DisputeForm.js`: UI component for creating and updating disputes, including input for evidence URLs.
+    - `DisputeList.js`: Component to list all disputes with their statuses.
+    - `DisputeItem.js`: Component to display individual dispute details and actions.
+    - `DisputesPage.js`: Main page to manage disputes, incorporating the form and list components.
+    - `disputeApi.js`: API service for making requests to `/api/disputes`.
+    - `Disputes.css`: Styles specific to the disputes UI components.
+    - `App.js`: Main application file to route to the DisputesPage.
 
-- **File Paths**
-  - `tests/api/dispute.test.js`
-    - **Responsibilities**:
-      - Unit tests for API endpoints.
-      - Test cases for creating, listing, and updating disputes.
-  
-  - `tests/ui/DisputePage.test.js`
-    - **Responsibilities**:
-      - Unit tests for UI components.
-      - Test rendering of disputes and form submission.
+## Development Steps
 
-### Documentation
+1. **API Development**
+    - Implement `disputeModel.js` to define the schema.
+    - Create CRUD operations in `disputesController.js`.
+    - Set up routes in `disputesRoutes.js`.
+    - Implement validation logic in `validateDispute.js`.
+    - Connect to the database in `db.js`.
 
-- **File Paths**
-  - `docs/api/disputes.md`
-    - **Responsibilities**:
-      - Document API endpoints, request/response formats, and error handling.
-  
-  - `docs/ui/disputes.md`
-    - **Responsibilities**:
-      - Document UI components and their usage.
+2. **Frontend Development**
+    - Build UI components in `/components`.
+    - Implement API calls in `disputeApi.js`.
+    - Create the main page in `DisputesPage.js`.
+    - Style components using `Disputes.css`.
+
+3. **Testing**
+    - Write unit tests for API endpoints.
+    - Write integration tests for the UI components.
+    - Ensure all tests pass before deployment.
+
+4. **Deployment**
+    - Prepare the backend for deployment (e.g., Docker, Heroku).
+    - Build and deploy the frontend application.
 
 ## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controllers and services.
-- **Week 3**: Develop UI components and integrate with API.
-- **Week 4**: Testing and documentation.
-
-## Notes
-- Ensure proper error handling and validation throughout the API.
-- Consider user authentication for dispute management.
-- Follow coding standards and best practices for maintainability.
+- **Week 1**: API development
+- **Week 2**: Frontend development
+- **Week 3**: Testing and deployment
 ```
