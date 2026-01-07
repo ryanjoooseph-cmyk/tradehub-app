@@ -4,80 +4,76 @@
 ## Project Structure
 ```
 /src
-  ├── api
-  │   ├── disputes.js
   ├── components
-  │   ├── AdminDisputesTable.js
+  │   ├── AdminDisputes
+  │   │   ├── AdminDisputes.jsx          # Main component for displaying disputes
+  │   │   ├── DisputeTable.jsx            # Table component for listing disputes
+  │   │   ├── Filters.jsx                 # Filter component for searching disputes
+  │   │   └── StatusUpdateButton.jsx      # Button component for updating dispute status
+  │   └── common
+  │       └── Loader.jsx                  # Loader component for async operations
+  ├── api
+  │   └── disputesApi.js                   # API calls related to disputes
   ├── pages
-  │   ├── AdminDisputesPage.js
+  │   └── AdminDisputesPage.jsx            # Page component for the route '/admin/disputes/321'
   ├── styles
-  │   ├── AdminDisputesPage.css
-  ├── utils
-  │   ├── apiUtils.js
-  └── App.js
+  │   └── AdminDisputes.css                # CSS styles for the Admin Disputes UI
+  └── utils
+      └── helpers.js                       # Helper functions for data manipulation
 ```
 
-## File Responsibilities
+## Responsibilities
 
-### API Layer
-- **`/src/api/disputes.js`**
-  - Implement API calls to `/api/disputes`.
-  - Functions:
-    - `fetchDisputes()`: Fetch all disputes.
-    - `updateDisputeStatus(disputeId, status)`: Update the status of a specific dispute.
+### 1. **AdminDisputes.jsx**
+- **Path:** `/src/components/AdminDisputes/AdminDisputes.jsx`
+- **Responsibility:** 
+  - Render the main layout for the disputes page.
+  - Integrate `DisputeTable`, `Filters`, and loading state.
 
-### Components
-- **`/src/components/AdminDisputesTable.js`**
-  - Create a table to display disputes.
-  - Implement filters for sorting and searching disputes.
-  - Include action buttons to update dispute status (e.g., "Resolve", "Reject").
-  - Handle API calls using functions from `api/disputes.js`.
+### 2. **DisputeTable.jsx**
+- **Path:** `/src/components/AdminDisputes/DisputeTable.jsx`
+- **Responsibility:** 
+  - Display a table of disputes with pagination.
+  - Handle sorting and filtering based on user input.
+  - Integrate `StatusUpdateButton` for each dispute.
 
-### Pages
-- **`/src/pages/AdminDisputesPage.js`**
-  - Set up the main page for the admin disputes route.
-  - Render `AdminDisputesTable` component.
-  - Manage state for disputes and loading/error handling.
+### 3. **Filters.jsx**
+- **Path:** `/src/components/AdminDisputes/Filters.jsx`
+- **Responsibility:** 
+  - Provide UI elements for filtering disputes (e.g., by status, date).
+  - Manage filter state and communicate with `DisputeTable`.
 
-### Styles
-- **`/src/styles/AdminDisputesPage.css`**
-  - Style the Admin Disputes page and table.
-  - Ensure responsive design for various screen sizes.
+### 4. **StatusUpdateButton.jsx**
+- **Path:** `/src/components/AdminDisputes/StatusUpdateButton.jsx`
+- **Responsibility:** 
+  - Handle status update actions for disputes.
+  - Call the API to update the status and refresh the table.
 
-### Utilities
-- **`/src/utils/apiUtils.js`**
-  - Create utility functions for API error handling and response parsing.
+### 5. **disputesApi.js**
+- **Path:** `/src/api/disputesApi.js`
+- **Responsibility:** 
+  - Define functions to interact with `/api/disputes` endpoint.
+  - Include methods for fetching disputes and updating status.
 
-### Main Application
-- **`/src/App.js`**
-  - Define the route for `/admin/disputes/321`.
-  - Ensure proper rendering of `AdminDisputesPage`.
+### 6. **AdminDisputesPage.jsx**
+- **Path:** `/src/pages/AdminDisputesPage.jsx`
+- **Responsibility:** 
+  - Set up routing for `/admin/disputes/321`.
+  - Manage state for disputes and loading indicators.
 
-## Development Steps
-1. **Setup API Layer**
-   - Implement `fetchDisputes` and `updateDisputeStatus` in `disputes.js`.
+### 7. **AdminDisputes.css**
+- **Path:** `/src/styles/AdminDisputes.css`
+- **Responsibility:** 
+  - Style the Admin Disputes UI components for a clean layout.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable` with necessary props for data and actions.
-   - Implement filtering and action buttons.
+### 8. **helpers.js**
+- **Path:** `/src/utils/helpers.js`
+- **Responsibility:** 
+  - Provide utility functions for data formatting and manipulation.
 
-3. **Create Page Structure**
-   - Set up `AdminDisputesPage` to manage state and render the table.
-
-4. **Style the Components**
-   - Write CSS for the page and table for a clean UI.
-
-5. **Integrate API with UI**
-   - Connect API calls to the table for fetching and updating disputes.
-
-6. **Testing**
-   - Write unit tests for API functions and component rendering.
-   - Perform integration testing for the complete flow.
-
-7. **Documentation**
-   - Document API endpoints and usage in a README file.
-
-## Deployment
-- Ensure all changes are merged into the main branch.
-- Deploy the application to the staging environment for QA.
+## Additional Notes
+- Ensure proper error handling for API calls.
+- Implement unit tests for components and API functions.
+- Follow accessibility best practices in UI design.
+- Use state management (e.g., Context API or Redux) if necessary for global state.
 ```
