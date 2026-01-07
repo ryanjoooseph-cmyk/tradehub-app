@@ -1,27 +1,23 @@
-cd ~/tradehub-app
-cat > server.cjs <<'JS'
 const { createServer } = require('http');
-const { parse } = require('url');
 const next = require('next');
+const fs = require('fs');
+const path = require('path');
 
-const port = process.env.PORT || 3000;
-const app = next({ dev: false });
+const dev = false;
+const app = next({ dev });
 const handle = app.getRequestHandler();
+
+const swPath = path.join(__dirname, 'public', 'sw.js');
 
 app.prepare().then(() => {
   createServer((req, res) => {
-    const { pathname } = parse(req.url || '/', true);
-    if (pathname === '/sw.js') {
-      const body = "self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',()=>self.clients.claim());";
+    if (req.url === '/sw.js') {
       res.statusCode = 200;
-      res.setHeader('content-type','application/javascript; charset=utf-8');
-      res.setHeader('cache-control','public, max-age=0, must-revalidate');
-      res.end(body);
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      try { res.end(fs.readFileSync(swPath, 'utf8')); }
+      catch { res.end("/* sw missing */"); }
       return;
     }
-    return handle(req, res);
-  }).listen(port, () => {
-    console.log(`listening on ${port}`);
-  });
+    handle(req, res);
+  }).listen(process.env.PORT || 3000);
 });
-JS
