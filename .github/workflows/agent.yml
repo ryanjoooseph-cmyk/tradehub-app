@@ -11,37 +11,25 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: git identity
+      - name: Set git identity
         run: |
           git config user.name "autopilot-bot"
           git config user.email "autopilot-bot@users.noreply.github.com"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: deps
+      - name: Install deps
         run: |
           python -m pip install --upgrade pip
           pip install openai==1.52.0
-      - name: run agent
+      - name: Run agent
         env:
-            OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        continue-on-error: true
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: python agents/runner.py
-      - name: smoke change if agent failed
-        if: failure()
-        run: |
-          echo "agent failed" > __agent_smoke__
-          git add __agent_smoke__
-          git commit -m "smoke: prove PR path"
-      - name: push branch for PR
-        run: |
-          BR="agent/run-${{ github.run_id }}"
-          git checkout -b "$BR" || git checkout "$BR"
-          git push -u origin "$BR"
-          echo "$BR" > .agent_branch
-          echo "agent autopilot" > .agent_title
-          echo "debug run ${{ github.run_id }}" > .agent_body
-      - name: create pr
+      - name: Create PR
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh pr create --base main --head "$(cat .agent_branch)" --title "$(cat .agent_title)" --body "$(cat .agent_body)" || true
+        run: |
+          if [ -f .agent_branch ]; then
+            gh pr create --base main --head "$(cat .agent_branch)" --title "$(cat .agent_title)" --body "$(cat .agent_body)" || true
+          fi
