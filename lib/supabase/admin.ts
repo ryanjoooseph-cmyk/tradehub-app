@@ -1,12 +1,23 @@
 // lib/supabase/admin.ts
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-let _client: SupabaseClient | null = null;
+const url = process.env.SUPABASE_URL!;
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE!;
 
-export function supabaseAdmin(): SupabaseClient {
-  if (_client) return _client;
-  const url = process.env.SUPABASE_URL!;
-  const key = process.env.SUPABASE_SERVICE_ROLE!;
-  _client = createClient(url, key, { auth: { persistSession: false } });
-  return _client;
+if (!url || !serviceKey) {
+  throw new Error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE');
 }
+
+let client: SupabaseClient | undefined;
+
+export function getAdminSupabase(): SupabaseClient {
+  if (!client) {
+    client = createClient(url, serviceKey, {
+      auth: { persistSession: false },
+      global: { headers: { 'X-Client-Info': 'tradehub-admin' } },
+    });
+  }
+  return client;
+}
+
+export type { SupabaseClient };
