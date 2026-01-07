@@ -1,94 +1,84 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+## Project Structure
+```
+/disputes_backend
+├── /api
+│   ├── /controllers
+│   │   └── disputesController.js
+│   ├── /routes
+│   │   └── disputesRoutes.js
+│   ├── /models
+│   │   └── disputeModel.js
+│   ├── /middlewares
+│   │   └── authMiddleware.js
+│   └── /utils
+│       └── responseFormatter.js
+├── /config
+│   └── dbConfig.js
+├── /tests
+│   ├── /api
+│   │   └── disputes.test.js
+└── server.js
+```
 
-## File Structure
+## Responsibilities
 
-### API Implementation
+### 1. Database Model
+- **File:** `/disputes_backend/api/models/disputeModel.js`
+- **Responsibilities:**
+  - Define the Dispute schema with fields: `id`, `evidence_urls` (array), `status` (enum: OPEN, REVIEW, RESOLVED), and timestamps.
+  - Implement methods for CRUD operations.
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**:
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate input data and handle errors.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities**:
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**:
-      - Implement controller functions for:
-        - `createDispute(req, res)`: Open a new dispute.
-        - `getDisputes(req, res)`: List all disputes.
-        - `updateDispute(req, res)`: Update dispute status and evidence URLs.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**:
-      - Set up Express routes for:
-        - `POST /api/disputes`: Create a dispute.
-        - `GET /api/disputes`: List disputes.
-        - `PUT /api/disputes/:id`: Update a dispute.
+### 2. API Routes
+- **File:** `/disputes_backend/api/routes/disputesRoutes.js`
+- **Responsibilities:**
+  - Set up Express routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
+  - Integrate middleware for authentication.
 
-### UI Implementation
+### 3. Controllers
+- **File:** `/disputes_backend/api/controllers/disputesController.js`
+- **Responsibilities:**
+  - Implement logic for each route:
+    - List disputes: Fetch from DB and return.
+    - Create dispute: Validate input, save to DB, and return created dispute.
+    - Update dispute: Validate input, update DB, and return updated dispute.
 
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**:
-      - Display a list of disputes.
-      - Include filtering options based on status.
-  
-  - `src/components/DisputeForm.js`
-    - **Responsibilities**:
-      - Form for creating and updating disputes.
-      - Fields for status and evidence URLs.
-  
-  - `src/pages/DisputePage.js`
-    - **Responsibilities**:
-      - Main page to manage disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-  
-  - `src/services/disputeService.js`
-    - **Responsibilities**:
-      - API calls to interact with `/api/disputes`.
-      - Functions for creating, listing, and updating disputes.
+### 4. Middleware
+- **File:** `/disputes_backend/api/middlewares/authMiddleware.js`
+- **Responsibilities:**
+  - Implement authentication logic to protect routes.
 
-### Testing
+### 5. Response Formatter
+- **File:** `/disputes_backend/api/utils/responseFormatter.js`
+- **Responsibilities:**
+  - Create utility functions to standardize API responses (success/error).
 
-- **File Paths**
-  - `tests/api/dispute.test.js`
-    - **Responsibilities**:
-      - Unit tests for API endpoints.
-      - Test cases for creating, listing, and updating disputes.
-  
-  - `tests/ui/DisputePage.test.js`
-    - **Responsibilities**:
-      - Unit tests for UI components.
-      - Test rendering of disputes and form submission.
+### 6. Database Configuration
+- **File:** `/disputes_backend/config/dbConfig.js`
+- **Responsibilities:**
+  - Set up database connection (e.g., MongoDB, PostgreSQL).
 
-### Documentation
+### 7. Server Setup
+- **File:** `/disputes_backend/server.js`
+- **Responsibilities:**
+  - Initialize Express app.
+  - Connect to the database.
+  - Use routes and middleware.
 
-- **File Paths**
-  - `docs/api/disputes.md`
-    - **Responsibilities**:
-      - Document API endpoints, request/response formats, and error handling.
-  
-  - `docs/ui/disputes.md`
-    - **Responsibilities**:
-      - Document UI components and their usage.
+### 8. Testing
+- **File:** `/disputes_backend/tests/api/disputes.test.js`
+- **Responsibilities:**
+  - Write unit tests for each API endpoint.
+  - Test for success and error scenarios.
 
 ## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controllers and services.
-- **Week 3**: Develop UI components and integrate with API.
-- **Week 4**: Testing and documentation.
-
-## Notes
-- Ensure proper error handling and validation throughout the API.
-- Consider user authentication for dispute management.
-- Follow coding standards and best practices for maintainability.
+- **Week 1:** Set up project structure and database model.
+- **Week 2:** Implement API routes and controllers.
+- **Week 3:** Develop middleware and response formatter.
+- **Week 4:** Write tests and finalize documentation.
 ```
