@@ -1,151 +1,46 @@
 {
-  "version": 1,
-  "global_guardrails": {
-    "allow": [
-      "app/**/page.tsx",
-      "app/**/layout.tsx",
-      "app/**/route.ts",
-      "app/_components/**",
-      "lib/supabase/**",
-      "lib/auth/**",
-      "agents/**"
-    ],
-    "deny": [
-      "package.json",
-      "package-lock.json",
-      "pnpm-lock.yaml",
-      "yarn.lock",
-      ".github/workflows/**",
-      "next.config.*",
-      "tsconfig.*",
-      "public/**",
-      "styles/**",
-      "eslint*",
-      ".eslintrc*",
-      ".prettier*",
-      ".vscode/**"
-    ]
-  },
-
   "tasks": [
     {
-      "id": "auth_shared_501",
-      "title": "auth_shared_501",
-      "scope": { "allow": ["lib/supabase/**", "lib/auth/**"] },
-      "instructions": [
-        "Create lib/supabase/browser.ts that exports a Supabase browser client using NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY with createClient from '@supabase/supabase-js'.",
-        "Create lib/auth/useSession.ts with a small React hook that returns { session, loading, error } using supabase.auth.getSession() on mount and listens to onAuthStateChange.",
-        "Create lib/auth/requireAuth.tsx that exports a 'RequireAuth' client component; it renders children if a session exists, else renders a centered Login CTA linking to /login.",
-        "No package or workflow changes. Do not modify admin/service role helpers."
-      ]
-    },
-    {
-      "id": "auth_frontend_501",
-      "title": "auth_frontend_501",
-      "scope": { "allow": ["app/login/page.tsx", "app/account/page.tsx"] },
-      "instructions": [
-        "Create /login page: email input + 'Send magic link' using supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/account' } }). Show success/error messages; keep styling minimal and inline so no new CSS files.",
-        "Create /account page: show current session email and a 'Sign out' button using supabase.auth.signOut().",
-        "Do not introduce middleware or global layouts in this task."
-      ]
-    },
-
-    {
-      "id": "layout_shell_502",
-      "title": "layout_shell_502",
-      "scope": { "allow": ["app/_components/Shell.tsx"] },
-      "instructions": [
-        "Create app/_components/Shell.tsx (client component) that renders a simple header + left sidebar navigation with links: Dashboard(/), Clients(/clients), Jobs(/jobs), Quotes(/quotes), Invoices(/invoices), Payments(/payments), Disputes(/disputes), Tenants(/tenants), Account(/account).",
-        "Shell accepts { title?: string, children } and renders the title in the header.",
-        "Keep styles inline (e.g., style={{ padding: 16 }}) to avoid touching CSS. No global layout edits here."
-      ]
-    },
-    {
-      "id": "layout_apply_502",
-      "title": "layout_apply_502",
-      "scope": { "allow": ["app/clients/page.tsx", "app/jobs/page.tsx", "app/quotes/page.tsx"] },
-      "instructions": [
-        "Update /clients, /jobs, /quotes pages to wrap their root export with <Shell title='...'>...</Shell>.",
-        "At the top of each page, import { RequireAuth } from '@/lib/auth/requireAuth' and wrap the content with <RequireAuth> to gate behind login.",
-        "Do not alter the existing page content aside from the wrapper."
-      ]
-    },
-
-    {
       "id": "invoices_backend_401",
-      "title": "invoices_backend_401",
-      "scope": { "allow": ["app/api/invoices/route.ts", "app/api/invoices/[id]/route.ts", "lib/supabase/**"] },
-      "instructions": [
-        "CRUD endpoints for invoices using Supabase admin client.",
-        "Table definition assumed: id uuid pk default gen_random_uuid(), title text not null, amount numeric not null, status text not null default 'unpaid', client_id uuid null, created_at timestamptz default now().",
-        "Return JSON { data } on success or { error } with status code on failure. No package/workflow edits."
-      ]
+      "title": "Add invoices API (CRUD)",
+      "plan": "Create app/api/invoices (route.ts, [id]/route.ts) mirroring jobs/quotes. Touch only api/ and lib/supabase/admin.ts imports. Label: automerge.",
+      "paths_allowed": ["app/api/invoices/**", "lib/supabase/admin.ts"],
+      "label": "automerge"
     },
     {
-      "id": "invoices_frontend_401",
-      "title": "invoices_frontend_401",
-      "scope": { "allow": ["app/invoices/page.tsx"] },
-      "instructions": [
-        "Create /invoices page: table list, add form (title, amount, status), inline status select, delete button.",
-        "Use fetch to /api/invoices; wrap with <RequireAuth> and <Shell title='Invoices'>."
-      ]
-    },
-
-    {
-      "id": "payments_backend_402",
-      "title": "payments_backend_402",
-      "scope": { "allow": ["app/api/payments/route.ts", "app/api/payments/[id]/route.ts", "lib/supabase/**"] },
-      "instructions": [
-        "CRUD for payments: id uuid pk, invoice_id uuid, amount numeric, method text, status text default 'pending', created_at timestamptz default now().",
-        "Same response contract as other APIs; Supabase admin client only."
-      ]
+      "id": "invoices_frontend_402",
+      "title": "Invoices page (list/create/delete)",
+      "plan": "Create app/invoices/page.tsx reusing table/form pattern.",
+      "paths_allowed": ["app/invoices/**"],
+      "label": "automerge"
     },
     {
-      "id": "payments_frontend_402",
-      "title": "payments_frontend_402",
-      "scope": { "allow": ["app/payments/page.tsx"] },
-      "instructions": [
-        "Create /payments page mirroring /invoices pattern (list/add/edit/delete).",
-        "If invoice linking is not available yet, keep invoice_id a free text field. Wrap in <RequireAuth> and <Shell title='Payments'>."
-      ]
-    },
-
-    {
-      "id": "disputes_backend_403",
-      "title": "disputes_backend_403",
-      "scope": { "allow": ["app/api/disputes/route.ts", "app/api/disputes/[id]/route.ts", "lib/supabase/**"] },
-      "instructions": [
-        "CRUD for disputes: id uuid pk, title text, status text default 'open', notes text null, related_id uuid null, created_at timestamptz default now().",
-        "Use admin client; standard JSON contract."
-      ]
+      "id": "payments_backend_403",
+      "title": "Payments API (record payment)",
+      "plan": "Create app/api/payments with POST to insert payment rows; GET list.",
+      "paths_allowed": ["app/api/payments/**", "lib/supabase/admin.ts"],
+      "label": "automerge"
     },
     {
-      "id": "disputes_frontend_403",
-      "title": "disputes_frontend_403",
-      "scope": { "allow": ["app/disputes/page.tsx", "app/admin/disputes/page.tsx"] },
-      "instructions": [
-        "Create /disputes page with basic CRUD.",
-        "Create /admin/disputes page that shows same table plus editable 'notes' textarea for each row.",
-        "Both pages wrapped with <RequireAuth> and <Shell title='Disputes' | 'Admin Disputes'>."
-      ]
-    },
-
-    {
-      "id": "tenants_backend_404",
-      "title": "tenants_backend_404",
-      "scope": { "allow": ["app/api/tenants/route.ts", "app/api/tenants/[id]/route.ts", "lib/supabase/**"] },
-      "instructions": [
-        "CRUD for tenants: id uuid pk, name text not null, domain text null, created_at timestamptz default now().",
-        "No RLS changes yet; backend scaffolding only."
-      ]
+      "id": "payments_frontend_404",
+      "title": "Payments page (list/add)",
+      "plan": "Create app/payments/page.tsx like quotes.",
+      "paths_allowed": ["app/payments/**"],
+      "label": "automerge"
     },
     {
-      "id": "tenants_frontend_404",
-      "title": "tenants_frontend_404",
-      "scope": { "allow": ["app/tenants/page.tsx"] },
-      "instructions": [
-        "Create /tenants page with same pattern (list/add/edit/delete), wrapped with <RequireAuth> and <Shell title='Tenants'>."
-      ]
+      "id": "disputes_backend_405",
+      "title": "Disputes API (open/resolve)",
+      "plan": "Create app/api/disputes CRUD; minimal fields.",
+      "paths_allowed": ["app/api/disputes/**", "lib/supabase/admin.ts"],
+      "label": "automerge"
+    },
+    {
+      "id": "admin_disputes_frontend_406",
+      "title": "Admin disputes page",
+      "plan": "Create app/admin/disputes/page.tsx for internal management.",
+      "paths_allowed": ["app/admin/disputes/**"],
+      "label": "automerge"
     }
   ]
 }
