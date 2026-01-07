@@ -1,42 +1,42 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import './globals.css';
+import Link from 'next/link';
+import useSession from '../lib/auth/useSession';
 
-export const metadata: Metadata = {
-  title: { default: "TradeHub", template: "%s · TradeHub" },
-  description: "Jobs • Clients • Quotes",
-};
-
-const linkStyle: React.CSSProperties = {
-  display: "inline-block",
-  padding: "8px 12px",
-  marginRight: 8,
-  borderRadius: 6,
-  textDecoration: "none",
-  color: "#111827",
-  background: "#F3F4F6",
-  border: "1px solid #E5E7EB",
-};
+function Nav() {
+  'use client';
+  const { session } = useSession();
+  return (
+    <nav style={{display:'flex',gap:12,padding:12,borderBottom:'1px solid #eee'}}>
+      <Link href="/">Home</Link>
+      <Link href="/clients">Clients</Link>
+      <Link href="/jobs">Jobs</Link>
+      <Link href="/quotes">Quotes</Link>
+      <Link href="/invoices">Invoices</Link>
+      <Link href="/payments">Payments</Link>
+      <Link href="/disputes">Disputes</Link>
+      <Link href="/tenants">Tenants</Link>
+      <Link href="/admin">Admin</Link>
+      <span style={{marginLeft:'auto'}} />
+      {session ? (
+        <>
+          <span style={{opacity:.6}}> {session.user.email ?? session.user.id} </span>
+          <Link href="/logout">Logout</Link>
+        </>
+      ) : (
+        <>
+          <Link href="/login">Login</Link>
+          <Link href="/register">Register</Link>
+        </>
+      )}
+    </nav>
+  );
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body style={{ margin: 0, fontFamily: "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial" }}>
-        <header style={{ borderBottom: "1px solid #E5E7EB", padding: "16px 24px" }}>
-          <div style={{ maxWidth: 980, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ fontWeight: 700 }}>TradeHub</div>
-            <nav>
-              <Link href="/" style={linkStyle as any}>Home</Link>
-              <Link href="/dashboard" style={linkStyle as any}>Dashboard</Link>
-              <Link href="/clients" style={linkStyle as any}>Clients</Link>
-              <Link href="/jobs" style={linkStyle as any}>Jobs</Link>
-              <Link href="/quotes" style={linkStyle as any}>Quotes</Link>
-            </nav>
-          </div>
-        </header>
-        <main style={{ maxWidth: 980, margin: "24px auto", padding: "0 24px" }}>
-          {children}
-        </main>
-      </body>
-    </html>
+    <html lang="en"><body>
+      <Nav />
+      <div style={{padding:16}}>{children}</div>
+    </body></html>
   );
 }
