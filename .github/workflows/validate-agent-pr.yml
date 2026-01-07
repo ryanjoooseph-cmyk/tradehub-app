@@ -1,0 +1,44 @@
+name: validate-agent-pr
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review, labeled]
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  guard:
+    if: >
+      github.event.pull_request.draft == false &&
+      contains(github.event.pull_request.labels.*.name, 'automerge')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Diff files
+        id: diff
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1
+          git diff --name-only origin/${{ github.base_ref }}...HEAD > files.txt
+          echo "count=$(wc -l < files.txt)" >> $GITHUB_OUTPUT
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          cat files.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Enforce allowed paths
+        run: |
+          ALLOWED='^(app/|components/|public/|agents/|lib/supabase/|lib/types\.ts$|\.github/workflows/agent\.yml$)'
+          BAD=0
+          while IFS= read -r f; do
+            if ! echo "$f" | grep -Eq "$ALLOWED"; then
+              echo "::error::Disallowed path changed: $f"
+              BAD=1
+            fi
+          done <<< "${{ steps.diff.outputs.files }}"
+          if [ $BAD -ne 0 ]; then
+            gh pr edit ${{ github.event.pull_request.number }} --add-label "blocked" || true
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
