@@ -1,0 +1,32 @@
+name: label-agent-automerge
+on:
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add 'automerge' to agent PRs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            // Treat branches that start with 'agent-' or whose title starts with 'Automated PR'
+            const isAgent = pr.head.ref.startsWith('agent-')
+              || /^Automated PR/i.test(pr.title);
+
+            if (isAgent) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['automerge']
+              });
+              core.notice("Labeled 'automerge'.");
+            } else {
+              core.notice('Not an agent PR; leaving unlabeled.');
+            }
