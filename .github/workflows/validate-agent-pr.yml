@@ -1,44 +1,48 @@
 name: validate-agent-pr
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, ready_for_review, labeled]
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled, ready_for_review]
+
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 jobs:
   guard:
-    if: >
-      github.event.pull_request.draft == false &&
-      contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
+      - name: Check path scope
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
 
-      - name: Diff files
-        id: diff
-        run: |
-          git fetch origin ${{ github.base_ref }} --depth=1
-          git diff --name-only origin/${{ github.base_ref }}...HEAD > files.txt
-          echo "count=$(wc -l < files.txt)" >> $GITHUB_OUTPUT
-          echo "files<<EOF" >> $GITHUB_OUTPUT
-          cat files.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+            // Only merge to main.
+            if (pr.base.ref !== 'main') {
+              core.setFailed(`Base branch must be 'main' (was '${pr.base.ref}').`);
+              return;
+            }
 
-      - name: Enforce allowed paths
-        run: |
-          ALLOWED='^(app/|components/|public/|agents/|lib/supabase/|lib/types\.ts$|\.github/workflows/agent\.yml$)'
-          BAD=0
-          while IFS= read -r f; do
-            if ! echo "$f" | grep -Eq "$ALLOWED"; then
-              echo "::error::Disallowed path changed: $f"
-              BAD=1
-            fi
-          done <<< "${{ steps.diff.outputs.files }}"
-          if [ $BAD -ne 0 ]; then
-            gh pr edit ${{ github.event.pull_request.number }} --add-label "blocked" || true
-            exit 1
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            // Allowed files for agent PRs. Adjust as you add more agent-sourced files.
+            const ALLOW = [
+              /^agents\/[^/]+\/plan\.md$/,   // the plan the agent proposes
+              // add more allowed patterns here if needed
+            ];
+
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              { owner, repo, pull_number: pr.number, per_page: 100 }
+            );
+
+            const bad = files
+              .filter(f => !ALLOW.some(rx => rx.test(f.filename)));
+
+            if (bad.length) {
+              core.setFailed(
+                `Unsafe file(s) touched: ${bad.map(f => f.filename).join(', ')}`
+              );
+            } else {
+              core.notice('Path scope OK for agent PR.');
+            }
