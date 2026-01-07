@@ -1,170 +1,37 @@
 {
   "version": 1,
-  "policy": {
-    "branch_prefix": "agent",
-    "merge_label": "automerge",
-    "max_parallel_prs": 6,
-    "retry_on_flake": true,
+  "automerge_label": "automerge",
+  "branch_prefix": "agent",
+  "queue": [
+    { "id": "ui_shell_dashboard_001", "type": "frontend", "paths": ["app/dashboard/**"] },
 
-    "allow_paths": [
-      "app/**/*.tsx",
-      "app/**/*.ts",
-      "agents/**/*.md",
-      "agents/**/*.json"
-    ],
-    "block_paths": [
-      ".github/**",
-      "package.json",
-      "package-lock.json",
-      "pnpm-lock.yaml",
-      "yarn.lock",
-      "next.config.*",
-      "tsconfig*.json",
-      "supabase/**",
-      "lib/**/*.ts"
-    ]
-  },
+    { "id": "auth_pages_001", "type": "frontend", "paths": ["app/login/**","app/logout/**","app/register/**","lib/auth/**"] },
+    { "id": "layout_nav_001", "type": "frontend", "paths": ["app/layout.tsx","app/(components)/**","app/globals.css"] },
 
-  "tasks": [
-    {
-      "id": "layout_shell_001",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Build the app shell (top nav + tabs: Dashboard, Clients, Jobs, Quotes), keep styles simple and consistent.",
-      "deliverables": [
-        "app/layout.tsx",
-        "app/(components)/TopNav.tsx",
-        "app/(components)/Tabs.tsx"
-      ]
-    },
+    { "id": "clients_backend_326", "type": "backend", "paths": ["app/api/clients/**","lib/db/**","lib/validation/**"] },
+    { "id": "clients_frontend_321", "type": "frontend", "paths": ["app/clients/**","app/(components)/**"] },
 
-    {
-      "id": "dashboard_ui_001",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Replace scaffold text on /dashboard with a real overview: counts for clients, jobs, quotes, and a simple recent activity list reading from the APIs.",
-      "deliverables": [
-        "app/dashboard/page.tsx"
-      ]
-    },
+    { "id": "jobs_backend_326", "type": "backend", "paths": ["app/api/jobs/**","lib/db/**","lib/validation/**"] },
+    { "id": "jobs_frontend_321", "type": "frontend", "paths": ["app/jobs/**","app/(components)/**"] },
 
-    {
-      "id": "auth_signin_001",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Add minimal sign-in page (email/password form). Wire up to Supabase client-side signIn if keys are present; otherwise stub handler.",
-      "deliverables": [
-        "app/(auth)/signin/page.tsx"
-      ]
-    },
-    {
-      "id": "auth_signup_001",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Add minimal sign-up page (email/password).",
-      "deliverables": [
-        "app/(auth)/signup/page.tsx"
-      ]
-    },
+    { "id": "quotes_backend_326", "type": "backend", "paths": ["app/api/quotes/**","lib/db/**","lib/validation/**"] },
+    { "id": "quotes_frontend_321", "type": "frontend", "paths": ["app/quotes/**","app/(components)/**"] },
 
-    {
-      "id": "clients_backend_326",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Harden Clients CRUD API with type-safe handlers that match Next 14 RouteHandlerConfig signatures and our admin Supabase util.",
-      "deliverables": [
-        "app/api/clients/route.ts",
-        "app/api/clients/[id]/route.ts"
-      ]
-    },
-    {
-      "id": "clients_frontend_321",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Clients page with table (name, email, phone), and create/edit form using the above APIs.",
-      "deliverables": [
-        "app/clients/page.tsx"
-      ]
-    },
+    { "id": "payments_backend_326", "type": "backend", "paths": ["app/api/payments/**","lib/db/**"] },
+    { "id": "payments_frontend_321", "type": "frontend", "paths": ["app/payments/**","app/(components)/**"] },
 
-    {
-      "id": "jobs_backend_326",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Jobs CRUD API: GET/POST in /api/jobs, GET/PUT/DELETE in /api/jobs/[id]; ensure Request/Context types use `{ params: { id: string } }` (no Promise).",
-      "deliverables": [
-        "app/api/jobs/route.ts",
-        "app/api/jobs/[id]/route.ts"
-      ]
-    },
-    {
-      "id": "jobs_frontend_321",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Jobs page: list active/scheduled jobs and a form to create/update. Connect to Jobs API.",
-      "deliverables": [
-        "app/jobs/page.tsx"
-      ]
-    },
+    { "id": "invoices_backend_326", "type": "backend", "paths": ["app/api/invoices/**","lib/db/**"] },
+    { "id": "invoices_frontend_321", "type": "frontend", "paths": ["app/invoices/**","app/(components)/**"] },
 
-    {
-      "id": "quotes_backend_326",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Quotes CRUD API: same patterns as Clients/Jobs with clean types and JSON errors.",
-      "deliverables": [
-        "app/api/quotes/route.ts",
-        "app/api/quotes/[id]/route.ts"
-      ]
-    },
-    {
-      "id": "quotes_frontend_321",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Quotes page: list + create/edit form (client picklist, items, total).",
-      "deliverables": [
-        "app/quotes/page.tsx"
-      ]
-    },
+    { "id": "tenants_backend_326", "type": "backend", "paths": ["app/api/tenants/**","lib/db/**"] },
+    { "id": "tenants_frontend_321", "type": "frontend", "paths": ["app/tenants/**","app/(components)/**"] },
 
-    {
-      "id": "admin_disputes_frontend_321",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Admin Disputes UI (table + detail drawer) – read from /api/disputes; simple status change buttons.",
-      "deliverables": [
-        "app/admin/disputes/page.tsx"
-      ]
-    },
-    {
-      "id": "disputes_backend_326",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Disputes API endpoints similar to other CRUD routes; keep within app/api/disputes/**.",
-      "deliverables": [
-        "app/api/disputes/route.ts",
-        "app/api/disputes/[id]/route.ts"
-      ]
-    },
-
-    {
-      "id": "payments_mark_paid_326",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Add endpoint to mark an invoice/quote as paid; assume Supabase row update by id.",
-      "deliverables": [
-        "app/api/payments/[id]/route.ts"
-      ]
-    },
-
-    {
-      "id": "quotes_pdf_export_321",
-      "labels": ["automerge"],
-      "mode": "code",
-      "goal": "Server route that returns a simple PDF for a quote (basic HTML->PDF or server-rendered printable HTML for now).",
-      "deliverables": [
-        "app/api/quotes/[id]/pdf/route.ts"
-      ]
-    }
-  ]
+    { "id": "disputes_backend_326", "type": "backend", "paths": ["app/api/disputes/**","lib/db/**"] },
+    { "id": "admin_disputes_frontend_321", "type": "frontend", "paths": ["app/admin/**","app/disputes/**","app/(components)/**"] }
+  ],
+  "conventions": {
+    "pr_title_prefix": "Automated PR for",
+    "plan_path_format": "agents/{task}/plan.md",
+    "branch_name_format": "agent-{task}-{shortid}"
+  }
 }
