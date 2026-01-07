@@ -1,29 +1,27 @@
-'use client';
-import { useState } from 'react';
-import getSupabase from '../../lib/supabase/browser';
-import { useRouter } from 'next/navigation';
+"use client";
+
+import Link from "next/link";
 
 export default function LoginPage() {
-  const s = getSupabase(); const r = useRouter();
-  const [email,setEmail]=useState(''); const [password,setPassword]=useState('');
-  const [err,setErr]=useState<string|undefined>();
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); setErr(undefined);
-    const { error } = await s.auth.signInWithPassword({ email, password });
-    if (error) setErr(error.message); else r.replace('/');
-  };
-
   return (
-    <main style={{padding:24,maxWidth:420}}>
+    <main style={{ maxWidth: 420, margin: "64px auto", fontFamily: "system-ui" }}>
       <h1>Sign in</h1>
-      <form onSubmit={onSubmit} style={{display:'grid',gap:8}}>
-        <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
-        <input placeholder="Password" type="password" value={password} onChange={e=>setPassword(e.target.value)} />
-        <button type="submit">Sign in</button>
+      <p style={{ opacity: 0.7, marginBottom: 16 }}>
+        This is a public page. AuthGate will not run here.
+      </p>
+
+      {/* Replace with your real form / Supabase widget later */}
+      <form onSubmit={(e) => { e.preventDefault(); location.href = "/dashboard"; }}>
+        <label>Email<br/><input type="email" required placeholder="you@example.com" /></label>
+        <br/><br/>
+        <label>Password<br/><input type="password" required placeholder="••••••••" /></label>
+        <br/><br/>
+        <button type="submit">Continue</button>
       </form>
-      <p>{err}</p>
-      <p style={{marginTop:12}}><a href="/register">Create an account</a></p>
+
+      <p style={{ marginTop: 16 }}>
+        No account? <Link href="/register">Create one</Link>
+      </p>
     </main>
   );
 }
