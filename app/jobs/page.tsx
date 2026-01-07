@@ -1,3 +1,7 @@
 export default function Page() {
-  return <div>Jobs</div>;
+  return (
+    <div style={{ fontSize: 20, padding: 16 }}>
+      Jobs
+    </div>
+  );
 }
