@@ -2,93 +2,97 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+This plan outlines the file structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
 
 ## File Structure
 
 ### API Implementation
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**:
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate input data and handle errors.
+- **Directory:** `src/api/disputes/`
+  - **File:** `index.js`
+    - **Responsibility:** Define routes for disputes API (GET, POST, PUT).
   
-  - `src/models/Dispute.js`
-    - **Responsibilities**:
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - **File:** `disputesController.js`
+    - **Responsibility:** Handle business logic for disputes (create, list, update).
   
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**:
-      - Implement controller functions for:
-        - `createDispute(req, res)`: Open a new dispute.
-        - `getDisputes(req, res)`: List all disputes.
-        - `updateDispute(req, res)`: Update dispute status and evidence URLs.
+  - **File:** `disputesModel.js`
+    - **Responsibility:** Define the data model for disputes (schema, validation).
   
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**:
-      - Set up Express routes for:
-        - `POST /api/disputes`: Create a dispute.
-        - `GET /api/disputes`: List disputes.
-        - `PUT /api/disputes/:id`: Update a dispute.
+  - **File:** `disputesService.js`
+    - **Responsibility:** Interact with the database for CRUD operations on disputes.
+  
+  - **File:** `disputesRoutes.js`
+    - **Responsibility:** Define the API endpoints and link to the controller.
+
+  - **File:** `disputesMiddleware.js`
+    - **Responsibility:** Middleware for validation and error handling.
 
 ### UI Implementation
 
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**:
-      - Display a list of disputes.
-      - Include filtering options based on status.
+- **Directory:** `src/ui/components/Dispute/`
+  - **File:** `DisputeList.jsx`
+    - **Responsibility:** Display a list of disputes with status and evidence URLs.
   
-  - `src/components/DisputeForm.js`
-    - **Responsibilities**:
-      - Form for creating and updating disputes.
-      - Fields for status and evidence URLs.
+  - **File:** `DisputeForm.jsx`
+    - **Responsibility:** Form for creating and updating disputes.
   
-  - `src/pages/DisputePage.js`
-    - **Responsibilities**:
-      - Main page to manage disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
+  - **File:** `DisputeItem.jsx`
+    - **Responsibility:** Component to display individual dispute details.
   
-  - `src/services/disputeService.js`
-    - **Responsibilities**:
-      - API calls to interact with `/api/disputes`.
-      - Functions for creating, listing, and updating disputes.
+  - **File:** `DisputeStatus.jsx`
+    - **Responsibility:** Component to manage and display dispute status.
+
+- **Directory:** `src/ui/pages/`
+  - **File:** `DisputePage.jsx`
+    - **Responsibility:** Main page for managing disputes (list, create, update).
+  
+  - **File:** `DisputeDetailPage.jsx`
+    - **Responsibility:** Page for viewing detailed dispute information.
+
+### State Management
+
+- **Directory:** `src/store/`
+  - **File:** `disputeSlice.js`
+    - **Responsibility:** Redux slice for managing disputes state (actions, reducers).
 
 ### Testing
 
-- **File Paths**
-  - `tests/api/dispute.test.js`
-    - **Responsibilities**:
-      - Unit tests for API endpoints.
-      - Test cases for creating, listing, and updating disputes.
+- **Directory:** `src/tests/api/disputes/`
+  - **File:** `disputesController.test.js`
+    - **Responsibility:** Unit tests for disputes controller functions.
   
-  - `tests/ui/DisputePage.test.js`
-    - **Responsibilities**:
-      - Unit tests for UI components.
-      - Test rendering of disputes and form submission.
+  - **File:** `disputesService.test.js`
+    - **Responsibility:** Unit tests for disputes service functions.
 
-### Documentation
-
-- **File Paths**
-  - `docs/api/disputes.md`
-    - **Responsibilities**:
-      - Document API endpoints, request/response formats, and error handling.
+- **Directory:** `src/tests/ui/components/Dispute/`
+  - **File:** `DisputeList.test.jsx`
+    - **Responsibility:** Unit tests for DisputeList component.
   
-  - `docs/ui/disputes.md`
-    - **Responsibilities**:
-      - Document UI components and their usage.
+  - **File:** `DisputeForm.test.jsx`
+    - **Responsibility:** Unit tests for DisputeForm component.
+
+## Documentation
+
+- **Directory:** `docs/`
+  - **File:** `api.md`
+    - **Responsibility:** API documentation for endpoints, request/response formats.
+  
+  - **File:** `ui.md`
+    - **Responsibility:** UI component documentation and usage instructions.
+
+## Deployment
+
+- **Directory:** `deploy/`
+  - **File:** `docker-compose.yml`
+    - **Responsibility:** Configuration for deploying the application with Docker.
+  
+  - **File:** `Dockerfile`
+    - **Responsibility:** Dockerfile for building the application image.
 
 ## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controllers and services.
-- **Week 3**: Develop UI components and integrate with API.
-- **Week 4**: Testing and documentation.
 
-## Notes
-- Ensure proper error handling and validation throughout the API.
-- Consider user authentication for dispute management.
-- Follow coding standards and best practices for maintainability.
+- **Week 1:** API development (routes, controller, model).
+- **Week 2:** UI development (components, pages).
+- **Week 3:** State management and testing.
+- **Week 4:** Documentation and deployment setup.
 ```
