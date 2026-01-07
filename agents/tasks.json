@@ -4,8 +4,10 @@
     "allow": [
       "app/**/page.tsx",
       "app/**/layout.tsx",
-      "app/api/**/route.ts",
+      "app/**/route.ts",
+      "app/_components/**",
       "lib/supabase/**",
+      "lib/auth/**",
       "agents/**"
     ],
     "deny": [
@@ -24,124 +26,125 @@
       ".vscode/**"
     ]
   },
+
   "tasks": [
+    {
+      "id": "auth_shared_501",
+      "title": "auth_shared_501",
+      "scope": { "allow": ["lib/supabase/**", "lib/auth/**"] },
+      "instructions": [
+        "Create lib/supabase/browser.ts that exports a Supabase browser client using NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY with createClient from '@supabase/supabase-js'.",
+        "Create lib/auth/useSession.ts with a small React hook that returns { session, loading, error } using supabase.auth.getSession() on mount and listens to onAuthStateChange.",
+        "Create lib/auth/requireAuth.tsx that exports a 'RequireAuth' client component; it renders children if a session exists, else renders a centered Login CTA linking to /login.",
+        "No package or workflow changes. Do not modify admin/service role helpers."
+      ]
+    },
+    {
+      "id": "auth_frontend_501",
+      "title": "auth_frontend_501",
+      "scope": { "allow": ["app/login/page.tsx", "app/account/page.tsx"] },
+      "instructions": [
+        "Create /login page: email input + 'Send magic link' using supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/account' } }). Show success/error messages; keep styling minimal and inline so no new CSS files.",
+        "Create /account page: show current session email and a 'Sign out' button using supabase.auth.signOut().",
+        "Do not introduce middleware or global layouts in this task."
+      ]
+    },
+
+    {
+      "id": "layout_shell_502",
+      "title": "layout_shell_502",
+      "scope": { "allow": ["app/_components/Shell.tsx"] },
+      "instructions": [
+        "Create app/_components/Shell.tsx (client component) that renders a simple header + left sidebar navigation with links: Dashboard(/), Clients(/clients), Jobs(/jobs), Quotes(/quotes), Invoices(/invoices), Payments(/payments), Disputes(/disputes), Tenants(/tenants), Account(/account).",
+        "Shell accepts { title?: string, children } and renders the title in the header.",
+        "Keep styles inline (e.g., style={{ padding: 16 }}) to avoid touching CSS. No global layout edits here."
+      ]
+    },
+    {
+      "id": "layout_apply_502",
+      "title": "layout_apply_502",
+      "scope": { "allow": ["app/clients/page.tsx", "app/jobs/page.tsx", "app/quotes/page.tsx"] },
+      "instructions": [
+        "Update /clients, /jobs, /quotes pages to wrap their root export with <Shell title='...'>...</Shell>.",
+        "At the top of each page, import { RequireAuth } from '@/lib/auth/requireAuth' and wrap the content with <RequireAuth> to gate behind login.",
+        "Do not alter the existing page content aside from the wrapper."
+      ]
+    },
+
     {
       "id": "invoices_backend_401",
       "title": "invoices_backend_401",
-      "scope": {
-        "allow": [
-          "app/api/invoices/route.ts",
-          "app/api/invoices/[id]/route.ts",
-          "lib/supabase/**"
-        ]
-      },
+      "scope": { "allow": ["app/api/invoices/route.ts", "app/api/invoices/[id]/route.ts", "lib/supabase/**"] },
       "instructions": [
-        "Create Next.js route handlers for invoices with CRUD: list (GET /api/invoices), create (POST /api/invoices), update (PUT /api/invoices/[id]), delete (DELETE /api/invoices/[id]).",
-        "Use the existing supabase admin client from lib/supabase/admin.ts (do not add packages).",
-        "Return JSON { data } on success and { error } with status code on failure.",
-        "Assume a table 'invoices' with columns: id uuid pk default gen_random_uuid(), title text not null, amount numeric not null, status text not null default 'unpaid', client_id uuid null, created_at timestamptz default now().",
-        "Do not touch package.json or workflows."
+        "CRUD endpoints for invoices using Supabase admin client.",
+        "Table definition assumed: id uuid pk default gen_random_uuid(), title text not null, amount numeric not null, status text not null default 'unpaid', client_id uuid null, created_at timestamptz default now().",
+        "Return JSON { data } on success or { error } with status code on failure. No package/workflow edits."
       ]
     },
     {
       "id": "invoices_frontend_401",
       "title": "invoices_frontend_401",
-      "scope": {
-        "allow": [
-          "app/invoices/page.tsx"
-        ]
-      },
+      "scope": { "allow": ["app/invoices/page.tsx"] },
       "instructions": [
-        "Create a simple client page at /invoices with table list, add form (title, amount, status), inline status selector, and delete button.",
-        "Wire to /api/invoices endpoints; no extra deps; mirror the Jobs/Quotes UX and styles.",
-        "No layout/global changes."
+        "Create /invoices page: table list, add form (title, amount, status), inline status select, delete button.",
+        "Use fetch to /api/invoices; wrap with <RequireAuth> and <Shell title='Invoices'>."
       ]
     },
+
     {
       "id": "payments_backend_402",
       "title": "payments_backend_402",
-      "scope": {
-        "allow": [
-          "app/api/payments/route.ts",
-          "app/api/payments/[id]/route.ts",
-          "lib/supabase/**"
-        ]
-      },
+      "scope": { "allow": ["app/api/payments/route.ts", "app/api/payments/[id]/route.ts", "lib/supabase/**"] },
       "instructions": [
-        "Create CRUD routes for 'payments' with fields: id uuid pk, invoice_id uuid, amount numeric, method text, status text default 'pending', created_at timestamptz default now().",
-        "Expose GET /api/payments (list), POST /api/payments (create), PUT /api/payments/[id], DELETE /api/payments/[id].",
-        "Use supabase admin client; same response shape rules; no package/workflow edits."
+        "CRUD for payments: id uuid pk, invoice_id uuid, amount numeric, method text, status text default 'pending', created_at timestamptz default now().",
+        "Same response contract as other APIs; Supabase admin client only."
       ]
     },
     {
       "id": "payments_frontend_402",
       "title": "payments_frontend_402",
-      "scope": {
-        "allow": [
-          "app/payments/page.tsx"
-        ]
-      },
+      "scope": { "allow": ["app/payments/page.tsx"] },
       "instructions": [
-        "Client page at /payments with list/add/edit-status/delete.",
-        "If invoice linking is not available yet, keep invoice_id as a free text input; do not block on relations.",
-        "Match the same light table+form pattern as Jobs/Quotes."
+        "Create /payments page mirroring /invoices pattern (list/add/edit/delete).",
+        "If invoice linking is not available yet, keep invoice_id a free text field. Wrap in <RequireAuth> and <Shell title='Payments'>."
       ]
     },
+
     {
       "id": "disputes_backend_403",
       "title": "disputes_backend_403",
-      "scope": {
-        "allow": [
-          "app/api/disputes/route.ts",
-          "app/api/disputes/[id]/route.ts",
-          "lib/supabase/**"
-        ]
-      },
+      "scope": { "allow": ["app/api/disputes/route.ts", "app/api/disputes/[id]/route.ts", "lib/supabase/**"] },
       "instructions": [
-        "CRUD routes for 'disputes': id uuid pk, title text, status text default 'open', notes text null, related_id uuid null, created_at timestamptz default now().",
-        "Same error/success JSON contract; supabase admin client; no package/workflow edits."
+        "CRUD for disputes: id uuid pk, title text, status text default 'open', notes text null, related_id uuid null, created_at timestamptz default now().",
+        "Use admin client; standard JSON contract."
       ]
     },
     {
       "id": "disputes_frontend_403",
       "title": "disputes_frontend_403",
-      "scope": {
-        "allow": [
-          "app/disputes/page.tsx",
-          "app/admin/disputes/page.tsx"
-        ]
-      },
+      "scope": { "allow": ["app/disputes/page.tsx", "app/admin/disputes/page.tsx"] },
       "instructions": [
-        "Two pages: /disputes (basic CRUD like Jobs/Quotes) and /admin/disputes (same table with an extra text area for notes).",
-        "Keep both pages self-contained; no shared component extraction."
+        "Create /disputes page with basic CRUD.",
+        "Create /admin/disputes page that shows same table plus editable 'notes' textarea for each row.",
+        "Both pages wrapped with <RequireAuth> and <Shell title='Disputes' | 'Admin Disputes'>."
       ]
     },
+
     {
       "id": "tenants_backend_404",
       "title": "tenants_backend_404",
-      "scope": {
-        "allow": [
-          "app/api/tenants/route.ts",
-          "app/api/tenants/[id]/route.ts",
-          "lib/supabase/**"
-        ]
-      },
+      "scope": { "allow": ["app/api/tenants/route.ts", "app/api/tenants/[id]/route.ts", "lib/supabase/**"] },
       "instructions": [
-        "CRUD for 'tenants': id uuid pk, name text not null, domain text null, created_at timestamptz default now().",
-        "This is purely backend scaffolding to unblock future RLS partitioning; do not alter RLS now."
+        "CRUD for tenants: id uuid pk, name text not null, domain text null, created_at timestamptz default now().",
+        "No RLS changes yet; backend scaffolding only."
       ]
     },
     {
       "id": "tenants_frontend_404",
       "title": "tenants_frontend_404",
-      "scope": {
-        "allow": [
-          "app/tenants/page.tsx"
-        ]
-      },
+      "scope": { "allow": ["app/tenants/page.tsx"] },
       "instructions": [
-        "Simple CRUD page for tenants mirroring the same pattern.",
-        "No navigation/header changes."
+        "Create /tenants page with same pattern (list/add/edit/delete), wrapped with <RequireAuth> and <Shell title='Tenants'>."
       ]
     }
   ]
