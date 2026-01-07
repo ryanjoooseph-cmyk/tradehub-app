@@ -1,9 +1,36 @@
-[
-  {
-    "enabled": true,
-    "title": "Scaffold TradeHub dashboard shell",
-    "goal": "Create production-safe UI shell pages.",
-    "paths": ["app", "components", "lib"],
-    "details": "Next.js App Router (TS). Add a left sidebar layout with routes: /dashboard, /jobs, /clients, /quotes. Simple, compilable TSX with minimal CSS modules; no new deps; don't touch server config or public/sw.js."
-  }
-]
+{
+  "config": {
+    "branch_prefix": "agent/ui-",
+    "model": "gpt-4.1-mini",
+    "max_tokens": 20000,
+    "build_cmd": "npm ci --prefer-offline --no-audit && npm run -s build",
+    "paths_blocked": ["package.json", "package-lock.json", "pnpm-lock.yaml", ".github/workflows/*"],
+    "paths_allowed_globs": ["app/**", "lib/**", "public/**"]
+  },
+  "tasks": [
+    {
+      "id": "jobs-crud",
+      "title": "Jobs CRUD (list/create/delete)",
+      "enabled": true,
+      "goal": "Implement API routes and UI for /jobs to list, create, and delete jobs using existing DB schema. Match Clients pattern.",
+      "acceptance": [
+        "GET /api/jobs returns array",
+        "POST /api/jobs creates record",
+        "DELETE /api/jobs/{id} deletes record",
+        "app/jobs/page.tsx shows table + simple create form + delete buttons",
+        "TypeScript builds with no errors"
+      ]
+    },
+    {
+      "id": "quotes-crud",
+      "title": "Quotes CRUD (list/create/delete)",
+      "enabled": true,
+      "goal": "Implement API routes and UI for /quotes mirroring Jobs pattern.",
+      "acceptance": [
+        "GET/POST/DELETE for quotes",
+        "app/quotes/page.tsx table + create + delete",
+        "TypeScript builds clean"
+      ]
+    }
+  ]
+}
