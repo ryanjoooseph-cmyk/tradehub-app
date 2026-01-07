@@ -1,0 +1,30 @@
+[
+  {
+    "enabled": true,
+    "title": "Normalize UI list pages",
+    "goal": "Unify headings and spacing for /clients, /jobs, /quotes using inline styles only.",
+    "paths": ["app/clients", "app/jobs", "app/quotes"],
+    "details": "No new deps. Do not change public/sw.js or config."
+  },
+  {
+    "enabled": true,
+    "title": "Error, loading, not-found pages",
+    "goal": "Add app/error.tsx, app/loading.tsx, app/not-found.tsx with simple, branded copy.",
+    "paths": ["app"],
+    "details": "Client-safe error boundary; no external packages."
+  },
+  {
+    "enabled": true,
+    "title": "Docs refresh",
+    "goal": "Update README with run/deploy steps and agent controls.",
+    "paths": ["README.md"],
+    "details": "Document manual deploy on Render, hourly agent schedule, and guarded paths."
+  },
+  {
+    "enabled": false,
+    "title": "Prepare Supabase schema (proposal only)",
+    "goal": "Draft SQL and types for clients/jobs/quotes; open PR gated by allow-schema.",
+    "paths": ["supabase", "lib/db"],
+    "details": "Do not merge automatically; create PR with SQL migrations and generated types."
+  }
+]
