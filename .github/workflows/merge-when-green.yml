@@ -1,22 +1,42 @@
 name: merge-when-green
+
 on:
+  # re-run when CI finishes so we can merge right after checks go green
+  check_suite:
+    types: [completed]
   pull_request_target:
     types: [opened, synchronize, reopened, labeled, ready_for_review]
 
 permissions:
   contents: write
   pull-requests: write
+  checks: read
+
+concurrency:
+  group: merge-${{ github.event.pull_request.number || github.event.check_suite.pull_requests[0].number }}
+  cancel-in-progress: false
 
 jobs:
   automerge:
-    if: contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
+    # Work for either trigger: pull_request_target OR check_suite
+    if: >
+      (
+        github.event_name == 'pull_request_target' &&
+        contains(github.event.pull_request.labels.*.name, 'automerge')
+      )
+      || (
+        github.event_name == 'check_suite' &&
+        github.event.check_suite.pull_requests[0] &&
+        contains(github.event.check_suite.pull_requests[0].labels.*.name, 'automerge')
+      )
     steps:
-      - name: Automerge when required checks pass
+      - name: Merge when required checks pass
         uses: pascalgn/automerge-action@v0.16.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MERGE_METHOD: squash
           MERGE_DELETE_BRANCH: true
           UPDATE_METHOD: rebase
-          MERGE_RETRY_SLEEP: 60000
+          MERGE_RETRY_SLEEP: 30000   # 30s
+          MERGE_RETRIES: 120         # ~60 minutes of retries
