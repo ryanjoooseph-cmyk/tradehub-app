@@ -1,9 +1,16 @@
 [
   {
     "enabled": true,
-    "title": "Scaffold TradeHub dashboard shell",
-    "goal": "Create production-safe UI shell pages.",
-    "paths": ["app", "components", "lib"],
-    "details": "Next.js App Router (TS). Add a left sidebar layout with routes: /dashboard, /jobs, /clients, /quotes. Simple, compilable TSX with minimal CSS modules; no new deps; don't touch server config or public/sw.js."
+    "title": "Scaffold UI shell with sidebar + nav",
+    "goal": "App Router layout with a persistent left sidebar and top header.",
+    "paths": ["app", "components"],
+    "details": "Create components/Sidebar.tsx and components/Topbar.tsx. Update app/layout.tsx to include the sidebar and top bar. Add nav links to /dashboard, /jobs, /clients, /quotes (active link highlighted). Keep styles minimal using CSS modules or inline styles; do not add new dependencies. Ensure each page has an <h1> matching the route name. Do not modify public/sw.js or any server config."
+  },
+  {
+    "enabled": true,
+    "title": "Set home to redirect to dashboard",
+    "goal": "Make / redirect to /dashboard.",
+    "paths": ["app/page.tsx"],
+    "details": "Use next/navigation redirect in app/page.tsx to send users to /dashboard; file must compile on Next 13+/App Router."
   }
 ]
