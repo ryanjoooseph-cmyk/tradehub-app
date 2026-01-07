@@ -1,0 +1,6 @@
+# Require manual approval for guarded files
+/public/sw.js               @ryanjoooseph-cmyk
+/package.json               @ryanjoooseph-cmyk
+/next.config.*              @ryanjoooseph-cmyk
+/server.*                   @ryanjoooseph-cmyk
+/scripts/ops/**             @ryanjoooseph-cmyk
