@@ -1,0 +1,54 @@
+name: pr-cleanup
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 * * * *"   # every hour at :15
+
+concurrency:
+  group: pr-cleanup
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  close-spam-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auth gh
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      - name: Close open spam PRs (older than 30 min; title filter)
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh pr list -R "$REPO" --state open --limit 3000 --json number,title,createdAt,author,headRefName \
+          | jq -r '
+              .[]
+              | select(
+                  # ---- title patterns to treat as spam (customize) ----
+                  (.title|test("^(admin_disputes_frontend_|disputes_backend_|agent autopilot)"))
+                  and
+                  # ---- older than 30 minutes ----
+                  ((now - (.createdAt|fromdateiso8601)) > 60*30)
+                )
+              | .number
+            ' \
+          | xargs -n1 -P8 -I{} gh pr close {} -R "$REPO" --delete-branch || true
+
+      - name: Remove orphan branches prefixed by agent/ (optional)
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # list remote branches starting with agent/ that have no open PR
+          gh api -H "Accept: application/vnd.github+json" /repos/$REPO/branches?per_page=100 \
+          | jq -r '.[].name' \
+          | grep -E '^agent/' || true
+          # (noop by default; uncomment to prune)
+          # while read -r BR; do
+          #   gh api -X DELETE -H "Accept: application/vnd.github+json" /repos/$REPO/git/refs/heads/$BR || true
+          # done < <(gh api -H "Accept: application/vnd.github+json" /repos/$REPO/branches?per_page=100 | jq -r '.[].name' | grep -E '^agent/')
