@@ -6,53 +6,17 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  checks: read
 
 jobs:
-  merge:
+  automerge:
+    if: contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
-    # Only run if PR has the 'automerge' label.
-    if: contains(join(github.event.pull_request.labels.*.name, ','), 'automerge')
     steps:
-      - name: Only proceed if guard succeeded
-        uses: actions/github-script@v7
-        id: guard_ok
-        with:
-          script: |
-            const pr = context.payload.pull_request;
-            const owner = context.repo.owner;
-            const repo  = context.repo.repo;
-
-            // Get latest combined status of all check suites for the head SHA
-            const sha = pr.head.sha;
-            const suites = await github.paginate(
-              github.rest.checks.listSuitesForRef,
-              { owner, repo, ref: sha, per_page: 100 }
-            );
-
-            // If any suite conclusion is failure/cancelled/timed_out/action_required, stop.
-            const bad = suites.filter(s =>
-              ['failure','cancelled','timed_out','action_required'].includes(s.conclusion)
-            );
-
-            if (bad.length) {
-              core.setFailed(`Checks not green yet.`);
-            } else {
-              core.notice('Checks green.');
-            }
-
-      - name: Merge (squash) when green
-        if: success()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const pr = context.payload.pull_request;
-            const owner = context.repo.owner;
-            const repo  = context.repo.repo;
-
-            // Merge with squash; respects branch protections (will fail if protections block it).
-            await github.rest.pulls.merge({
-              owner, repo, pull_number: pr.number,
-              merge_method: 'squash'
-            });
-            core.notice('Merged successfully.');
+      - name: Automerge when required checks pass
+        uses: pascalgn/automerge-action@v0.16.3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_METHOD: squash
+          MERGE_DELETE_BRANCH: true
+          UPDATE_METHOD: rebase
+          MERGE_RETRY_SLEEP: 60000
