@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "version": 1,
   "defaults": {
@@ -154,3 +155,14 @@
     }
   ]
 }
+=======
+[
+  {
+    "enabled": true,
+    "title": "Scaffold TradeHub dashboard shell",
+    "goal": "Create production-safe UI shell pages.",
+    "paths": ["app", "components", "lib"],
+    "details": "Next.js App Router (TS). Add a left sidebar layout with routes: /dashboard, /jobs, /clients, /quotes. Simple, compilable TSX with minimal CSS modules; no new deps; don't touch server config or public/sw.js."
+  }
+]
+>>>>>>> b781aee5 (chore(agent): add workflow and runner)
