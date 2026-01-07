@@ -1,15 +1,12 @@
-import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import getAdminClient from '../../../../lib/supabase/admin';
 
 export async function DELETE(
-  _req: NextRequest,
-  context: { params: { id: string } }
-) {
-  const { id } = context.params;
-
+  _request: Request,
+  { params }: { params: { id: string } }
+): Promise<Response> {
   const supabase = getAdminClient();
-  const { error } = await supabase.from('clients').delete().eq('id', id);
+  const { error } = await supabase.from('clients').delete().eq('id', params.id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
