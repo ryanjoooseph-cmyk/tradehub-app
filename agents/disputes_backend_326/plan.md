@@ -1,94 +1,120 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+## Directory Structure
+```
+/disputes_backend_326
+│
+├── api
+│   ├── __init__.py
+│   ├── routes.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── services.py
+│   └── utils.py
+│
+├── ui
+│   ├── __init__.py
+│   ├── components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── pages
+│   │   ├── DisputePage.jsx
+│   │   └── NotFoundPage.jsx
+│   ├── App.jsx
+│   └── index.js
+│
+├── tests
+│   ├── api
+│   │   ├── test_routes.py
+│   │   └── test_services.py
+│   └── ui
+│       ├── test_DisputeList.jsx
+│       └── test_DisputeForm.jsx
+│
+└── requirements.txt
+```
 
-## File Structure
+## API Responsibilities
 
-### API Implementation
+### `api/routes.py`
+- Define Flask routes for:
+  - `GET /api/disputes`: List all disputes
+  - `POST /api/disputes`: Create a new dispute
+  - `PUT /api/disputes/<id>`: Update an existing dispute
+- Handle request validation and response formatting.
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**:
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate input data and handle errors.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities**:
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**:
-      - Implement controller functions for:
-        - `createDispute(req, res)`: Open a new dispute.
-        - `getDisputes(req, res)`: List all disputes.
-        - `updateDispute(req, res)`: Update dispute status and evidence URLs.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**:
-      - Set up Express routes for:
-        - `POST /api/disputes`: Create a dispute.
-        - `GET /api/disputes`: List disputes.
-        - `PUT /api/disputes/:id`: Update a dispute.
+### `api/models.py`
+- Define the Dispute model with fields:
+  - `id`: Unique identifier
+  - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - `evidence_urls`: Array of URLs
+  - `created_at`: Timestamp
+  - `updated_at`: Timestamp
 
-### UI Implementation
+### `api/schemas.py`
+- Create Pydantic schemas for request and response validation:
+  - `DisputeCreateSchema`
+  - `DisputeUpdateSchema`
+  - `DisputeResponseSchema`
 
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**:
-      - Display a list of disputes.
-      - Include filtering options based on status.
-  
-  - `src/components/DisputeForm.js`
-    - **Responsibilities**:
-      - Form for creating and updating disputes.
-      - Fields for status and evidence URLs.
-  
-  - `src/pages/DisputePage.js`
-    - **Responsibilities**:
-      - Main page to manage disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-  
-  - `src/services/disputeService.js`
-    - **Responsibilities**:
-      - API calls to interact with `/api/disputes`.
-      - Functions for creating, listing, and updating disputes.
+### `api/services.py`
+- Implement business logic for:
+  - Fetching disputes
+  - Creating a dispute
+  - Updating a dispute
+- Handle status transitions and evidence URL management.
 
-### Testing
+### `api/utils.py`
+- Utility functions for error handling and logging.
 
-- **File Paths**
-  - `tests/api/dispute.test.js`
-    - **Responsibilities**:
-      - Unit tests for API endpoints.
-      - Test cases for creating, listing, and updating disputes.
-  
-  - `tests/ui/DisputePage.test.js`
-    - **Responsibilities**:
-      - Unit tests for UI components.
-      - Test rendering of disputes and form submission.
+## UI Responsibilities
 
-### Documentation
+### `ui/components/DisputeList.jsx`
+- Display a list of disputes with status and action buttons (view/update).
 
-- **File Paths**
-  - `docs/api/disputes.md`
-    - **Responsibilities**:
-      - Document API endpoints, request/response formats, and error handling.
-  
-  - `docs/ui/disputes.md`
-    - **Responsibilities**:
-      - Document UI components and their usage.
+### `ui/components/DisputeForm.jsx`
+- Form for creating/updating disputes.
+- Include fields for status and evidence URLs.
+
+### `ui/components/DisputeDetail.jsx`
+- Show detailed view of a selected dispute.
+
+### `ui/pages/DisputePage.jsx`
+- Main page to manage disputes.
+- Integrate `DisputeList` and `DisputeForm`.
+
+### `ui/pages/NotFoundPage.jsx`
+- Display a 404 error for unmatched routes.
+
+### `ui/App.jsx`
+- Set up routing using React Router.
+- Include global state management if necessary.
+
+### `ui/index.js`
+- Entry point for the React application.
+
+## Testing Responsibilities
+
+### `tests/api/test_routes.py`
+- Test all API endpoints for expected behavior and edge cases.
+
+### `tests/api/test_services.py`
+- Validate business logic for dispute creation, updating, and fetching.
+
+### `tests/ui/test_DisputeList.jsx`
+- Test rendering and interaction of the dispute list component.
+
+### `tests/ui/test_DisputeForm.jsx`
+- Validate form submission and input handling.
+
+## Requirements
+- Update `requirements.txt` with necessary libraries (Flask, Pydantic, React, etc.).
 
 ## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controllers and services.
-- **Week 3**: Develop UI components and integrate with API.
-- **Week 4**: Testing and documentation.
-
-## Notes
-- Ensure proper error handling and validation throughout the API.
-- Consider user authentication for dispute management.
-- Follow coding standards and best practices for maintainability.
+- **Week 1**: API development (models, routes, services).
+- **Week 2**: UI development (components, pages).
+- **Week 3**: Testing and integration.
+- **Week 4**: Review and deployment.
 ```
