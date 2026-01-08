@@ -5,74 +5,73 @@
 /src
   ├── components
   │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
+  │   ├── FilterPanel.jsx
+  │   └── StatusUpdateModal.jsx
   ├── pages
   │   └── AdminDisputesPage.jsx
   ├── services
-  │   └── apiService.js
+  │   └── disputesService.js
   ├── styles
   │   └── AdminDisputesPage.css
   ├── utils
-  │   └── filters.js
+  │   └── api.js
   └── App.js
 ```
 
 ## File Responsibilities
 
 ### 1. **AdminDisputesTable.jsx**
-- **Path:** `/src/components/AdminDisputesTable.jsx`
+- **Location:** `/src/components/AdminDisputesTable.jsx`
 - **Responsibilities:**
   - Render the admin disputes table.
-  - Accept props for disputes data and filters.
-  - Handle pagination and sorting.
+  - Display dispute data with columns for ID, status, and actions.
+  - Integrate filtering options to filter disputes based on criteria.
 
-### 2. **FilterComponent.jsx**
-- **Path:** `/src/components/FilterComponent.jsx`
+### 2. **FilterPanel.jsx**
+- **Location:** `/src/components/FilterPanel.jsx`
 - **Responsibilities:**
-  - Provide UI for filtering disputes (e.g., by status, date).
-  - Manage filter state and pass it to the parent component.
+  - Provide UI elements for filtering disputes (e.g., by status, date).
+  - Handle filter changes and communicate with `AdminDisputesTable`.
 
-### 3. **StatusUpdateButton.jsx**
-- **Path:** `/src/components/StatusUpdateButton.jsx`
+### 3. **StatusUpdateModal.jsx**
+- **Location:** `/src/components/StatusUpdateModal.jsx`
 - **Responsibilities:**
-  - Render a button to update the status of a dispute.
-  - Trigger API call to update status on click.
+  - Modal for updating the status of a selected dispute.
+  - Include form elements for selecting new status.
+  - Call the API to update the dispute status upon submission.
 
 ### 4. **AdminDisputesPage.jsx**
-- **Path:** `/src/pages/AdminDisputesPage.jsx`
+- **Location:** `/src/pages/AdminDisputesPage.jsx`
 - **Responsibilities:**
-  - Main page component for `/admin/disputes/321`.
-  - Fetch disputes data from API on mount.
-  - Manage state for disputes and filters.
-  - Render `AdminDisputesTable` and `FilterComponent`.
+  - Main page component for the `/admin/disputes/321` route.
+  - Integrate `AdminDisputesTable` and `FilterPanel`.
+  - Manage state for disputes and handle API calls.
 
-### 5. **apiService.js**
-- **Path:** `/src/services/apiService.js`
+### 5. **disputesService.js**
+- **Location:** `/src/services/disputesService.js`
 - **Responsibilities:**
-  - Define API calls to `/api/disputes`.
-  - Include methods for fetching disputes and updating status.
+  - Define API calls to `/api/disputes` for fetching and updating dispute data.
+  - Export functions for use in `AdminDisputesPage` and `StatusUpdateModal`.
 
 ### 6. **AdminDisputesPage.css**
-- **Path:** `/src/styles/AdminDisputesPage.css`
+- **Location:** `/src/styles/AdminDisputesPage.css`
 - **Responsibilities:**
   - Style the Admin Disputes Page and its components.
-  - Ensure responsive design for table and filters.
+  - Ensure responsive design for the table and filters.
 
-### 7. **filters.js**
-- **Path:** `/src/utils/filters.js`
+### 7. **api.js**
+- **Location:** `/src/utils/api.js`
 - **Responsibilities:**
-  - Utility functions for filtering disputes based on criteria.
-  - Export functions to be used in `AdminDisputesPage`.
+  - Set up Axios or Fetch API for making HTTP requests.
+  - Handle error responses and provide utility functions for API calls.
 
 ### 8. **App.js**
-- **Path:** `/src/App.js`
+- **Location:** `/src/App.js`
 - **Responsibilities:**
-  - Set up routing for the application.
+  - Define routing for the application.
   - Include route for `/admin/disputes/321` pointing to `AdminDisputesPage`.
 
 ## Additional Notes
-- Ensure proper error handling for API calls.
-- Implement loading states while fetching data.
-- Write unit tests for components and utility functions.
-- Document the API endpoints used in the feature.
+- Ensure proper error handling and loading states throughout the UI.
+- Implement unit tests for components and services.
+- Consider accessibility best practices in UI design.
