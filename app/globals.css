@@ -1,26 +1,121 @@
-@import "tailwindcss";
+/* app/globals.css */
 
+/* --- CSS reset (small) --- */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body,h1,h2,h3,h4,h5,h6,p,ul,ol { margin: 0; }
+
+/* --- Theme tokens --- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0b1020;
+  --panel: #121a2a;
+  --panel-2: #0e1626;
+  --border: rgba(255,255,255,0.08);
+  --text: #e6edf6;
+  --muted: #9fb0c7;
+  --brand: #5db3ff;
+  --brand-2: #7cd4ff;
+  --success: #2ecc71;
+  --warn: #f1c40f;
+  --danger: #ff6b6b;
+  --radius: 12px;
+  --shadow: 0 8px 20px rgba(0,0,0,0.25);
+  --code-bg: #0b1322;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Light mode (optional) */
+[data-theme="light"] {
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --panel-2: #f2f5fb;
+  --border: rgba(10,20,40,0.12);
+  --text: #0b1220;
+  --muted: #55657c;
+  --brand: #1463ff;
+  --brand-2: #2a7dff;
+  --success: #1f8d4d;
+  --warn: #b88700;
+  --danger: #d64545;
+  --code-bg: #eef2f9;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+  background: radial-gradient(1200px 800px at 20% -10%, #12203a 0%, var(--bg) 55%) no-repeat,
+              linear-gradient(180deg, var(--bg), var(--bg)) no-repeat;
+  color: var(--text);
 }
+
+/* Layout shell */
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+.sidebar {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border-right: 1px solid var(--border);
+  padding: 20px 16px;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+  font-weight: 700; letter-spacing: .2px; font-size: 18px;
+}
+.brand-badge {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  box-shadow: var(--shadow);
+}
+.nav { display: grid; gap: 6px; margin-top: 8px; }
+.nav a {
+  display: block; padding: 10px 12px; border-radius: 10px; color: var(--text);
+  text-decoration: none; border: 1px solid transparent;
+}
+.nav a:hover { background: var(--panel-2); border-color: var(--border); }
+.content {
+  padding: 28px 32px; max-width: 1400px; width: 100%;
+}
+
+/* Page headings */
+h1 { font-size: 22px; font-weight: 800; letter-spacing: .2px; }
+h2 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+
+/* Panels / cards */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+.grid { display: grid; gap: 16px; }
+.grid.auto { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+th { color: var(--muted); font-weight: 600; text-align: left; }
+
+/* Inputs & buttons */
+input, select, textarea {
+  width: 100%; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--panel-2); color: var(--text);
+}
+button, .btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 10px; border: 1px solid transparent;
+  background: linear-gradient(180deg, var(--brand), var(--brand-2));
+  color: white; font-weight: 700; cursor: pointer;
+}
+button.secondary, .btn.secondary {
+  background: transparent; color: var(--text); border-color: var(--border);
+}
+.badge { display:inline-block; padding:3px 8px; border-radius:999px; font-size:12px; background:var(--panel-2); border:1px solid var(--border); color:var(--muted); }
+
+/* Code blocks */
+code, pre { background: var(--code-bg); border:1px solid var(--border); border-radius:10px; padding:3px 6px; }
+pre { padding: 12px; overflow: auto; }
+
+/* Utility */
+.muted { color: var(--muted); }
+.kpi { font-size: 28px; font-weight: 800; }
