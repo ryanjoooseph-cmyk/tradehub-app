@@ -1,81 +1,127 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
-/disputes_backend_326
+/project-root
 │
 ├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   └── __init__.py                # Initialize API module
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesService.js
+│   │   ├── disputesModel.js
+│   │   └── disputesRoutes.js
+│   └── /middleware
+│       └── authMiddleware.js
 │
-├── /models
-│   ├── dispute.py                 # Dispute model definition
-│   └── __init__.py                # Initialize models module
-│
-├── /schemas
-│   ├── dispute_schema.py          # Pydantic schemas for request/response validation
-│   └── __init__.py                # Initialize schemas module
-│
-├── /services
-│   ├── dispute_service.py         # Business logic for disputes handling
-│   └── __init__.py                # Initialize services module
+├── /client
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   ├── /pages
+│   │   └── DisputesPage.jsx
+│   └── /styles
+│       └── disputes.css
 │
 ├── /tests
-│   ├── test_disputes.py           # Unit tests for disputes API
-│   └── __init__.py                # Initialize tests module
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /client
+│       └── DisputesPage.test.jsx
 │
-└── main.py                        # Main application entry point
+└── server.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Layer
-- **File: `/api/disputes.py`**
-  - Implement CRUD endpoints for disputes:
+### 1. **Disputes Routes**
+- **File:** `/api/disputes/disputesRoutes.js`
+- **Responsibilities:**
+  - Define routes for:
     - `GET /api/disputes` - List all disputes
     - `POST /api/disputes` - Create a new dispute
-    - `PUT /api/disputes/{id}` - Update an existing dispute
-  - Handle request validation and response formatting.
+    - `PUT /api/disputes/:id` - Update an existing dispute
+  - Use middleware for authentication.
 
-### Models
-- **File: `/models/dispute.py`**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs for evidence
-    - `status`: Enum for status (OPEN/REVIEW/RESOLVED)
-  - Implement database interactions (CRUD operations).
+### 2. **Disputes Controller**
+- **File:** `/api/disputes/disputesController.js`
+- **Responsibilities:**
+  - Handle requests and responses for each route.
+  - Validate input data.
+  - Call service methods to interact with the database.
 
-### Schemas
-- **File: `/schemas/dispute_schema.py`**
-  - Create Pydantic schemas for:
-    - Request validation for creating/updating disputes
-    - Response models for listing and retrieving disputes
+### 3. **Disputes Service**
+- **File:** `/api/disputes/disputesService.js`
+- **Responsibilities:**
+  - Business logic for disputes.
+  - Interact with the database model.
+  - Manage dispute statuses (OPEN/REVIEW/RESOLVED).
 
-### Services
-- **File: `/services/dispute_service.py`**
-  - Implement business logic for:
-    - Creating a dispute
-    - Updating a dispute status
-    - Retrieving disputes based on filters (e.g., status)
-  - Interact with the model layer for data persistence.
+### 4. **Disputes Model**
+- **File:** `/api/disputes/disputesModel.js`
+- **Responsibilities:**
+  - Define the dispute schema.
+  - Include fields: `evidence_urls`, `status`, etc.
+  - Interact with the database (CRUD operations).
 
-### Testing
-- **File: `/tests/test_disputes.py`**
-  - Write unit tests for:
-    - API endpoints (status codes, response structure)
-    - Service layer functions (business logic correctness)
-    - Model interactions (database CRUD operations)
+### 5. **Authentication Middleware**
+- **File:** `/api/middleware/authMiddleware.js`
+- **Responsibilities:**
+  - Protect routes by verifying user authentication.
 
-### Main Application
-- **File: `main.py`**
-  - Set up FastAPI application.
-  - Include API routes from `/api/disputes.py`.
-  - Configure middleware, CORS, and error handling.
+## UI Implementation
+
+### 6. **Disputes Page**
+- **File:** `/client/pages/DisputesPage.jsx`
+- **Responsibilities:**
+  - Render the list of disputes.
+  - Include links to create and view individual disputes.
+
+### 7. **Dispute List Component**
+- **File:** `/client/components/DisputeList.jsx`
+- **Responsibilities:**
+  - Display a list of disputes with their statuses.
+  - Allow users to click for more details.
+
+### 8. **Dispute Form Component**
+- **File:** `/client/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Form for creating/updating disputes.
+  - Handle input for `evidence_urls` and `status`.
+
+### 9. **Dispute Detail Component**
+- **File:** `/client/components/DisputeDetail.jsx`
+- **Responsibilities:**
+  - Display detailed information about a selected dispute.
+  - Allow updates to the dispute status.
+
+### 10. **Custom Hook for Disputes**
+- **File:** `/client/hooks/useDisputes.js`
+- **Responsibilities:**
+  - Fetch disputes from the API.
+  - Handle state management for disputes.
+
+## Testing
+
+### 11. **API Tests**
+- **File:** `/tests/api/disputes.test.js`
+- **Responsibilities:**
+  - Test all API endpoints for expected behavior.
+
+### 12. **Client Tests**
+- **File:** `/tests/client/DisputesPage.test.jsx`
+- **Responsibilities:**
+  - Test rendering and functionality of the DisputesPage component.
+
+## Deployment
+- Ensure API is deployed and accessible at `/api/disputes`.
+- Deploy client application and ensure it can communicate with the API.
 
 ## Timeline
-- **Week 1**: Set up project structure, implement models and schemas.
-- **Week 2**: Develop API endpoints and service logic.
-- **Week 3**: Write tests and perform integration testing.
-- **Week 4**: Finalize documentation and prepare for deployment.
+- **Week 1:** API implementation (routes, controller, service, model).
+- **Week 2:** UI implementation (components, pages, hooks).
+- **Week 3:** Testing and deployment.
 ```
