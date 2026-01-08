@@ -4,78 +4,74 @@
 ## Directory Structure
 ```
 /disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   └── __init__.py                # Initialize API module
-│
-├── /models
-│   ├── dispute.py                 # Dispute model definition
-│   └── __init__.py                # Initialize models module
-│
-├── /schemas
-│   ├── dispute_schema.py          # Pydantic schemas for request/response validation
-│   └── __init__.py                # Initialize schemas module
-│
-├── /services
-│   ├── dispute_service.py         # Business logic for disputes handling
-│   └── __init__.py                # Initialize services module
-│
-├── /tests
-│   ├── test_disputes.py           # Unit tests for disputes API
-│   └── __init__.py                # Initialize tests module
-│
-└── main.py                        # Main application entry point
+├── api
+│   ├── disputes.js
+│   └── index.js
+├── models
+│   ├── dispute.js
+├── controllers
+│   ├── disputeController.js
+├── routes
+│   ├── disputeRoutes.js
+├── middleware
+│   ├── authMiddleware.js
+├── validations
+│   ├── disputeValidation.js
+├── tests
+│   ├── dispute.test.js
+├── config
+│   ├── db.js
+└── app.js
 ```
 
 ## Responsibilities
 
-### API Layer
-- **File: `/api/disputes.py`**
-  - Implement CRUD endpoints for disputes:
-    - `GET /api/disputes` - List all disputes
-    - `POST /api/disputes` - Create a new dispute
-    - `PUT /api/disputes/{id}` - Update an existing dispute
-  - Handle request validation and response formatting.
+### 1. **Database Model**
+- **File:** `/models/dispute.js`
+- **Responsibility:** Define the Dispute schema with fields: `id`, `evidence_urls` (array), `status` (enum: OPEN/REVIEW/RESOLVED), and timestamps.
 
-### Models
-- **File: `/models/dispute.py`**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs for evidence
-    - `status`: Enum for status (OPEN/REVIEW/RESOLVED)
-  - Implement database interactions (CRUD operations).
+### 2. **API Routes**
+- **File:** `/routes/disputeRoutes.js`
+- **Responsibility:** Set up Express routes for:
+  - `GET /api/disputes` - List all disputes
+  - `POST /api/disputes` - Create a new dispute
+  - `PUT /api/disputes/:id` - Update an existing dispute
 
-### Schemas
-- **File: `/schemas/dispute_schema.py`**
-  - Create Pydantic schemas for:
-    - Request validation for creating/updating disputes
-    - Response models for listing and retrieving disputes
+### 3. **Controller Logic**
+- **File:** `/controllers/disputeController.js`
+- **Responsibility:** Implement the logic for handling requests:
+  - `listDisputes`: Fetch all disputes from the database.
+  - `createDispute`: Validate and save a new dispute.
+  - `updateDispute`: Validate and update an existing dispute.
 
-### Services
-- **File: `/services/dispute_service.py`**
-  - Implement business logic for:
-    - Creating a dispute
-    - Updating a dispute status
-    - Retrieving disputes based on filters (e.g., status)
-  - Interact with the model layer for data persistence.
+### 4. **Validation**
+- **File:** `/validations/disputeValidation.js`
+- **Responsibility:** Create validation middleware for:
+  - Dispute creation (check evidence_urls and status).
+  - Dispute update (check if dispute exists and validate fields).
 
-### Testing
-- **File: `/tests/test_disputes.py`**
-  - Write unit tests for:
-    - API endpoints (status codes, response structure)
-    - Service layer functions (business logic correctness)
-    - Model interactions (database CRUD operations)
+### 5. **Middleware**
+- **File:** `/middleware/authMiddleware.js`
+- **Responsibility:** Implement authentication middleware to protect routes.
 
-### Main Application
-- **File: `main.py`**
-  - Set up FastAPI application.
-  - Include API routes from `/api/disputes.py`.
-  - Configure middleware, CORS, and error handling.
+### 6. **Database Configuration**
+- **File:** `/config/db.js`
+- **Responsibility:** Set up database connection (e.g., MongoDB, PostgreSQL).
 
-## Timeline
-- **Week 1**: Set up project structure, implement models and schemas.
-- **Week 2**: Develop API endpoints and service logic.
-- **Week 3**: Write tests and perform integration testing.
-- **Week 4**: Finalize documentation and prepare for deployment.
+### 7. **API Entry Point**
+- **File:** `/api/index.js`
+- **Responsibility:** Import routes and initialize the Express app.
+
+### 8. **Main Application File**
+- **File:** `/app.js`
+- **Responsibility:** Set up middleware, connect to the database, and start the server.
+
+### 9. **Testing**
+- **File:** `/tests/dispute.test.js`
+- **Responsibility:** Write unit tests for API endpoints and controller functions.
+
+## Additional Notes
+- Ensure proper error handling and response formatting across all endpoints.
+- Consider implementing pagination for the list endpoint if the number of disputes is large.
+- Document API endpoints using Swagger or similar tools.
 ```
