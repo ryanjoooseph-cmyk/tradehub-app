@@ -1,100 +1,104 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes with an array of evidence URLs and a status field.
-
-## File Structure
-
+## Project Structure
 ```
-/src
-  ├── api
-  │   ├── disputes.js               # API routes for disputes
-  │   └── index.js                   # Main API entry point
-  ├── controllers
-  │   ├── disputesController.js      # Business logic for disputes
-  ├── models
-  │   ├── disputeModel.js            # Mongoose model for disputes
-  ├── routes
-  │   ├── disputesRoutes.js          # Express routes for disputes
-  ├── services
-  │   ├── disputeService.js          # Service layer for dispute operations
-  ├── ui
-  │   ├── components
-  │   │   ├── DisputeList.jsx        # Component to list disputes
-  │   │   ├── DisputeForm.jsx        # Component to create/update disputes
-  │   ├── pages
-  │   │   ├── DisputePage.jsx        # Main page for disputes
-  │   └── App.jsx                    # Main application component
-  ├── utils
-  │   ├── apiClient.js               # API client for making requests
-  └── index.js                       # Entry point for the application
+/disputes_backend_326
+├── /api
+│   ├── disputes.py
+│   ├── __init__.py
+│   └── utils.py
+├── /models
+│   ├── dispute.py
+│   └── __init__.py
+├── /schemas
+│   ├── dispute_schema.py
+│   └── __init__.py
+├── /tests
+│   ├── test_disputes.py
+│   └── __init__.py
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.js
+│   │   ├── DisputeForm.js
+│   │   └── DisputeDetail.js
+│   ├── /pages
+│   │   ├── DisputePage.js
+│   │   └── index.js
+│   ├── /styles
+│   │   ├── Dispute.css
+│   │   └── index.css
+│   └── App.js
+└── server.py
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
+### File: `/api/disputes.py`
+- **Responsibilities:**
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes.
+    - `POST /api/disputes`: Create a new dispute.
+    - `PUT /api/disputes/<id>`: Update an existing dispute.
+  - Handle request validation and response formatting.
 
-- **`/src/api/disputes.js`**
-  - Define the API endpoints for disputes: 
-    - `GET /api/disputes` - List all disputes
-    - `POST /api/disputes` - Create a new dispute
-    - `PUT /api/disputes/:id` - Update an existing dispute
+### File: `/api/utils.py`
+- **Responsibilities:**
+  - Utility functions for error handling and response generation.
 
-- **`/src/controllers/disputesController.js`**
-  - Implement functions for handling requests:
-    - `listDisputes` - Fetch all disputes from the database
-    - `createDispute` - Validate and create a new dispute
-    - `updateDispute` - Validate and update an existing dispute
+### File: `/models/dispute.py`
+- **Responsibilities:**
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier.
+    - `evidence_urls`: Array of URLs.
+    - `status`: Enum (OPEN, REVIEW, RESOLVED).
+  - Implement methods for CRUD operations.
 
-- **`/src/models/disputeModel.js`**
-  - Define the dispute schema with fields:
-    - `evidence_urls` (Array of Strings)
-    - `status` (Enum: OPEN, REVIEW, RESOLVED)
+### File: `/schemas/dispute_schema.py`
+- **Responsibilities:**
+  - Define request and response schemas using a validation library (e.g., Marshmallow).
 
-- **`/src/routes/disputesRoutes.js`**
-  - Set up Express routes and link them to the controller functions.
+## UI Implementation
 
-- **`/src/services/disputeService.js`**
-  - Implement business logic for dispute operations, including validation and database interactions.
+### File: `/ui/components/DisputeList.js`
+- **Responsibilities:**
+  - Display a list of disputes with status and actions (view/update).
 
-### UI Implementation
+### File: `/ui/components/DisputeForm.js`
+- **Responsibilities:**
+  - Form for creating and updating disputes.
+  - Handle input for `evidence_urls` and `status`.
 
-- **`/src/ui/components/DisputeList.jsx`**
-  - Create a component to display a list of disputes with status and evidence URLs.
+### File: `/ui/components/DisputeDetail.js`
+- **Responsibilities:**
+  - Show detailed view of a selected dispute.
 
-- **`/src/ui/components/DisputeForm.jsx`**
-  - Create a form component for creating and updating disputes, including fields for evidence URLs and status.
+### File: `/ui/pages/DisputePage.js`
+- **Responsibilities:**
+  - Main page for managing disputes.
+  - Integrate `DisputeList` and `DisputeForm`.
 
-- **`/src/ui/pages/DisputePage.jsx`**
-  - Combine `DisputeList` and `DisputeForm` components to manage disputes on a single page.
-
-- **`/src/ui/App.jsx`**
-  - Set up routing and render the `DisputePage`.
-
-- **`/src/utils/apiClient.js`**
-  - Create a utility for making API requests to the disputes endpoint.
+### File: `/ui/styles/Dispute.css`
+- **Responsibilities:**
+  - Styles for dispute components.
 
 ## Testing
 
-- **Unit Tests**
-  - Write unit tests for controller functions and service logic.
+### File: `/tests/test_disputes.py`
+- **Responsibilities:**
+  - Unit tests for API endpoints.
+  - Integration tests for UI components.
 
-- **Integration Tests**
-  - Test API endpoints using a testing framework (e.g., Jest, Mocha).
+## Server Setup
 
-- **UI Tests**
-  - Implement tests for UI components using a testing library (e.g., React Testing Library).
+### File: `/server.py`
+- **Responsibilities:**
+  - Initialize the web server.
+  - Set up routing for the API and serve the UI.
 
-## Deployment
-
-- Ensure the API is deployed to the server and accessible at `/api/disputes`.
-- Deploy the UI to the front-end hosting service.
-
-## Timeline
-
-- **Week 1**: Set up API structure and implement basic CRUD operations.
-- **Week 2**: Develop UI components and integrate with the API.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+## Milestones
+1. **API Development**: Complete by [Date].
+2. **UI Development**: Complete by [Date].
+3. **Testing**: Complete by [Date].
+4. **Deployment**: Complete by [Date].
 ```
