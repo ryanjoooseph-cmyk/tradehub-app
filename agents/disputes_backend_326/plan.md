@@ -1,98 +1,102 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
-/disputes_backend_326
-├── api
-│   ├── disputes.py
-│   ├── __init__.py
-├── models
-│   ├── dispute.py
-│   ├── __init__.py
-├── schemas
-│   ├── dispute_schema.py
-│   ├── __init__.py
-├── services
-│   ├── dispute_service.py
-│   ├── __init__.py
-├── tests
-│   ├── test_disputes.py
-│   ├── __init__.py
-├── ui
-│   ├── disputes_page.html
-│   ├── disputes.js
-│   ├── styles.css
-└── app.py
+/project-root
+│
+├── /api
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesRoutes.js
+│   │   └── disputesService.js
+│   └── /middleware
+│       └── authMiddleware.js
+│
+├── /models
+│   └── disputeModel.js
+│
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   ├── /pages
+│   │   └── DisputesPage.jsx
+│   └── /styles
+│       └── disputes.css
+│
+├── /tests
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /ui
+│       └── DisputesPage.test.jsx
+│
+└── server.js
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. `api/disputes.py`
-- **Responsibilities**:
-  - Define API routes for `/api/disputes`.
-  - Implement endpoints:
+### API Implementation
+- **disputesController.js**
+  - Handle incoming requests for disputes.
+  - Implement functions for:
+    - `listDisputes`: Retrieve all disputes.
+    - `createDispute`: Create a new dispute.
+    - `updateDispute`: Update an existing dispute.
+
+- **disputesRoutes.js**
+  - Define routes for:
     - `GET /api/disputes`: List all disputes.
     - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Handle request validation and response formatting.
+    - `PUT /api/disputes/:id`: Update a dispute by ID.
 
-### 2. `models/dispute.py`
-- **Responsibilities**:
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
+- **disputesService.js**
+  - Business logic for disputes.
+  - Interact with the database to perform CRUD operations.
+
+- **disputeModel.js**
+  - Define the Dispute schema with fields:
+    - `evidence_urls`: Array of strings.
     - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement database interactions (CRUD operations).
 
-### 3. `schemas/dispute_schema.py`
-- **Responsibilities**:
-  - Define request and response schemas using a library like Marshmallow.
-  - Validate input data for creating and updating disputes.
+- **authMiddleware.js**
+  - Middleware to authenticate requests.
 
-### 4. `services/dispute_service.py`
-- **Responsibilities**:
-  - Implement business logic for dispute management.
-  - Functions for creating, listing, and updating disputes.
-  - Handle status transitions and validations.
+### UI Implementation
+- **DisputeList.jsx**
+  - Display a list of disputes.
+  - Include buttons for viewing and updating disputes.
 
-## UI Implementation
+- **DisputeForm.jsx**
+  - Form for creating and updating disputes.
+  - Fields for entering evidence URLs and selecting status.
 
-### 5. `ui/disputes_page.html`
-- **Responsibilities**:
-  - Create the HTML structure for displaying disputes.
-  - Include forms for creating and updating disputes.
-  - Display current status and evidence URLs.
+- **DisputeDetail.jsx**
+  - Component to show detailed view of a selected dispute.
 
-### 6. `ui/disputes.js`
-- **Responsibilities**:
-  - Implement JavaScript functions to handle API calls.
-  - Fetch disputes and update the UI dynamically.
-  - Handle form submissions for creating and updating disputes.
+- **useDisputes.js**
+  - Custom hook to fetch, create, and update disputes using API.
 
-### 7. `ui/styles.css`
-- **Responsibilities**:
-  - Style the disputes page for better user experience.
-  - Ensure responsive design for various devices.
+- **DisputesPage.jsx**
+  - Main page component to render the dispute list and form.
 
-## Testing
+- **disputes.css**
+  - Styles for dispute components.
 
-### 8. `tests/test_disputes.py`
-- **Responsibilities**:
-  - Write unit tests for API endpoints.
-  - Test model methods and service functions.
-  - Validate UI interactions and API responses.
+### Testing
+- **disputes.test.js**
+  - Unit tests for API endpoints.
+  - Test cases for listing, creating, and updating disputes.
 
-## Main Application
+- **DisputesPage.test.jsx**
+  - Unit tests for UI components.
+  - Ensure correct rendering and functionality of dispute features.
 
-### 9. `app.py`
-- **Responsibilities**:
-  - Initialize the application and set up routing.
-  - Configure database connections and middleware.
-  - Serve the UI and API endpoints.
-
-## Additional Notes
-- Ensure proper error handling and logging throughout the application.
-- Consider implementing authentication if needed for dispute management.
-- Use environment variables for configuration settings.
+### Server Setup
+- **server.js**
+  - Set up Express server.
+  - Integrate API routes and middleware.
 ```
