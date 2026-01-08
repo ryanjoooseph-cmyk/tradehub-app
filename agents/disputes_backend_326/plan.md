@@ -1,100 +1,93 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+
 ## Directory Structure
+
 ```
 /disputes_backend_326
-├── api
-│   ├── disputes.js
-│   └── index.js
-├── models
-│   └── disputeModel.js
-├── controllers
-│   └── disputeController.js
-├── routes
-│   └── disputeRoutes.js
-├── middleware
-│   └── authMiddleware.js
-├── tests
-│   ├── disputeController.test.js
-│   └── disputeRoutes.test.js
-├── client
-│   ├── components
-│   │   ├── DisputeList.js
-│   │   ├── DisputeForm.js
-│   │   └── DisputeDetail.js
-│   ├── pages
-│   │   └── DisputePage.js
-│   └── App.js
-├── styles
-│   └── disputeStyles.css
-└── server.js
+│
+├── /api
+│   ├── disputes.py                # API endpoints for disputes
+│   ├── models.py                  # Database models for disputes
+│   ├── schemas.py                 # Pydantic schemas for request/response validation
+│   └── __init__.py                # API package initialization
+│
+├── /ui
+│   ├── /components
+│   │   ├── DisputeForm.jsx        # Form for creating/updating disputes
+│   │   ├── DisputeList.jsx        # Component to list all disputes
+│   │   └── DisputeItem.jsx        # Component to display individual dispute
+│   │
+│   ├── /pages
+│   │   ├── DisputePage.jsx        # Main page for disputes
+│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
+│   │
+│   ├── /hooks
+│   │   └── useDisputes.js         # Custom hook for API calls related to disputes
+│   │
+│   ├── /styles
+│   │   └── disputes.css            # CSS styles for dispute components
+│   │
+│   ├── App.jsx                    # Main application component
+│   └── index.js                   # Entry point for the UI
+│
+└── /tests
+    ├── test_api.py                # Unit tests for API endpoints
+    ├── test_models.py             # Unit tests for database models
+    └── test_ui.py                 # Unit tests for UI components
 ```
 
 ## Responsibilities
 
 ### API Implementation
-- **`/api/disputes.js`**: 
-  - Define API endpoints for:
+- **disputes.py**
+  - Implement endpoints:
     - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
-  - Handle request validation and response formatting.
+    - `POST /api/disputes`: Open a new dispute
+    - `PUT /api/disputes/{id}`: Update an existing dispute
+  - Handle status updates and evidence URLs.
 
-- **`/models/disputeModel.js`**: 
-  - Define the Dispute schema with fields:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement database interactions (CRUD operations).
+- **models.py**
+  - Define the Dispute model with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
 
-- **`/controllers/disputeController.js`**: 
-  - Implement logic for handling requests:
-    - Fetching disputes
-    - Creating a new dispute
-    - Updating dispute status
+- **schemas.py**
+  - Create Pydantic schemas for request and response validation:
+    - `DisputeCreate`: For creating a dispute
+    - `DisputeUpdate`: For updating a dispute
+    - `DisputeResponse`: For returning dispute details
 
-- **`/routes/disputeRoutes.js`**: 
-  - Set up route handlers and link to the controller methods.
-  - Apply authentication middleware for protected routes.
+### UI Implementation
+- **DisputeForm.jsx**
+  - Create a form for users to input dispute details and evidence URLs.
 
-- **`/middleware/authMiddleware.js`**: 
-  - Implement authentication checks for API access.
+- **DisputeList.jsx**
+  - Fetch and display a list of disputes with their statuses.
 
-### Client Implementation
-- **`/client/components/DisputeList.js`**: 
-  - Display a list of disputes with status and actions (view/update).
+- **DisputeItem.jsx**
+  - Display individual dispute details and provide options to update status.
 
-- **`/client/components/DisputeForm.js`**: 
-  - Form for creating/updating disputes, including evidence URL input.
+- **useDisputes.js**
+  - Implement API calls for fetching, creating, and updating disputes.
 
-- **`/client/components/DisputeDetail.js`**: 
-  - Show detailed view of a selected dispute.
-
-- **`/client/pages/DisputePage.js`**: 
-  - Main page to manage disputes, integrating the list and form components.
-
-- **`/client/App.js`**: 
-  - Set up routing for the application and integrate dispute management components.
-
-### Styling
-- **`/styles/disputeStyles.css`**: 
-  - Define styles for dispute components and pages.
+- **App.jsx**
+  - Set up routing for the disputes page and integrate components.
 
 ### Testing
-- **`/tests/disputeController.test.js`**: 
-  - Write unit tests for dispute controller functions.
+- **test_api.py**
+  - Write tests for API endpoints to ensure correct functionality.
 
-- **`/tests/disputeRoutes.test.js`**: 
-  - Write integration tests for API routes.
+- **test_models.py**
+  - Write tests for the Dispute model to validate data integrity.
 
-### Server Setup
-- **`/server.js`**: 
-  - Initialize the server, connect to the database, and set up middleware.
+- **test_ui.py**
+  - Write tests for UI components to ensure they render and function correctly.
 
 ## Timeline
-- **Week 1**: API design and model implementation.
-- **Week 2**: Controller and route setup.
-- **Week 3**: Client-side component development.
-- **Week 4**: Testing and final adjustments.
+- **Week 1**: API development (models, schemas, endpoints)
+- **Week 2**: UI development (components, hooks, styling)
+- **Week 3**: Testing and bug fixes
+- **Week 4**: Final review and deployment
 ```
