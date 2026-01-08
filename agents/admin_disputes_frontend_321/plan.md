@@ -1,101 +1,94 @@
 ```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
+## Overview
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
+
 ## File Structure
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputesApi.js
-  ├── hooks
-  │   └── useDisputes.js
-  ├── styles
-  │   └── AdminDisputes.css
-  └── utils
-      └── constants.js
-```
+### Frontend
 
-## Responsibilities
+- **File Paths**
+  - `src/components/AdminDisputesTable.jsx`
+    - **Responsibility**: Render the admin disputes table with filters and actions.
+  - `src/components/DisputeFilter.jsx`
+    - **Responsibility**: Provide filtering options for disputes (e.g., status, date).
+  - `src/hooks/useDisputes.js`
+    - **Responsibility**: Custom hook to fetch and manage disputes data from the API.
+  - `src/pages/AdminDisputesPage.jsx`
+    - **Responsibility**: Main page component for `/admin/disputes/321`, integrating the table and filters.
+  - `src/services/api.js`
+    - **Responsibility**: API service for making calls to `/api/disputes`.
+  - `src/styles/AdminDisputes.css`
+    - **Responsibility**: Styles for the admin disputes page and components.
 
-### 1. Components
+### Backend
 
-- **AdminDisputesTable.jsx**
-  - Render the table of disputes.
-  - Integrate filtering options from `DisputeFilter`.
-  - Display dispute status and provide action buttons for updates.
+- **File Paths**
+  - `src/controllers/disputeController.js`
+    - **Responsibility**: Handle API requests related to disputes, including fetching and updating status.
+  - `src/routes/disputeRoutes.js`
+    - **Responsibility**: Define routes for `/api/disputes` and link to the controller.
+  - `src/models/Dispute.js`
+    - **Responsibility**: Define the Dispute model/schema for database interactions.
+  - `src/middleware/authMiddleware.js`
+    - **Responsibility**: Middleware for authentication and authorization of admin users.
+  - `src/utils/errorHandler.js`
+    - **Responsibility**: Centralized error handling for API responses.
 
-- **DisputeFilter.jsx**
-  - Create UI elements for filtering disputes (e.g., by status, date).
-  - Handle filter state and pass it to `AdminDisputesTable`.
+## Implementation Steps
 
-- **StatusUpdateButton.jsx**
-  - Create a button for updating the status of a dispute.
-  - Trigger API call to update status when clicked.
+### Frontend Development
+1. **Create AdminDisputesTable Component**
+   - Implement table structure to display disputes.
+   - Add columns for dispute details and status.
+   
+2. **Create DisputeFilter Component**
+   - Implement filter options for status and date.
+   - Connect filters to the table to update displayed disputes.
 
-### 2. Pages
+3. **Implement useDisputes Hook**
+   - Fetch disputes from `/api/disputes`.
+   - Handle loading and error states.
 
-- **AdminDisputesPage.jsx**
-  - Main page component for the route `/admin/disputes/321`.
-  - Integrate `AdminDisputesTable` and `DisputeFilter`.
-  - Manage overall state and API calls.
-
-### 3. API
-
-- **disputesApi.js**
-  - Define API functions for fetching disputes and updating status.
-  - Implement error handling for API responses.
-
-### 4. Hooks
-
-- **useDisputes.js**
-  - Custom hook to manage disputes state.
-  - Fetch disputes data from the API and handle loading/error states.
-
-### 5. Styles
-
-- **AdminDisputes.css**
-  - Style the components for the admin disputes page.
-  - Ensure responsive design for various screen sizes.
-
-### 6. Utilities
-
-- **constants.js**
-  - Define constants for dispute statuses and API endpoints.
-  - Centralize configuration for easy updates.
-
-## Development Steps
-
-1. **Setup Route**
-   - Configure routing for `/admin/disputes/321` in the main app.
-
-2. **Build Components**
-   - Implement `AdminDisputesTable`, `DisputeFilter`, and `StatusUpdateButton`.
-
-3. **Implement API Calls**
-   - Create functions in `disputesApi.js` for fetching and updating disputes.
-
-4. **Create Custom Hook**
-   - Develop `useDisputes` to manage data fetching and state.
+4. **Build AdminDisputesPage Component**
+   - Integrate AdminDisputesTable and DisputeFilter.
+   - Set up state management for filters and disputes.
 
 5. **Style Components**
-   - Apply styles in `AdminDisputes.css` for a polished UI.
+   - Apply styles in AdminDisputes.css for a cohesive look.
 
-6. **Testing**
-   - Write unit tests for components and API functions.
-   - Conduct integration tests for the complete flow.
+### Backend Development
+1. **Define Dispute Model**
+   - Create schema for dispute data (e.g., id, status, details).
 
-7. **Deployment**
-   - Prepare for deployment and ensure all features are functional.
+2. **Implement Dispute Controller**
+   - Create functions to handle GET and PATCH requests for disputes.
+   - Ensure proper validation and error handling.
 
-## Timeline
+3. **Set Up Dispute Routes**
+   - Define routes for fetching and updating disputes.
+   - Link routes to the controller functions.
 
-- **Week 1:** Component development and API integration.
-- **Week 2:** Testing and styling.
-- **Week 3:** Final review and deployment preparation.
+4. **Implement Authentication Middleware**
+   - Ensure only authorized admin users can access the dispute routes.
+
+5. **Error Handling**
+   - Implement centralized error handling in errorHandler.js.
+
+## Testing
+- **Unit Tests**
+  - Write tests for components, hooks, and API endpoints.
+  
+- **Integration Tests**
+  - Test the complete flow from UI to API.
+
+## Deployment
+- Prepare the application for deployment on the staging and production environments.
+- Ensure environment variables are set for API endpoints.
+
+## Documentation
+- Update README.md with instructions on how to run and test the feature.
+- Document API endpoints in API documentation.
+
 ```
