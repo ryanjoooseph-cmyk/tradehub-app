@@ -1,79 +1,99 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
+## Overview
+This plan outlines the structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and status management.
+
 ## Directory Structure
+
 ```
 /disputes_backend_326
+│
 ├── api
-│   ├── disputes.py
-│   └── __init__.py
-├── models
-│   ├── dispute.py
-│   └── __init__.py
-├── schemas
-│   ├── dispute_schema.py
-│   └── __init__.py
-├── services
-│   ├── dispute_service.py
-│   └── __init__.py
-├── tests
-│   ├── test_disputes.py
-│   └── __init__.py
-└── app.py
+│   ├── controllers
+│   │   └── disputesController.js        # Handles API logic for disputes
+│   ├── models
+│   │   └── disputeModel.js               # Defines the Dispute model/schema
+│   ├── routes
+│   │   └── disputesRoutes.js             # Defines API routes for disputes
+│   ├── services
+│   │   └── disputesService.js             # Business logic for disputes
+│   └── index.js                          # Main API entry point
+│
+├── client
+│   ├── src
+│   │   ├── components
+│   │   │   ├── DisputeList.js            # Component to list disputes
+│   │   │   ├── DisputeForm.js            # Component to open/update disputes
+│   │   │   └── EvidenceUploader.js        # Component for uploading evidence URLs
+│   │   ├── pages
+│   │   │   └── DisputePage.js            # Page to manage disputes
+│   │   ├── services
+│   │   │   └── disputeApi.js             # API calls for disputes
+│   │   └── App.js                        # Main application component
+│   └── public
+│       └── index.html                    # Main HTML file
+│
+└── README.md                             # Project documentation
 ```
 
-## File Responsibilities
+## Responsibilities
 
-### API Layer
-- **`/api/disputes.py`**
-  - Define Flask routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Handle request validation and response formatting.
+### API
 
-### Models Layer
-- **`/models/dispute.py`**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement methods for CRUD operations.
+- **`disputesController.js`**
+  - Implement functions to handle:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Open a new dispute
+    - `PUT /api/disputes/:id`: Update an existing dispute
 
-### Schemas Layer
-- **`/schemas/dispute_schema.py`**
-  - Define Pydantic schemas for:
-    - Creating a dispute.
-    - Updating a dispute.
-    - Listing disputes.
-  - Include validation for `evidence_urls` and `status`.
+- **`disputeModel.js`**
+  - Define the Dispute schema with fields:
+    - `id`: Unique identifier
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+    - `evidence_urls`: Array of strings
+    - `created_at`: Timestamp
+    - `updated_at`: Timestamp
 
-### Services Layer
-- **`/services/dispute_service.py`**
-  - Implement business logic for:
-    - Creating a dispute.
-    - Retrieving all disputes.
-    - Updating a dispute's status and evidence URLs.
-  - Handle interactions with the database.
+- **`disputesRoutes.js`**
+  - Set up routes for disputes API endpoints.
 
-### Testing Layer
-- **`/tests/test_disputes.py`**
-  - Write unit tests for:
-    - API endpoints (GET, POST, PUT).
-    - Model methods for CRUD operations.
-    - Service logic for disputes.
-  - Use pytest for testing framework.
+- **`disputesService.js`**
+  - Implement business logic for creating, retrieving, and updating disputes.
 
-### Main Application
-- **`/app.py`**
-  - Initialize Flask app.
-  - Register API routes from `api/disputes.py`.
-  - Configure database connection and middleware.
+### Client
 
-## Additional Notes
-- Ensure proper error handling and logging.
-- Follow RESTful API design principles.
-- Use environment variables for configuration.
-- Document API endpoints using Swagger or similar tools.
-- Set up CI/CD pipeline for automated testing and deployment.
+- **`DisputeList.js`**
+  - Fetch and display a list of disputes with their statuses.
+
+- **`DisputeForm.js`**
+  - Create a form for opening a new dispute or updating an existing one.
+
+- **`EvidenceUploader.js`**
+  - Handle uploading and displaying evidence URLs associated with disputes.
+
+- **`disputeApi.js`**
+  - Implement API calls to interact with the disputes backend.
+
+- **`DisputePage.js`**
+  - Combine components to provide a full UI for managing disputes.
+
+## Testing
+
+- **Unit Tests**
+  - Write unit tests for API controllers and services.
+  - Write unit tests for client components and API service.
+
+- **Integration Tests**
+  - Test API endpoints with sample data.
+  - Test end-to-end functionality of the UI.
+
+## Deployment
+
+- Ensure the API is deployed on the server.
+- Build and deploy the client application to the hosting service.
+
+## Documentation
+
+- Update `README.md` with setup instructions, API usage, and component descriptions.
 ```
