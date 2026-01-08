@@ -1,12 +1,15 @@
+// app/api/redeploy/route.ts
 import { NextResponse } from 'next/server';
 
 export async function POST() {
-  try {
-    const hook = process.env.RENDER_DEPLOY_HOOK;
-    if (!hook) return NextResponse.json({ ok: false, error: 'Missing RENDER_DEPLOY_HOOK' }, { status: 500 });
-    const r = await fetch(hook, { method: 'POST' });
-    return NextResponse.json({ ok: r.ok });
-  } catch (e:any) {
-    return NextResponse.json({ ok: false, error: String(e) }, { status: 500 });
+  const hook = process.env.RENDER_DEPLOY_HOOK;
+  if (!hook) {
+    return NextResponse.json(
+      { ok: false, error: 'RENDER_DEPLOY_HOOK not set' },
+      { status: 500 },
+    );
   }
+  const res = await fetch(hook, { method: 'POST' });
+  const text = await res.text();
+  return NextResponse.json({ ok: res.ok, status: res.status, text });
 }
