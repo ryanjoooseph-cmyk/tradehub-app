@@ -6,102 +6,114 @@ This plan outlines the implementation of the UI and API for managing disputes at
 
 ## File Structure
 
-### API Implementation
+```
+/src
+  ├── api
+  │   ├── disputes
+  │   │   ├── disputesController.js
+  │   │   ├── disputesModel.js
+  │   │   ├── disputesRoutes.js
+  │   │   └── disputesService.js
+  ├── components
+  │   ├── DisputeList.jsx
+  │   ├── DisputeForm.jsx
+  │   └── DisputeDetail.jsx
+  ├── hooks
+  │   └── useDisputes.js
+  ├── pages
+  │   └── DisputesPage.jsx
+  ├── styles
+  │   └── disputes.css
+  └── utils
+      └── api.js
+```
 
-#### 1. API Routes
-- **File:** `src/routes/api/disputes.js`
-  - **Responsibilities:**
-    - Define routes for GET, POST, and PUT requests.
-    - Handle request validation and response formatting.
+## API Implementation
 
-#### 2. Controller
-- **File:** `src/controllers/disputeController.js`
-  - **Responsibilities:**
-    - Implement logic for creating, retrieving, and updating disputes.
-    - Validate input data and manage dispute statuses.
+### 1. `disputesModel.js`
+- **Responsibility**: Define the Dispute schema and model for database interactions.
+- **Tasks**:
+  - Create a Mongoose schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
 
-#### 3. Model
-- **File:** `src/models/disputeModel.js`
-  - **Responsibilities:**
-    - Define the dispute schema (including fields for evidence_urls and status).
-    - Implement database interactions (CRUD operations).
+### 2. `disputesService.js`
+- **Responsibility**: Business logic for dispute handling.
+- **Tasks**:
+  - Implement functions for:
+    - `createDispute(data)`: Create a new dispute.
+    - `getDisputes()`: Retrieve all disputes.
+    - `updateDispute(id, data)`: Update an existing dispute.
 
-#### 4. Middleware
-- **File:** `src/middleware/validateDispute.js`
-  - **Responsibilities:**
-    - Validate incoming request data for disputes (e.g., required fields, status values).
+### 3. `disputesController.js`
+- **Responsibility**: Handle incoming API requests.
+- **Tasks**:
+  - Implement request handlers for:
+    - `POST /api/disputes`: Create a dispute.
+    - `GET /api/disputes`: List all disputes.
+    - `PUT /api/disputes/:id`: Update a dispute.
 
-### UI Implementation
+### 4. `disputesRoutes.js`
+- **Responsibility**: Define API routes.
+- **Tasks**:
+  - Set up Express routes for disputes using the controller.
 
-#### 5. Dispute List Component
-- **File:** `src/components/DisputeList.js`
-  - **Responsibilities:**
-    - Fetch and display a list of disputes.
-    - Provide UI for filtering by status.
+## UI Implementation
 
-#### 6. Dispute Form Component
-- **File:** `src/components/DisputeForm.js`
-  - **Responsibilities:**
-    - Create a form for opening and updating disputes.
-    - Handle input for evidence URLs and status selection.
+### 1. `DisputesPage.jsx`
+- **Responsibility**: Main page for displaying disputes.
+- **Tasks**:
+  - Integrate `DisputeList` and `DisputeForm` components.
+  - Handle state management for disputes using `useDisputes` hook.
 
-#### 7. Dispute Detail Component
-- **File:** `src/components/DisputeDetail.js`
-  - **Responsibilities:**
-    - Display detailed information about a selected dispute.
-    - Allow updates to the dispute status and evidence URLs.
+### 2. `DisputeList.jsx`
+- **Responsibility**: Display a list of disputes.
+- **Tasks**:
+  - Fetch disputes from the API and render them.
+  - Provide options to view details and update status.
 
-### State Management
+### 3. `DisputeForm.jsx`
+- **Responsibility**: Form for creating and updating disputes.
+- **Tasks**:
+  - Implement form fields for status and evidence URLs.
+  - Handle form submission to create or update disputes.
 
-#### 8. Redux Actions
-- **File:** `src/redux/actions/disputeActions.js`
-  - **Responsibilities:**
-    - Define actions for fetching, creating, and updating disputes.
+### 4. `DisputeDetail.jsx`
+- **Responsibility**: Display detailed view of a single dispute.
+- **Tasks**:
+  - Show dispute information and evidence URLs.
+  - Provide options to update status.
 
-#### 9. Redux Reducers
-- **File:** `src/redux/reducers/disputeReducer.js`
-  - **Responsibilities:**
-    - Manage the state of disputes in the Redux store.
+### 5. `useDisputes.js`
+- **Responsibility**: Custom hook for dispute data fetching.
+- **Tasks**:
+  - Implement API calls to fetch, create, and update disputes.
 
-### Testing
+## Styles
 
-#### 10. API Tests
-- **File:** `tests/api/disputes.test.js`
-  - **Responsibilities:**
-    - Write unit tests for API endpoints (GET, POST, PUT).
+### 1. `disputes.css`
+- **Responsibility**: Styling for dispute components.
+- **Tasks**:
+  - Define styles for the dispute list, form, and detail views.
 
-#### 11. UI Tests
-- **File:** `tests/ui/DisputeForm.test.js`
-  - **Responsibilities:**
-    - Write tests for the Dispute Form component.
+## Testing
+
+### 1. API Tests
+- **Responsibility**: Ensure API endpoints function correctly.
+- **Tasks**:
+  - Write unit tests for controller and service functions.
+
+### 2. UI Tests
+- **Responsibility**: Validate UI components.
+- **Tasks**:
+  - Write tests for rendering and interaction in dispute components.
 
 ## Deployment
-
-#### 12. Environment Configuration
-- **File:** `config/.env`
-  - **Responsibilities:**
-    - Set up environment variables for database connection and API keys.
-
-#### 13. Dockerfile
-- **File:** `Dockerfile`
-  - **Responsibilities:**
-    - Create a Docker image for the application.
-
-## Documentation
-
-#### 14. API Documentation
-- **File:** `docs/api/disputes.md`
-  - **Responsibilities:**
-    - Document API endpoints, request/response formats, and status codes.
-
-#### 15. User Guide
-- **File:** `docs/user_guide.md`
-  - **Responsibilities:**
-    - Provide instructions on how to use the dispute management feature.
+- **Responsibility**: Prepare for deployment.
+- **Tasks**:
+  - Ensure API is documented.
+  - Prepare build scripts for the UI.
 
 ## Timeline
-- **Week 1:** API implementation (routes, controllers, models).
-- **Week 2:** UI components (list, form, detail) and state management.
-- **Week 3:** Testing and documentation.
-- **Week 4:** Deployment and final review.
+- **Week 1**: API implementation.
+- **Week 2**: UI development.
+- **Week 3**: Testing and deployment preparations.
 ```
