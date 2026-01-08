@@ -1,94 +1,84 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
-/disputes_backend_326
-├── api
-│   ├── disputes.js
-│   └── index.js
-├── controllers
-│   ├── disputesController.js
-├── models
-│   ├── disputeModel.js
-├── routes
-│   ├── disputesRoutes.js
-├── services
-│   ├── disputesService.js
-├── validations
-│   ├── disputeValidation.js
-├── tests
-│   ├── disputes.test.js
-└── app.js
+/disputes_backend
+│
+├── /api
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesRoutes.js
+│   │   └── disputesService.js
+│   │
+│   └── /middleware
+│       └── authMiddleware.js
+│
+├── /models
+│   └── disputeModel.js
+│
+├── /tests
+│   ├── disputesController.test.js
+│   └── disputesService.test.js
+│
+├── /config
+│   └── database.js
+│
+└── server.js
 ```
 
 ## Responsibilities
 
 ### API Layer
-- **`/api/disputes.js`**
-  - Define Express routes for handling disputes.
-  - Implement endpoints for:
-    - `GET /api/disputes` - List all disputes.
-    - `POST /api/disputes` - Create a new dispute.
-    - `PUT /api/disputes/:id` - Update an existing dispute.
+- **disputesRoutes.js**
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/:id`: Update an existing dispute
+  - Integrate middleware for authentication.
 
-- **`/api/index.js`**
-  - Set up API versioning and middleware.
-  - Import and use `disputesRoutes`.
+- **disputesController.js**
+  - Implement controller functions:
+    - `listDisputes`: Fetch all disputes from the service.
+    - `createDispute`: Validate and create a new dispute.
+    - `updateDispute`: Validate and update an existing dispute.
 
-### Controllers
-- **`/controllers/disputesController.js`**
-  - Implement controller functions for:
-    - Listing disputes.
-    - Creating a dispute.
-    - Updating a dispute.
-  - Handle request and response objects.
+- **disputesService.js**
+  - Handle business logic:
+    - `getAllDisputes`: Retrieve disputes from the database.
+    - `addDispute`: Save a new dispute with evidence URLs and status.
+    - `modifyDispute`: Update dispute status and evidence URLs.
 
-### Models
-- **`/models/disputeModel.js`**
-  - Define the Dispute schema with fields:
-    - `evidence_urls` (Array of Strings)
-    - `status` (Enum: OPEN, REVIEW, RESOLVED)
-  - Implement Mongoose model for database interaction.
+### Model Layer
+- **disputeModel.js**
+  - Define the Dispute schema:
+    - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN/REVIEW/RESOLVED), `created_at`, `updated_at`.
+  - Implement methods for database interactions.
 
-### Routes
-- **`/routes/disputesRoutes.js`**
-  - Define routes for disputes.
-  - Link routes to respective controller functions.
+### Middleware
+- **authMiddleware.js**
+  - Implement authentication checks for API routes.
 
-### Services
-- **`/services/disputesService.js`**
-  - Implement business logic for:
-    - Fetching disputes from the database.
-    - Creating a new dispute.
-    - Updating dispute status.
+### Testing
+- **disputesController.test.js**
+  - Write unit tests for controller functions.
 
-### Validations
-- **`/validations/disputeValidation.js`**
-  - Implement validation logic for incoming requests.
-  - Ensure required fields are present and valid.
+- **disputesService.test.js**
+  - Write unit tests for service functions.
 
-### Tests
-- **`/tests/disputes.test.js`**
-  - Write unit tests for:
-    - API endpoints.
-    - Controller functions.
-    - Service methods.
-  - Use Jest or Mocha for testing framework.
+### Configuration
+- **database.js**
+  - Set up database connection and configuration.
 
-### Main Application
-- **`/app.js`**
-  - Set up Express server.
-  - Connect to the database.
-  - Use API routes and middleware.
+### Server
+- **server.js**
+  - Initialize Express app.
+  - Set up middleware and routes.
+  - Start the server on the specified port.
 
 ## Timeline
-- **Week 1**: Set up project structure and API routes.
-- **Week 2**: Implement models and controllers.
-- **Week 3**: Develop services and validations.
+- **Week 1**: Set up project structure, database, and models.
+- **Week 2**: Implement API routes and controllers.
+- **Week 3**: Develop service logic and middleware.
 - **Week 4**: Write tests and finalize documentation.
-
-## Documentation
-- Update README.md with API usage instructions.
-- Document endpoints with examples and expected responses.
 ```
