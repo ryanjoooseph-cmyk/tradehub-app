@@ -1,85 +1,89 @@
 ```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Overview
-This plan outlines the necessary steps to build the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters and actions to update the dispute status, along with API calls to `/api/disputes`.
-
-## File Structure
-
+## Project Structure
 ```
 /src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── api
-  │   └── disputesApi.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  └── utils
-      └── constants.js
+  /components
+    /AdminDisputes
+      - AdminDisputes.jsx
+      - AdminDisputes.css
+      - DisputeFilter.jsx
+      - DisputeTable.jsx
+      - StatusUpdateModal.jsx
+  /api
+    - disputesApi.js
+  /pages
+    - AdminDisputesPage.jsx
+  /hooks
+    - useDisputes.js
+  /context
+    - DisputesContext.js
+  /utils
+    - constants.js
+  /routes
+    - AdminRoutes.jsx
 ```
 
 ## Responsibilities
 
-### 1. UI Components
-- **`/src/components/AdminDisputesTable.jsx`**
-  - Render the admin disputes table.
-  - Display dispute data with pagination.
-  - Integrate filtering options.
+### 1. **AdminDisputes.jsx**
+- **Path:** `/src/components/AdminDisputes/AdminDisputes.jsx`
+- **Responsibility:** Main component rendering the disputes table and filter. Integrates with context and hooks.
 
-- **`/src/components/DisputeFilter.jsx`**
-  - Provide filter options for disputes (e.g., status, date).
-  - Handle filter state and pass it to the table component.
+### 2. **AdminDisputes.css**
+- **Path:** `/src/components/AdminDisputes/AdminDisputes.css`
+- **Responsibility:** Styles for the Admin Disputes component, including table and modal styles.
 
-- **`/src/components/StatusUpdateButton.jsx`**
-  - Create a button to update the status of a dispute.
-  - Trigger API call to update the status when clicked.
+### 3. **DisputeFilter.jsx**
+- **Path:** `/src/components/AdminDisputes/DisputeFilter.jsx`
+- **Responsibility:** Component for filtering disputes based on status and date. Triggers API calls to fetch filtered data.
 
-### 2. Page Setup
-- **`/src/pages/AdminDisputesPage.jsx`**
-  - Set up the main page layout.
-  - Integrate `AdminDisputesTable` and `DisputeFilter` components.
-  - Manage state for filters and disputes data.
+### 4. **DisputeTable.jsx**
+- **Path:** `/src/components/AdminDisputes/DisputeTable.jsx`
+- **Responsibility:** Displays the list of disputes in a table format. Handles row actions for updating dispute status.
 
-### 3. API Integration
-- **`/src/api/disputesApi.js`**
-  - Define API endpoints for fetching disputes and updating status.
-  - Implement functions to handle GET and POST requests.
+### 5. **StatusUpdateModal.jsx**
+- **Path:** `/src/components/AdminDisputes/StatusUpdateModal.jsx`
+- **Responsibility:** Modal for updating the status of a selected dispute. Calls the API to update status.
 
-- **`/src/services/disputesService.js`**
-  - Create service functions to interact with the API.
-  - Handle data transformation and error management.
+### 6. **disputesApi.js**
+- **Path:** `/src/api/disputesApi.js`
+- **Responsibility:** API service to handle requests to `/api/disputes`. Includes methods for fetching disputes and updating status.
 
-### 4. Styling
-- **`/src/styles/AdminDisputesPage.css`**
-  - Style the admin disputes page and components.
-  - Ensure responsive design for different screen sizes.
+### 7. **AdminDisputesPage.jsx**
+- **Path:** `/src/pages/AdminDisputesPage.jsx`
+- **Responsibility:** Page component that sets up the route `/admin/disputes/321` and renders `AdminDisputes`.
 
-### 5. Utility Constants
-- **`/src/utils/constants.js`**
-  - Define constants for dispute statuses and other reusable values.
+### 8. **useDisputes.js**
+- **Path:** `/src/hooks/useDisputes.js`
+- **Responsibility:** Custom hook for managing disputes state and side effects. Fetches disputes data and updates state.
+
+### 9. **DisputesContext.js**
+- **Path:** `/src/context/DisputesContext.js`
+- **Responsibility:** Context provider for managing global state related to disputes. Provides state and actions to components.
+
+### 10. **constants.js**
+- **Path:** `/src/utils/constants.js`
+- **Responsibility:** Define constants for dispute statuses and API endpoints.
+
+### 11. **AdminRoutes.jsx**
+- **Path:** `/src/routes/AdminRoutes.jsx`
+- **Responsibility:** Define the route for `/admin/disputes/321` and render the `AdminDisputesPage`.
 
 ## Development Steps
-1. **Set up the project structure** as outlined above.
-2. **Develop UI components** (`AdminDisputesTable`, `DisputeFilter`, `StatusUpdateButton`).
-3. **Implement the main page** (`AdminDisputesPage`) to integrate components.
-4. **Create API functions** in `disputesApi.js` for data fetching and updating.
-5. **Implement service functions** in `disputesService.js` for API interaction.
-6. **Style the components** using CSS in `AdminDisputesPage.css`.
-7. **Test the functionality** of the UI and API integration.
-8. **Review and refine** based on feedback.
+1. **Set up the route** in `AdminRoutes.jsx`.
+2. **Create the context** in `DisputesContext.js`.
+3. **Implement API calls** in `disputesApi.js`.
+4. **Build the main component** in `AdminDisputes.jsx`.
+5. **Develop filter and table components**.
+6. **Create the status update modal**.
+7. **Integrate hooks** for state management.
+8. **Style components** using `AdminDisputes.css`.
+9. **Test the full flow** from filtering to status updates.
+10. **Deploy and monitor** for any issues.
 
 ## Testing
-- Ensure unit tests for components and services.
-- Conduct integration testing for API calls.
-- Perform user acceptance testing with admin users.
-
-## Deployment
-- Prepare for deployment once testing is complete.
-- Update documentation for the new feature.
+- Ensure unit tests for components and API functions.
+- Conduct integration tests for the full feature flow.
 ```
