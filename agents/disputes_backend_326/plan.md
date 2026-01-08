@@ -1,98 +1,104 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
-
-## File Structure
-
-### API Implementation
-
-- **File Paths**
-  - `src/api/disputes.js`
-    - Responsible for defining the API routes and handling requests related to disputes.
-  - `src/controllers/disputeController.js`
-    - Contains logic for creating, retrieving, and updating disputes.
-  - `src/models/disputeModel.js`
-    - Defines the dispute schema and interacts with the database.
-  - `src/middleware/errorHandler.js`
-    - Handles errors and sends appropriate responses.
-  - `src/routes/disputeRoutes.js`
-    - Defines the Express routes for the disputes API.
-
-### UI Implementation
-
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - Displays a list of disputes with options to view details and update status.
-  - `src/components/DisputeForm.js`
-    - Form for creating and updating disputes, including fields for evidence URLs.
-  - `src/pages/DisputePage.js`
-    - Main page for managing disputes, integrating `DisputeList` and `DisputeForm`.
-  - `src/services/disputeService.js`
-    - Handles API calls to the disputes backend.
-  - `src/styles/disputeStyles.css`
-    - Styles for dispute-related components.
+## Directory Structure
+```
+/disputes_backend_326
+│
+├── /api
+│   ├── disputes.py               # API routes for disputes
+│   ├── __init__.py               # Initialize API module
+│   └── utils.py                  # Utility functions for API
+│
+├── /models
+│   ├── dispute.py                # Dispute model definition
+│   └── __init__.py               # Initialize models module
+│
+├── /services
+│   ├── dispute_service.py         # Business logic for disputes
+│   └── __init__.py               # Initialize services module
+│
+├── /tests
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   └── __init__.py               # Initialize tests module
+│
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.vue        # Component to list disputes
+│   │   ├── DisputeForm.vue        # Component to create/update disputes
+│   │   └── EvidenceUploader.vue    # Component for uploading evidence
+│   │
+│   ├── /views
+│   │   ├── DisputeView.vue        # View for displaying dispute details
+│   │   └── DisputeDashboard.vue    # Dashboard view for disputes
+│   │
+│   ├── App.vue                    # Main Vue application file
+│   └── main.js                    # Entry point for Vue app
+│
+└── requirements.txt               # Dependencies for the project
+```
 
 ## Responsibilities
 
-### API Responsibilities
+### API Implementation
+- **`/api/disputes.py`**
+  - Define routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/<id>` - Update an existing dispute
+  - Handle request validation and response formatting.
 
-1. **`src/api/disputes.js`**
-   - Set up Express router for `/api/disputes`.
-   - Link routes to controller methods.
+- **`/api/utils.py`**
+  - Implement utility functions for input validation and error handling.
 
-2. **`src/controllers/disputeController.js`**
-   - Implement methods:
-     - `createDispute(req, res)`: Create a new dispute.
-     - `getDisputes(req, res)`: Retrieve a list of disputes.
-     - `updateDispute(req, res)`: Update an existing dispute's status or evidence URLs.
+### Model Definition
+- **`/models/dispute.py`**
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs for evidence
+    - `status`: Enum with values OPEN, REVIEW, RESOLVED
+  - Implement methods for CRUD operations.
 
-3. **`src/models/disputeModel.js`**
-   - Define the dispute schema with fields:
-     - `status` (enum: OPEN, REVIEW, RESOLVED)
-     - `evidence_urls` (array of strings)
-   - Implement database interaction methods.
+### Business Logic
+- **`/services/dispute_service.py`**
+  - Implement business logic for:
+    - Fetching disputes
+    - Creating disputes
+    - Updating dispute status
+  - Ensure proper handling of evidence URLs.
 
-4. **`src/middleware/errorHandler.js`**
-   - Create a middleware function to handle errors and send responses.
+### Testing
+- **`/tests/test_disputes.py`**
+  - Write unit tests for API endpoints.
+  - Test business logic in `dispute_service.py`.
 
-5. **`src/routes/disputeRoutes.js`**
-   - Define routes:
-     - `POST /api/disputes` for creating disputes.
-     - `GET /api/disputes` for listing disputes.
-     - `PUT /api/disputes/:id` for updating disputes.
+### UI Development
+- **`/ui/components/DisputeList.vue`**
+  - Display a list of disputes with status and actions.
 
-### UI Responsibilities
+- **`/ui/components/DisputeForm.vue`**
+  - Form for creating and updating disputes, including evidence URL input.
 
-1. **`src/components/DisputeList.js`**
-   - Fetch and display disputes using `disputeService`.
-   - Provide buttons for updating status.
+- **`/ui/components/EvidenceUploader.vue`**
+  - Component for uploading and managing evidence URLs.
 
-2. **`src/components/DisputeForm.js`**
-   - Create a form for inputting dispute details and evidence URLs.
-   - Handle form submission to create or update disputes.
+- **`/ui/views/DisputeView.vue`**
+  - Detailed view of a single dispute.
 
-3. **`src/pages/DisputePage.js`**
-   - Integrate `DisputeList` and `DisputeForm`.
-   - Manage state for displaying current disputes and form data.
+- **`/ui/views/DisputeDashboard.vue`**
+  - Overview of all disputes with filtering options.
 
-4. **`src/services/disputeService.js`**
-   - Implement API calls:
-     - `createDispute(data)`: POST request to create a dispute.
-     - `getDisputes()`: GET request to fetch disputes.
-     - `updateDispute(id, data)`: PUT request to update a dispute.
+### Integration
+- Ensure API and UI components are integrated seamlessly.
+- Test end-to-end functionality from UI to API.
 
-5. **`src/styles/disputeStyles.css`**
-   - Style the dispute components for a cohesive UI.
+### Documentation
+- Update README.md with setup instructions and API usage.
+- Document UI components and their props.
 
 ## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controller logic and middleware.
-- **Week 3**: Develop UI components and integrate with API.
-- **Week 4**: Testing and bug fixing.
-
-## Testing
-- Implement unit tests for API endpoints in `tests/api/dispute.test.js`.
-- Implement component tests for UI in `tests/components/Dispute.test.js`.
+- **Week 1**: API and model setup.
+- **Week 2**: Business logic and testing.
+- **Week 3**: UI components and integration.
+- **Week 4**: Final testing and documentation.
 ```
