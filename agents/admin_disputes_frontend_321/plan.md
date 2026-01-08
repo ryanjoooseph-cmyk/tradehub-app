@@ -10,71 +10,65 @@
   │   └── StatusUpdateButton.jsx
   ├── pages
   │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
+  ├── api
+  │   └── disputes.js
   ├── styles
   │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+  └── utils
+      └── apiHelper.js
 ```
 
 ## Responsibilities
 
-### 1. **Components**
+### 1. Components
 - **AdminDisputesTable.jsx**
-  - Render a table displaying disputes.
-  - Integrate filters from `DisputeFilter.jsx`.
-  - Handle status updates via `StatusUpdateButton.jsx`.
+  - Render the table of disputes.
+  - Integrate filtering functionality.
+  - Display dispute details and status.
 
 - **DisputeFilter.jsx**
-  - Provide UI for filtering disputes (e.g., by status, date).
-  - Emit filter changes to `AdminDisputesTable`.
+  - Provide UI for filtering disputes (by status, date, etc.).
+  - Handle filter state and pass it to the AdminDisputesTable.
 
 - **StatusUpdateButton.jsx**
-  - Render a button to update the status of a selected dispute.
-  - Call the API to update status on click.
+  - Create a button to update dispute status.
+  - Handle click events to trigger API calls for status updates.
 
-### 2. **Pages**
+### 2. Pages
 - **AdminDisputesPage.jsx**
-  - Set up the route `/admin/disputes/321`.
-  - Combine `AdminDisputesTable` and `DisputeFilter`.
-  - Manage state for disputes and filters.
+  - Set up the main layout for the admin disputes page.
+  - Import and render AdminDisputesTable and DisputeFilter components.
+  - Manage overall state for filters and disputes data.
 
-### 3. **Services**
-- **disputesService.js**
-  - Define functions to call `/api/disputes` for:
-    - Fetching disputes with filters.
-    - Updating dispute status.
+### 3. API
+- **disputes.js**
+  - Define API calls to `/api/disputes` for fetching and updating disputes.
+  - Include functions for:
+    - `fetchDisputes(filters)`: Fetch disputes based on applied filters.
+    - `updateDisputeStatus(disputeId, newStatus)`: Update the status of a specific dispute.
 
-### 4. **Styles**
+### 4. Styles
 - **AdminDisputesPage.css**
-  - Style the components for a clean admin interface.
-  - Ensure responsive design for various screen sizes.
+  - Style the AdminDisputesPage and its components.
+  - Ensure responsive design for better usability.
 
-### 5. **Utilities**
-- **api.js**
-  - Create a utility for making API calls.
-  - Handle error responses and loading states.
-
-### 6. **App.js**
-- Integrate routing for `/admin/disputes/321`.
-- Ensure proper rendering of `AdminDisputesPage`.
+### 5. Utilities
+- **apiHelper.js**
+  - Create helper functions for API calls (e.g., error handling, response parsing).
+  - Centralize API request logic to avoid duplication.
 
 ## Development Steps
-1. **Set up the route** in `App.js`.
-2. **Create components** for the table, filters, and buttons.
-3. **Implement API calls** in `disputesService.js`.
-4. **Style components** using `AdminDisputesPage.css`.
-5. **Test functionality** for filtering and status updates.
-6. **Review and refine** based on feedback.
+1. **Setup Project Structure**: Create the necessary directories and files as outlined above.
+2. **Implement API Functions**: Write the API functions in `disputes.js`.
+3. **Build UI Components**: Develop `AdminDisputesTable`, `DisputeFilter`, and `StatusUpdateButton`.
+4. **Create AdminDisputesPage**: Assemble the components and manage state.
+5. **Style Components**: Apply styles in `AdminDisputesPage.css`.
+6. **Testing**: Write unit tests for components and API functions.
+7. **Integration**: Ensure components correctly call API functions and handle responses.
+8. **Deployment**: Prepare the feature for deployment and conduct final testing.
 
-## Testing
-- Unit tests for each component.
-- Integration tests for API calls.
-- End-to-end tests for the complete flow.
-
-## Deployment
-- Ensure all changes are merged into the main branch.
-- Deploy to staging for QA before production release.
+## Notes
+- Ensure accessibility and responsiveness in UI components.
+- Follow best practices for state management (consider using React Context or Redux if necessary).
+- Document the API endpoints and expected request/response formats.
 ```
