@@ -8,14 +8,18 @@
 ├── /api
 │   ├── disputes.py                # API routes for disputes
 │   ├── __init__.py                # Initialize API module
-│   └── errors.py                  # Error handling for API
+│   └── utils.py                   # Utility functions for API
 │
 ├── /models
 │   ├── dispute.py                 # Dispute model definition
 │   └── __init__.py                # Initialize models module
 │
+├── /schemas
+│   ├── dispute_schema.py          # Pydantic schemas for request/response validation
+│   └── __init__.py                # Initialize schemas module
+│
 ├── /services
-│   ├── dispute_service.py          # Business logic for disputes
+│   ├── dispute_service.py         # Business logic for disputes
 │   └── __init__.py                # Initialize services module
 │
 ├── /tests
@@ -23,68 +27,63 @@
 │   └── __init__.py                # Initialize tests module
 │
 ├── /migrations                     # Database migrations
-│   └── 001_initial.py              # Initial migration for disputes table
-│
-├── /config
-│   ├── config.py                  # Configuration settings
-│   └── __init__.py                # Initialize config module
+│   └── 001_create_disputes_table.sql # SQL for creating disputes table
 │
 └── app.py                         # Main application entry point
 ```
 
 ## Responsibilities
 
-### API Implementation
-- **File: `/api/disputes.py`**
+### API Layer
+- **`/api/disputes.py`**
   - Define routes for:
     - `GET /api/disputes` - List all disputes
     - `POST /api/disputes` - Create a new dispute
-    - `PUT /api/disputes/<id>` - Update an existing dispute
-  - Handle request validation and response formatting.
+    - `PUT /api/disputes/{id}` - Update an existing dispute
+  - Handle request validation and response formatting using schemas.
 
-- **File: `/api/errors.py`**
-  - Implement custom error handling for API responses.
-
-### Model Definition
-- **File: `/models/dispute.py`**
+### Models
+- **`/models/dispute.py`**
   - Define the Dispute model with fields:
     - `id`: Unique identifier
     - `evidence_urls`: Array of URLs for evidence
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement database interactions.
+    - `status`: Enum with values OPEN, REVIEW, RESOLVED
+  - Implement database interactions (CRUD operations).
 
-### Business Logic
-- **File: `/services/dispute_service.py`**
-  - Implement functions for:
-    - Fetching all disputes
-    - Creating a new dispute
-    - Updating an existing dispute
-  - Ensure business rules are applied (e.g., status transitions).
+### Schemas
+- **`/schemas/dispute_schema.py`**
+  - Create Pydantic schemas for:
+    - Request body for creating/updating disputes
+    - Response model for listing disputes
+
+### Services
+- **`/services/dispute_service.py`**
+  - Implement business logic for:
+    - Creating a dispute
+    - Listing disputes
+    - Updating dispute status
+  - Interact with the Dispute model for data persistence.
 
 ### Testing
-- **File: `/tests/test_disputes.py`**
+- **`/tests/test_disputes.py`**
   - Write unit tests for:
     - API endpoints
-    - Service functions
-  - Ensure coverage for all status scenarios (OPEN, REVIEW, RESOLVED).
+    - Service layer functions
+  - Ensure coverage for all CRUD operations and status updates.
 
-### Database Migration
-- **File: `/migrations/001_initial.py`**
-  - Create initial migration script for the disputes table.
+### Migrations
+- **`/migrations/001_create_disputes_table.sql`**
+  - SQL script to create the disputes table with necessary fields.
 
-### Configuration
-- **File: `/config/config.py`**
-  - Define configuration settings for the application (e.g., database URL, environment variables).
-
-### Application Entry Point
-- **File: `/app.py`**
-  - Set up the Flask application.
-  - Register API routes and error handlers.
-  - Initialize database connection.
+### Main Application
+- **`app.py`**
+  - Set up the FastAPI application.
+  - Include API routes from `api/disputes.py`.
+  - Configure database connection and middleware.
 
 ## Timeline
-- **Week 1**: API and model setup.
-- **Week 2**: Business logic implementation.
-- **Week 3**: Testing and debugging.
-- **Week 4**: Final review and deployment.
+- **Week 1**: Set up directory structure, models, and migrations.
+- **Week 2**: Implement API routes and service logic.
+- **Week 3**: Create schemas and write tests.
+- **Week 4**: Review, test, and deploy the feature.
 ```
