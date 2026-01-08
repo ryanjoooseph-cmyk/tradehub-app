@@ -13,71 +13,63 @@
   ├── styles
   │   ├── AdminDisputesPage.css
   ├── utils
-  │   ├── apiUtils.js
+  │   ├── apiClient.js
+  ├── hooks
+  │   ├── useDisputes.js
   └── App.js
 ```
 
-## File Responsibilities
+## Responsibilities
 
 ### API Layer
-- **`/src/api/disputes.js`**
-  - Implement API calls to `/api/disputes`.
-  - Functions:
-    - `fetchDisputes()`: Fetch all disputes.
-    - `updateDisputeStatus(disputeId, status)`: Update the status of a specific dispute.
+- **File:** `/src/api/disputes.js`
+  - Implement API calls to `/api/disputes` for fetching, updating, and filtering disputes.
+  - Create functions: 
+    - `fetchDisputes()`
+    - `updateDisputeStatus(id, status)`
 
-### Components
-- **`/src/components/AdminDisputesTable.js`**
-  - Create a table to display disputes.
-  - Implement filters for sorting and searching disputes.
-  - Include action buttons to update dispute status (e.g., "Resolve", "Reject").
-  - Handle API calls using functions from `api/disputes.js`.
+### UI Components
+- **File:** `/src/components/AdminDisputesTable.js`
+  - Create a table component to display disputes.
+  - Implement filtering options (e.g., by status, date).
+  - Add action buttons for updating dispute status.
 
-### Pages
-- **`/src/pages/AdminDisputesPage.js`**
-  - Set up the main page for the admin disputes route.
-  - Render `AdminDisputesTable` component.
-  - Manage state for disputes and loading/error handling.
+### Page Structure
+- **File:** `/src/pages/AdminDisputesPage.js`
+  - Set up the main page layout for the admin disputes section.
+  - Integrate `AdminDisputesTable` component.
+  - Handle state management for fetched disputes and loading states.
 
-### Styles
-- **`/src/styles/AdminDisputesPage.css`**
-  - Style the Admin Disputes page and table.
-  - Ensure responsive design for various screen sizes.
+### Styling
+- **File:** `/src/styles/AdminDisputesPage.css`
+  - Style the Admin Disputes Page and table for a clean, user-friendly interface.
 
-### Utilities
-- **`/src/utils/apiUtils.js`**
-  - Create utility functions for API error handling and response parsing.
+### State Management
+- **File:** `/src/hooks/useDisputes.js`
+  - Create a custom hook to manage disputes state.
+  - Handle fetching, updating, and filtering logic.
+
+### API Client
+- **File:** `/src/utils/apiClient.js`
+  - Set up a utility for making API requests, handling errors, and responses.
 
 ### Main Application
-- **`/src/App.js`**
-  - Define the route for `/admin/disputes/321`.
-  - Ensure proper rendering of `AdminDisputesPage`.
+- **File:** `/src/App.js`
+  - Define routing for the application.
+  - Add route for `/admin/disputes/321` to render `AdminDisputesPage`.
 
-## Development Steps
-1. **Setup API Layer**
-   - Implement `fetchDisputes` and `updateDisputeStatus` in `disputes.js`.
+## Testing
+- Ensure unit tests for:
+  - API functions in `/src/api/disputes.js`
+  - Component rendering and interactions in `/src/components/AdminDisputesTable.js`
+  - Hook functionality in `/src/hooks/useDisputes.js`
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable` with necessary props for data and actions.
-   - Implement filtering and action buttons.
+## Documentation
+- Update README with instructions on how to run the application and access the admin disputes feature.
+- Document API endpoints in a separate API documentation file.
 
-3. **Create Page Structure**
-   - Set up `AdminDisputesPage` to manage state and render the table.
-
-4. **Style the Components**
-   - Write CSS for the page and table for a clean UI.
-
-5. **Integrate API with UI**
-   - Connect API calls to the table for fetching and updating disputes.
-
-6. **Testing**
-   - Write unit tests for API functions and component rendering.
-   - Perform integration testing for the complete flow.
-
-7. **Documentation**
-   - Document API endpoints and usage in a README file.
-
-## Deployment
-- Ensure all changes are merged into the main branch.
-- Deploy the application to the staging environment for QA.
+## Timeline
+- **Week 1:** Set up API and basic UI structure.
+- **Week 2:** Implement filtering and status update actions.
+- **Week 3:** Testing and documentation.
 ```
