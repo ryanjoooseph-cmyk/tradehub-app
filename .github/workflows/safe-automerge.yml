@@ -1,44 +1,40 @@
 name: safe-automerge
 on:
   pull_request_target:
-    types: [opened, labeled, synchronize, reopened]
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
   guard:
-    if: github.event.pull_request.draft == false
+    name: safe-automerge
     runs-on: ubuntu-latest
     steps:
-      - name: Ensure 'automerge' label exists
-        id: lbl
-        run: |
-          HAS=false
-          for L in ${{ join(github.event.pull_request.labels.*.name, ' ') }}; do
-            [ "$L" = "automerge" ] && HAS=true
-          done
-          echo "has=$HAS" >> $GITHUB_OUTPUT
-      - name: Fail if label missing
-        if: steps.lbl.outputs.has != 'true'
-        run: |
-          echo "PR missing 'automerge' label."; exit 1
+      - name: Require 'automerge' label
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'automerge') }}
+        run: echo "PR missing 'automerge' label." && exit 1
 
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - name: List changed files
-        id: ch
-        uses: tj-actions/changed-files@v45
+      - name: List files in the PR
+        id: files
+        uses: actions/github-script@v7
         with:
-          since_last_remote_commit: true
+          script: |
+            const res = await github.paginate(
+              github.rest.pulls.listFiles,
+              { owner: context.repo.owner, repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number, per_page: 100 }
+            );
+            core.setOutput('list', res.map(f => f.filename).join('\n'));
 
-      - name: Allow only docs/agents plan files
+      - name: Fail if any file is outside allowlist
         run: |
-          BAD=0
-          for f in ${{ steps.ch.outputs.all_changed_files }}; do
-            case "$f" in
-              agents/*/plan.md|agents/**/plan.md|**/*.md) ;;
-              *) echo "❌ risky path: $f"; BAD=1 ;;
-            esac
-          done
-          [ $BAD -eq 0 ] || exit 1
+          echo "${{ steps.files.outputs.list }}" | tee changed.txt
+          if grep -Evq '^(agents\/[^\/]+\/plan\.md|docs\/|.*\.md)$' changed.txt; then
+            echo "PR touches risky paths. Leave for manual review."
+            echo "Changed files:"; cat changed.txt
+            exit 1
+          fi
+
+      - run: echo "Eligible for auto-merge."
