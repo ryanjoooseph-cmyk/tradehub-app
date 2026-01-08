@@ -1,22 +1,25 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+
+## Directory Structure
+
 ```
 /project-root
 │
 ├── /api
-│   ├── /disputes
-│   │   ├── disputesController.js
-│   │   ├── disputesRoutes.js
-│   │   └── disputesService.js
-│   └── /middleware
-│       └── authMiddleware.js
+│   ├── /controllers
+│   │   └── disputesController.js
+│   ├── /models
+│   │   └── disputeModel.js
+│   ├── /routes
+│   │   └── disputesRoutes.js
+│   └── /middlewares
+│       └── validateDispute.js
 │
-├── /models
-│   └── disputeModel.js
-│
-├── /ui
+├── /client
 │   ├── /components
 │   │   ├── DisputeList.jsx
 │   │   ├── DisputeForm.jsx
@@ -28,95 +31,92 @@
 │   └── /styles
 │       └── Disputes.css
 │
-├── /tests
-│   ├── /api
-│   │   └── disputes.test.js
-│   └── /ui
-│       └── DisputesPage.test.jsx
-│
-└── server.js
+└── /tests
+    ├── /api
+    │   └── disputes.test.js
+    └── /client
+        └── DisputesPage.test.jsx
 ```
 
 ## API Implementation
 
-### 1. **Model Definition**
-- **File:** `/models/disputeModel.js`
+### 1. Model Definition
+- **File:** `/api/models/disputeModel.js`
 - **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED), and timestamps.
+  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - Implement Mongoose model for MongoDB.
 
-### 2. **Controller Logic**
-- **File:** `/api/disputes/disputesController.js`
+### 2. Controller Logic
+- **File:** `/api/controllers/disputesController.js`
 - **Responsibilities:**
-  - Implement functions to handle:
-    - `GET /api/disputes`: List all disputes.
+  - Implement functions to:
+    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
+    - `getDisputes(req, res)`: Handle GET requests to list all disputes.
+    - `updateDispute(req, res)`: Handle PUT requests to update a dispute by ID.
+
+### 3. Route Definition
+- **File:** `/api/routes/disputesRoutes.js`
+- **Responsibilities:**
+  - Define routes for:
     - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
+    - `GET /api/disputes`: List all disputes.
+    - `PUT /api/disputes/:id`: Update a specific dispute.
 
-### 3. **Routing**
-- **File:** `/api/disputes/disputesRoutes.js`
+### 4. Middleware
+- **File:** `/api/middlewares/validateDispute.js`
 - **Responsibilities:**
-  - Define routes for disputes and link them to the controller functions.
-  - Apply authentication middleware for protected routes.
-
-### 4. **Service Layer**
-- **File:** `/api/disputes/disputesService.js`
-- **Responsibilities:**
-  - Implement business logic for dispute operations (CRUD).
-  - Handle database interactions.
-
-### 5. **Middleware**
-- **File:** `/api/middleware/authMiddleware.js`
-- **Responsibilities:**
-  - Implement authentication checks for API routes.
+  - Validate incoming requests for creating and updating disputes.
+  - Ensure `status` is one of OPEN, REVIEW, RESOLVED and `evidence_urls` is an array.
 
 ## UI Implementation
 
-### 6. **Dispute List Component**
-- **File:** `/ui/components/DisputeList.jsx`
+### 1. Dispute List Component
+- **File:** `/client/components/DisputeList.jsx`
 - **Responsibilities:**
   - Fetch and display a list of disputes.
-  - Provide links to view/update each dispute.
+  - Provide options to view details and update status.
 
-### 7. **Dispute Form Component**
-- **File:** `/ui/components/DisputeForm.jsx`
+### 2. Dispute Form Component
+- **File:** `/client/components/DisputeForm.jsx`
 - **Responsibilities:**
-  - Create and update dispute forms.
+  - Form to create a new dispute or update an existing one.
   - Handle input for `evidence_urls` and `status`.
 
-### 8. **Dispute Detail Component**
-- **File:** `/ui/components/DisputeDetail.jsx`
+### 3. Dispute Detail Component
+- **File:** `/client/components/DisputeDetail.jsx`
 - **Responsibilities:**
   - Display detailed information about a selected dispute.
   - Allow status updates.
 
-### 9. **Custom Hook**
-- **File:** `/ui/hooks/useDisputes.js`
+### 4. Main Page
+- **File:** `/client/pages/DisputesPage.jsx`
 - **Responsibilities:**
-  - Manage API calls for fetching, creating, and updating disputes.
+  - Combine `DisputeList` and `DisputeForm` components.
+  - Manage state and handle API calls using `useDisputes` hook.
 
-### 10. **Main Page**
-- **File:** `/ui/pages/DisputesPage.jsx`
+### 5. Styles
+- **File:** `/client/styles/Disputes.css`
 - **Responsibilities:**
-  - Integrate components to display the list and forms for disputes.
-
-### 11. **Styling**
-- **File:** `/ui/styles/Disputes.css`
-- **Responsibilities:**
-  - Style the dispute components for better UX.
+  - Style the dispute components for a cohesive UI.
 
 ## Testing
 
-### 12. **API Tests**
+### 1. API Tests
 - **File:** `/tests/api/disputes.test.js`
 - **Responsibilities:**
-  - Write unit tests for API endpoints.
+  - Write tests for API endpoints to ensure correct functionality.
 
-### 13. **UI Tests**
-- **File:** `/tests/ui/DisputesPage.test.jsx`
+### 2. Client Tests
+- **File:** `/tests/client/DisputesPage.test.jsx`
 - **Responsibilities:**
-  - Write tests for UI components and interactions.
+  - Write tests for the DisputesPage component to verify rendering and interactions.
 
-## Deployment
-- Ensure all changes are documented and tested before deployment.
-- Update API documentation to reflect new endpoints and usage.
+## Timeline
+- **Week 1:** Set up models and API routes.
+- **Week 2:** Implement controllers and middleware.
+- **Week 3:** Develop UI components.
+- **Week 4:** Testing and bug fixing.
+
+## Conclusion
+This plan provides a structured approach to implementing the disputes feature, ensuring a clear division of responsibilities and a timeline for completion.
 ```
