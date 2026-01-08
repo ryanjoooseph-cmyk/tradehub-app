@@ -1,118 +1,95 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
 /disputes_backend_326
-├── api
-│   ├── disputes.py
-│   ├── __init__.py
-├── models
-│   ├── dispute.py
-│   ├── __init__.py
-├── schemas
-│   ├── dispute_schema.py
-│   ├── __init__.py
-├── services
-│   ├── dispute_service.py
-│   ├── __init__.py
-├── tests
-│   ├── test_disputes.py
-├── ui
-│   ├── disputes_page.html
-│   ├── disputes.js
-│   ├── styles.css
-└── app.py
+│
+├── /api
+│   ├── disputes.py                # API routes for disputes
+│   ├── __init__.py                # Initialize API module
+│   └── utils.py                   # Utility functions for API
+│
+├── /models
+│   ├── dispute.py                 # Dispute model definition
+│   └── __init__.py                # Initialize models module
+│
+├── /schemas
+│   ├── dispute_schema.py          # Pydantic schemas for validation
+│   └── __init__.py                # Initialize schemas module
+│
+├── /services
+│   ├── dispute_service.py         # Business logic for disputes
+│   └── __init__.py                # Initialize services module
+│
+├── /tests
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   └── __init__.py                # Initialize tests module
+│
+├── /frontend
+│   ├── /components
+│   │   ├── DisputeList.vue        # Vue component for listing disputes
+│   │   ├── DisputeForm.vue        # Vue component for creating/updating disputes
+│   │   └── EvidenceUploader.vue    # Vue component for uploading evidence
+│   ├── /views
+│   │   └── DisputeView.vue        # Main view for disputes
+│   └── App.vue                    # Main Vue application file
+│
+├── /static                        # Static assets (CSS, JS)
+│   └── styles.css                 # Styles for the UI
+│
+└── main.py                        # Entry point for the application
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. Define API Endpoints in `api/disputes.py`
-- **GET /api/disputes**: List all disputes
-- **POST /api/disputes**: Create a new dispute
-- **PUT /api/disputes/{id}**: Update an existing dispute
-- **GET /api/disputes/{id}**: Get a specific dispute
+### API Development
+- **`/api/disputes.py`**
+  - Define routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/{id}` - Update an existing dispute
+  - Handle request validation and response formatting.
 
-### Responsibilities:
-- Implement request handling and response formatting.
-- Validate input data and handle errors.
-- Use `dispute_service.py` for business logic.
+- **`/models/dispute.py`**
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  
+- **`/schemas/dispute_schema.py`**
+  - Create Pydantic schemas for request validation and response serialization.
 
-### 2. Create Dispute Model in `models/dispute.py`
-- Define attributes: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED).
-- Implement methods for CRUD operations.
+- **`/services/dispute_service.py`**
+  - Implement business logic for creating, listing, and updating disputes.
 
-### Responsibilities:
-- Ensure data integrity and structure.
-- Interact with the database.
+### Frontend Development
+- **`/frontend/components/DisputeList.vue`**
+  - Display a list of disputes with status and actions.
 
-### 3. Define Schemas in `schemas/dispute_schema.py`
-- Create Pydantic models for request/response validation.
+- **`/frontend/components/DisputeForm.vue`**
+  - Form for creating and updating disputes, including evidence URL input.
 
-### Responsibilities:
-- Validate incoming data for creating/updating disputes.
-- Define output structure for listing disputes.
+- **`/frontend/components/EvidenceUploader.vue`**
+  - Component for handling evidence URL uploads.
 
-### 4. Implement Business Logic in `services/dispute_service.py`
-- Create functions for:
-  - Listing disputes
-  - Creating a dispute
-  - Updating a dispute
-  - Retrieving a specific dispute
+- **`/frontend/views/DisputeView.vue`**
+  - Main view to integrate the dispute list and form components.
 
-### Responsibilities:
-- Encapsulate business rules and data access.
+### Testing
+- **`/tests/test_disputes.py`**
+  - Write unit tests for API endpoints and service logic.
 
-## UI Implementation
+### Documentation
+- Update README.md with API usage instructions and frontend setup.
 
-### 5. Create UI Page in `ui/disputes_page.html`
-- Design a simple interface to:
-  - List disputes
-  - Create a new dispute
-  - Update existing disputes
+### Deployment
+- Ensure the application is containerized (Docker) for deployment.
+- Set up CI/CD pipeline for automated testing and deployment.
 
-### Responsibilities:
-- Structure HTML for displaying disputes and forms.
-
-### 6. Implement JavaScript Logic in `ui/disputes.js`
-- Handle API calls for:
-  - Fetching disputes
-  - Submitting new disputes
-  - Updating disputes
-
-### Responsibilities:
-- Manage user interactions and API communication.
-
-### 7. Style the UI in `ui/styles.css`
-- Basic styling for dispute listing and forms.
-
-### Responsibilities:
-- Ensure a user-friendly interface.
-
-## Testing
-
-### 8. Write Tests in `tests/test_disputes.py`
-- Test API endpoints for:
-  - Successful creation, listing, and updating of disputes.
-  - Error handling for invalid data.
-
-### Responsibilities:
-- Ensure functionality and reliability of the API.
-
-## Main Application Entry Point
-
-### 9. Setup Application in `app.py`
-- Initialize Flask/FastAPI app.
-- Register routes from `api/disputes.py`.
-
-### Responsibilities:
-- Serve the application and connect components.
-
-## Deployment
-- Prepare for deployment with necessary configurations.
-- Ensure environment variables for database connections are set.
-
-## Documentation
-- Document API endpoints and UI usage in README.md.
-- Include setup instructions and usage examples.
+## Timeline
+- **Week 1**: API development and model/schema setup.
+- **Week 2**: Frontend component development.
+- **Week 3**: Testing and documentation.
+- **Week 4**: Deployment and final adjustments.
 ```
