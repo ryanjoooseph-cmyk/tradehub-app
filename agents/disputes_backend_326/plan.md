@@ -1,97 +1,91 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature includes functionalities to open, list, and update disputes, manage evidence URLs, and handle dispute statuses (OPEN, REVIEW, RESOLVED).
-
 ## Directory Structure
-
 ```
 /disputes_backend_326
 │
-├── api
-│   ├── controllers
-│   │   └── disputeController.js          # Handle API logic for disputes
-│   ├── models
-│   │   └── disputeModel.js                # Define dispute schema and model
-│   ├── routes
-│   │   └── disputeRoutes.js               # Define API routes for disputes
-│   ├── middleware
-│   │   └── authMiddleware.js              # Authentication middleware
-│   └── index.js                           # Main API entry point
+├── /api
+│   ├── disputes.py                # API routes for disputes
+│   ├── __init__.py                # Initialize API module
+│   └── utils.py                   # Utility functions for API
 │
-├── client
-│   ├── src
-│   │   ├── components
-│   │   │   ├── DisputeList.js             # Component to list disputes
-│   │   │   ├── DisputeForm.js             # Component to open/update disputes
-│   │   │   └── EvidenceUploader.js         # Component to upload evidence URLs
-│   │   ├── services
-│   │   │   └── disputeService.js           # API service for dispute operations
-│   │   ├── App.js                          # Main application component
-│   │   └── index.js                        # Entry point for React app
-│   └── public
-│       └── index.html                      # HTML template for the app
+├── /models
+│   ├── dispute.py                 # Dispute model definition
+│   └── __init__.py                # Initialize models module
 │
-└── README.md                               # Project documentation
+├── /schemas
+│   ├── dispute_schema.py          # Pydantic schemas for dispute validation
+│   └── __init__.py                # Initialize schemas module
+│
+├── /services
+│   ├── dispute_service.py         # Business logic for disputes
+│   └── __init__.py                # Initialize services module
+│
+├── /tests
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   └── __init__.py                # Initialize tests module
+│
+└── app.py                         # Main application entry point
 ```
 
 ## Responsibilities
 
-### API Implementation
+### API Layer
+- **/api/disputes.py**
+  - Define routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/{id}` - Update an existing dispute
+  - Handle request validation and response formatting.
 
-- **`api/controllers/disputeController.js`**
-  - Implement functions to handle:
-    - `openDispute(req, res)`: Create a new dispute.
-    - `listDisputes(req, res)`: Retrieve all disputes.
-    - `updateDispute(req, res)`: Update a dispute's status or evidence URLs.
+- **/api/utils.py**
+  - Implement helper functions for error handling and response generation.
 
-- **`api/models/disputeModel.js`**
-  - Define the dispute schema with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of URLs
-    - `created_at`: Timestamp
+### Models Layer
+- **/models/dispute.py**
+  - Define the Dispute class with attributes:
+    - `id`
+    - `evidence_urls` (array)
+    - `status` (enum: OPEN, REVIEW, RESOLVED)
+  - Implement methods for database interactions (CRUD).
 
-- **`api/routes/disputeRoutes.js`**
-  - Set up routes:
-    - `POST /api/disputes`: Open a new dispute.
-    - `GET /api/disputes`: List all disputes.
-    - `PUT /api/disputes/:id`: Update a specific dispute.
+### Schemas Layer
+- **/schemas/dispute_schema.py**
+  - Create Pydantic models for request/response validation:
+    - `DisputeCreate` for creating disputes
+    - `DisputeUpdate` for updating disputes
+    - `DisputeResponse` for listing disputes
 
-- **`api/middleware/authMiddleware.js`**
-  - Implement authentication checks for API routes.
+### Services Layer
+- **/services/dispute_service.py**
+  - Implement business logic for:
+    - Creating a dispute
+    - Listing disputes
+    - Updating dispute status
+  - Interact with the Dispute model for data persistence.
 
-### Client Implementation
+### Testing Layer
+- **/tests/test_disputes.py**
+  - Write unit tests for:
+    - API endpoints
+    - Service methods
+    - Model validations
 
-- **`client/src/components/DisputeList.js`**
-  - Fetch and display a list of disputes.
-  - Allow users to view details and statuses.
-
-- **`client/src/components/DisputeForm.js`**
-  - Form to open a new dispute or update an existing one.
-  - Include fields for status and evidence URLs.
-
-- **`client/src/components/EvidenceUploader.js`**
-  - Component to manage uploading and displaying evidence URLs.
-
-- **`client/src/services/disputeService.js`**
-  - Implement API calls to:
-    - Create a dispute.
-    - Fetch disputes.
-    - Update a dispute.
-
-### Testing and Documentation
-
-- **Unit Tests**
-  - Write tests for API endpoints in `api/controllers/disputeController.test.js`.
-  - Write tests for React components in `client/src/components/__tests__/`.
-
-- **Documentation**
-  - Update `README.md` with setup instructions, API usage, and component descriptions.
+### Main Application
+- **app.py**
+  - Set up FastAPI application.
+  - Include API routes and middleware.
+  - Configure database connection.
 
 ## Timeline
-- Week 1: API development (models, controllers, routes).
-- Week 2: Client development (components, services).
-- Week 3: Testing and documentation.
+- **Week 1**: Set up project structure and implement models.
+- **Week 2**: Develop API endpoints and services.
+- **Week 3**: Create schemas and write tests.
+- **Week 4**: Finalize testing, documentation, and deployment.
+
+## Notes
+- Ensure proper error handling and logging throughout the implementation.
+- Follow RESTful conventions for API design.
+- Use environment variables for configuration settings.
 ```
