@@ -4,97 +4,99 @@
 ## Directory Structure
 ```
 /disputes_backend_326
+│
 ├── api
-│   ├── disputes.py
 │   ├── __init__.py
-│   └── models.py
+│   ├── app.py
+│   ├── routes
+│   │   ├── __init__.py
+│   │   └── disputes.py
+│   └── models
+│       ├── __init__.py
+│       └── dispute.py
+│
 ├── ui
-│   ├── components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── pages
-│   │   └── DisputePage.jsx
-│   ├── App.jsx
-│   └── index.js
+│   ├── index.html
+│   ├── css
+│   │   └── styles.css
+│   └── js
+│       ├── app.js
+│       └── api.js
+│
 ├── tests
-│   ├── api
-│   │   └── test_disputes.py
-│   └── ui
-│       └── test_DisputePage.jsx
+│   ├── __init__.py
+│   ├── test_routes.py
+│   └── test_models.py
+│
 └── requirements.txt
 ```
 
 ## API Implementation
 
-### File: `/api/disputes.py`
+### File: `api/routes/disputes.py`
 - **Responsibilities:**
-  - Define Flask routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/<id>`: Update an existing dispute
-  - Handle request validation and response formatting.
+  - Define routes for `/api/disputes`.
+  - Implement GET, POST, and PUT methods for:
+    - **GET**: List all disputes.
+    - **POST**: Create a new dispute with `evidence_urls` and status.
+    - **PUT**: Update an existing dispute's status.
 
-### File: `/api/models.py`
+### File: `api/models/dispute.py`
 - **Responsibilities:**
   - Define the Dispute model with fields:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement database interactions (CRUD operations).
+    - `id`: Unique identifier.
+    - `evidence_urls`: Array of URLs.
+    - `status`: Enum (OPEN, REVIEW, RESOLVED).
+  - Implement methods for database interactions (CRUD).
 
-### File: `/api/__init__.py`
+### File: `api/app.py`
 - **Responsibilities:**
-  - Initialize Flask app and register API routes.
+  - Initialize Flask app.
+  - Register routes from `routes/disputes.py`.
+  - Configure database connection.
 
 ## UI Implementation
 
-### File: `/ui/components/DisputeList.jsx`
+### File: `ui/index.html`
 - **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide links to view/update individual disputes.
+  - Create the main HTML structure.
+  - Include links to CSS and JS files.
+  - Provide sections for listing disputes and forms for creating/updating disputes.
 
-### File: `/ui/components/DisputeForm.jsx`
+### File: `ui/css/styles.css`
 - **Responsibilities:**
-  - Form for creating/updating disputes.
-  - Handle input for evidence URLs and status.
+  - Style the UI components (forms, buttons, lists).
+  - Ensure responsive design for various devices.
 
-### File: `/ui/components/DisputeDetail.jsx`
+### File: `ui/js/app.js`
 - **Responsibilities:**
-  - Display detailed information about a selected dispute.
-  - Allow status updates and evidence URL management.
+  - Handle UI interactions (form submissions, displaying disputes).
+  - Call API methods to fetch and update disputes.
 
-### File: `/ui/pages/DisputePage.jsx`
+### File: `ui/js/api.js`
 - **Responsibilities:**
-  - Main page to render `DisputeList` and `DisputeForm`.
-  - Manage state for selected dispute and form visibility.
-
-### File: `/ui/App.jsx`
-- **Responsibilities:**
-  - Set up routing for the application.
-  - Include global state management if necessary.
-
-### File: `/ui/index.js`
-- **Responsibilities:**
-  - Render the main application component into the DOM.
+  - Define functions to interact with the API:
+    - `fetchDisputes()`: GET request to list disputes.
+    - `createDispute(data)`: POST request to create a dispute.
+    - `updateDispute(id, data)`: PUT request to update a dispute.
 
 ## Testing
 
-### File: `/tests/api/test_disputes.py`
+### File: `tests/test_routes.py`
 - **Responsibilities:**
-  - Unit tests for API endpoints.
-  - Validate response formats and status codes.
+  - Write unit tests for API routes.
+  - Test GET, POST, and PUT functionalities.
 
-### File: `/tests/ui/test_DisputePage.jsx`
+### File: `tests/test_models.py`
 - **Responsibilities:**
-  - Unit tests for UI components.
-  - Ensure correct rendering and functionality of dispute forms and lists.
+  - Write unit tests for the Dispute model.
+  - Test CRUD operations and data integrity.
 
 ## Dependencies
 
-### File: `/requirements.txt`
+### File: `requirements.txt`
 - **Responsibilities:**
-  - List required packages for both API and UI (e.g., Flask, React, Axios).
+  - List required packages (Flask, SQLAlchemy, etc.).
 
 ## Milestones
 1. **API Development**: Complete by [Date].
