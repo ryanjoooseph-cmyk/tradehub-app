@@ -1,66 +1,44 @@
 name: safe-automerge
-
 on:
   pull_request_target:
-    types: [opened, reopened, synchronize, labeled, ready_for_review]
-
+    types: [opened, labeled, synchronize, reopened]
 permissions:
   contents: read
-  pull-requests: read
-  statuses: write
+  pull-requests: write
 
 jobs:
   guard:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - name: Require "automerge" label
-        id: label
-        uses: actions/github-script@v7
+      - name: Ensure 'automerge' label exists
+        id: lbl
+        run: |
+          HAS=false
+          for L in ${{ join(github.event.pull_request.labels.*.name, ' ') }}; do
+            [ "$L" = "automerge" ] && HAS=true
+          done
+          echo "has=$HAS" >> $GITHUB_OUTPUT
+      - name: Fail if label missing
+        if: steps.lbl.outputs.has != 'true'
+        run: |
+          echo "PR missing 'automerge' label."; exit 1
+
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: List changed files
+        id: ch
+        uses: tj-actions/changed-files@v45
         with:
-          script: |
-            const has = (context.payload.pull_request.labels || []).some(l => l.name === 'automerge');
-            core.setOutput('has', has ? 'true' : 'false');
-            if (!has) {
-              core.notice('Add the "automerge" label to make this PR eligible.');
-            }
+          since_last_remote_commit: true
 
-      - name: Paths must be safe (agents/docs only)
-        if: steps.label.outputs.has == 'true'
-        id: paths
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const {owner, repo} = context.repo;
-            const pr = context.payload.pull_request;
-            const files = await github.rest.pulls.listFiles({owner, repo, pull_number: pr.number, per_page: 100});
-            const changed = files.data.map(f => f.filename);
-
-            const risky = changed.some(p =>
-              /^(app\/|lib\/|server\/|scripts\/|\.github\/workflows\/|package(-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|Dockerfile|render\.ya?ml|next\.config\.(js|ts))/.test(p)
-            );
-            core.setOutput('risky', risky ? 'true' : 'false');
-            if (risky) {
-              core.setFailed('PR touches risky paths; keep agents/docs-only for auto-merge.');
-            }
-
-      - name: Set commit status (safe-automerge)
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const {owner, repo} = context.repo;
-            const pr = context.payload.pull_request;
-            const ok = core.getInput('ok') || (
-              (steps.label.outputs.has === 'true') &&
-              (steps.paths.outputs.risky === 'false' || !steps.paths.outputs.risky)
-            );
-
-            const state = ok ? 'success' : 'failure';
-            const desc  = ok ? 'Eligible for auto-merge' : 'Not eligible (label or paths)';
-            await github.rest.repos.createCommitStatus({
-              owner, repo,
-              sha: pr.head.sha,
-              state,
-              context: 'safe-automerge',
-              description: desc
-            });
+      - name: Allow only docs/agents plan files
+        run: |
+          BAD=0
+          for f in ${{ steps.ch.outputs.all_changed_files }}; do
+            case "$f" in
+              agents/*/plan.md|agents/**/plan.md|**/*.md) ;;
+              *) echo "❌ risky path: $f"; BAD=1 ;;
+            esac
+          done
+          [ $BAD -eq 0 ] || exit 1
