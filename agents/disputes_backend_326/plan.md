@@ -1,109 +1,91 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes through the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Directory Structure
 ```
-/src
-  ├── api
-  │   ├── disputes.js                  # API routes for disputes
-  │   ├── disputesController.js         # Controller for dispute logic
-  │   ├── disputesModel.js              # Mongoose model for disputes
-  │   └── disputesValidator.js           # Validation middleware for disputes
-  ├── components
-  │   ├── DisputeList.jsx               # Component to list disputes
-  │   ├── DisputeForm.jsx               # Component to create/update disputes
-  │   └── DisputeDetail.jsx             # Component to view dispute details
-  ├── pages
-  │   └── DisputesPage.jsx              # Main page for disputes UI
-  ├── services
-  │   └── disputeService.js             # Service for API calls related to disputes
-  ├── styles
-  │   └── disputes.css                   # CSS styles for disputes components
-  └── utils
-      └── apiUtils.js                   # Utility functions for API handling
+/disputes_backend
+│
+├── /api
+│   ├── disputes.py               # API routes for disputes
+│   ├── __init__.py               # API package initialization
+│
+├── /models
+│   ├── dispute.py                # Dispute model definition
+│   ├── __init__.py               # Models package initialization
+│
+├── /schemas
+│   ├── dispute_schema.py         # Pydantic schemas for request/response validation
+│   ├── __init__.py               # Schemas package initialization
+│
+├── /services
+│   ├── dispute_service.py        # Business logic for disputes
+│   ├── __init__.py               # Services package initialization
+│
+├── /tests
+│   ├── test_disputes.py          # Unit tests for disputes API
+│   ├── __init__.py               # Tests package initialization
+│
+├── /config
+│   ├── config.py                 # Configuration settings
+│   ├── __init__.py               # Config package initialization
+│
+└── app.py                        # Main application entry point
 ```
 
 ## Responsibilities
 
-### API Implementation
-
-- **`/src/api/disputes.js`**
+### 1. API Implementation
+- **File:** `/api/disputes.py`
   - Define routes for:
-    - `GET /api/disputes` - List all disputes
-    - `POST /api/disputes` - Open a new dispute
-    - `PUT /api/disputes/:id` - Update an existing dispute
-  - Integrate with controller methods.
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/{id}`: Update an existing dispute
+  - Implement request handling and response formatting.
 
-- **`/src/api/disputesController.js`**
-  - Implement logic for:
+### 2. Model Definition
+- **File:** `/models/dispute.py`
+  - Create a Dispute class with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of strings
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for database interactions (CRUD).
+
+### 3. Request/Response Validation
+- **File:** `/schemas/dispute_schema.py`
+  - Define Pydantic models for:
+    - Creating a dispute
+    - Updating a dispute
+    - Listing disputes
+  - Ensure validation of `evidence_urls` and `status`.
+
+### 4. Business Logic
+- **File:** `/services/dispute_service.py`
+  - Implement functions for:
     - Fetching all disputes
-    - Creating a new dispute (including evidence URLs and status)
-    - Updating a dispute's status and evidence URLs
-
-- **`/src/api/disputesModel.js`**
-  - Define Mongoose schema for disputes:
-    - Fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`
-    - Status enum: OPEN, REVIEW, RESOLVED
-
-- **`/src/api/disputesValidator.js`**
-  - Create middleware to validate request data for creating and updating disputes.
-
-### UI Implementation
-
-- **`/src/components/DisputeList.jsx`**
-  - Fetch and display a list of disputes.
-  - Include filters for status.
-
-- **`/src/components/DisputeForm.jsx`**
-  - Form for creating and updating disputes.
-  - Fields for status and evidence URLs.
-
-- **`/src/components/DisputeDetail.jsx`**
-  - Display detailed information about a selected dispute.
-
-- **`/src/pages/DisputesPage.jsx`**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
-
-### Service Layer
-
-- **`/src/services/disputeService.js`**
-  - Implement API calls for:
-    - Fetching disputes
     - Creating a new dispute
     - Updating an existing dispute
+  - Handle business rules related to dispute status transitions.
 
-### Styling
+### 5. Testing
+- **File:** `/tests/test_disputes.py`
+  - Write unit tests for:
+    - API endpoints
+    - Service functions
+    - Model validation
+  - Ensure coverage for all status transitions and edge cases.
 
-- **`/src/styles/disputes.css`**
-  - Style components for a cohesive UI experience.
+### 6. Configuration
+- **File:** `/config/config.py`
+  - Set up configuration for database connections and environment variables.
 
-### Utility Functions
-
-- **`/src/utils/apiUtils.js`**
-  - General utility functions for handling API requests and responses.
-
-## Testing
-
-- Implement unit tests for:
-  - API endpoints
-  - Controller logic
-  - UI components
-- Ensure coverage for all functionalities.
-
-## Deployment
-
-- Prepare the application for deployment.
-- Update documentation for API endpoints and UI usage.
+### 7. Application Entry Point
+- **File:** `/app.py`
+  - Initialize the FastAPI app.
+  - Include API routes and middleware configurations.
 
 ## Timeline
-
-- **Week 1**: API development (routes, controller, model)
-- **Week 2**: UI development (components, pages)
-- **Week 3**: Integration and testing
-- **Week 4**: Final review and deployment
+- **Week 1:** API and model implementation
+- **Week 2:** Schema and service logic development
+- **Week 3:** Testing and documentation
+- **Week 4:** Review and deployment preparations
 ```
