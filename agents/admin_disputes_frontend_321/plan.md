@@ -2,7 +2,7 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the development of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update the dispute status.
 
 ## File Structure
 
@@ -13,27 +13,27 @@ This plan outlines the development of the UI and API for the admin disputes feat
     - **Responsibility**: Create a table component to display disputes with filtering options.
   
   - `src/components/DisputeStatusDropdown.js`
-    - **Responsibility**: Create a dropdown component for selecting dispute status updates.
+    - **Responsibility**: Create a dropdown component for updating dispute statuses.
 
   - `src/pages/AdminDisputesPage.js`
     - **Responsibility**: Main page component that integrates the `AdminDisputesTable` and handles routing.
 
   - `src/hooks/useDisputes.js`
-    - **Responsibility**: Custom hook for fetching disputes data from the API and managing state.
+    - **Responsibility**: Custom hook to fetch disputes data from the API and manage state.
 
-  - `src/services/api.js`
-    - **Responsibility**: API service for making requests to `/api/disputes` and handling responses.
+  - `src/utils/api.js`
+    - **Responsibility**: API utility functions to call `/api/disputes` for fetching and updating disputes.
 
   - `src/styles/AdminDisputes.css`
-    - **Responsibility**: Styles for the admin disputes page and components.
+    - **Responsibility**: CSS styles for the admin disputes page and components.
 
-### API
+### Backend
 
 - **File Paths**
   - `src/routes/api/disputes.js`
-    - **Responsibility**: Define the API route for fetching and updating disputes.
+    - **Responsibility**: Define API endpoints for fetching and updating disputes.
 
-  - `src/controllers/disputesController.js`
+  - `src/controllers/disputeController.js`
     - **Responsibility**: Handle business logic for fetching disputes and updating their statuses.
 
   - `src/models/Dispute.js`
@@ -42,58 +42,41 @@ This plan outlines the development of the UI and API for the admin disputes feat
   - `src/middleware/authMiddleware.js`
     - **Responsibility**: Middleware to ensure only authorized admin users can access the disputes API.
 
-## Development Tasks
+  - `src/utils/responseHandler.js`
+    - **Responsibility**: Utility functions to standardize API responses.
 
-### Frontend Tasks
-1. **Create AdminDisputesTable Component**
-   - Implement table structure.
-   - Integrate filtering options (by date, status, etc.).
+## Implementation Steps
 
-2. **Create DisputeStatusDropdown Component**
-   - Implement dropdown for status updates.
-   - Handle selection changes and trigger updates.
+1. **Frontend Development**
+   - Implement `AdminDisputesTable.js` to display disputes with filtering options.
+   - Create `DisputeStatusDropdown.js` for status updates.
+   - Build `AdminDisputesPage.js` to integrate components and manage state.
+   - Develop `useDisputes.js` to handle API calls and state management.
+   - Style components in `AdminDisputes.css`.
 
-3. **Develop AdminDisputesPage**
-   - Integrate `AdminDisputesTable` and `DisputeStatusDropdown`.
-   - Set up routing for `/admin/disputes/321`.
+2. **Backend Development**
+   - Set up API routes in `api/disputes.js` for GET and POST requests.
+   - Implement logic in `disputeController.js` to fetch and update disputes.
+   - Define the Dispute model in `Dispute.js` for database schema.
+   - Add authentication middleware in `authMiddleware.js` to protect routes.
+   - Create response handling utilities in `responseHandler.js`.
 
-4. **Implement useDisputes Hook**
-   - Fetch disputes data from the API.
-   - Manage loading and error states.
+3. **Testing**
+   - Write unit tests for frontend components and hooks.
+   - Write integration tests for API endpoints.
+   - Ensure all tests pass before deployment.
 
-5. **Style Components**
-   - Apply styles from `AdminDisputes.css` to ensure a cohesive look.
-
-### API Tasks
-1. **Define API Route in disputes.js**
-   - Set up GET and PUT methods for fetching and updating disputes.
-
-2. **Implement Disputes Controller Logic**
-   - Fetch disputes from the database.
-   - Handle status updates and return appropriate responses.
-
-3. **Create Dispute Model**
-   - Define schema for disputes, including fields for status, date, etc.
-
-4. **Set Up Authentication Middleware**
-   - Ensure only authorized users can access the disputes API.
-
-## Testing
-- **File Paths**
-  - `src/tests/AdminDisputesTable.test.js`
-  - `src/tests/disputesController.test.js`
-
-- **Responsibilities**
-  - Write unit tests for frontend components and API controller functions.
-
-## Deployment
-- Ensure all changes are merged into the main branch.
-- Deploy to staging environment for QA testing.
-- Monitor for any issues post-deployment.
+4. **Deployment**
+   - Prepare the application for deployment.
+   - Deploy frontend and backend to the production environment.
 
 ## Timeline
-- **Week 1**: Frontend development (components and hooks).
-- **Week 2**: API development (routes and controllers).
-- **Week 3**: Testing and deployment.
+- **Week 1**: Frontend component development.
+- **Week 2**: Backend API development.
+- **Week 3**: Testing and bug fixing.
+- **Week 4**: Deployment and monitoring.
 
+## Notes
+- Ensure to follow coding standards and best practices.
+- Document the code and API endpoints for future reference.
 ```
