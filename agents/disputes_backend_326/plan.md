@@ -6,93 +6,76 @@
 /disputes_backend_326
 ├── api
 │   ├── disputes.py
-│   ├── __init__.py
-├── ui
-│   ├── components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   ├── DisputeItem.jsx
-│   ├── pages
-│   │   ├── DisputesPage.jsx
-│   ├── App.jsx
-│   ├── index.js
+│   └── __init__.py
 ├── models
-│   ├── disputeModel.js
+│   ├── dispute.py
+│   └── __init__.py
+├── schemas
+│   ├── dispute_schema.py
+│   └── __init__.py
 ├── services
-│   ├── disputeService.js
+│   ├── dispute_service.py
+│   └── __init__.py
 ├── tests
-│   ├── api
-│   │   ├── disputes.test.js
-│   ├── ui
-│   │   ├── DisputeList.test.jsx
-│   │   ├── DisputeForm.test.jsx
-├── .env
-├── package.json
-└── README.md
+│   ├── test_disputes.py
+│   └── __init__.py
+├── app.py
+└── requirements.txt
 ```
 
-## API Implementation
-- **File: `/api/disputes.py`**
+## Responsibilities
+
+### 1. API Layer
+- **File:** `api/disputes.py`
   - Define routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/<id>`: Update an existing dispute
-  - Handle dispute statuses: OPEN, REVIEW, RESOLVED
-  - Validate `evidence_urls` array in requests
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/<id>` - Update an existing dispute
+  - Handle request validation and response formatting.
 
-- **File: `/models/disputeModel.js`**
-  - Define the Dispute model schema
-  - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`
+### 2. Model Layer
+- **File:** `models/dispute.py`
+  - Create a Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for CRUD operations.
 
-- **File: `/services/disputeService.js`**
+### 3. Schema Layer
+- **File:** `schemas/dispute_schema.py`
+  - Define Pydantic schemas for:
+    - Dispute creation and update requests
+    - Response models for listing disputes
+
+### 4. Service Layer
+- **File:** `services/dispute_service.py`
   - Implement business logic for:
-    - Fetching disputes
-    - Creating a dispute
-    - Updating a dispute
+    - Listing disputes
+    - Creating a new dispute
+    - Updating dispute status
+  - Interact with the Dispute model for data persistence.
 
-- **File: `/tests/api/disputes.test.js`**
-  - Write unit tests for API endpoints
-  - Test response status and data structure
+### 5. Testing
+- **File:** `tests/test_disputes.py`
+  - Write unit tests for:
+    - API endpoints
+    - Service methods
+    - Model validations
+  - Ensure coverage for all CRUD operations and status transitions.
 
-## UI Implementation
-- **File: `/ui/components/DisputeList.jsx`**
-  - Display a list of disputes
-  - Include filtering options based on status
+### 6. Main Application
+- **File:** `app.py`
+  - Initialize the web framework (e.g., Flask/FastAPI).
+  - Register API routes from `api/disputes.py`.
+  - Configure middleware and error handling.
 
-- **File: `/ui/components/DisputeForm.jsx`**
-  - Form for creating/updating disputes
-  - Fields for status and evidence URLs
+### 7. Dependencies
+- **File:** `requirements.txt`
+  - List necessary packages (e.g., Flask/FastAPI, SQLAlchemy, Pydantic, pytest).
 
-- **File: `/ui/components/DisputeItem.jsx`**
-  - Component to display individual dispute details
-  - Include buttons for updating and resolving disputes
-
-- **File: `/ui/pages/DisputesPage.jsx`**
-  - Main page to render `DisputeList` and `DisputeForm`
-  - Handle state management for disputes
-
-- **File: `/ui/App.jsx`**
-  - Set up routing for the application
-  - Include the `DisputesPage`
-
-- **File: `/ui/index.js`**
-  - Render the main application component
-
-- **File: `/tests/ui/DisputeList.test.jsx`**
-  - Write tests for `DisputeList` component
-  - Ensure correct rendering of disputes
-
-- **File: `/tests/ui/DisputeForm.test.jsx`**
-  - Write tests for `DisputeForm` component
-  - Validate form submission and state updates
-
-## Environment Setup
-- **File: `/.env`**
-  - Define environment variables for API base URL and database connection
-
-## Documentation
-- **File: `/README.md`**
-  - Provide an overview of the feature
-  - Instructions for setting up the project
-  - API endpoint documentation
+## Timeline
+- **Week 1:** Set up the project structure and implement the API layer.
+- **Week 2:** Develop the model and schema layers.
+- **Week 3:** Implement the service layer and write tests.
+- **Week 4:** Finalize testing, documentation, and deployment preparations.
 ```
