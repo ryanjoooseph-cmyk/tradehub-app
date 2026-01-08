@@ -1,74 +1,23 @@
-name: safe-automerge
-on:
-  pull_request_target:
-    types: [opened, synchronize, labeled, unlabeled, reopened, ready_for_review]
-
-permissions:
-  contents: write
-  pull-requests: write
-  statuses: write
-
-jobs:
-  guard:
-    name: guard
-    runs-on: ubuntu-latest
-    steps:
-      - name: Compute eligibility
-        id: gate
-        uses: actions/github-script@v7
-        with:
-          result-encoding: string
-          script: |
-            try {
-              const pr = context.payload.pull_request;
-              const hasLabel = pr.labels.some(l => l.name === 'automerge');
-
-              // List changed files (v7 requires "github.rest")
-              const files = await github.paginate(
-                github.rest.pulls.listFiles,
-                {
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: pr.number
-                }
-              );
-
-              // Allow only docs/agents changes (tweak if you need)
-              const SAFE = [
-                /^agents\/[^/]+\/plan\.md$/,
-                /^docs\//,
-                /^README\.md$/,
-                /^CHANGELOG\.md$/
-              ];
-              const risky = files.some(f => !SAFE.some(rx => rx.test(f.filename)));
-
-              return (hasLabel && !risky) ? 'true' : 'false';
-            } catch (e) {
-              core.warning('guard error: ' + (e?.message || e));
-              return 'false'; // fail closed but keep pipeline alive
-            }
-
-      # Always publish the REQUIRED context so Branch Protection sees it
-      - name: Publish required status (safe-automerge)
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const eligible = '${{ steps.gate.outputs.result }}' === 'true';
-            await github.rest.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: context.payload.pull_request.head.sha,
-              state: eligible ? 'success' : 'failure',
-              context: 'safe-automerge', // EXACT match to your branch rule
-              description: eligible
-                ? 'Eligible (docs/agents-only + automerge label)'
-                : 'Not eligible (risky paths, missing label, or guard error)',
-              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${context.payload.pull_request.number}/files`
-            });
-
-      - name: Squash-merge when eligible
+      - name: Squash-merge when eligible (best effort)
         if: steps.gate.outputs.result == 'true'
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh pr merge ${{ github.event.pull_request.number }} --squash --auto
+        run: |
+          set -e
+          PR_NUMBER=${{ github.event.pull_request.number }}
+
+          # Try GitHub's Auto-merge (needs repo setting enabled)
+          gh pr merge "$PR_NUMBER" --squash --auto \
+          || {
+            # If auto-merge isn’t enabled, enable it via GraphQL
+            PR_ID=$(gh pr view "$PR_NUMBER" --json id -q .id)
+            gh api graphql -f query='
+              mutation($pr:ID!){
+                enablePullRequestAutoMerge(input:{ pullRequestId:$pr, mergeMethod:SQUASH }) { clientMutationId }
+              }' -f pr="$PR_ID" \
+          ;} \
+          || {
+            # As a fallback, try an immediate squash merge (will succeed only if all reqs are green)
+            gh pr merge "$PR_NUMBER" --squash --merge
+          }
