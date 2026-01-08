@@ -13,7 +13,7 @@
   ├── styles
   │   ├── AdminDisputesPage.css
   ├── utils
-  │   ├── apiUtils.js
+  │   ├── apiClient.js
   └── App.js
 ```
 
@@ -21,23 +21,20 @@
 
 ### API Layer
 - **`/src/api/disputes.js`**
-  - Implement API calls to `/api/disputes`.
-  - Functions:
-    - `fetchDisputes()`: Fetch all disputes.
-    - `updateDisputeStatus(disputeId, status)`: Update the status of a specific dispute.
+  - Define API calls to `/api/disputes`.
+  - Implement functions for fetching disputes, updating status, and handling errors.
 
 ### Components
 - **`/src/components/AdminDisputesTable.js`**
-  - Create a table to display disputes.
-  - Implement filters for sorting and searching disputes.
-  - Include action buttons to update dispute status (e.g., "Resolve", "Reject").
-  - Handle API calls using functions from `api/disputes.js`.
+  - Create a table component to display disputes.
+  - Implement filtering options (e.g., by status, date).
+  - Add action buttons for updating dispute status (e.g., resolve, escalate).
 
 ### Pages
 - **`/src/pages/AdminDisputesPage.js`**
-  - Set up the main page for the admin disputes route.
-  - Render `AdminDisputesTable` component.
-  - Manage state for disputes and loading/error handling.
+  - Set up the main page layout for the admin disputes section.
+  - Integrate `AdminDisputesTable` component.
+  - Handle state management for fetched disputes and filter criteria.
 
 ### Styles
 - **`/src/styles/AdminDisputesPage.css`**
@@ -45,39 +42,38 @@
   - Ensure responsive design for various screen sizes.
 
 ### Utilities
-- **`/src/utils/apiUtils.js`**
-  - Create utility functions for API error handling and response parsing.
+- **`/src/utils/apiClient.js`**
+  - Create a reusable API client for making HTTP requests.
+  - Handle authentication tokens and error responses.
 
 ### Main Application
 - **`/src/App.js`**
-  - Define the route for `/admin/disputes/321`.
-  - Ensure proper rendering of `AdminDisputesPage`.
+  - Define routing for the application.
+  - Add route for `/admin/disputes/321` pointing to `AdminDisputesPage`.
 
 ## Development Steps
-1. **Setup API Layer**
-   - Implement `fetchDisputes` and `updateDisputeStatus` in `disputes.js`.
+1. **Set Up API Calls**
+   - Implement functions in `disputes.js` for fetching and updating disputes.
 
 2. **Build UI Components**
-   - Create `AdminDisputesTable` with necessary props for data and actions.
-   - Implement filtering and action buttons.
+   - Create `AdminDisputesTable.js` with filtering and action buttons.
+   - Style the component using `AdminDisputesPage.css`.
 
 3. **Create Page Structure**
-   - Set up `AdminDisputesPage` to manage state and render the table.
+   - Set up `AdminDisputesPage.js` to integrate the table and manage state.
 
-4. **Style the Components**
-   - Write CSS for the page and table for a clean UI.
+4. **Implement Routing**
+   - Update `App.js` to include the new route for admin disputes.
 
-5. **Integrate API with UI**
-   - Connect API calls to the table for fetching and updating disputes.
-
-6. **Testing**
-   - Write unit tests for API functions and component rendering.
+5. **Testing**
+   - Write unit tests for API functions and components.
    - Perform integration testing for the complete flow.
 
-7. **Documentation**
-   - Document API endpoints and usage in a README file.
+6. **Deployment**
+   - Prepare the feature for deployment and ensure it meets all requirements.
 
-## Deployment
-- Ensure all changes are merged into the main branch.
-- Deploy the application to the staging environment for QA.
+## Timeline
+- **Week 1**: API implementation and component structure.
+- **Week 2**: UI development and styling.
+- **Week 3**: Testing and deployment preparations.
 ```
