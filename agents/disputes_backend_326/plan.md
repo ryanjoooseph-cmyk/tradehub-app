@@ -6,15 +6,14 @@
 /project-root
 │
 ├── /api
-│   ├── /disputes
-│   │   ├── disputesController.js
-│   │   ├── disputesRoutes.js
-│   │   └── disputesService.js
-│   └── /middleware
-│       └── authMiddleware.js
-│
-├── /models
-│   └── disputeModel.js
+│   ├── /controllers
+│   │   └── disputesController.js
+│   ├── /routes
+│   │   └── disputesRoutes.js
+│   ├── /models
+│   │   └── disputeModel.js
+│   └── /middlewares
+│       └── validateDispute.js
 │
 ├── /ui
 │   ├── /components
@@ -28,79 +27,80 @@
 │   └── /styles
 │       └── Disputes.css
 │
-├── /tests
-│   ├── /api
-│   │   └── disputes.test.js
-│   └── /ui
-│       └── DisputesPage.test.jsx
-│
-└── server.js
+└── /tests
+    ├── /api
+    │   └── disputes.test.js
+    └── /ui
+        └── DisputesPage.test.jsx
 ```
 
 ## API Implementation
 
-### 1. Model
-- **File:** `/models/disputeModel.js`
-  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
+### 1. **Model Definition**
+- **File:** `/api/models/disputeModel.js`
+- **Responsibilities:**
+  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED), and timestamps.
 
-### 2. Controller
-- **File:** `/api/disputes/disputesController.js`
-  - Implement functions:
-    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
-    - `getDisputes(req, res)`: Handle GET requests to list all disputes.
-    - `updateDispute(req, res)`: Handle PUT requests to update a dispute's status or evidence URLs.
+### 2. **Controller Logic**
+- **File:** `/api/controllers/disputesController.js`
+- **Responsibilities:**
+  - Implement functions to:
+    - `listDisputes`: Retrieve all disputes.
+    - `createDispute`: Create a new dispute with `evidence_urls` and `status`.
+    - `updateDispute`: Update an existing dispute's `status` or `evidence_urls`.
 
-### 3. Service
-- **File:** `/api/disputes/disputesService.js`
-  - Implement business logic for dispute operations (CRUD).
-
-### 4. Routes
-- **File:** `/api/disputes/disputesRoutes.js`
-  - Define routes:
-    - `POST /api/disputes`: Create a new dispute.
+### 3. **Routes Setup**
+- **File:** `/api/routes/disputesRoutes.js`
+- **Responsibilities:**
+  - Define routes for:
     - `GET /api/disputes`: List all disputes.
+    - `POST /api/disputes`: Create a new dispute.
     - `PUT /api/disputes/:id`: Update a specific dispute.
 
-### 5. Middleware
-- **File:** `/api/middleware/authMiddleware.js`
-  - Implement authentication middleware to protect routes.
+### 4. **Middleware for Validation**
+- **File:** `/api/middlewares/validateDispute.js`
+- **Responsibilities:**
+  - Validate incoming requests for creating and updating disputes.
 
 ## UI Implementation
 
-### 1. Components
+### 5. **Components**
 - **File:** `/ui/components/DisputeList.jsx`
+- **Responsibilities:**
   - Display a list of disputes with status and evidence URLs.
 
 - **File:** `/ui/components/DisputeForm.jsx`
-  - Form for creating/updating disputes.
+- **Responsibilities:**
+  - Form for creating and updating disputes.
 
 - **File:** `/ui/components/DisputeDetail.jsx`
-  - Display detailed view of a selected dispute.
+- **Responsibilities:**
+  - Show detailed view of a selected dispute.
 
-### 2. Hooks
+### 6. **Custom Hook**
 - **File:** `/ui/hooks/useDisputes.js`
-  - Custom hook to manage API calls for disputes (fetch, create, update).
+- **Responsibilities:**
+  - Fetch disputes from the API and manage state for the UI.
 
-### 3. Pages
+### 7. **Page Setup**
 - **File:** `/ui/pages/DisputesPage.jsx`
-  - Main page to render `DisputeList` and `DisputeForm`.
+- **Responsibilities:**
+  - Combine components to create the main disputes page.
 
-### 4. Styles
+### 8. **Styling**
 - **File:** `/ui/styles/Disputes.css`
-  - Styles for dispute components.
+- **Responsibilities:**
+  - Style the disputes UI components for better user experience.
 
 ## Testing
 
-### 1. API Tests
+### 9. **API Tests**
 - **File:** `/tests/api/disputes.test.js`
-  - Write tests for API endpoints (create, list, update).
+- **Responsibilities:**
+  - Write tests for API endpoints to ensure correct functionality.
 
-### 2. UI Tests
+### 10. **UI Tests**
 - **File:** `/tests/ui/DisputesPage.test.jsx`
-  - Write tests for the DisputesPage component.
-
-## Deployment
-- Ensure all new routes and components are documented.
-- Update API documentation to include new endpoints.
-- Deploy changes to staging for QA before production release.
+- **Responsibilities:**
+  - Write tests for the DisputesPage component to verify rendering and interactions.
 ```
