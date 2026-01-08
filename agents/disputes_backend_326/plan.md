@@ -3,82 +3,85 @@
 
 ## Project Structure
 ```
-/disputes_backend
+/disputes_backend_326
 │
 ├── /api
-│   ├── /disputes
-│   │   ├── disputesController.js
-│   │   ├── disputesRoutes.js
-│   │   └── disputesService.js
-│   │
-│   └── /middleware
-│       └── authMiddleware.js
+│   ├── disputes.py                 # API routes for disputes
+│   ├── __init__.py                 # API package initialization
 │
 ├── /models
-│   └── disputeModel.js
+│   ├── dispute.py                  # Dispute model definition
+│   ├── __init__.py                 # Models package initialization
+│
+├── /schemas
+│   ├── dispute_schema.py           # Pydantic schemas for request/response validation
+│   ├── __init__.py                 # Schemas package initialization
+│
+├── /services
+│   ├── dispute_service.py          # Business logic for disputes
+│   ├── __init__.py                 # Services package initialization
 │
 ├── /tests
-│   ├── disputesController.test.js
-│   └── disputesService.test.js
+│   ├── test_disputes.py            # Unit tests for disputes API
+│   ├── __init__.py                 # Tests package initialization
 │
-├── /config
-│   └── database.js
-│
-└── server.js
+├── app.py                          # Main application entry point
+└── requirements.txt                # Project dependencies
 ```
 
 ## Responsibilities
 
 ### API Layer
-- **disputesRoutes.js**
+- **File:** `/api/disputes.py`
   - Define routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
-  - Integrate middleware for authentication.
-
-- **disputesController.js**
-  - Implement controller functions:
-    - `listDisputes`: Fetch all disputes from the service.
-    - `createDispute`: Validate and create a new dispute.
-    - `updateDispute`: Validate and update an existing dispute.
-
-- **disputesService.js**
-  - Handle business logic:
-    - `getAllDisputes`: Retrieve disputes from the database.
-    - `addDispute`: Save a new dispute with evidence URLs and status.
-    - `modifyDispute`: Update dispute status and evidence URLs.
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/{id}` - Update an existing dispute
+  - Handle request validation and response formatting.
 
 ### Model Layer
-- **disputeModel.js**
-  - Define the Dispute schema:
-    - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN/REVIEW/RESOLVED), `created_at`, `updated_at`.
-  - Implement methods for database interactions.
+- **File:** `/models/dispute.py`
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement ORM mappings (if using a database).
 
-### Middleware
-- **authMiddleware.js**
-  - Implement authentication checks for API routes.
+### Schema Layer
+- **File:** `/schemas/dispute_schema.py`
+  - Create Pydantic schemas for:
+    - Request body for creating/updating disputes
+    - Response model for listing disputes
+  - Ensure validation of `evidence_urls` and `status`.
+
+### Service Layer
+- **File:** `/services/dispute_service.py`
+  - Implement business logic for:
+    - Fetching all disputes
+    - Creating a new dispute
+    - Updating the status of a dispute
+  - Handle interactions with the model layer.
 
 ### Testing
-- **disputesController.test.js**
-  - Write unit tests for controller functions.
+- **File:** `/tests/test_disputes.py`
+  - Write unit tests for:
+    - API endpoints
+    - Service layer functions
+  - Use a testing framework (e.g., pytest) for assertions.
 
-- **disputesService.test.js**
-  - Write unit tests for service functions.
+### Main Application
+- **File:** `app.py`
+  - Initialize the FastAPI application.
+  - Include API routes from `/api/disputes.py`.
+  - Set up middleware, if necessary.
 
-### Configuration
-- **database.js**
-  - Set up database connection and configuration.
-
-### Server
-- **server.js**
-  - Initialize Express app.
-  - Set up middleware and routes.
-  - Start the server on the specified port.
+### Dependencies
+- **File:** `requirements.txt`
+  - List required packages (e.g., FastAPI, SQLAlchemy, Pydantic).
 
 ## Timeline
-- **Week 1**: Set up project structure, database, and models.
-- **Week 2**: Implement API routes and controllers.
-- **Week 3**: Develop service logic and middleware.
-- **Week 4**: Write tests and finalize documentation.
+- **Week 1:** Set up project structure and define models/schemas.
+- **Week 2:** Implement API routes and service logic.
+- **Week 3:** Write tests and perform integration testing.
+- **Week 4:** Review, refactor, and finalize documentation.
 ```
