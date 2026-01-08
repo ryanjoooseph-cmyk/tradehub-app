@@ -1,54 +1,59 @@
-// app/login/page.tsx
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
   const r = useRouter();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [pw, setPw] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    setErr(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setBusy(false);
-    if (error) { setErr(error.message); return; }
-    r.push('/dashboard'); // or wherever your app starts
+    setMsg(null);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email, password: pw
+    });
+    if (error) { setMsg(error.message); setBusy(false); return; }
+    r.push('/dashboard'); // success → go see the app
   }
 
-  async function magicLink() {
+  async function sendMagicLink() {
     setBusy(true);
-    setErr(null);
-    const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: 'https://tradehub-app.onrender.com' }});
+    setMsg(null);
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) setMsg(error.message); else setMsg('Check your inbox for a magic link.');
     setBusy(false);
-    if (error) setErr(error.message);
-    else alert('Check your email for a sign-in link.');
   }
 
   return (
-    <main style={{ maxWidth: 380, margin: '4rem auto' }}>
+    <main style={{ maxWidth: 420, margin: '64px auto', lineHeight: 1.6 }}>
       <h1>Sign in</h1>
       <form onSubmit={onSubmit}>
-        <input placeholder="you@example.com" value={email} onChange={e=>setEmail(e.target.value)} />
-        <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} />
-        <button disabled={busy}>{busy ? 'Signing in…' : 'Continue'}</button>
+        <input
+          type="email" placeholder="you@example.com" value={email}
+          onChange={e => setEmail(e.target.value)} required
+          style={{ display:'block', width:'100%', margin:'8px 0' }}
+        />
+        <input
+          type="password" placeholder="Password" value={pw}
+          onChange={e => setPw(e.target.value)} required
+          style={{ display:'block', width:'100%', margin:'8px 0' }}
+        />
+        <button disabled={busy} type="submit">Continue</button>
       </form>
-      <button onClick={magicLink} disabled={busy} style={{ marginTop: 12 }}>
-        Send magic link
-      </button>
-      {err && <p style={{ color:'red' }}>{err}</p>}
-      <p style={{ marginTop: 16 }}>
+
+      <p style={{ marginTop: 12 }}>
+        <button disabled={busy} onClick={sendMagicLink}>Send magic link</button>
+      </p>
+
+      <p style={{ color: 'crimson' }}>{msg}</p>
+
+      <p style={{ marginTop: 20 }}>
         No account? <a href="/register">Create one</a>
       </p>
     </main>
