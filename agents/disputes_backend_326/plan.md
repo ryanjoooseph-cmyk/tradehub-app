@@ -1,85 +1,83 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
-/disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API routes for disputes
-│   ├── __init__.py                # Initialize API package
-│   └── utils.py                   # Utility functions for API
-│
-├── /models
-│   ├── dispute.py                 # Dispute model definition
-│   └── __init__.py                # Initialize models package
-│
-├── /schemas
-│   ├── dispute_schema.py          # Pydantic schemas for validation
-│   └── __init__.py                # Initialize schemas package
-│
-├── /services
-│   ├── dispute_service.py         # Business logic for disputes
-│   └── __init__.py                # Initialize services package
-│
-├── /tests
-│   ├── test_disputes.py           # Unit tests for disputes API
-│   └── __init__.py                # Initialize tests package
-│
-├── /migrations                     # Database migration files
-│
-└── app.py                         # Main application entry point
+/api
+  ├── disputes
+  │   ├── disputesController.js
+  │   ├── disputesModel.js
+  │   ├── disputesRoutes.js
+  │   └── disputesService.js
+/ui
+  ├── components
+  │   ├── DisputeList.jsx
+  │   ├── DisputeDetail.jsx
+  │   └── DisputeForm.jsx
+  ├── pages
+  │   └── DisputesPage.jsx
+  ├── services
+  │   └── disputeService.js
+  └── App.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **File:** `/api/disputes.py`
-  - Define routes for:
-    - `GET /api/disputes` - List all disputes
-    - `POST /api/disputes` - Create a new dispute
-    - `PUT /api/disputes/{id}` - Update an existing dispute
-  - Handle request validation and response formatting.
+### 1. `disputesModel.js`
+- **Responsibilities**: Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
+- **Status Enum**: Define constants for `OPEN`, `REVIEW`, `RESOLVED`.
 
-### Model Definition
-- **File:** `/models/dispute.py`
-  - Create a Dispute class with attributes:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs for evidence
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement methods for CRUD operations.
+### 2. `disputesService.js`
+- **Responsibilities**: Implement business logic for:
+  - Fetching all disputes
+  - Creating a new dispute
+  - Updating an existing dispute
+- **Functions**:
+  - `getAllDisputes()`
+  - `createDispute(data)`
+  - `updateDispute(id, data)`
 
-### Schema Validation
-- **File:** `/schemas/dispute_schema.py`
-  - Define Pydantic schemas for:
-    - Dispute creation and update requests
-    - Response models for disputes listing
+### 3. `disputesController.js`
+- **Responsibilities**: Handle incoming requests and responses.
+- **Endpoints**:
+  - `GET /api/disputes`: List all disputes
+  - `POST /api/disputes`: Create a new dispute
+  - `PUT /api/disputes/:id`: Update an existing dispute
 
-### Business Logic
-- **File:** `/services/dispute_service.py`
-  - Implement functions for:
-    - Fetching all disputes
-    - Creating a new dispute
-    - Updating an existing dispute
-  - Include error handling and status management.
+### 4. `disputesRoutes.js`
+- **Responsibilities**: Define API routes and link them to the controller methods.
 
-### Testing
-- **File:** `/tests/test_disputes.py`
-  - Write unit tests for:
-    - API endpoints
-    - Service functions
-  - Ensure coverage for all status scenarios (OPEN, REVIEW, RESOLVED).
+## UI Implementation
 
-### Application Setup
-- **File:** `/app.py`
-  - Initialize FastAPI application
-  - Include API routes
-  - Set up middleware and CORS if necessary.
+### 1. `DisputesPage.jsx`
+- **Responsibilities**: Main page to display the list of disputes and provide navigation to create/update disputes.
 
-## Milestones
-1. **API Routes Implementation** - Complete by [Date]
-2. **Model and Schema Definition** - Complete by [Date]
-3. **Business Logic Development** - Complete by [Date]
-4. **Testing and Validation** - Complete by [Date]
-5. **Deployment Preparation** - Complete by [Date]
+### 2. `DisputeList.jsx`
+- **Responsibilities**: Render a list of disputes with status indicators and links to detail views.
+
+### 3. `DisputeDetail.jsx`
+- **Responsibilities**: Display detailed information of a selected dispute, including evidence URLs and status.
+
+### 4. `DisputeForm.jsx`
+- **Responsibilities**: Form for creating or updating a dispute. Includes fields for evidence URLs and status selection.
+
+### 5. `disputeService.js`
+- **Responsibilities**: API calls to the backend for disputes.
+- **Functions**:
+  - `fetchDisputes()`
+  - `createDispute(data)`
+  - `updateDispute(id, data)`
+
+## Testing
+- **Unit Tests**: Implement tests for service and controller logic.
+- **Integration Tests**: Ensure API endpoints function correctly with sample data.
+- **UI Tests**: Test components rendering and form submissions.
+
+## Deployment
+- **Environment Setup**: Ensure backend and frontend are configured for production.
+- **CI/CD Pipeline**: Integrate with existing deployment pipeline for automated testing and deployment.
+
+## Documentation
+- **API Documentation**: Create Swagger/OpenAPI documentation for the API endpoints.
+- **User Guide**: Document how to use the UI for managing disputes.
 ```
