@@ -1,98 +1,104 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
-```
-/disputes_backend_326
-├── api
-│   ├── disputes.py
-│   ├── __init__.py
-├── models
-│   ├── dispute.py
-│   ├── __init__.py
-├── schemas
-│   ├── dispute_schema.py
-│   ├── __init__.py
-├── services
-│   ├── dispute_service.py
-│   ├── __init__.py
-├── tests
-│   ├── test_disputes.py
-│   ├── __init__.py
-├── ui
-│   ├── disputes_page.html
-│   ├── disputes.js
-│   ├── styles.css
-└── app.py
-```
+## Overview
+This plan outlines the structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, with an array for evidence URLs and a status field.
 
-## API Implementation
+## File Structure
 
-### 1. `api/disputes.py`
-- **Responsibilities**:
-  - Define API routes for `/api/disputes`.
-  - Implement endpoints:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Handle request validation and response formatting.
+### API Implementation
 
-### 2. `models/dispute.py`
-- **Responsibilities**:
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement database interactions (CRUD operations).
+- **File: `src/api/disputes.js`**
+  - Responsibilities:
+    - Define API endpoints for disputes.
+    - Implement CRUD operations for disputes.
+    - Validate request data and handle errors.
 
-### 3. `schemas/dispute_schema.py`
-- **Responsibilities**:
-  - Define request and response schemas using a library like Marshmallow.
-  - Validate input data for creating and updating disputes.
+- **File: `src/models/Dispute.js`**
+  - Responsibilities:
+    - Define the Dispute model/schema.
+    - Include fields: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED), `created_at`, `updated_at`.
 
-### 4. `services/dispute_service.py`
-- **Responsibilities**:
-  - Implement business logic for dispute management.
-  - Functions for creating, listing, and updating disputes.
-  - Handle status transitions and validations.
+- **File: `src/controllers/disputeController.js`**
+  - Responsibilities:
+    - Handle business logic for disputes.
+    - Implement functions for:
+      - `createDispute(req, res)`: Open a new dispute.
+      - `listDisputes(req, res)`: List all disputes.
+      - `updateDispute(req, res)`: Update an existing dispute.
 
-## UI Implementation
+- **File: `src/routes/disputeRoutes.js`**
+  - Responsibilities:
+    - Define routes for the disputes API.
+    - Connect routes to the dispute controller methods.
 
-### 5. `ui/disputes_page.html`
-- **Responsibilities**:
-  - Create the HTML structure for displaying disputes.
-  - Include forms for creating and updating disputes.
-  - Display current status and evidence URLs.
+- **File: `src/middleware/validateDispute.js`**
+  - Responsibilities:
+    - Middleware to validate incoming dispute data.
+    - Ensure `evidence_urls` is an array and `status` is one of the allowed values.
 
-### 6. `ui/disputes.js`
-- **Responsibilities**:
-  - Implement JavaScript functions to handle API calls.
-  - Fetch disputes and update the UI dynamically.
-  - Handle form submissions for creating and updating disputes.
+### UI Implementation
 
-### 7. `ui/styles.css`
-- **Responsibilities**:
-  - Style the disputes page for better user experience.
-  - Ensure responsive design for various devices.
+- **File: `src/components/DisputeList.js`**
+  - Responsibilities:
+    - Display a list of disputes.
+    - Include functionality to filter by status.
 
-## Testing
+- **File: `src/components/DisputeForm.js`**
+  - Responsibilities:
+    - Form for creating and updating disputes.
+    - Handle input for `evidence_urls` and `status`.
 
-### 8. `tests/test_disputes.py`
-- **Responsibilities**:
-  - Write unit tests for API endpoints.
-  - Test model methods and service functions.
-  - Validate UI interactions and API responses.
+- **File: `src/pages/DisputePage.js`**
+  - Responsibilities:
+    - Main page for managing disputes.
+    - Integrate `DisputeList` and `DisputeForm`.
+    - Handle state management for disputes.
 
-## Main Application
+- **File: `src/services/disputeService.js`**
+  - Responsibilities:
+    - API calls to the backend for disputes.
+    - Methods for:
+      - `fetchDisputes()`: Fetch all disputes.
+      - `createDispute(data)`: Create a new dispute.
+      - `updateDispute(id, data)`: Update an existing dispute.
 
-### 9. `app.py`
-- **Responsibilities**:
-  - Initialize the application and set up routing.
-  - Configure database connections and middleware.
-  - Serve the UI and API endpoints.
+### Testing
 
-## Additional Notes
-- Ensure proper error handling and logging throughout the application.
-- Consider implementing authentication if needed for dispute management.
-- Use environment variables for configuration settings.
+- **File: `tests/api/dispute.test.js`**
+  - Responsibilities:
+    - Unit tests for API endpoints.
+    - Test CRUD operations and validation.
+
+- **File: `tests/ui/DisputePage.test.js`**
+  - Responsibilities:
+    - Unit tests for the UI components.
+    - Test rendering and interaction of `DisputeList` and `DisputeForm`.
+
+## Deployment
+
+- **File: `Dockerfile`**
+  - Responsibilities:
+    - Containerize the application for deployment.
+
+- **File: `docker-compose.yml`**
+  - Responsibilities:
+    - Define services for the application and database.
+
+## Documentation
+
+- **File: `docs/api.md`**
+  - Responsibilities:
+    - Document API endpoints, request/response formats, and error handling.
+
+- **File: `docs/ui.md`**
+  - Responsibilities:
+    - Document UI components and their usage.
+
+## Timeline
+
+- **Week 1**: API implementation (models, routes, controllers).
+- **Week 2**: UI implementation (components, pages, services).
+- **Week 3**: Testing and documentation.
+- **Week 4**: Deployment and final review.
 ```
