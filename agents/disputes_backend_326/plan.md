@@ -1,91 +1,102 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, with an array for evidence URLs and statuses including OPEN, REVIEW, and RESOLVED.
+
+## Directory Structure
+
 ```
-/api
-    └── disputes
-        ├── disputesController.js
-        ├── disputesService.js
-        ├── disputesModel.js
-        ├── disputesRoutes.js
-        └── disputesValidation.js
-/ui
-    ├── DisputeList.js
-    ├── DisputeForm.js
-    └── DisputeDetail.js
+/disputes_backend_326
+│
+├── /api
+│   ├── disputes.js                # API routes for disputes
+│   ├── disputesController.js      # Controller for dispute logic
+│   ├── disputesModel.js           # Mongoose model for disputes
+│   └── validation.js              # Input validation middleware
+│
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.js         # Component to list disputes
+│   │   ├── DisputeForm.js         # Component to open/update disputes
+│   │   └── EvidenceUploader.js     # Component for uploading evidence URLs
+│   │
+│   ├── /pages
+│   │   ├── DisputePage.js          # Page to display dispute details
+│   │   └── DisputeDashboard.js     # Dashboard for listing all disputes
+│   │
+│   ├── /styles
+│   │   ├── disputes.css            # Styles for dispute components
+│   │   └── dashboard.css           # Styles for dashboard
+│   │
+│   └── App.js                     # Main application file
+│
+└── /tests
+    ├── disputes.test.js            # Unit tests for API
+    └── DisputeForm.test.js         # Unit tests for UI components
 ```
 
-## API Implementation
+## API Responsibilities
 
-### 1. **Model**
-- **File:** `/api/disputes/disputesModel.js`
-  - Define the Dispute schema with fields:
-    - `id`: String (unique identifier)
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of Strings
-    - `created_at`: Date
-    - `updated_at`: Date
+### `/api/disputes.js`
+- Define routes for:
+  - `GET /api/disputes`: List all disputes
+  - `POST /api/disputes`: Open a new dispute
+  - `PUT /api/disputes/:id`: Update an existing dispute
 
-### 2. **Controller**
-- **File:** `/api/disputes/disputesController.js`
-  - Implement functions:
-    - `listDisputes(req, res)`: GET `/api/disputes` - Retrieve all disputes.
-    - `createDispute(req, res)`: POST `/api/disputes` - Create a new dispute.
-    - `updateDispute(req, res)`: PUT `/api/disputes/:id` - Update an existing dispute.
+### `disputesController.js`
+- Implement logic for:
+  - Fetching disputes from the database
+  - Creating a new dispute with evidence URLs and status
+  - Updating dispute status and evidence URLs
 
-### 3. **Service**
-- **File:** `/api/disputes/disputesService.js`
-  - Implement business logic for:
-    - Fetching disputes from the database.
-    - Creating a new dispute.
-    - Updating dispute status and evidence URLs.
+### `disputesModel.js`
+- Define Mongoose schema for disputes:
+  - Fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`
+  - Status enum: OPEN, REVIEW, RESOLVED
 
-### 4. **Validation**
-- **File:** `/api/disputes/disputesValidation.js`
-  - Implement validation middleware for:
-    - Creating a dispute (check required fields).
-    - Updating a dispute (check valid status and evidence URLs).
+### `validation.js`
+- Implement middleware for validating request bodies for:
+  - Opening a dispute (required fields)
+  - Updating a dispute (valid status and evidence URLs)
 
-### 5. **Routes**
-- **File:** `/api/disputes/disputesRoutes.js`
-  - Define routes:
-    - `GET /api/disputes`: List disputes.
-    - `POST /api/disputes`: Create a dispute.
-    - `PUT /api/disputes/:id`: Update a dispute.
+## UI Responsibilities
 
-## UI Implementation
+### `DisputeList.js`
+- Fetch and display a list of disputes
+- Allow filtering by status
 
-### 1. **Dispute List**
-- **File:** `/ui/DisputeList.js`
-  - Fetch and display a list of disputes.
-  - Provide links to view/update each dispute.
+### `DisputeForm.js`
+- Form for opening a new dispute or updating an existing one
+- Include fields for status and evidence URLs
 
-### 2. **Dispute Form**
-- **File:** `/ui/DisputeForm.js`
-  - Form for creating/updating disputes.
-  - Fields for status and evidence URLs.
-  - Handle form submission and validation.
+### `EvidenceUploader.js`
+- Component for handling the upload of evidence URLs
+- Validate URLs before submission
 
-### 3. **Dispute Detail**
-- **File:** `/ui/DisputeDetail.js`
-  - Display detailed view of a selected dispute.
-  - Show status and evidence URLs.
-  - Provide option to update status.
+### `DisputePage.js`
+- Display detailed information for a selected dispute
+- Include options to update status and add evidence
 
-## Testing
-- **Files:** `/api/disputes/__tests__/disputesController.test.js`
-  - Write unit tests for controller functions.
-- **Files:** `/ui/__tests__/DisputeList.test.js`
-  - Write tests for UI components.
+### `DisputeDashboard.js`
+- Overview of all disputes with links to individual dispute pages
+- Provide buttons for creating new disputes
 
-## Documentation
-- **File:** `/docs/API.md`
-  - Document API endpoints, request/response formats.
-- **File:** `/docs/UI.md`
-  - Document UI components and their usage.
+## Testing Responsibilities
 
-## Deployment
-- Ensure API is integrated with CI/CD pipeline for automated testing and deployment.
-- Update frontend build process to include new UI components.
+### `disputes.test.js`
+- Test API endpoints for:
+  - Successful creation, retrieval, and updating of disputes
+  - Validation errors for incorrect input
+
+### `DisputeForm.test.js`
+- Test UI components for:
+  - Rendering correctly
+  - Handling form submissions and validations
+
+## Timeline
+- **Week 1**: Set up API routes and models
+- **Week 2**: Implement controller logic and validation
+- **Week 3**: Develop UI components and integrate with API
+- **Week 4**: Testing and bug fixing
 ```
