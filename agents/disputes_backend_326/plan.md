@@ -5,85 +5,81 @@
 ```
 /disputes_backend_326
 ├── api
-│   ├── disputes.js
-│   ├── disputesController.js
-│   └── disputesModel.js
-├── ui
-│   ├── DisputeList.js
-│   ├── DisputeDetail.js
-│   ├── DisputeForm.js
-│   └── styles.css
+│   ├── disputes.py
+│   ├── __init__.py
+├── models
+│   ├── dispute.py
+│   ├── __init__.py
+├── schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+├── services
+│   ├── dispute_service.py
+│   ├── __init__.py
 ├── tests
-│   ├── disputes.test.js
-│   └── DisputeForm.test.js
-└── index.js
+│   ├── test_disputes.py
+│   ├── __init__.py
+├── app.py
+└── requirements.txt
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. `api/disputes.js`
-- **Responsibilities**:
-  - Define the Express routes for `/api/disputes`.
-  - Handle HTTP methods: GET (list), POST (create), PUT (update).
-  
-### 2. `api/disputesController.js`
-- **Responsibilities**:
-  - Implement controller functions for:
-    - `getDisputes`: Fetch all disputes.
-    - `createDispute`: Create a new dispute with evidence URLs.
-    - `updateDispute`: Update status and evidence URLs of a dispute.
-  
-### 3. `api/disputesModel.js`
-- **Responsibilities**:
-  - Define the data model for disputes, including:
-    - Fields: `id`, `status` (OPEN/REVIEW/RESOLVED), `evidence_urls` (array).
-  - Implement database interactions (CRUD operations).
+### 1. API Layer
+- **File:** `api/disputes.py`
+  - Implement RESTful endpoints for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Handle request validation and response formatting.
 
-## UI Implementation
+### 2. Model Layer
+- **File:** `models/dispute.py`
+  - Define the `Dispute` model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for database interactions.
 
-### 4. `ui/DisputeList.js`
-- **Responsibilities**:
-  - Fetch and display a list of disputes.
-  - Provide links to view/update each dispute.
+### 3. Schema Layer
+- **File:** `schemas/dispute_schema.py`
+  - Create Pydantic schemas for:
+    - Input validation for creating/updating disputes
+    - Output formatting for listing disputes
 
-### 5. `ui/DisputeDetail.js`
-- **Responsibilities**:
-  - Display details of a selected dispute.
-  - Allow users to update the status and evidence URLs.
+### 4. Service Layer
+- **File:** `services/dispute_service.py`
+  - Implement business logic for:
+    - Creating a dispute
+    - Retrieving all disputes
+    - Updating a dispute status
+  - Ensure proper handling of evidence URLs.
 
-### 6. `ui/DisputeForm.js`
-- **Responsibilities**:
-  - Provide a form for creating and updating disputes.
-  - Validate input and handle submission.
+### 5. Testing
+- **File:** `tests/test_disputes.py`
+  - Write unit tests for:
+    - API endpoints
+    - Service methods
+    - Model validations
+  - Use a testing framework (e.g., pytest).
 
-### 7. `ui/styles.css`
-- **Responsibilities**:
-  - Define styles for the dispute components.
-  - Ensure responsive design for various screen sizes.
+### 6. Main Application
+- **File:** `app.py`
+  - Set up the FastAPI application.
+  - Include API routes from `api/disputes.py`.
+  - Configure middleware, CORS, and error handling.
 
-## Testing
-
-### 8. `tests/disputes.test.js`
-- **Responsibilities**:
-  - Write unit tests for API endpoints.
-  - Test GET, POST, and PUT functionalities.
-
-### 9. `tests/DisputeForm.test.js`
-- **Responsibilities**:
-  - Write unit tests for the DisputeForm component.
-  - Validate form submission and error handling.
-
-## Entry Point
-
-### 10. `index.js`
-- **Responsibilities**:
-  - Set up the Express server.
-  - Connect to the database.
-  - Import API routes and serve the UI.
+### 7. Dependencies
+- **File:** `requirements.txt`
+  - List required packages:
+    - FastAPI
+    - SQLAlchemy (or any ORM)
+    - Pydantic
+    - pytest (for testing)
 
 ## Timeline
-- **Week 1**: API setup and model implementation.
-- **Week 2**: UI component development.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+- **Week 1:** API and model implementation
+- **Week 2:** Schema and service layer development
+- **Week 3:** Testing and documentation
+- **Week 4:** Review and deployment preparation
 ```
