@@ -2,93 +2,96 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+This plan outlines the structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will allow users to open, list, and update disputes, manage evidence URLs, and handle dispute statuses.
 
 ## File Structure
 
-### API Implementation
+```
+/src
+│
+├── api
+│   ├── disputes
+│   │   ├── disputes.controller.js        # Controller for handling dispute logic
+│   │   ├── disputes.model.js             # Mongoose model for dispute schema
+│   │   ├── disputes.routes.js            # Express routes for disputes API
+│   │   └── disputes.service.js           # Service layer for business logic
+│   │
+│   └── index.js                          # Main API entry point
+│
+├── client
+│   ├── components
+│   │   ├── DisputeList.js                # Component to list all disputes
+│   │   ├── DisputeForm.js                # Component to open/update a dispute
+│   │   └── DisputeDetail.js              # Component to view dispute details
+│   │
+│   ├── services
+│   │   └── disputeService.js             # Service for API calls related to disputes
+│   │
+│   ├── pages
+│   │   └── DisputePage.js                # Page to manage disputes
+│   │
+│   └── App.js                            # Main application component
+│
+├── config
+│   └── db.js                             # Database configuration
+│
+└── server.js                             # Main server file
+```
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**:
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate input data and handle errors.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities**:
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**:
-      - Implement controller functions for:
-        - `createDispute(req, res)`: Open a new dispute.
-        - `getDisputes(req, res)`: List all disputes.
-        - `updateDispute(req, res)`: Update dispute status and evidence URLs.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**:
-      - Set up Express routes for:
-        - `POST /api/disputes`: Create a dispute.
-        - `GET /api/disputes`: List disputes.
-        - `PUT /api/disputes/:id`: Update a dispute.
+## Responsibilities
 
-### UI Implementation
+### API Layer
+- **disputes.controller.js**
+  - Implement functions to handle:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Open a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
 
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**:
-      - Display a list of disputes.
-      - Include filtering options based on status.
-  
-  - `src/components/DisputeForm.js`
-    - **Responsibilities**:
-      - Form for creating and updating disputes.
-      - Fields for status and evidence URLs.
-  
-  - `src/pages/DisputePage.js`
-    - **Responsibilities**:
-      - Main page to manage disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-  
-  - `src/services/disputeService.js`
-    - **Responsibilities**:
-      - API calls to interact with `/api/disputes`.
-      - Functions for creating, listing, and updating disputes.
+- **disputes.model.js**
+  - Define Mongoose schema for disputes:
+    - Fields: `id`, `status` (OPEN/REVIEW/RESOLVED), `evidence_urls` (array), `created_at`, `updated_at`
 
-### Testing
+- **disputes.routes.js**
+  - Set up Express routes for the API endpoints.
 
-- **File Paths**
-  - `tests/api/dispute.test.js`
-    - **Responsibilities**:
-      - Unit tests for API endpoints.
-      - Test cases for creating, listing, and updating disputes.
-  
-  - `tests/ui/DisputePage.test.js`
-    - **Responsibilities**:
-      - Unit tests for UI components.
-      - Test rendering of disputes and form submission.
+- **disputes.service.js**
+  - Implement business logic for dispute operations, including validation and error handling.
 
-### Documentation
+### Client Layer
+- **DisputeList.js**
+  - Fetch and display a list of disputes.
+  - Provide options to view details or update disputes.
 
-- **File Paths**
-  - `docs/api/disputes.md`
-    - **Responsibilities**:
-      - Document API endpoints, request/response formats, and error handling.
-  
-  - `docs/ui/disputes.md`
-    - **Responsibilities**:
-      - Document UI components and their usage.
+- **DisputeForm.js**
+  - Form for creating or updating a dispute.
+  - Include fields for status and evidence URLs.
+
+- **DisputeDetail.js**
+  - Display detailed information about a selected dispute.
+
+- **disputeService.js**
+  - Implement API calls to interact with the disputes API.
+
+- **DisputePage.js**
+  - Combine components to manage disputes, including listing and forms.
+
+### Configuration
+- **db.js**
+  - Set up MongoDB connection for storing disputes.
+
+### Main Application
+- **server.js**
+  - Initialize Express server and middleware.
+  - Connect to the database and set up API routes.
 
 ## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controllers and services.
-- **Week 3**: Develop UI components and integrate with API.
-- **Week 4**: Testing and documentation.
+- **Week 1**: Set up API structure and database schema.
+- **Week 2**: Implement API endpoints and business logic.
+- **Week 3**: Develop client-side components and integrate with API.
+- **Week 4**: Testing and deployment.
 
 ## Notes
-- Ensure proper error handling and validation throughout the API.
+- Ensure proper error handling and validation for API requests.
 - Consider user authentication for dispute management.
-- Follow coding standards and best practices for maintainability.
+- Use environment variables for configuration settings.
 ```
