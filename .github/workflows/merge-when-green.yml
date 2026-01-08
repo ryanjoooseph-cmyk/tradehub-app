@@ -4,7 +4,6 @@ on:
   pull_request_target:
     types: [opened, reopened, synchronize, labeled, ready_for_review]
 
-# This job does the squash merge. It needs write perms.
 permissions:
   contents: write
   pull-requests: write
@@ -15,7 +14,6 @@ concurrency:
 
 jobs:
   automerge:
-    # Only run on PRs to main that have the "automerge" label
     if: >
       github.event.pull_request.base.ref == 'main' &&
       contains(toJson(github.event.pull_request.labels), 'automerge')
@@ -27,12 +25,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.event.pull_request.head.sha }}
           allowed-conclusions: success
-          ignore-checks: 'merge-when-green / automerge'
+          ignore-checks: |
+            merge-when-green / automerge
+            merge-when-green
           timeout: 20m
           interval: 10
 
       - name: Squash-merge the PR (and delete branch)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
+        run: gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
