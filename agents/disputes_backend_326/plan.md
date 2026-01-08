@@ -5,85 +5,88 @@
 ```
 /disputes_backend_326
 ├── api
-│   ├── disputes.js
-│   ├── disputesController.js
-│   └── disputesModel.js
+│   ├── disputes.py
+│   ├── __init__.py
 ├── ui
-│   ├── DisputeList.js
-│   ├── DisputeDetail.js
-│   ├── DisputeForm.js
-│   └── styles.css
+│   ├── components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── pages
+│   │   └── DisputePage.jsx
+│   ├── App.jsx
+│   └── index.js
+├── models
+│   ├── dispute.py
+│   └── __init__.py
 ├── tests
-│   ├── disputes.test.js
-│   └── DisputeForm.test.js
-└── index.js
+│   ├── test_disputes.py
+│   └── __init__.py
+└── requirements.txt
 ```
 
 ## API Implementation
+### File: `/api/disputes.py`
+- **Responsibilities:**
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Handle request validation and response formatting.
+  - Implement logic for dispute status management (OPEN/REVIEW/RESOLVED).
+  - Manage `evidence_urls` array for each dispute.
 
-### 1. `api/disputes.js`
-- **Responsibilities**:
-  - Define the Express routes for `/api/disputes`.
-  - Handle HTTP methods: GET (list), POST (create), PUT (update).
-  
-### 2. `api/disputesController.js`
-- **Responsibilities**:
-  - Implement controller functions for:
-    - `getDisputes`: Fetch all disputes.
-    - `createDispute`: Create a new dispute with evidence URLs.
-    - `updateDispute`: Update status and evidence URLs of a dispute.
-  
-### 3. `api/disputesModel.js`
-- **Responsibilities**:
-  - Define the data model for disputes, including:
-    - Fields: `id`, `status` (OPEN/REVIEW/RESOLVED), `evidence_urls` (array).
-  - Implement database interactions (CRUD operations).
+### File: `/models/dispute.py`
+- **Responsibilities:**
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+    - `evidence_urls`: Array of URLs
+    - `created_at`: Timestamp
+    - `updated_at`: Timestamp
+  - Implement methods for CRUD operations.
 
 ## UI Implementation
-
-### 4. `ui/DisputeList.js`
-- **Responsibilities**:
+### File: `/ui/components/DisputeList.jsx`
+- **Responsibilities:**
   - Fetch and display a list of disputes.
-  - Provide links to view/update each dispute.
+  - Provide options to view details and update status.
 
-### 5. `ui/DisputeDetail.js`
-- **Responsibilities**:
-  - Display details of a selected dispute.
-  - Allow users to update the status and evidence URLs.
+### File: `/ui/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Form to create or update a dispute.
+  - Handle input for `evidence_urls` and status selection.
 
-### 6. `ui/DisputeForm.js`
-- **Responsibilities**:
-  - Provide a form for creating and updating disputes.
-  - Validate input and handle submission.
+### File: `/ui/components/DisputeDetail.jsx`
+- **Responsibilities:**
+  - Display detailed information about a selected dispute.
+  - Allow status updates and evidence URL management.
 
-### 7. `ui/styles.css`
-- **Responsibilities**:
-  - Define styles for the dispute components.
-  - Ensure responsive design for various screen sizes.
+### File: `/ui/pages/DisputePage.jsx`
+- **Responsibilities:**
+  - Main page to render `DisputeList` and `DisputeForm`.
+  - Manage state for selected dispute and form visibility.
+
+### File: `/ui/App.jsx`
+- **Responsibilities:**
+  - Set up routing for the application.
+  - Integrate API calls with UI components.
+
+### File: `/ui/index.js`
+- **Responsibilities:**
+  - Render the main application component.
+  - Set up any global state management (e.g., Context API, Redux).
 
 ## Testing
-
-### 8. `tests/disputes.test.js`
-- **Responsibilities**:
+### File: `/tests/test_disputes.py`
+- **Responsibilities:**
   - Write unit tests for API endpoints.
-  - Test GET, POST, and PUT functionalities.
+  - Test model methods for CRUD operations.
+  - Validate UI components with snapshot tests.
 
-### 9. `tests/DisputeForm.test.js`
-- **Responsibilities**:
-  - Write unit tests for the DisputeForm component.
-  - Validate form submission and error handling.
-
-## Entry Point
-
-### 10. `index.js`
-- **Responsibilities**:
-  - Set up the Express server.
-  - Connect to the database.
-  - Import API routes and serve the UI.
-
-## Timeline
-- **Week 1**: API setup and model implementation.
-- **Week 2**: UI component development.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+## Dependencies
+### File: `/requirements.txt`
+- **Responsibilities:**
+  - List required libraries for API (Flask, SQLAlchemy, etc.).
+  - List required libraries for UI (React, Axios, etc.).
 ```
