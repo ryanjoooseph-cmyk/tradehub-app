@@ -4,7 +4,7 @@ export async function GET() {
   try {
     const owner = process.env.NEXT_PUBLIC_GH_OWNER || 'ryanjoooseph-cmyk';
     const repo  = process.env.NEXT_PUBLIC_GH_REPO  || 'tradehub-app';
-    const token = process.env.GITHUB_TOKEN; // optional for private repos / higher limits
+    const token = process.env.GITHUB_TOKEN; // enables higher limits & private repos
 
     const headers: Record<string, string> = {
       'User-Agent': 'tradehub-dashboard',
@@ -19,7 +19,10 @@ export async function GET() {
 
     if (!res.ok) {
       const txt = await res.text();
-      return Response.json({ ok: false, error: `GitHub ${res.status}: ${txt.slice(0, 200)}` }, { status: 200 });
+      const msg = res.status === 403 && !token
+        ? 'Add GITHUB_TOKEN in Render to remove API rate limits.'
+        : txt;
+      return Response.json({ ok: false, error: `GitHub ${res.status}: ${msg}` }, { status: 200 });
     }
 
     const data = await res.json();
