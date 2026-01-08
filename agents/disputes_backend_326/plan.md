@@ -2,89 +2,106 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the development of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+This plan outlines the structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, with an array for evidence URLs and a status field that can be OPEN, REVIEW, or RESOLVED.
 
 ## Directory Structure
+
 ```
 /disputes_backend_326
 │
 ├── /api
-│   ├── disputes.py               # API endpoints for disputes
-│   ├── models.py                 # Database models for disputes
-│   ├── schemas.py                # Pydantic schemas for request/response validation
-│   └── __init__.py               # API package initialization
+│   ├── disputes.js                # API routes for disputes
+│   ├── disputesController.js      # Controller for dispute logic
+│   ├── disputesModel.js           # Mongoose model for disputes
+│   └── validation.js              # Input validation middleware
 │
 ├── /ui
 │   ├── /components
-│   │   ├── DisputeForm.jsx       # Form for creating/updating disputes
-│   │   ├── DisputeList.jsx       # Component to list all disputes
-│   │   └── DisputeItem.jsx       # Component to display individual dispute
+│   │   ├── DisputeList.jsx        # Component to list disputes
+│   │   ├── DisputeForm.jsx        # Component to create/update disputes
+│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
 │   │
 │   ├── /pages
-│   │   ├── DisputePage.jsx       # Main page for disputes
-│   │   └── NotFoundPage.jsx      # Page for handling 404 errors
+│   │   ├── DisputePage.jsx        # Main page for disputes
+│   │   └── NotFoundPage.jsx       # Page for handling 404 errors
 │   │
 │   ├── /hooks
-│   │   └── useDisputes.js        # Custom hook for API interactions
+│   │   └── useDisputes.js         # Custom hook for API calls
 │   │
 │   ├── /styles
-│   │   └── disputes.css          # Styles for disputes UI
+│   │   └── disputes.css           # CSS styles for disputes UI
 │   │
-│   ├── App.jsx                   # Main application component
-│   └── index.js                  # Entry point for the UI
+│   └── App.js                     # Main application entry point
 │
 ├── /tests
-│   ├── api_tests.py              # Unit tests for API endpoints
-│   ├── ui_tests.jsx              # UI tests for components
-│   └── __init__.py               # Tests package initialization
+│   ├── api
+│   │   └── disputes.test.js       # Unit tests for API
+│   │
+│   ├── ui
+│   │   └── DisputeForm.test.js    # Unit tests for DisputeForm component
+│   │
+│   └── setupTests.js              # Test setup file
 │
-└── requirements.txt              # Dependencies for the project
+└── server.js                      # Main server file
 ```
 
 ## Responsibilities
 
-### API Development
-- **disputes.py**
-  - Implement CRUD operations for disputes.
-  - Define endpoints:
-    - `POST /api/disputes` - Create a new dispute.
-    - `GET /api/disputes` - List all disputes.
-    - `PUT /api/disputes/{id}` - Update an existing dispute.
+### API
+
+- **disputes.js**
+  - Define routes for GET, POST, PUT requests for disputes.
   
-- **models.py**
-  - Create a Dispute model with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
+- **disputesController.js**
+  - Implement logic for:
+    - `getDisputes`: Fetch all disputes.
+    - `createDispute`: Create a new dispute.
+    - `updateDispute`: Update an existing dispute by ID.
 
-- **schemas.py**
-  - Define request and response schemas for dispute creation and updates.
+- **disputesModel.js**
+  - Define Mongoose schema for disputes with fields:
+    - `evidence_urls`: Array of strings.
+    - `status`: Enum (OPEN, REVIEW, RESOLVED).
 
-### UI Development
-- **DisputeForm.jsx**
-  - Create a form for users to submit new disputes or update existing ones.
-  - Include fields for `evidence_urls` and `status`.
+- **validation.js**
+  - Implement middleware for validating input data for creating/updating disputes.
+
+### UI
 
 - **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include filters for status.
+  - Fetch and display a list of disputes with their statuses.
 
-- **DisputeItem.jsx**
-  - Display individual dispute details with options to update or resolve.
+- **DisputeForm.jsx**
+  - Form for creating and updating disputes, including fields for evidence URLs and status.
+
+- **EvidenceUploader.jsx**
+  - Component to handle uploading and displaying evidence URLs.
+
+- **DisputePage.jsx**
+  - Main page that integrates `DisputeList` and `DisputeForm`.
 
 - **useDisputes.js**
-  - Implement API calls to interact with the disputes API.
+  - Custom hook to manage API calls for disputes.
 
-- **App.jsx**
-  - Set up routing for the disputes page and integrate components.
+- **disputes.css**
+  - Style the dispute components for a cohesive look.
 
 ### Testing
-- **api_tests.py**
-  - Write unit tests for each API endpoint to ensure correct functionality.
 
-- **ui_tests.jsx**
-  - Write tests for UI components to verify rendering and interactions.
+- **disputes.test.js**
+  - Write unit tests for API endpoints to ensure correct functionality.
+
+- **DisputeForm.test.js**
+  - Write unit tests for the DisputeForm component to validate user input and API interaction.
+
+### Server
+
+- **server.js**
+  - Set up Express server and middleware, including routes for `/api/disputes`.
 
 ## Timeline
-- **Week 1**: API development (models, endpoints, schemas)
-- **Week 2**: UI development (components, hooks)
-- **Week 3**: Testing and bug fixing
-- **Week 4**: Final review and deployment
+- **Week 1**: API development (routes, controller, model).
+- **Week 2**: UI development (components, pages, hooks).
+- **Week 3**: Testing and integration.
+- **Week 4**: Final review and deployment.
 ```
