@@ -4,87 +4,75 @@
 ## Directory Structure
 ```
 /disputes_backend_326
-│
-├── /api
-│   ├── disputes.py               # API routes for disputes
-│   ├── __init__.py               # API package initialization
-│
-├── /models
-│   ├── dispute.py                 # Dispute model definition
-│   ├── __init__.py               # Models package initialization
-│
-├── /schemas
-│   ├── dispute_schema.py          # Pydantic schemas for validation
-│   ├── __init__.py               # Schemas package initialization
-│
-├── /services
-│   ├── dispute_service.py         # Business logic for disputes
-│   ├── __init__.py               # Services package initialization
-│
-├── /tests
-│   ├── test_disputes.py           # Unit tests for disputes API
-│   ├── __init__.py               # Tests package initialization
-│
-├── /utils
-│   ├── response_util.py           # Utility functions for API responses
-│   ├── __init__.py               # Utils package initialization
-│
-└── app.py                         # Main application entry point
+├── api
+│   ├── disputes.js
+│   └── index.js
+├── models
+│   ├── disputeModel.js
+├── controllers
+│   ├── disputeController.js
+├── routes
+│   ├── disputeRoutes.js
+├── middleware
+│   ├── authMiddleware.js
+├── tests
+│   ├── dispute.test.js
+├── config
+│   ├── db.js
+└── app.js
 ```
 
 ## Responsibilities
 
-### API Layer
-- **`/api/disputes.py`**
+### 1. **Database Model**
+- **File:** `/models/disputeModel.js`
+  - Define the Dispute schema with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of strings
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement Mongoose model for MongoDB.
+
+### 2. **API Routes**
+- **File:** `/routes/disputeRoutes.js`
   - Define routes for:
     - `GET /api/disputes`: List all disputes
     - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Implement request handling and response formatting.
+    - `PUT /api/disputes/:id`: Update an existing dispute
+  - Use express.Router to handle routes.
 
-### Model Layer
-- **`/models/dispute.py`**
-  - Create a Dispute class with attributes:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement database interactions (CRUD operations).
+### 3. **Controllers**
+- **File:** `/controllers/disputeController.js`
+  - Implement functions for:
+    - `listDisputes`: Fetch all disputes from the database.
+    - `createDispute`: Validate input and save a new dispute.
+    - `updateDispute`: Validate input and update the dispute status or evidence URLs.
 
-### Schema Layer
-- **`/schemas/dispute_schema.py`**
-  - Define Pydantic models for request validation:
-    - CreateDisputeSchema
-    - UpdateDisputeSchema
-    - ListDisputeSchema
+### 4. **Middleware**
+- **File:** `/middleware/authMiddleware.js`
+  - Implement authentication middleware to protect routes if necessary.
 
-### Service Layer
-- **`/services/dispute_service.py`**
-  - Implement business logic for:
-    - Creating a dispute
-    - Listing disputes
-    - Updating dispute status
-  - Handle validation and interaction with the model layer.
+### 5. **API Entry Point**
+- **File:** `/api/index.js`
+  - Import and use the dispute routes.
+  - Set up necessary middleware (e.g., body-parser).
 
-### Testing
-- **`/tests/test_disputes.py`**
-  - Write unit tests for:
-    - API endpoints
-    - Service methods
-  - Ensure coverage for all CRUD operations and status updates.
+### 6. **Database Configuration**
+- **File:** `/config/db.js`
+  - Set up MongoDB connection using Mongoose.
 
-### Utilities
-- **`/utils/response_util.py`**
-  - Create utility functions for standardized API responses (success/error).
+### 7. **Main Application File**
+- **File:** `/app.js`
+  - Initialize Express app.
+  - Connect to the database.
+  - Use the API routes.
 
-### Main Application
-- **`app.py`**
-  - Set up FastAPI or Flask application.
-  - Include API routes and middleware.
-  - Configure database connection.
+### 8. **Testing**
+- **File:** `/tests/dispute.test.js`
+  - Write unit tests for each API endpoint using Jest or Mocha.
+  - Test cases for creating, listing, and updating disputes.
 
-## Timeline
-- **Week 1**: Set up project structure and implement models.
-- **Week 2**: Develop API routes and services.
-- **Week 3**: Create schemas and utilities.
-- **Week 4**: Write tests and finalize documentation.
+## Additional Notes
+- Ensure proper error handling and validation for API requests.
+- Document API endpoints using Swagger or similar tools.
+- Consider implementing pagination for the list of disputes if necessary.
 ```
