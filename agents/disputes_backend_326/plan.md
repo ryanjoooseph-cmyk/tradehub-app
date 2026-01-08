@@ -1,112 +1,118 @@
+```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Directory Structure
-
 ```
 /disputes_backend_326
-│
-├── /api
-│   ├── disputes.js                # API routes for disputes
-│   ├── disputesController.js       # Business logic for disputes
-│   ├── disputesModel.js            # Database model for disputes
-│   └── disputesValidator.js         # Validation logic for API requests
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx         # Component to list disputes
-│   │   ├── DisputeForm.jsx         # Component to create/update disputes
-│   │   └── DisputeItem.jsx         # Component to display individual dispute
-│   │
-│   ├── /pages
-│   │   └── DisputesPage.jsx        # Main page for disputes
-│   │
-│   ├── /hooks
-│   │   └── useDisputes.js          # Custom hook for fetching/updating disputes
-│   │
-│   ├── /styles
-│   │   └── disputes.css            # Styles for disputes UI
-│   │
-│   └── App.js                      # Main application file
-│
-├── /tests
-│   ├── disputesController.test.js   # Unit tests for disputes controller
-│   ├── disputesModel.test.js        # Unit tests for disputes model
-│   └── DisputesPage.test.jsx        # Unit tests for DisputesPage component
-│
-├── server.js                       # Main server file
-└── package.json                    # Project dependencies and scripts
+├── api
+│   ├── disputes.py
+│   ├── __init__.py
+├── models
+│   ├── dispute.py
+│   ├── __init__.py
+├── schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+├── services
+│   ├── dispute_service.py
+│   ├── __init__.py
+├── tests
+│   ├── test_disputes.py
+├── ui
+│   ├── disputes_page.html
+│   ├── disputes.js
+│   ├── styles.css
+└── app.py
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Layer
+### 1. Define API Endpoints in `api/disputes.py`
+- **GET /api/disputes**: List all disputes
+- **POST /api/disputes**: Create a new dispute
+- **PUT /api/disputes/{id}**: Update an existing dispute
+- **GET /api/disputes/{id}**: Get a specific dispute
 
-- **`/api/disputes.js`**
-  - Define routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
-  - Handle request and response.
+### Responsibilities:
+- Implement request handling and response formatting.
+- Validate input data and handle errors.
+- Use `dispute_service.py` for business logic.
 
-- **`/api/disputesController.js`**
-  - Implement logic for:
-    - Fetching all disputes
-    - Creating a new dispute with `evidence_urls` and status
-    - Updating dispute status (OPEN/REVIEW/RESOLVED)
+### 2. Create Dispute Model in `models/dispute.py`
+- Define attributes: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED).
+- Implement methods for CRUD operations.
 
-- **`/api/disputesModel.js`**
-  - Define the database schema for disputes:
-    - Fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`
-  - Implement database interactions.
+### Responsibilities:
+- Ensure data integrity and structure.
+- Interact with the database.
 
-- **`/api/disputesValidator.js`**
-  - Validate incoming request data for creating/updating disputes.
+### 3. Define Schemas in `schemas/dispute_schema.py`
+- Create Pydantic models for request/response validation.
 
-### UI Layer
+### Responsibilities:
+- Validate incoming data for creating/updating disputes.
+- Define output structure for listing disputes.
 
-- **`/ui/components/DisputeList.jsx`**
-  - Render a list of disputes.
-  - Handle loading and error states.
+### 4. Implement Business Logic in `services/dispute_service.py`
+- Create functions for:
+  - Listing disputes
+  - Creating a dispute
+  - Updating a dispute
+  - Retrieving a specific dispute
 
-- **`/ui/components/DisputeForm.jsx`**
-  - Form for creating/updating disputes.
-  - Include fields for `evidence_urls` and status selection.
+### Responsibilities:
+- Encapsulate business rules and data access.
 
-- **`/ui/components/DisputeItem.jsx`**
-  - Display individual dispute details.
-  - Include buttons for updating status.
+## UI Implementation
 
-- **`/ui/pages/DisputesPage.jsx`**
-  - Main page to integrate `DisputeList` and `DisputeForm`.
-  - Manage state and API calls using `useDisputes`.
+### 5. Create UI Page in `ui/disputes_page.html`
+- Design a simple interface to:
+  - List disputes
+  - Create a new dispute
+  - Update existing disputes
 
-- **`/ui/hooks/useDisputes.js`**
-  - Custom hook to manage API calls for disputes.
-  - Handle fetching, creating, and updating disputes.
+### Responsibilities:
+- Structure HTML for displaying disputes and forms.
 
-- **`/ui/styles/disputes.css`**
-  - Define styles for disputes components.
+### 6. Implement JavaScript Logic in `ui/disputes.js`
+- Handle API calls for:
+  - Fetching disputes
+  - Submitting new disputes
+  - Updating disputes
 
-### Testing
+### Responsibilities:
+- Manage user interactions and API communication.
 
-- **`/tests/disputesController.test.js`**
-  - Write unit tests for API controller functions.
+### 7. Style the UI in `ui/styles.css`
+- Basic styling for dispute listing and forms.
 
-- **`/tests/disputesModel.test.js`**
-  - Write unit tests for database model functions.
+### Responsibilities:
+- Ensure a user-friendly interface.
 
-- **`/tests/DisputesPage.test.jsx`**
-  - Write unit tests for the DisputesPage component.
+## Testing
 
-### Server Setup
+### 8. Write Tests in `tests/test_disputes.py`
+- Test API endpoints for:
+  - Successful creation, listing, and updating of disputes.
+  - Error handling for invalid data.
 
-- **`server.js`**
-  - Set up Express server.
-  - Connect to the database.
-  - Use API routes defined in `disputes.js`.
+### Responsibilities:
+- Ensure functionality and reliability of the API.
 
-### Package Management
+## Main Application Entry Point
 
-- **`package.json`**
-  - Include necessary dependencies (e.g., Express, React, Axios, etc.).
-  - Define scripts for starting the server and running tests.
+### 9. Setup Application in `app.py`
+- Initialize Flask/FastAPI app.
+- Register routes from `api/disputes.py`.
+
+### Responsibilities:
+- Serve the application and connect components.
+
+## Deployment
+- Prepare for deployment with necessary configurations.
+- Ensure environment variables for database connections are set.
+
+## Documentation
+- Document API endpoints and UI usage in README.md.
+- Include setup instructions and usage examples.
+```
