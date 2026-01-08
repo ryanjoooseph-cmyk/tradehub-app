@@ -13,66 +13,66 @@
   ├── api
   │   └── disputesApi.js
   ├── styles
-  │   └── AdminDisputes.css
+  │   └── AdminDisputesPage.css
   └── utils
-      └── filters.js
+      └── helpers.js
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibility:** 
-     - Set up the main layout for the disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Handle API calls to fetch disputes data.
-
-### 2. **AdminDisputesTable.jsx**
+### 1. **AdminDisputesTable.jsx**
    - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibility:** 
-     - Display the disputes in a table format.
-     - Implement sorting and pagination.
-     - Include `StatusUpdateButton` for each dispute.
+   - **Responsibilities:**
+     - Render the admin disputes table with data fetched from the API.
+     - Implement pagination and sorting features.
+     - Integrate filter functionality using `FilterComponent`.
 
-### 3. **FilterComponent.jsx**
+### 2. **FilterComponent.jsx**
    - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibility:** 
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Manage filter state and trigger data fetch on change.
+   - **Responsibilities:**
+     - Provide UI for filtering disputes (e.g., by status, date).
+     - Handle filter state and pass it to `AdminDisputesTable`.
 
-### 4. **StatusUpdateButton.jsx**
+### 3. **StatusUpdateButton.jsx**
    - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibility:** 
-     - Handle status updates for individual disputes.
-     - Call the API to update the dispute status and refresh the table.
+   - **Responsibilities:**
+     - Render a button to update the status of a dispute.
+     - Trigger API call to update status when clicked.
+
+### 4. **AdminDisputesPage.jsx**
+   - **Path:** `/src/pages/AdminDisputesPage.jsx`
+   - **Responsibilities:**
+     - Set up the main layout for the admin disputes page.
+     - Integrate `AdminDisputesTable` and `FilterComponent`.
+     - Manage state for disputes data and loading status.
 
 ### 5. **disputesApi.js**
    - **Path:** `/src/api/disputesApi.js`
-   - **Responsibility:** 
-     - Define API functions to fetch disputes and update status.
+   - **Responsibilities:**
+     - Define API calls to `/api/disputes` for fetching and updating disputes.
      - Handle error responses and data formatting.
 
-### 6. **AdminDisputes.css**
-   - **Path:** `/src/styles/AdminDisputes.css`
-   - **Responsibility:** 
-     - Style the disputes page, table, and filters.
-     - Ensure responsive design for different screen sizes.
+### 6. **AdminDisputesPage.css**
+   - **Path:** `/src/styles/AdminDisputesPage.css`
+   - **Responsibilities:**
+     - Style the admin disputes page and components.
+     - Ensure responsive design for various screen sizes.
 
-### 7. **filters.js**
-   - **Path:** `/src/utils/filters.js`
-   - **Responsibility:** 
-     - Implement utility functions for filtering logic.
-     - Export functions to be used in `FilterComponent`.
+### 7. **helpers.js**
+   - **Path:** `/src/utils/helpers.js`
+   - **Responsibilities:**
+     - Provide utility functions for data manipulation (e.g., formatting dates).
+     - Implement any common logic needed across components.
 
 ## API Endpoints
-- **GET /api/disputes**: Fetch all disputes.
-- **PATCH /api/disputes/:id**: Update status of a specific dispute.
+- **GET /api/disputes**: Fetch all disputes with optional filters.
+- **PATCH /api/disputes/:id**: Update the status of a specific dispute.
 
 ## Testing
-- Ensure unit tests for components and API functions.
-- Conduct integration tests for the complete flow from UI to API.
+- Implement unit tests for components and API functions.
+- Ensure integration tests cover the interaction between UI and API.
 
 ## Deployment
-- Prepare for deployment on staging and production environments.
-- Ensure proper environment variables for API endpoints.
+- Ensure the feature is included in the next deployment cycle.
+- Monitor for any issues post-deployment.
 ```
