@@ -8,40 +8,49 @@ permissions:
 
 jobs:
   automerge:
-    # need the label, cannot be draft
-    if: |
-      contains(github.event.pull_request.labels.*.name, 'automerge') &&
-      github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - name: Check changed paths
-        id: paths
-        uses: dorny/paths-filter@v3
+      - name: Check label and changed paths
+        id: elig
+        uses: actions/github-script@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          filters: |
-            risky:
-              - 'app/api/**'
-              - 'server/**'
-              - 'lib/**'
-              - 'src/**'
-              - '**/*.yml'
-              - '**/*.yaml'
-              - '**/package*.json'
-              - 'pnpm-lock.yaml'
-              - 'yarn.lock'
-            safe:
-              - 'agents/**'
-              - '**/*.md'
-              - '.github/**'
+          script: |
+            const pr = context.payload.pull_request
+            const labels = (pr.labels || []).map(l => l.name)
+            const hasLabel = labels.includes('automerge')
 
-      # If “risky” paths changed, we succeed but do nothing (manual review).
-      - name: Stop if risky (no-op success)
-        if: steps.paths.outputs.risky == 'true' && steps.paths.outputs.safe != 'true'
-        run: echo "Contains risky paths, skipping automerge."
+            // List changed files (first 200 is fine for these PRs)
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              { owner: context.repo.owner, repo: context.repo.repo, pull_number: pr.number, per_page: 100 }
+            )
+            const paths = files.map(f => f.filename)
+
+            const riskyGlobs = [
+              'app/api/**','server/**','lib/**','src/**',
+              '**/*.yml','**/*.yaml','**/package*.json','pnpm-lock.yaml','yarn.lock'
+            ]
+            const mm = require('micromatch')
+            const isRisky = mm(paths, riskyGlobs).length > 0
+
+            const safeGlobs = ['agents/**','**/*.md','.github/**']
+            const isSafeOnly = mm.not(paths, riskyGlobs).length === paths.length
+              && mm(paths, safeGlobs).length === paths.length
+
+            core.setOutput('eligible', String(hasLabel && isSafeOnly && !isRisky))
+            core.setOutput('hasLabel', String(hasLabel))
+            core.setOutput('isRisky', String(isRisky))
+            core.setOutput('paths', JSON.stringify(paths))
+
+      - name: Log eligibility
+        run: |
+          echo "eligible=${{ steps.elig.outputs.eligible }}"
+          echo "hasLabel=${{ steps.elig.outputs.hasLabel }}"
+          echo "isRisky=${{ steps.elig.outputs.isRisky }}"
+          echo "paths=${{ steps.elig.outputs.paths }}"
 
       - name: Enable PR automerge (squash)
-        if: steps.paths.outputs.risky != 'true'
+        if: steps.elig.outputs.eligible == 'true'
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -49,7 +58,11 @@ jobs:
           merge-method: squash
 
       - name: Merge when green
-        if: steps.paths.outputs.risky != 'true'
+        if: steps.elig.outputs.eligible == 'true'
         uses: peter-evans/merge-when-green@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Mark ineligible (no-op success)
+        if: steps.elig.outputs.eligible != 'true'
+        run: echo "PR not eligible (missing label or risky paths). Leaving open for manual review."
