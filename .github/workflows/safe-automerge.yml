@@ -7,7 +7,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  pass:
+  present:
     runs-on: ubuntu-latest
     steps:
       - run: echo "gate present"
