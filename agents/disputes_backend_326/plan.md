@@ -1,120 +1,100 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+
+## File Structure
+
 ```
-/project-root
-│
-├── /api
-│   ├── /disputes
-│   │   ├── disputesController.js
-│   │   ├── disputesRoutes.js
-│   │   └── disputesService.js
-│   └── /middlewares
-│       └── errorHandler.js
-│
-├── /models
-│   └── disputeModel.js
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── /hooks
-│   │   └── useDisputes.js
-│   └── /pages
-│       └── DisputesPage.jsx
-│
-├── /tests
-│   ├── /api
-│   │   └── disputes.test.js
-│   └── /ui
-│       └── DisputesPage.test.jsx
-│
-└── server.js
+/src
+  ├── api
+  │   ├── disputes
+  │   │   ├── disputesController.js
+  │   │   ├── disputesModel.js
+  │   │   ├── disputesRoutes.js
+  │   │   └── disputesService.js
+  ├── components
+  │   ├── DisputeList.js
+  │   ├── DisputeForm.js
+  │   └── DisputeDetail.js
+  ├── pages
+  │   └── DisputesPage.js
+  ├── styles
+  │   └── Disputes.css
+  └── utils
+      └── api.js
 ```
 
 ## API Implementation
 
-### 1. **Model Definition**
-- **File:** `/models/disputeModel.js`
+### 1. **Model**
+- **File:** `/src/api/disputes/disputesModel.js`
 - **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
-  - Implement Mongoose model for MongoDB.
+  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - Implement Mongoose or Sequelize model for database interactions.
 
-### 2. **Controller Logic**
-- **File:** `/api/disputes/disputesController.js`
+### 2. **Controller**
+- **File:** `/src/api/disputes/disputesController.js`
 - **Responsibilities:**
   - Implement functions to handle:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
+    - `createDispute(req, res)`: Create a new dispute.
+    - `getDisputes(req, res)`: List all disputes.
+    - `updateDispute(req, res)`: Update an existing dispute by ID.
 
-### 3. **Service Layer**
-- **File:** `/api/disputes/disputesService.js`
+### 3. **Service**
+- **File:** `/src/api/disputes/disputesService.js`
 - **Responsibilities:**
-  - Business logic for interacting with the database.
-  - Functions for creating, retrieving, and updating disputes.
+  - Business logic for dispute operations.
+  - Interact with the model and handle data validation.
 
-### 4. **Routing**
-- **File:** `/api/disputes/disputesRoutes.js`
+### 4. **Routes**
+- **File:** `/src/api/disputes/disputesRoutes.js`
 - **Responsibilities:**
-  - Define API routes and link them to controller functions.
-  - Use middleware for error handling.
-
-### 5. **Error Handling Middleware**
-- **File:** `/api/middlewares/errorHandler.js`
-- **Responsibilities:**
-  - Centralized error handling for API responses.
+  - Define Express routes for:
+    - `POST /api/disputes`: Create dispute.
+    - `GET /api/disputes`: List disputes.
+    - `PUT /api/disputes/:id`: Update dispute.
 
 ## UI Implementation
 
-### 6. **Dispute List Component**
-- **File:** `/ui/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Display a list of disputes.
-  - Allow navigation to dispute details.
+### 1. **Components**
+- **File:** `/src/components/DisputeList.js`
+  - Responsibilities: Display a list of disputes with status and action buttons.
 
-### 7. **Dispute Form Component**
-- **File:** `/ui/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Form for creating/updating disputes.
-  - Handle input for `evidence_urls` and `status`.
+- **File:** `/src/components/DisputeForm.js`
+  - Responsibilities: Form for creating/updating disputes, including evidence URL input.
 
-### 8. **Dispute Detail Component**
-- **File:** `/ui/components/DisputeDetail.jsx`
-- **Responsibilities:**
-  - Display detailed information about a selected dispute.
-  - Allow status updates.
+- **File:** `/src/components/DisputeDetail.js`
+  - Responsibilities: Show detailed view of a selected dispute.
 
-### 9. **Custom Hook for API Calls**
-- **File:** `/ui/hooks/useDisputes.js`
+### 2. **Page**
+- **File:** `/src/pages/DisputesPage.js`
 - **Responsibilities:**
-  - Fetch disputes from the API.
-  - Handle create/update requests.
+  - Combine `DisputeList` and `DisputeForm`.
+  - Handle state management for disputes and form submissions.
 
-### 10. **Main Disputes Page**
-- **File:** `/ui/pages/DisputesPage.jsx`
+### 3. **Styles**
+- **File:** `/src/styles/Disputes.css`
 - **Responsibilities:**
-  - Combine components to create the main disputes interface.
-  - Manage state and API interactions.
+  - Define styles for dispute components and layout.
+
+## Utility
+- **File:** `/src/utils/api.js`
+- **Responsibilities:**
+  - Implement API call functions for CRUD operations on disputes.
 
 ## Testing
-
-### 11. **API Tests**
-- **File:** `/tests/api/disputes.test.js`
+- **Directory:** `/tests/api/disputes.test.js`
 - **Responsibilities:**
-  - Write unit tests for API endpoints.
-  - Ensure correct responses for all CRUD operations.
+  - Write unit tests for API endpoints and service functions.
 
-### 12. **UI Tests**
-- **File:** `/tests/ui/DisputesPage.test.jsx`
+- **Directory:** `/tests/components/DisputeList.test.js`
 - **Responsibilities:**
-  - Write tests for UI components.
-  - Validate rendering and interactions.
+  - Write tests for dispute list rendering and functionality.
 
 ## Deployment
-- Ensure all changes are documented and tested.
-- Prepare for deployment to staging and production environments.
+- Ensure all changes are merged into the main branch.
+- Update API documentation with new endpoints.
+- Deploy to staging for QA testing before production release.
 ```
