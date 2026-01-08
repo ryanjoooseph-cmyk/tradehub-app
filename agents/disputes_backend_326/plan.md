@@ -4,77 +4,103 @@
 ## Directory Structure
 ```
 /disputes_backend_326
+│
 ├── api
-│   ├── disputes.py
-│   └── __init__.py
-├── models
-│   ├── dispute.py
-│   └── __init__.py
-├── routes
-│   ├── disputes_route.py
-│   └── __init__.py
-├── services
-│   ├── disputes_service.py
-│   └── __init__.py
+│   ├── __init__.py
+│   ├── app.py
+│   ├── routes
+│   │   ├── __init__.py
+│   │   └── disputes.py
+│   └── models
+│       ├── __init__.py
+│       └── dispute.py
+│
+├── ui
+│   ├── index.html
+│   ├── css
+│   │   └── styles.css
+│   └── js
+│       ├── app.js
+│       └── api.js
+│
 ├── tests
-│   ├── test_disputes.py
-│   └── __init__.py
-└── app.py
+│   ├── __init__.py
+│   ├── test_routes.py
+│   └── test_models.py
+│
+└── requirements.txt
 ```
 
-## Responsibilities
+## API Implementation
 
-### 1. API Layer
-- **File: `api/disputes.py`**
-  - Define API endpoints for:
+### File: `api/routes/disputes.py`
+- **Responsibilities:**
+  - Define routes for:
     - `GET /api/disputes`: List all disputes
     - `POST /api/disputes`: Create a new dispute
     - `PUT /api/disputes/<id>`: Update an existing dispute
   - Handle request validation and response formatting.
+  - Manage dispute statuses: OPEN, REVIEW, RESOLVED.
+  - Handle `evidence_urls` array in dispute creation and updates.
 
-### 2. Models
-- **File: `models/dispute.py`**
-  - Create a `Dispute` model with fields:
+### File: `api/models/dispute.py`
+- **Responsibilities:**
+  - Define the Dispute model with attributes:
     - `id`: Unique identifier
-    - `evidence_urls`: Array of strings
     - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement methods for database interactions (CRUD).
+    - `evidence_urls`: Array of strings
+  - Implement methods for CRUD operations on disputes.
 
-### 3. Routes
-- **File: `routes/disputes_route.py`**
-  - Define route handlers for API endpoints.
-  - Integrate with the service layer for business logic.
+### File: `api/app.py`
+- **Responsibilities:**
+  - Initialize Flask app and configure routes.
+  - Set up database connection and middleware.
 
-### 4. Services
-- **File: `services/disputes_service.py`**
-  - Implement business logic for:
-    - Listing disputes
-    - Creating a dispute
-    - Updating a dispute status
-  - Validate input data and manage state transitions for disputes.
+## UI Implementation
 
-### 5. Testing
-- **File: `tests/test_disputes.py`**
-  - Write unit tests for:
-    - API endpoints
-    - Service methods
-    - Model validations
-  - Ensure coverage for all status transitions and edge cases.
+### File: `ui/index.html`
+- **Responsibilities:**
+  - Create a basic HTML structure for displaying disputes.
+  - Include links to CSS and JS files.
 
-### 6. Main Application
-- **File: `app.py`**
-  - Set up the Flask application.
-  - Register routes and configure middleware.
-  - Initialize database connection.
+### File: `ui/css/styles.css`
+- **Responsibilities:**
+  - Style the UI components for disputes listing and forms.
 
-## Timeline
-- **Week 1**: Set up project structure and implement models.
-- **Week 2**: Develop API endpoints and service logic.
-- **Week 3**: Write tests and perform integration testing.
-- **Week 4**: Review, refactor, and prepare for deployment.
+### File: `ui/js/app.js`
+- **Responsibilities:**
+  - Handle UI interactions (form submissions, button clicks).
+  - Display disputes in a user-friendly format.
 
-## Notes
-- Ensure proper error handling and logging throughout the application.
-- Follow RESTful conventions for API design.
-- Use environment variables for configuration settings.
+### File: `ui/js/api.js`
+- **Responsibilities:**
+  - Implement API calls to:
+    - Fetch disputes
+    - Create a new dispute
+    - Update an existing dispute
+  - Handle responses and errors.
+
+## Testing Implementation
+
+### File: `tests/test_routes.py`
+- **Responsibilities:**
+  - Write unit tests for API routes.
+  - Test all CRUD operations and status updates.
+
+### File: `tests/test_models.py`
+- **Responsibilities:**
+  - Write unit tests for the Dispute model.
+  - Validate model methods and data integrity.
+
+## Dependencies
+
+### File: `requirements.txt`
+- **Responsibilities:**
+  - List required packages (e.g., Flask, SQLAlchemy, etc.).
+
+## Milestones
+1. **API Development**: Complete routes and models (2 weeks).
+2. **UI Development**: Build HTML/CSS/JS components (2 weeks).
+3. **Testing**: Implement and run tests (1 week).
+4. **Deployment**: Prepare for production (1 week).
 ```
