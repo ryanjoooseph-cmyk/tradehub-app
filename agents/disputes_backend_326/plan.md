@@ -26,73 +26,66 @@
 └── app.py
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. `api/disputes.py`
-- **Responsibilities**:
-  - Define API routes for `/api/disputes`.
-  - Implement endpoints:
+### API Implementation
+- **`/api/disputes.py`**
+  - Define Flask routes for:
     - `GET /api/disputes`: List all disputes.
     - `POST /api/disputes`: Create a new dispute.
     - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Handle request validation and response formatting.
+  - Implement request validation and response formatting.
 
-### 2. `models/dispute.py`
-- **Responsibilities**:
+- **`/models/dispute.py`**
   - Define the Dispute model with fields:
     - `id`: Unique identifier.
     - `evidence_urls`: Array of URLs.
     - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement database interactions (CRUD operations).
+  - Implement methods for CRUD operations.
 
-### 3. `schemas/dispute_schema.py`
-- **Responsibilities**:
-  - Define request and response schemas using a library like Marshmallow.
-  - Validate input data for creating and updating disputes.
+- **`/schemas/dispute_schema.py`**
+  - Create Pydantic schemas for request and response validation.
+  - Define fields for creating and updating disputes.
 
-### 4. `services/dispute_service.py`
-- **Responsibilities**:
-  - Implement business logic for dispute management.
-  - Functions for creating, listing, and updating disputes.
-  - Handle status transitions and validations.
+- **`/services/dispute_service.py`**
+  - Implement business logic for:
+    - Fetching all disputes.
+    - Creating a new dispute.
+    - Updating dispute status.
 
-## UI Implementation
-
-### 5. `ui/disputes_page.html`
-- **Responsibilities**:
-  - Create the HTML structure for displaying disputes.
+### UI Implementation
+- **`/ui/disputes_page.html`**
+  - Create a basic HTML structure for displaying disputes.
   - Include forms for creating and updating disputes.
-  - Display current status and evidence URLs.
 
-### 6. `ui/disputes.js`
-- **Responsibilities**:
-  - Implement JavaScript functions to handle API calls.
-  - Fetch disputes and update the UI dynamically.
-  - Handle form submissions for creating and updating disputes.
+- **`/ui/disputes.js`**
+  - Implement AJAX calls to the API for:
+    - Fetching disputes on page load.
+    - Submitting new disputes.
+    - Updating existing disputes.
+  - Handle UI updates based on API responses.
 
-### 7. `ui/styles.css`
-- **Responsibilities**:
-  - Style the disputes page for better user experience.
-  - Ensure responsive design for various devices.
+- **`/ui/styles.css`**
+  - Add styles for the disputes page.
+  - Ensure responsive design for better usability.
 
-## Testing
+### Testing
+- **`/tests/test_disputes.py`**
+  - Write unit tests for:
+    - API endpoints.
+    - Service methods.
+    - UI interactions (if applicable).
+  - Use pytest for testing framework.
 
-### 8. `tests/test_disputes.py`
-- **Responsibilities**:
-  - Write unit tests for API endpoints.
-  - Test model methods and service functions.
-  - Validate UI interactions and API responses.
+### Main Application
+- **`/app.py`**
+  - Initialize Flask app and register API routes.
+  - Set up CORS and error handling.
+  - Serve the UI files.
 
-## Main Application
-
-### 9. `app.py`
-- **Responsibilities**:
-  - Initialize the application and set up routing.
-  - Configure database connections and middleware.
-  - Serve the UI and API endpoints.
-
-## Additional Notes
-- Ensure proper error handling and logging throughout the application.
-- Consider implementing authentication if needed for dispute management.
-- Use environment variables for configuration settings.
+## Timeline
+- **Week 1**: API design and model implementation.
+- **Week 2**: UI development and integration with API.
+- **Week 3**: Testing and bug fixing.
+- **Week 4**: Final review and deployment preparation.
 ```
