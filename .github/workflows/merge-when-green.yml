@@ -1,7 +1,8 @@
 name: merge-when-green
 on:
   pull_request_target:
-    types: [opened, labeled, synchronize, reopened]
+    types: [opened, reopened, synchronize, labeled]
+
 permissions:
   contents: write
   pull-requests: write
@@ -11,8 +12,24 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
     steps:
-      - uses: peter-evans/enable-pull-request-automerge@v3
+      - uses: actions/github-script@v7
+        id: gate
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ github.event.pull_request.number }}
+          script: |
+            const {owner, repo} = context.repo;
+            const n = context.payload.pull_request.number;
+            const pr = (await github.rest.pulls.get({owner, repo, pull_number: n})).data;
+            return pr.mergeable_state === 'clean' ? 'ready' : pr.mergeable_state;
+          result-encoding: string
+
+      - name: Merge (squash)
+        if: steps.gate.outputs.result == 'ready'
+        uses: peter-evans/merge@v3
+        with:
           merge-method: squash
+          commit-message: pull-request-title
+          pull-request: ${{ github.event.pull_request.number }}
+
+      - name: Not ready (no-op)
+        if: steps.gate.outputs.result != 'ready'
+        run: echo "Still ${{ steps.gate.outputs.result }} – will merge on next event."
