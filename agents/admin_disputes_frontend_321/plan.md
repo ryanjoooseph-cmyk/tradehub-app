@@ -2,73 +2,91 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update the status of disputes.
+This plan outlines the steps to build the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
 
 ## File Structure
 
 ```
 /src
-  ├── api
-  │   ├── disputes.js                # API endpoints for disputes
   ├── components
-  │   ├── AdminDisputesTable.jsx     # Table component for displaying disputes
-  │   ├── DisputeFilter.jsx           # Filter component for disputes
-  │   ├── UpdateStatusButton.jsx      # Button component for updating dispute status
+  │   ├── AdminDisputesTable.jsx
+  │   ├── DisputeFilter.jsx
+  │   └── StatusUpdateButton.jsx
   ├── pages
-  │   ├── AdminDisputesPage.jsx       # Main page for displaying disputes
+  │   └── AdminDisputesPage.jsx
+  ├── api
+  │   └── disputes.js
   ├── styles
-  │   ├── AdminDisputesPage.css       # Styles for the Admin Disputes Page
-  ├── utils
-  │   ├── api.js                      # Utility functions for API calls
-  └── index.js                        # Entry point for the application
+  │   └── AdminDisputes.css
+  ├── hooks
+  │   └── useDisputes.js
+  └── utils
+      └── constants.js
 ```
 
 ## Responsibilities
 
-### API Implementation
-- **File:** `/src/api/disputes.js`
-  - Define API endpoints for fetching disputes and updating their status.
-  - Implement GET `/api/disputes` to retrieve disputes.
-  - Implement PATCH `/api/disputes/:id` to update dispute status.
+### 1. **AdminDisputesPage.jsx**
+   - **Path:** `/src/pages/AdminDisputesPage.jsx`
+   - **Responsibilities:**
+     - Set up the main layout for the disputes page.
+     - Integrate `AdminDisputesTable` and `DisputeFilter` components.
+     - Handle state management for disputes data.
 
-### UI Components
-- **File:** `/src/components/AdminDisputesTable.jsx`
-  - Create a table to display disputes with columns for ID, status, and actions.
-  - Integrate filtering functionality to filter disputes based on criteria.
+### 2. **AdminDisputesTable.jsx**
+   - **Path:** `/src/components/AdminDisputesTable.jsx`
+   - **Responsibilities:**
+     - Render a table displaying disputes.
+     - Implement sorting and pagination.
+     - Integrate `StatusUpdateButton` for each row to update dispute status.
 
-- **File:** `/src/components/DisputeFilter.jsx`
-  - Implement filtering options (e.g., by status, date).
-  - Handle filter changes and pass selected filters to the table component.
+### 3. **DisputeFilter.jsx**
+   - **Path:** `/src/components/DisputeFilter.jsx`
+   - **Responsibilities:**
+     - Create filter options for disputes (e.g., status, date).
+     - Handle filter state and trigger data fetching on change.
 
-- **File:** `/src/components/UpdateStatusButton.jsx`
-  - Create a button to trigger status updates for selected disputes.
-  - Handle click events to call the update API and refresh the table.
+### 4. **StatusUpdateButton.jsx**
+   - **Path:** `/src/components/StatusUpdateButton.jsx`
+   - **Responsibilities:**
+     - Render a button to update the status of a dispute.
+     - Call the API to update the status and handle success/error feedback.
 
-### Page Implementation
-- **File:** `/src/pages/AdminDisputesPage.jsx`
-  - Set up the main page layout for `/admin/disputes/321`.
-  - Integrate `AdminDisputesTable` and `DisputeFilter` components.
-  - Manage state for disputes and filters, and handle data fetching.
+### 5. **disputes.js (API)**
+   - **Path:** `/src/api/disputes.js`
+   - **Responsibilities:**
+     - Define API calls to fetch disputes and update status.
+     - Handle error responses and data formatting.
 
-### Styling
-- **File:** `/src/styles/AdminDisputesPage.css`
-  - Style the admin disputes page, table, filters, and buttons for a cohesive look.
+### 6. **useDisputes.js (Custom Hook)**
+   - **Path:** `/src/hooks/useDisputes.js`
+   - **Responsibilities:**
+     - Manage fetching and state of disputes data.
+     - Provide a reusable hook for components to access disputes.
 
-### Utility Functions
-- **File:** `/src/utils/api.js`
-  - Create utility functions for making API calls to fetch and update disputes.
-  - Handle error responses and loading states.
+### 7. **AdminDisputes.css**
+   - **Path:** `/src/styles/AdminDisputes.css`
+   - **Responsibilities:**
+     - Style the disputes page and components.
+     - Ensure responsive design for the admin table.
 
-## Testing
-- Implement unit tests for components and API functions.
-- Ensure integration tests cover the complete flow from fetching to updating disputes.
+### 8. **constants.js**
+   - **Path:** `/src/utils/constants.js`
+   - **Responsibilities:**
+     - Define constants for dispute statuses and API endpoints.
 
-## Deployment
-- Prepare the feature for deployment on the staging environment.
-- Conduct user acceptance testing (UAT) with admin users.
+## Development Steps
+1. **Set up the project structure** as outlined above.
+2. **Implement the API calls** in `disputes.js`.
+3. **Create the custom hook** `useDisputes.js` for data management.
+4. **Build the UI components** (`AdminDisputesPage`, `AdminDisputesTable`, `DisputeFilter`, `StatusUpdateButton`).
+5. **Style the components** using `AdminDisputes.css`.
+6. **Integrate components** in `AdminDisputesPage.jsx`.
+7. **Test the functionality** for fetching, filtering, and updating disputes.
+8. **Conduct code reviews** and finalize the implementation.
 
 ## Timeline
-- **Week 1:** API implementation and basic UI setup.
-- **Week 2:** Component development and integration.
-- **Week 3:** Testing and deployment preparation.
+- **Week 1:** Project setup and API implementation.
+- **Week 2:** UI component development and styling.
+- **Week 3:** Integration, testing, and code reviews.
 ```
