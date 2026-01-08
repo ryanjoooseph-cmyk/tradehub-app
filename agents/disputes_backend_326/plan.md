@@ -2,100 +2,89 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will allow users to open, list, and update disputes, manage evidence URLs, and handle dispute statuses.
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
 
 ## File Structure
 
 ```
 /src
   ├── api
-  │   ├── disputes.js                # API endpoints for disputes
-  │   └── index.js                   # Main API index file
+  │   ├── disputes
+  │   │   ├── disputesController.js
+  │   │   ├── disputesModel.js
+  │   │   └── disputesRoutes.js
   ├── components
-  │   ├── DisputeList.jsx            # Component to list disputes
-  │   ├── DisputeForm.jsx            # Component to open/update a dispute
-  │   └── DisputeItem.jsx            # Component for individual dispute item
-  ├── pages
-  │   └── DisputesPage.jsx           # Page to display disputes UI
+  │   ├── DisputeList.jsx
+  │   ├── DisputeForm.jsx
+  │   └── DisputeDetail.jsx
   ├── hooks
-  │   └── useDisputes.js             # Custom hook for dispute data fetching
+  │   └── useDisputes.js
   ├── styles
-  │   └── disputes.css                # Styles for dispute components
-  └── utils
-      └── api.js                     # Utility functions for API calls
+  │   └── disputes.css
+  └── App.js
 ```
 
 ## API Implementation
 
-### File: `/src/api/disputes.js`
-- **Responsibilities:**
-  - Define API routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
-  - Handle request validation and response formatting.
-  - Manage dispute statuses (OPEN, REVIEW, RESOLVED).
-  - Handle evidence URLs as an array in the dispute object.
+### 1. `disputesModel.js`
+- **Responsibilities**:
+  - Define the Dispute schema (including fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`).
+  - Implement database interactions (CRUD operations).
 
-### File: `/src/api/index.js`
-- **Responsibilities:**
-  - Set up Express server and middleware.
-  - Import and use the disputes API routes.
+### 2. `disputesController.js`
+- **Responsibilities**:
+  - Implement the following functions:
+    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
+    - `getDisputes(req, res)`: Handle GET requests to list all disputes.
+    - `updateDispute(req, res)`: Handle PUT requests to update a dispute by ID.
+  - Validate input data and manage response formats.
+
+### 3. `disputesRoutes.js`
+- **Responsibilities**:
+  - Define Express routes for `/api/disputes`:
+    - `POST /api/disputes`: Create a new dispute.
+    - `GET /api/disputes`: List all disputes.
+    - `PUT /api/disputes/:id`: Update an existing dispute.
 
 ## UI Implementation
 
-### File: `/src/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Render `DisputeList` and `DisputeForm` components.
-  - Manage state for disputes and loading/error handling.
+### 1. `DisputeList.jsx`
+- **Responsibilities**:
+  - Fetch and display a list of disputes.
+  - Provide options to view details or update a dispute.
 
-### File: `/src/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Fetch and display a list of disputes using `useDisputes` hook.
-  - Provide options to update or delete disputes.
+### 2. `DisputeForm.jsx`
+- **Responsibilities**:
+  - Form for creating and updating disputes.
+  - Include fields for status and evidence URLs.
+  - Handle form submission and validation.
 
-### File: `/src/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Form to open a new dispute or update an existing one.
-  - Handle input for evidence URLs and dispute status.
+### 3. `DisputeDetail.jsx`
+- **Responsibilities**:
+  - Display detailed information about a selected dispute.
+  - Allow status updates and evidence URL management.
 
-### File: `/src/components/DisputeItem.jsx`
-- **Responsibilities:**
-  - Display individual dispute details.
-  - Include buttons for updating status and managing evidence URLs.
+### 4. `useDisputes.js`
+- **Responsibilities**:
+  - Custom hook for managing API calls related to disputes.
+  - Provide functions to create, fetch, and update disputes.
 
-## Hooks Implementation
+### 5. `disputes.css`
+- **Responsibilities**:
+  - Style the dispute components for better user experience.
 
-### File: `/src/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Fetch disputes from the API.
-  - Provide functions to create and update disputes.
-  - Manage local state for disputes.
+## Integration
 
-## Styling
-
-### File: `/src/styles/disputes.css`
-- **Responsibilities:**
-  - Define styles for dispute components.
-  - Ensure responsive design for dispute list and form.
-
-## Utilities
-
-### File: `/src/utils/api.js`
-- **Responsibilities:**
-  - Create utility functions for making API calls.
-  - Handle error responses and data formatting.
+### 1. `App.js`
+- **Responsibilities**:
+  - Integrate the dispute components into the main application.
+  - Set up routing if necessary.
 
 ## Testing
-- Implement unit tests for API endpoints in `/tests/api/disputes.test.js`.
-- Implement component tests for UI components in `/tests/components/Dispute*.test.js`.
+- Implement unit tests for API endpoints in `disputesController.js`.
+- Write component tests for UI components using a testing library (e.g., Jest, React Testing Library).
 
 ## Deployment
-- Ensure API is deployed to the server and accessible at `/api/disputes`.
-- Deploy UI changes to the frontend application.
-
-## Timeline
-- **Week 1:** API development and testing.
-- **Week 2:** UI development and integration.
-- **Week 3:** Final testing and deployment.
+- Ensure the API is properly documented (e.g., using Swagger).
+- Deploy the changes to the staging environment for testing before production release.
 ```
