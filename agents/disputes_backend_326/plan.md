@@ -3,97 +3,89 @@
 
 ## Project Structure
 ```
-/project-root
-│
-├── /src
-│   ├── /api
-│   │   ├── disputes.js               # API route handling for disputes
-│   │   └── index.js                  # Main API entry point
-│   │
-│   ├── /controllers
-│   │   ├── disputeController.js       # Business logic for disputes
-│   │
-│   ├── /models
-│   │   ├── disputeModel.js            # Mongoose model for disputes
-│   │
-│   ├── /routes
-│   │   ├── disputesRoutes.js          # Route definitions for disputes
-│   │
-│   ├── /middlewares
-│   │   ├── validateDispute.js         # Middleware for validating dispute data
-│   │
-│   ├── /utils
-│   │   ├── responseHandler.js          # Utility for standardizing API responses
-│   │
-│   └── /tests
-│       ├── disputes.test.js           # Unit tests for disputes API
-│
-└── /public
-    ├── /css
-    ├── /js
-    └── /images
+/api
+    └── disputes
+        ├── disputesController.js
+        ├── disputesService.js
+        ├── disputesModel.js
+        ├── disputesRoutes.js
+        └── disputesValidation.js
+/ui
+    ├── DisputeList.js
+    ├── DisputeForm.js
+    └── DisputeDetail.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **`/src/api/disputes.js`**
-  - Define API endpoints for creating, listing, and updating disputes.
-  - Handle HTTP methods: POST (create), GET (list), PUT (update).
-  
-- **`/src/controllers/disputeController.js`**
-  - Implement logic for:
-    - Creating a new dispute with evidence_urls and status.
-    - Fetching all disputes or filtering by status.
-    - Updating dispute status and evidence_urls.
-  
-- **`/src/models/disputeModel.js`**
-  - Define Mongoose schema for disputes:
-    - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN/REVIEW/RESOLVED).
-  
-- **`/src/routes/disputesRoutes.js`**
-  - Set up Express routes for `/api/disputes`.
-  - Link routes to respective controller functions.
+### 1. **Model**
+- **File:** `/api/disputes/disputesModel.js`
+  - Define the Dispute schema with fields:
+    - `id`: String (unique identifier)
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+    - `evidence_urls`: Array of Strings
+    - `created_at`: Date
+    - `updated_at`: Date
 
-- **`/src/middlewares/validateDispute.js`**
-  - Validate incoming request data for creating/updating disputes.
-  - Ensure `evidence_urls` is an array and `status` is valid.
+### 2. **Controller**
+- **File:** `/api/disputes/disputesController.js`
+  - Implement functions:
+    - `listDisputes(req, res)`: GET `/api/disputes` - Retrieve all disputes.
+    - `createDispute(req, res)`: POST `/api/disputes` - Create a new dispute.
+    - `updateDispute(req, res)`: PUT `/api/disputes/:id` - Update an existing dispute.
 
-- **`/src/utils/responseHandler.js`**
-  - Create utility functions for sending standardized API responses.
+### 3. **Service**
+- **File:** `/api/disputes/disputesService.js`
+  - Implement business logic for:
+    - Fetching disputes from the database.
+    - Creating a new dispute.
+    - Updating dispute status and evidence URLs.
 
-### UI Implementation
-- **`/public/js/disputes.js`**
-  - Implement frontend logic to:
-    - Fetch disputes and display them in a list.
-    - Provide forms for creating and updating disputes.
-  
-- **`/public/css/disputes.css`**
-  - Style the dispute listing and forms for better user experience.
+### 4. **Validation**
+- **File:** `/api/disputes/disputesValidation.js`
+  - Implement validation middleware for:
+    - Creating a dispute (check required fields).
+    - Updating a dispute (check valid status and evidence URLs).
 
-- **`/public/index.html`**
-  - Create a basic HTML structure to include dispute UI components.
-  - Link to `disputes.js` and `disputes.css`.
+### 5. **Routes**
+- **File:** `/api/disputes/disputesRoutes.js`
+  - Define routes:
+    - `GET /api/disputes`: List disputes.
+    - `POST /api/disputes`: Create a dispute.
+    - `PUT /api/disputes/:id`: Update a dispute.
 
-### Testing
-- **`/src/tests/disputes.test.js`**
-  - Write unit tests for API endpoints and controller functions.
-  - Test validation middleware and response handling.
+## UI Implementation
 
-## Timeline
-- **Week 1:**
-  - Set up project structure and initial API routes.
-  - Implement dispute model and controller logic.
+### 1. **Dispute List**
+- **File:** `/ui/DisputeList.js`
+  - Fetch and display a list of disputes.
+  - Provide links to view/update each dispute.
 
-- **Week 2:**
-  - Develop API endpoints and middleware for validation.
-  - Start frontend implementation for dispute UI.
+### 2. **Dispute Form**
+- **File:** `/ui/DisputeForm.js`
+  - Form for creating/updating disputes.
+  - Fields for status and evidence URLs.
+  - Handle form submission and validation.
 
-- **Week 3:**
-  - Complete frontend integration and styling.
-  - Write and run tests for API and UI components.
+### 3. **Dispute Detail**
+- **File:** `/ui/DisputeDetail.js`
+  - Display detailed view of a selected dispute.
+  - Show status and evidence URLs.
+  - Provide option to update status.
 
-- **Week 4:**
-  - Review, refactor, and finalize the implementation.
-  - Prepare documentation and deployment scripts.
+## Testing
+- **Files:** `/api/disputes/__tests__/disputesController.test.js`
+  - Write unit tests for controller functions.
+- **Files:** `/ui/__tests__/DisputeList.test.js`
+  - Write tests for UI components.
+
+## Documentation
+- **File:** `/docs/API.md`
+  - Document API endpoints, request/response formats.
+- **File:** `/docs/UI.md`
+  - Document UI components and their usage.
+
+## Deployment
+- Ensure API is integrated with CI/CD pipeline for automated testing and deployment.
+- Update frontend build process to include new UI components.
 ```
