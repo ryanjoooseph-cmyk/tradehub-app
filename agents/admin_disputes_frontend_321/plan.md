@@ -1,113 +1,94 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Project Structure
+## Directory Structure
 
 ```
-/admin_disputes_frontend_321
-│
-├── /src
-│   ├── /components
-│   │   ├── DisputeTable.jsx          # Component to display disputes in a table format with filters
-│   │   ├── DisputeFilter.jsx         # Component for filtering disputes (status, date, etc.)
-│   │   └── UpdateStatusModal.jsx     # Modal for updating dispute status
-│   │
-│   ├── /hooks
-│   │   └── useDisputes.js            # Custom hook for fetching and managing disputes data
-│   │
-│   ├── /pages
-│   │   └── AdminDisputesPage.jsx     # Main page component for '/admin/disputes/321'
-│   │
-│   ├── /services
-│   │   └── disputeService.js          # API service for making calls to /api/disputes
-│   │
-│   ├── /styles
-│   │   └── AdminDisputes.css          # Styles for the admin disputes page
-│   │
-│   └── App.js                         # Main application file to set up routing
-│
-├── /api
-│   ├── /controllers
-│   │   └── disputeController.js       # Controller for handling dispute-related API requests
-│   │
-│   ├── /models
-│   │   └── Dispute.js                 # Dispute model/schema for database interactions
-│   │
-│   ├── /routes
-│   │   └── disputeRoutes.js           # API routes for disputes
-│   │
-│   └── /middlewares
-│       └── authMiddleware.js          # Middleware for authentication and authorization
-│
-└── /tests
-    ├── /components
-    │   └── DisputeTable.test.js       # Unit tests for DisputeTable component
-    │
-    ├── /hooks
-    │   └── useDisputes.test.js        # Unit tests for useDisputes hook
-    │
-    ├── /pages
-    │   └── AdminDisputesPage.test.js  # Unit tests for AdminDisputesPage component
-    │
-    └── /api
-        └── disputeController.test.js   # Unit tests for disputeController
+/src
+  ├── components
+  │   ├── AdminDisputesTable.jsx
+  │   ├── FilterBar.jsx
+  │   └── StatusUpdateModal.jsx
+  ├── pages
+  │   └── AdminDisputesPage.jsx
+  ├── services
+  │   └── disputesService.js
+  ├── styles
+  │   └── AdminDisputesPage.css
+  ├── utils
+  │   └── api.js
+  └── App.js
 ```
 
-## Responsibilities
+## File Responsibilities
 
-### Frontend
+### 1. **AdminDisputesTable.jsx**
+   - Render a table displaying disputes.
+   - Include columns for dispute details and status.
+   - Integrate filtering options from `FilterBar`.
 
-- **DisputeTable.jsx**
-  - Display list of disputes with pagination and sorting.
-  - Integrate filters for status and date.
+### 2. **FilterBar.jsx**
+   - Provide UI elements for filtering disputes (e.g., by status, date).
+   - Handle filter state and pass it to `AdminDisputesTable`.
 
-- **DisputeFilter.jsx**
-  - Provide UI for filtering disputes based on criteria.
-  - Trigger updates to the DisputeTable based on selected filters.
+### 3. **StatusUpdateModal.jsx**
+   - Modal component for updating the status of a selected dispute.
+   - Include form elements for status selection and confirmation button.
+   - Call `disputesService.updateDisputeStatus` on submission.
 
-- **UpdateStatusModal.jsx**
-  - Modal for updating the status of a selected dispute.
-  - Call the API to update the dispute status upon confirmation.
+### 4. **AdminDisputesPage.jsx**
+   - Main page component for the route `/admin/disputes/321`.
+   - Combine `AdminDisputesTable` and `FilterBar`.
+   - Fetch disputes data from API on component mount using `disputesService.fetchDisputes`.
 
-- **useDisputes.js**
-  - Fetch disputes from the API.
-  - Handle state management for disputes and loading/error states.
+### 5. **disputesService.js**
+   - Define functions to interact with the `/api/disputes` endpoint.
+   - Implement `fetchDisputes` to retrieve disputes data.
+   - Implement `updateDisputeStatus` to send status updates.
 
-- **AdminDisputesPage.jsx**
-  - Set up the layout for the admin disputes page.
-  - Integrate DisputeTable and DisputeFilter components.
+### 6. **AdminDisputesPage.css**
+   - Style the Admin Disputes Page and its components.
+   - Ensure responsive design for various screen sizes.
 
-- **AdminDisputes.css**
-  - Style the admin disputes page and its components.
+### 7. **api.js**
+   - Set up Axios or Fetch API for making HTTP requests.
+   - Create a base instance for API calls to `/api/disputes`.
 
-### Backend
+### 8. **App.js**
+   - Set up routing for the application.
+   - Include route for `/admin/disputes/321` pointing to `AdminDisputesPage`.
 
-- **disputeController.js**
-  - Implement logic for fetching disputes and updating their status.
-  - Handle request validation and error responses.
+## Development Steps
 
-- **Dispute.js**
-  - Define the schema for disputes, including fields for status, date, etc.
+1. **Set Up Routing**
+   - Implement routing in `App.js` for `/admin/disputes/321`.
 
-- **disputeRoutes.js**
-  - Set up API routes for fetching disputes and updating their status.
+2. **Build API Service**
+   - Implement `disputesService.js` to handle API calls.
 
-- **authMiddleware.js**
-  - Ensure that only authorized users can access the dispute management routes.
+3. **Create UI Components**
+   - Develop `AdminDisputesTable`, `FilterBar`, and `StatusUpdateModal`.
 
-### Testing
+4. **Integrate Components**
+   - Combine components in `AdminDisputesPage.jsx`.
 
-- **Component Tests**
-  - Write unit tests for each component to ensure proper rendering and functionality.
+5. **Implement Filtering Logic**
+   - Add filtering functionality in `FilterBar` and connect it to the table.
 
-- **Hook Tests**
-  - Test the custom hook for fetching and managing disputes.
+6. **Handle Status Updates**
+   - Implement status update logic in `StatusUpdateModal`.
 
-- **API Tests**
-  - Validate the dispute controller's functionality through unit tests.
+7. **Style Components**
+   - Apply styles in `AdminDisputesPage.css`.
+
+8. **Testing**
+   - Conduct unit tests for components and service functions.
+   - Perform integration tests for the complete flow.
+
+9. **Deployment**
+   - Prepare the application for deployment after successful testing.
 
 ## Timeline
-
-- **Week 1**: Set up project structure and implement basic components.
-- **Week 2**: Develop API endpoints and connect frontend with backend.
-- **Week 3**: Implement filtering and status update functionalities.
-- **Week 4**: Conduct testing and finalize UI/UX improvements.
+- **Week 1:** Set up routing and API service.
+- **Week 2:** Develop UI components and integrate them.
+- **Week 3:** Implement filtering and status update features.
+- **Week 4:** Testing and deployment preparation.
