@@ -1,101 +1,86 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
 /disputes_backend_326
 │
 ├── /api
-│   ├── disputes.js                # API routes for disputes
-│   └── index.js                   # Main API entry point
-│
-├── /controllers
-│   ├── disputeController.js        # Logic for handling disputes
+│   ├── disputes.py                # API routes for disputes
+│   ├── __init__.py                # API package initialization
+│   └── utils.py                   # Utility functions for API
 │
 ├── /models
-│   ├── disputeModel.js             # Mongoose model for disputes
+│   ├── dispute.py                 # Dispute model definition
+│   └── __init__.py                # Models package initialization
 │
-├── /middlewares
-│   ├── authMiddleware.js           # Middleware for authentication
-│
-├── /validations
-│   ├── disputeValidation.js         # Validation schema for disputes
+├── /services
+│   ├── dispute_service.py         # Business logic for disputes
+│   └── __init__.py                # Services package initialization
 │
 ├── /tests
-│   ├── dispute.test.js             # Unit tests for dispute API
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   └── __init__.py                # Tests package initialization
 │
-└── /client
-    ├── /components
-    │   ├── DisputeList.js          # Component to list disputes
-    │   ├── DisputeForm.js          # Component to create/update disputes
-    │   └── DisputeDetail.js        # Component to view dispute details
-    │
-    ├── /services
-    │   ├── disputeService.js        # Service for API calls related to disputes
-    │
-    ├── /styles
-    │   ├── disputeStyles.css        # Styles for dispute components
-    │
-    └── App.js                      # Main application file
+├── /ui
+│   ├── /components
+│   │   ├── DisputeForm.js         # UI component for creating/updating disputes
+│   │   ├── DisputeList.js         # UI component for listing disputes
+│   │   └── DisputeStatus.js       # UI component for displaying dispute status
+│   │
+│   ├── /pages
+│   │   ├── DisputePage.js         # Main page for disputes
+│   │   └── NotFoundPage.js        # 404 page for unmatched routes
+│   │
+│   ├── App.js                     # Main application component
+│   ├── index.js                   # Entry point for the UI
+│   └── styles.css                 # Global styles for the UI
+│
+└── requirements.txt               # Dependencies for the project
 ```
 
 ## Responsibilities
 
-### API Layer
-- **/api/disputes.js**
-  - Define routes: `GET /api/disputes`, `POST /api/disputes`, `PUT /api/disputes/:id`
-  - Connect to disputeController methods.
+### API Development
+- **/api/disputes.py**
+  - Implement GET, POST, PUT methods for `/api/disputes`.
+  - Handle request validation and response formatting.
+  
+- **/models/dispute.py**
+  - Define Dispute class with attributes: `id`, `evidence_urls`, `status`.
+  - Implement methods for CRUD operations.
 
-- **/api/index.js**
-  - Set up Express app and middleware.
-  - Import and use dispute routes.
+- **/services/dispute_service.py**
+  - Implement business logic for creating, listing, and updating disputes.
+  - Ensure status management (OPEN/REVIEW/RESOLVED) is handled correctly.
 
-### Controller Layer
-- **/controllers/disputeController.js**
-  - Implement functions:
-    - `getAllDisputes(req, res)`: Fetch all disputes.
-    - `createDispute(req, res)`: Create a new dispute.
-    - `updateDispute(req, res)`: Update an existing dispute.
+### UI Development
+- **/ui/components/DisputeForm.js**
+  - Create form for submitting new disputes and updating existing ones.
+  - Include input for `evidence_urls` and status selection.
 
-### Model Layer
-- **/models/disputeModel.js**
-  - Define Mongoose schema for disputes:
-    - Fields: `evidence_urls`, `status` (enum: OPEN, REVIEW, RESOLVED).
+- **/ui/components/DisputeList.js**
+  - Display a list of disputes with their statuses.
+  - Implement functionality to filter disputes by status.
 
-### Middleware Layer
-- **/middlewares/authMiddleware.js**
-  - Implement authentication checks for API routes.
+- **/ui/components/DisputeStatus.js**
+  - Create a visual representation of dispute status (e.g., color coding).
 
-### Validation Layer
-- **/validations/disputeValidation.js**
-  - Create validation schema for dispute creation and updates using Joi or similar.
+- **/ui/pages/DisputePage.js**
+  - Integrate `DisputeForm` and `DisputeList` components.
+  - Handle API calls to fetch and submit disputes.
 
-### Testing Layer
-- **/tests/dispute.test.js**
-  - Write unit tests for API endpoints using Jest or Mocha.
+### Testing
+- **/tests/test_disputes.py**
+  - Write unit tests for API endpoints and services.
+  - Ensure coverage for all CRUD operations and status transitions.
 
-### Client Layer
-- **/client/components/DisputeList.js**
-  - Fetch and display list of disputes.
-
-- **/client/components/DisputeForm.js**
-  - Form for creating/updating disputes with validation.
-
-- **/client/components/DisputeDetail.js**
-  - Display detailed view of a selected dispute.
-
-- **/client/services/disputeService.js**
-  - Implement API calls for disputes (GET, POST, PUT).
-
-- **/client/styles/disputeStyles.css**
-  - Style components for disputes.
-
-- **/client/App.js**
-  - Integrate dispute components into the main application.
+### Documentation
+- Update README.md with setup instructions and API usage.
+- Document UI components and their props in a separate markdown file.
 
 ## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controller logic and middleware.
-- **Week 3**: Develop client components and services.
-- **Week 4**: Write tests and finalize UI/UX.
+- **Week 1**: API development (models, services, and routes).
+- **Week 2**: UI development (components and pages).
+- **Week 3**: Testing and documentation.
 ```
