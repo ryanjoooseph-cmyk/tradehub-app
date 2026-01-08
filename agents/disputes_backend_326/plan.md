@@ -2,88 +2,99 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes with an array of evidence URLs and statuses (OPEN, REVIEW, RESOLVED).
+This plan outlines the implementation of the UI and API for managing disputes, targeting the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
 
 ## File Structure
 
 ```
 /src
   ├── api
-  │   ├── disputes
-  │   │   ├── disputesController.js
-  │   │   ├── disputesModel.js
-  │   │   ├── disputesRoutes.js
-  │   │   └── disputesService.js
-  ├── components
-  │   ├── DisputeList.jsx
-  │   ├── DisputeForm.jsx
-  │   └── DisputeItem.jsx
-  ├── pages
-  │   └── DisputesPage.jsx
-  ├── styles
-  │   └── disputes.css
+  │   ├── disputes.js                # API routes for disputes
+  │   └── index.js                   # Main API entry point
+  ├── controllers
+  │   ├── disputesController.js       # Business logic for disputes
+  ├── models
+  │   ├── disputeModel.js             # Mongoose model for disputes
+  ├── routes
+  │   ├── disputesRoutes.js           # Express routes for disputes
+  ├── services
+  │   ├── disputesService.js           # Service layer for dispute operations
+  ├── ui
+  │   ├── components
+  │   │   ├── DisputeList.jsx         # Component to list disputes
+  │   │   ├── DisputeForm.jsx         # Component to open/update disputes
+  │   ├── pages
+  │   │   ├── DisputePage.jsx         # Main page for disputes
+  │   └── App.js                      # Main application file
   └── utils
-      └── api.js
+      ├── apiClient.js                # Axios instance for API calls
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. `disputesModel.js`
-- **Responsibilities**: Define the schema for disputes, including fields for `id`, `status`, `evidence_urls`, and timestamps.
-  
-### 2. `disputesService.js`
-- **Responsibilities**: Implement business logic for:
-  - Creating a new dispute
-  - Retrieving all disputes
-  - Updating a dispute's status and evidence URLs
+### API Implementation
 
-### 3. `disputesController.js`
-- **Responsibilities**: Handle incoming requests and responses for:
-  - `POST /api/disputes` - Create a new dispute
-  - `GET /api/disputes` - List all disputes
-  - `PUT /api/disputes/:id` - Update a specific dispute
+- **`/src/api/disputes.js`**
+  - Define API endpoints for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Open a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
 
-### 4. `disputesRoutes.js`
-- **Responsibilities**: Define the API routes and link them to the controller methods.
+- **`/src/controllers/disputesController.js`**
+  - Implement controller functions for handling requests:
+    - `listDisputes()`
+    - `openDispute()`
+    - `updateDispute()`
 
-## UI Implementation
+- **`/src/models/disputeModel.js`**
+  - Define Mongoose schema for disputes:
+    - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN, REVIEW, RESOLVED)
 
-### 1. `DisputesPage.jsx`
-- **Responsibilities**: Main page component that renders `DisputeList` and `DisputeForm`.
+- **`/src/routes/disputesRoutes.js`**
+  - Set up Express routes and link to controller functions.
 
-### 2. `DisputeList.jsx`
-- **Responsibilities**: Display a list of disputes with their statuses and evidence URLs. Include functionality to update dispute status.
+- **`/src/services/disputesService.js`**
+  - Implement service functions for database operations:
+    - `getAllDisputes()`
+    - `createDispute(data)`
+    - `modifyDispute(id, data)`
 
-### 3. `DisputeForm.jsx`
-- **Responsibilities**: Form for creating and updating disputes. Includes fields for status and evidence URLs.
+### UI Implementation
 
-### 4. `DisputeItem.jsx`
-- **Responsibilities**: Component to represent a single dispute item in the list. Includes buttons for updating status.
+- **`/src/ui/components/DisputeList.jsx`**
+  - Create a component to display a list of disputes with status.
 
-## Styles
+- **`/src/ui/components/DisputeForm.jsx`**
+  - Create a form component for opening and updating disputes.
 
-### 1. `disputes.css`
-- **Responsibilities**: Define styles for dispute components, ensuring a user-friendly interface.
+- **`/src/ui/pages/DisputePage.jsx`**
+  - Main page to render `DisputeList` and `DisputeForm`.
 
-## Utility
+- **`/src/ui/App.js`**
+  - Set up routing and integrate dispute components.
 
-### 1. `api.js`
-- **Responsibilities**: Create utility functions for making API calls to `/api/disputes`, handling responses, and errors.
+### Utility Functions
+
+- **`/src/utils/apiClient.js`**
+  - Create an Axios instance for making API calls with error handling.
 
 ## Testing
 
-### 1. API Tests
-- **Responsibilities**: Write unit tests for the API endpoints using a testing framework (e.g., Jest, Mocha).
-
-### 2. UI Tests
-- **Responsibilities**: Write tests for UI components using a testing library (e.g., React Testing Library).
+- Implement unit tests for:
+  - API endpoints
+  - Controller functions
+  - Service functions
+  - UI components
 
 ## Deployment
-- **Responsibilities**: Ensure the API is deployed to the server and the UI is integrated with the backend.
+
+- Ensure the API is deployed to the server and the UI is integrated with the backend.
+- Update documentation to reflect new API endpoints and UI features.
 
 ## Timeline
-- **Week 1**: Set up API structure and implement basic CRUD operations.
-- **Week 2**: Develop UI components and integrate with the API.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+
+- **Week 1**: API and model setup
+- **Week 2**: Controller and service implementation
+- **Week 3**: UI development
+- **Week 4**: Testing and deployment
 ```
