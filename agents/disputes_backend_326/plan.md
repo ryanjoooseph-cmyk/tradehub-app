@@ -1,91 +1,86 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the development of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
 ## Directory Structure
-
 ```
 /disputes_backend_326
 │
 ├── /api
-│   ├── /controllers
-│   │   └── disputesController.js         # Handle API logic for disputes
-│   ├── /models
-│   │   └── disputeModel.js                # Define dispute schema and model
-│   ├── /routes
-│   │   └── disputesRoutes.js              # Define API routes for disputes
-│   └── /middleware
-│       └── authMiddleware.js              # Authentication middleware (if needed)
+│   ├── disputes.js                # API routes for disputes
+│   ├── disputesController.js       # Controller for handling disputes logic
+│   ├── disputesModel.js            # Mongoose model for disputes
+│   └── disputesValidator.js         # Validation middleware for disputes
 │
-├── /client
+├── /ui
 │   ├── /components
-│   │   ├── DisputeList.js                 # Component to list disputes
-│   │   ├── DisputeForm.js                 # Component to create/update disputes
-│   │   └── DisputeDetail.js                # Component to view dispute details
-│   ├── /services
-│   │   └── disputeService.js               # API calls related to disputes
-│   └── /styles
-│       └── disputes.css                    # Styles for dispute components
+│   │   ├── DisputeList.jsx         # Component to list all disputes
+│   │   ├── DisputeForm.jsx         # Component to create/update a dispute
+│   │   └── DisputeItem.jsx         # Component to display individual dispute
+│   │
+│   ├── /hooks
+│   │   └── useDisputes.js          # Custom hook for fetching/updating disputes
+│   │
+│   ├── /pages
+│   │   └── DisputesPage.jsx        # Main page for displaying disputes
+│   │
+│   ├── /styles
+│   │   └── disputes.css             # CSS styles for disputes UI
+│   │
+│   └── App.js                      # Main application file
 │
 └── /tests
-    ├── /api
-    │   └── disputes.test.js                # Unit tests for API endpoints
-    └── /client
-        └── DisputeForm.test.js             # Unit tests for DisputeForm component
+    ├── disputes.test.js            # Unit tests for disputes API
+    └── DisputeForm.test.js         # Unit tests for DisputeForm component
 ```
 
 ## Responsibilities
 
-### API Development
+### API Implementation
+- **disputes.js**
+  - Define routes for GET, POST, PUT requests on `/api/disputes`.
+  
+- **disputesController.js**
+  - Implement functions to handle:
+    - `getAllDisputes`: Fetch all disputes.
+    - `createDispute`: Create a new dispute with evidence_urls and status.
+    - `updateDispute`: Update existing dispute status and evidence_urls.
 
-1. **disputeModel.js**
-   - Define the schema for disputes, including fields for `evidence_urls` (array) and `status` (enum: OPEN, REVIEW, RESOLVED).
+- **disputesModel.js**
+  - Define Mongoose schema for disputes:
+    - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN, REVIEW, RESOLVED).
 
-2. **disputesController.js**
-   - Implement functions to:
-     - `createDispute(req, res)`: Handle POST requests to create a new dispute.
-     - `getDisputes(req, res)`: Handle GET requests to list all disputes.
-     - `updateDispute(req, res)`: Handle PUT requests to update an existing dispute.
+- **disputesValidator.js**
+  - Create middleware to validate incoming requests for creating/updating disputes.
 
-3. **disputesRoutes.js**
-   - Set up the Express routes for:
-     - `POST /api/disputes`: Create a new dispute.
-     - `GET /api/disputes`: List all disputes.
-     - `PUT /api/disputes/:id`: Update a specific dispute by ID.
+### UI Implementation
+- **DisputeList.jsx**
+  - Fetch and display list of disputes using `useDisputes` hook.
 
-### UI Development
+- **DisputeForm.jsx**
+  - Create form for adding/updating disputes, including fields for evidence_urls and status.
 
-1. **DisputeList.js**
-   - Fetch and display a list of disputes using `disputeService`.
-   - Implement UI for filtering by status.
+- **DisputeItem.jsx**
+  - Display individual dispute details and provide options to update status.
 
-2. **DisputeForm.js**
-   - Create a form for submitting new disputes or updating existing ones.
-   - Include fields for entering evidence URLs and selecting status.
+- **useDisputes.js**
+  - Implement logic to fetch disputes from API and handle updates.
 
-3. **DisputeDetail.js**
-   - Display detailed information about a selected dispute, including evidence URLs and status.
+- **DisputesPage.jsx**
+  - Combine `DisputeList` and `DisputeForm` components for the main disputes interface.
 
-4. **disputeService.js**
-   - Implement API calls to interact with the `/api/disputes` endpoints.
+- **disputes.css**
+  - Style components for a cohesive UI experience.
 
 ### Testing
+- **disputes.test.js**
+  - Write unit tests for API endpoints to ensure correct functionality.
 
-1. **disputes.test.js**
-   - Write unit tests for API endpoints to ensure correct functionality and error handling.
+- **DisputeForm.test.js**
+  - Write tests for the DisputeForm component to validate user input and submission.
 
-2. **DisputeForm.test.js**
-   - Write unit tests for the DisputeForm component to validate form submissions and state management.
-
-## Timeline
-- **Week 1**: Set up API structure and implement models and controllers.
-- **Week 2**: Develop routes and integrate API with the client.
-- **Week 3**: Build UI components and connect them to the API.
-- **Week 4**: Write tests and perform end-to-end testing.
-
-## Notes
-- Ensure proper validation and error handling in both API and UI.
-- Consider user authentication for dispute management.
+## Milestones
+1. **API Setup** - Complete API routes and controller logic.
+2. **UI Components** - Develop and integrate UI components.
+3. **Testing** - Implement and run tests for both API and UI.
+4. **Deployment** - Deploy changes to staging for review.
 ```
