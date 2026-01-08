@@ -1,23 +1,41 @@
-      - name: Squash-merge when eligible (best effort)
-        if: steps.gate.outputs.result == 'true'
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -e
-          PR_NUMBER=${{ github.event.pull_request.number }}
+name: safe-automerge
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled]
 
-          # Try GitHub's Auto-merge (needs repo setting enabled)
-          gh pr merge "$PR_NUMBER" --squash --auto \
-          || {
-            # If auto-merge isn’t enabled, enable it via GraphQL
-            PR_ID=$(gh pr view "$PR_NUMBER" --json id -q .id)
-            gh api graphql -f query='
-              mutation($pr:ID!){
-                enablePullRequestAutoMerge(input:{ pullRequestId:$pr, mergeMethod:SQUASH }) { clientMutationId }
-              }' -f pr="$PR_ID" \
-          ;} \
-          || {
-            # As a fallback, try an immediate squash merge (will succeed only if all reqs are green)
-            gh pr merge "$PR_NUMBER" --squash --merge
-          }
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  publish-required-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish eligibility for required check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const hasLabel = pr.labels.some(l => l.name === 'automerge');
+
+            const files = await github.paginate(
+              github.rest.pulls.listFiles,
+              { owner: context.repo.owner, repo: context.repo.repo, pull_number: pr.number, per_page: 100 }
+            );
+
+            // Only allow exactly agents/<something>/plan.md
+            const allowed = files.every(f => /^agents\/[^/]+\/plan\.md$/.test(f.filename));
+
+            const ok = hasLabel && allowed;
+
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: pr.head.sha,
+              state: ok ? 'success' : 'failure',
+              context: 'safe-automerge',
+              description: ok
+                ? 'eligible (docs-only + automerge label)'
+                : 'Not eligible (risky paths or missing label)'
+            });
