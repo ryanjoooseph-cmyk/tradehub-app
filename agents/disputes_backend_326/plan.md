@@ -1,84 +1,103 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
-/disputes_backend_326
+/project-root
+│
 ├── /api
-│   ├── disputes.py
-│   ├── __init__.py
-│   └── utils.py
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesRoutes.js
+│   │   └── disputesService.js
+│   └── /middleware
+│       └── authMiddleware.js
+│
 ├── /models
-│   ├── dispute.py
-│   └── __init__.py
-├── /schemas
-│   ├── dispute_schema.py
-│   └── __init__.py
-├── /tests
-│   ├── test_disputes.py
-│   └── __init__.py
+│   └── disputeModel.js
+│
 ├── /ui
 │   ├── /components
 │   │   ├── DisputeList.jsx
 │   │   ├── DisputeForm.jsx
 │   │   └── DisputeDetail.jsx
 │   ├── /pages
-│   │   └── DisputesPage.jsx
-│   ├── /hooks
-│   │   └── useDisputes.js
-│   └── App.js
-└── requirements.txt
+│   │   └── DisputePage.jsx
+│   └── /hooks
+│       └── useDisputes.js
+│
+├── /tests
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /ui
+│       └── DisputePage.test.jsx
+│
+└── server.js
 ```
 
 ## API Implementation
 
-### 1. API Endpoints (`/api/disputes.py`)
-- **GET /api/disputes**: List all disputes
-  - Responsibility: Fetch and return all disputes with status and evidence URLs.
-  
-- **POST /api/disputes**: Create a new dispute
-  - Responsibility: Validate input, create a new dispute entry, and return the created dispute.
+### 1. **Model**
+- **File:** `/models/disputeModel.js`
+  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
 
-- **PUT /api/disputes/{id}**: Update an existing dispute
-  - Responsibility: Validate input, update the dispute status or evidence URLs, and return the updated dispute.
+### 2. **Service**
+- **File:** `/api/disputes/disputesService.js`
+  - Implement functions to:
+    - Create a new dispute
+    - Retrieve all disputes (GET)
+    - Update a dispute status (PUT)
+    - Fetch a specific dispute by ID
 
-### 2. Utility Functions (`/api/utils.py`)
-- **validate_dispute_data(data)**: Validate incoming dispute data.
-- **format_dispute_response(dispute)**: Format dispute data for API response.
+### 3. **Controller**
+- **File:** `/api/disputes/disputesController.js`
+  - Handle incoming requests and responses:
+    - `getAllDisputes(req, res)`
+    - `createDispute(req, res)`
+    - `updateDispute(req, res)`
 
-### 3. Models (`/models/dispute.py`)
-- **Dispute Model**: Define the Dispute class with attributes: id, status (OPEN/REVIEW/RESOLVED), and evidence_urls (array).
+### 4. **Routes**
+- **File:** `/api/disputes/disputesRoutes.js`
+  - Define routes:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update a dispute
 
-### 4. Schemas (`/schemas/dispute_schema.py`)
-- **DisputeSchema**: Define schema for validating dispute data using a library like Marshmallow.
+### 5. **Middleware**
+- **File:** `/api/middleware/authMiddleware.js`
+  - Implement authentication middleware to protect routes.
 
 ## UI Implementation
 
-### 1. Components
-- **DisputeList.jsx**: Display a list of disputes with status and action buttons (view/update).
-- **DisputeForm.jsx**: Form for creating/updating disputes, including fields for status and evidence URLs.
-- **DisputeDetail.jsx**: Detailed view of a single dispute with options to update status.
+### 1. **Components**
+- **File:** `/ui/components/DisputeList.jsx`
+  - Display a list of disputes with status and actions.
 
-### 2. Pages
-- **DisputesPage.jsx**: Main page to list all disputes and include the form for creating a new dispute.
+- **File:** `/ui/components/DisputeForm.jsx`
+  - Form for creating/updating disputes, including evidence URLs.
 
-### 3. Hooks
-- **useDisputes.js**: Custom hook to handle API calls for fetching, creating, and updating disputes.
+- **File:** `/ui/components/DisputeDetail.jsx`
+  - Show detailed view of a selected dispute.
 
-### 4. Main Application (`App.js`)
-- Integrate components and routes for disputes, ensuring proper state management and API interaction.
+### 2. **Pages**
+- **File:** `/ui/pages/DisputePage.jsx`
+  - Main page to manage disputes, integrating the above components.
+
+### 3. **Hooks**
+- **File:** `/ui/hooks/useDisputes.js`
+  - Custom hook to handle API calls for disputes (GET, POST, PUT).
 
 ## Testing
-### 1. Unit Tests (`/tests/test_disputes.py`)
-- Test API endpoints for GET, POST, and PUT methods.
-- Test utility functions and model validations.
 
-## Dependencies
-- Include necessary libraries in `requirements.txt` (Flask, Marshmallow, React, Axios, etc.).
+### 1. **API Tests**
+- **File:** `/tests/api/disputes.test.js`
+  - Write tests for all API endpoints.
 
-## Timeline
-- **Week 1**: API development (endpoints, models, schemas).
-- **Week 2**: UI development (components, pages, hooks).
-- **Week 3**: Testing and integration.
-- **Week 4**: Review and deployment.
+### 2. **UI Tests**
+- **File:** `/tests/ui/DisputePage.test.jsx`
+  - Write tests for the DisputePage component.
+
+## Deployment
+- Ensure API is deployed on the server and UI is built for production.
+- Update documentation with API endpoints and usage instructions.
 ```
