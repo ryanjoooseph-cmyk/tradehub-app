@@ -1,91 +1,94 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
 /disputes_backend_326
 ├── api
-│   ├── __init__.py
 │   ├── disputes.py
-│   └── utils.py
-├── models
 │   ├── __init__.py
-│   └── dispute.py
-├── routes
-│   ├── __init__.py
-│   └── disputes.py
-├── tests
-│   ├── __init__.py
-│   ├── test_disputes.py
-│   └── test_utils.py
 ├── ui
-│   ├── __init__.py
 │   ├── components
-│   │   ├── DisputeForm.js
-│   │   └── DisputeList.js
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   ├── DisputeItem.jsx
 │   ├── pages
-│   │   └── DisputePage.js
-│   └── App.js
-└── requirements.txt
+│   │   ├── DisputesPage.jsx
+│   ├── App.jsx
+│   ├── index.js
+├── models
+│   ├── dispute.py
+│   ├── __init__.py
+├── tests
+│   ├── test_disputes.py
+│   ├── test_ui_disputes.jsx
+├── requirements.txt
+└── README.md
 ```
 
-## Responsibilities
+## API Implementation
+- **File: `api/disputes.py`**
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Implement logic to handle:
+    - Evidence URLs (array)
+    - Status management (OPEN/REVIEW/RESOLVED)
+  
+- **File: `api/__init__.py`**
+  - Initialize Flask app and register routes from `disputes.py`.
 
-### API Implementation
-- **`/api/disputes/disputes.py`**
-  - Implement CRUD operations for disputes.
-  - Define endpoints:
-    - `GET /api/disputes` - List all disputes.
-    - `POST /api/disputes` - Create a new dispute.
-    - `PUT /api/disputes/{id}` - Update an existing dispute.
-  - Handle status updates (OPEN/REVIEW/RESOLVED).
-  - Validate `evidence_urls` array.
+## UI Implementation
+- **File: `ui/components/DisputeList.jsx`**
+  - Fetch and display a list of disputes.
+  - Provide options to view, update, or delete disputes.
 
-- **`/api/utils.py`**
-  - Utility functions for validation and error handling.
+- **File: `ui/components/DisputeForm.jsx`**
+  - Form to create or update a dispute.
+  - Include fields for evidence URLs and status selection.
 
-### Model Definition
-- **`/models/dispute.py`**
-  - Define the Dispute model with fields:
+- **File: `ui/components/DisputeItem.jsx`**
+  - Component to display individual dispute details.
+  - Include buttons for updating status and editing.
+
+- **File: `ui/pages/DisputesPage.jsx`**
+  - Main page to render `DisputeList` and `DisputeForm`.
+  - Handle state management for disputes.
+
+- **File: `ui/App.jsx`**
+  - Main application component.
+  - Set up routing to `DisputesPage`.
+
+- **File: `ui/index.js`**
+  - Entry point for React application.
+  - Render `App` component.
+
+## Models Implementation
+- **File: `models/dispute.py`**
+  - Define Dispute model with fields:
     - `id`
-    - `status` (OPEN/REVIEW/RESOLVED)
     - `evidence_urls` (array)
-    - `created_at`
-    - `updated_at`
+    - `status` (enum: OPEN, REVIEW, RESOLVED)
 
-### Route Configuration
-- **`/routes/disputes.py`**
-  - Set up Flask routes to connect API endpoints to the implemented functions in `disputes.py`.
+- **File: `models/__init__.py`**
+  - Initialize database connection and models.
 
-### UI Implementation
-- **`/ui/App.js`**
-  - Main application component to render the DisputePage.
+## Testing Implementation
+- **File: `tests/test_disputes.py`**
+  - Unit tests for API endpoints.
+  - Test cases for creating, listing, and updating disputes.
 
-- **`/ui/pages/DisputePage.js`**
-  - Create a page to display the list of disputes and a form to add/update disputes.
+- **File: `tests/test_ui_disputes.jsx`**
+  - Unit tests for UI components.
+  - Test rendering and interaction of `DisputeList` and `DisputeForm`.
 
-- **`/ui/components/DisputeForm.js`**
-  - Form component for creating/updating disputes.
-  - Include fields for status and evidence URLs.
+## Dependencies
+- **File: `requirements.txt`**
+  - List required packages (Flask, Flask-RESTful, React, etc.).
 
-- **`/ui/components/DisputeList.js`**
-  - List component to display all disputes with their statuses.
-
-### Testing
-- **`/tests/test_disputes.py`**
-  - Write unit tests for API endpoints.
-  - Test all CRUD operations and status updates.
-
-- **`/tests/test_utils.py`**
-  - Write tests for utility functions in `utils.py`.
-
-### Dependencies
-- **`/requirements.txt`**
-  - List necessary dependencies (Flask, Flask-RESTful, etc.).
-
-## Timeline
-- **Week 1**: API implementation and model definition.
-- **Week 2**: Route configuration and UI component development.
-- **Week 3**: Testing and debugging.
-- **Week 4**: Final review and deployment preparation.
+## Documentation
+- **File: `README.md`**
+  - Overview of the feature.
+  - Instructions for setup and usage.
 ```
