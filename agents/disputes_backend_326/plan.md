@@ -1,94 +1,140 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
-/disputes_backend_326
-├── api
-│   ├── disputes.py
-│   └── __init__.py
-├── models
-│   ├── dispute.py
-│   └── __init__.py
-├── services
-│   ├── dispute_service.py
-│   └── __init__.py
-├── tests
-│   ├── test_disputes.py
-│   └── __init__.py
-├── ui
-│   ├── disputes_page.html
-│   ├── disputes.js
-│   └── styles.css
-└── app.py
+/project-root
+│
+├── /api
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesRoutes.js
+│   │   └── disputesService.js
+│   └── index.js
+│
+├── /models
+│   └── disputeModel.js
+│
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   ├── /pages
+│   │   └── DisputesPage.jsx
+│   └── App.jsx
+│
+├── /tests
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /ui
+│       └── DisputesPage.test.jsx
+│
+├── /config
+│   └── db.js
+│
+└── server.js
 ```
 
 ## API Implementation
 
-### 1. `api/disputes.py`
+### 1. **Model Definition**
+- **File:** `/models/disputeModel.js`
 - **Responsibilities:**
-  - Define API routes for `/api/disputes`.
-  - Implement methods for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Validate input data and handle errors.
+  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
+  - Implement Mongoose model for MongoDB.
 
-### 2. `models/dispute.py`
+### 2. **Service Layer**
+- **File:** `/api/disputes/disputesService.js`
 - **Responsibilities:**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement methods for saving and retrieving disputes from the database.
+  - Implement functions to create, list, and update disputes.
+  - Handle business logic for status updates (OPEN, REVIEW, RESOLVED).
 
-### 3. `services/dispute_service.py`
+### 3. **Controller Layer**
+- **File:** `/api/disputes/disputesController.js`
 - **Responsibilities:**
-  - Business logic for handling disputes.
-  - Methods for:
-    - Creating a dispute.
-    - Listing disputes.
-    - Updating dispute status.
-  - Interact with the Dispute model.
+  - Define API endpoints for:
+    - `GET /api/disputes` - List all disputes.
+    - `POST /api/disputes` - Create a new dispute.
+    - `PUT /api/disputes/:id` - Update an existing dispute.
+  - Validate incoming data and handle responses.
 
-### 4. `tests/test_disputes.py`
+### 4. **Routing**
+- **File:** `/api/disputes/disputesRoutes.js`
 - **Responsibilities:**
-  - Unit tests for API endpoints.
-  - Test cases for:
-    - Successful dispute creation.
-    - Listing disputes.
-    - Updating dispute status.
-  - Use a testing framework (e.g., pytest).
+  - Set up Express routes for disputes API.
+  - Link routes to respective controller functions.
+
+### 5. **API Entry Point**
+- **File:** `/api/index.js`
+- **Responsibilities:**
+  - Import and use disputes routes in the main API entry point.
 
 ## UI Implementation
 
-### 5. `ui/disputes_page.html`
+### 6. **Dispute List Component**
+- **File:** `/ui/components/DisputeList.jsx`
 - **Responsibilities:**
-  - Create the HTML structure for displaying disputes.
-  - Include forms for creating and updating disputes.
-  - Display a list of disputes with their statuses.
+  - Display a list of disputes fetched from the API.
+  - Provide links to view/update individual disputes.
 
-### 6. `ui/disputes.js`
+### 7. **Dispute Form Component**
+- **File:** `/ui/components/DisputeForm.jsx`
 - **Responsibilities:**
-  - Implement JavaScript functions to:
-    - Fetch disputes from the API.
-    - Handle form submissions for creating/updating disputes.
-    - Update the UI dynamically based on API responses.
+  - Create a form for submitting new disputes or updating existing ones.
+  - Handle file uploads for evidence URLs.
 
-### 7. `ui/styles.css`
+### 8. **Dispute Detail Component**
+- **File:** `/ui/components/DisputeDetail.jsx`
 - **Responsibilities:**
-  - Style the disputes page.
-  - Ensure responsive design and user-friendly layout.
+  - Display detailed information about a selected dispute.
+  - Allow status updates and evidence URL management.
 
-## 8. `app.py`
+### 9. **Custom Hook for API Calls**
+- **File:** `/ui/hooks/useDisputes.js`
 - **Responsibilities:**
-  - Set up the web server and routing.
-  - Integrate API and UI components.
-  - Handle CORS and other middleware as needed.
+  - Implement a custom hook to manage API calls for disputes.
+  - Handle loading states and errors.
 
-## Milestones
-1. **API Development**: Complete by [Date].
-2. **UI Development**: Complete by [Date].
-3. **Testing**: Complete by [Date].
-4. **Deployment**: Complete by [Date].
+### 10. **Main Page for Disputes**
+- **File:** `/ui/pages/DisputesPage.jsx`
+- **Responsibilities:**
+  - Combine `DisputeList` and `DisputeForm` components.
+  - Manage state for displaying the list and form.
+
+### 11. **App Entry Point**
+- **File:** `/ui/App.jsx`
+- **Responsibilities:**
+  - Set up routing for the application.
+  - Render the `DisputesPage`.
+
+## Testing
+
+### 12. **API Tests**
+- **File:** `/tests/api/disputes.test.js`
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Test CRUD operations and status updates.
+
+### 13. **UI Tests**
+- **File:** `/tests/ui/DisputesPage.test.jsx`
+- **Responsibilities:**
+  - Write tests for UI components.
+  - Ensure components render correctly and handle user interactions.
+
+## Configuration
+
+### 14. **Database Configuration**
+- **File:** `/config/db.js`
+- **Responsibilities:**
+  - Set up MongoDB connection.
+  - Handle connection errors and exports.
+
+## Server Entry Point
+- **File:** `/server.js`
+- **Responsibilities:**
+  - Initialize Express server.
+  - Connect to the database and start listening on a specified port.
 ```
