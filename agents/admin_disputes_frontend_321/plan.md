@@ -1,84 +1,102 @@
-```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Overview
-This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update the dispute status.
-
-## File Structure
-
-### Frontend
-
-#### 1. Components
-- **File:** `src/components/AdminDisputesTable.js`
-  - **Responsibilities:** 
-    - Render the admin disputes table.
-    - Implement filtering functionality.
-    - Display dispute details and status.
-
-- **File:** `src/components/DisputeStatusDropdown.js`
-  - **Responsibilities:**
-    - Provide a dropdown for updating dispute status.
-    - Trigger API calls on status change.
-
-#### 2. Pages
-- **File:** `src/pages/AdminDisputesPage.js`
-  - **Responsibilities:**
-    - Main page for displaying disputes.
-    - Integrate `AdminDisputesTable` component.
-    - Handle routing for `/admin/disputes/321`.
-
-#### 3. Styles
-- **File:** `src/styles/AdminDisputes.css`
-  - **Responsibilities:**
-    - Define styles for the admin disputes table and components.
-
-### API
-
-#### 1. Routes
-- **File:** `src/api/routes/disputes.js`
-  - **Responsibilities:**
-    - Define API endpoints for fetching and updating disputes.
-    - Handle GET and POST requests for `/api/disputes`.
-
-#### 2. Controllers
-- **File:** `src/api/controllers/disputeController.js`
-  - **Responsibilities:**
-    - Implement logic for fetching disputes from the database.
-    - Implement logic for updating dispute status.
-
-#### 3. Models
-- **File:** `src/api/models/Dispute.js`
-  - **Responsibilities:**
-    - Define the Dispute model schema.
-    - Include necessary fields (e.g., id, status, details).
-
-### State Management
-- **File:** `src/store/disputeSlice.js`
-  - **Responsibilities:**
-    - Manage state for disputes using Redux.
-    - Handle actions for fetching and updating disputes.
-
-### Tests
-- **File:** `src/tests/AdminDisputesTable.test.js`
-  - **Responsibilities:**
-    - Write unit tests for the `AdminDisputesTable` component.
-
-- **File:** `src/tests/disputeController.test.js`
-  - **Responsibilities:**
-    - Write tests for the dispute controller functions.
-
-## Development Workflow
-1. **Setup**: Initialize the project and install necessary dependencies.
-2. **Frontend Development**: Build components and pages as per the file structure.
-3. **API Development**: Create routes, controllers, and models.
-4. **State Management**: Implement Redux for managing dispute state.
-5. **Testing**: Write and run tests for both frontend and backend.
-6. **Deployment**: Prepare for deployment and ensure all features are functional.
-
-## Timeline
-- **Week 1**: Complete frontend components and pages.
-- **Week 2**: Develop API routes and controllers.
-- **Week 3**: Implement state management and testing.
-- **Week 4**: Final testing and deployment preparations.
+## Directory Structure
 
 ```
+/src
+  ├── components
+  │   ├── AdminDisputesTable.jsx
+  │   ├── FilterBar.jsx
+  │   └── StatusUpdateModal.jsx
+  ├── pages
+  │   └── AdminDisputesPage.jsx
+  ├── services
+  │   └── disputesService.js
+  ├── styles
+  │   └── AdminDisputes.css
+  ├── utils
+  │   └── api.js
+  └── App.js
+```
+
+## File Responsibilities
+
+### 1. **AdminDisputesTable.jsx**
+   - **Location:** `/src/components/AdminDisputesTable.jsx`
+   - **Responsibilities:**
+     - Render the admin disputes table.
+     - Display dispute data with pagination.
+     - Integrate filtering options from `FilterBar`.
+     - Handle status update actions via `StatusUpdateModal`.
+
+### 2. **FilterBar.jsx**
+   - **Location:** `/src/components/FilterBar.jsx`
+   - **Responsibilities:**
+     - Provide UI for filtering disputes (e.g., by status, date).
+     - Emit filter changes to `AdminDisputesTable`.
+
+### 3. **StatusUpdateModal.jsx**
+   - **Location:** `/src/components/StatusUpdateModal.jsx`
+   - **Responsibilities:**
+     - Display modal for updating dispute status.
+     - Handle form submission and call `disputesService.updateStatus`.
+
+### 4. **AdminDisputesPage.jsx**
+   - **Location:** `/src/pages/AdminDisputesPage.jsx`
+   - **Responsibilities:**
+     - Set up the main layout for the admin disputes page.
+     - Integrate `AdminDisputesTable` and `FilterBar`.
+     - Manage state for disputes data and filters.
+
+### 5. **disputesService.js**
+   - **Location:** `/src/services/disputesService.js`
+   - **Responsibilities:**
+     - Define API calls to `/api/disputes`.
+     - Implement functions for fetching disputes and updating status.
+
+### 6. **AdminDisputes.css**
+   - **Location:** `/src/styles/AdminDisputes.css`
+   - **Responsibilities:**
+     - Style the admin disputes page and components.
+     - Ensure responsive design for the table and filters.
+
+### 7. **api.js**
+   - **Location:** `/src/utils/api.js`
+   - **Responsibilities:**
+     - Set up Axios or Fetch for API calls.
+     - Handle error responses and loading states.
+
+### 8. **App.js**
+   - **Location:** `/src/App.js`
+   - **Responsibilities:**
+     - Define routing for `/admin/disputes/321`.
+     - Render `AdminDisputesPage` for the specified route.
+
+## Development Steps
+
+1. **Set up Routing**
+   - Implement routing in `App.js` for `/admin/disputes/321`.
+
+2. **Create Components**
+   - Build `AdminDisputesTable`, `FilterBar`, and `StatusUpdateModal`.
+
+3. **Implement API Service**
+   - Develop `disputesService.js` for API interactions.
+
+4. **Integrate Components**
+   - Connect `FilterBar` and `AdminDisputesTable` in `AdminDisputesPage`.
+
+5. **Style Components**
+   - Apply styles in `AdminDisputes.css`.
+
+6. **Testing**
+   - Write unit tests for components and service functions.
+
+7. **Deployment**
+   - Prepare for deployment and ensure API endpoints are accessible.
+
+## Timeline
+- **Week 1:** Setup routing and component structure.
+- **Week 2:** Develop components and API service.
+- **Week 3:** Integration and styling.
+- **Week 4:** Testing and deployment preparation.
