@@ -1,41 +1,61 @@
 name: safe-automerge
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened, labeled]
-
+    types: [opened, synchronize, reopened, labeled, unlabeled, ready_for_review]
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: write
   statuses: write
 
 jobs:
-  publish-required-status:
+  guard:
     runs-on: ubuntu-latest
     steps:
-      - name: Publish eligibility for required check
+      - name: Has 'automerge' label?
+        id: label
+        uses: actions-ecosystem/action-has-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: automerge
+
+      - name: Diff files and detect risky paths
+        id: diff
         uses: actions/github-script@v7
         with:
           script: |
-            const pr = context.payload.pull_request;
-            const hasLabel = pr.labels.some(l => l.name === 'automerge');
+            const {owner, repo} = context.repo;
+            const pr = context.payload.pull_request.number;
+            const {data: files} = await github.pulls.listFiles({owner, repo, pull_number: pr, per_page: 300});
+            // anything under app/src/server/lib/components/config, lockfiles, workflows = risky
+            const riskyPatterns = [
+              '^app/', '^src/', '^server/', '^api/', '^lib/', '^components/',
+              '^pages/', '^next\\.config', '^package(-lock)?\\.json$', '^pnpm-lock\\.yaml$', '^yarn\\.lock$',
+              '^\\.github/workflows/'
+            ];
+            const risky = files.some(f => riskyPatterns.some(p => new RegExp(p).test(f.filename)));
+            core.setOutput('risky', risky ? 'true' : 'false');
 
-            const files = await github.paginate(
-              github.rest.pulls.listFiles,
-              { owner: context.repo.owner, repo: context.repo.repo, pull_number: pr.number, per_page: 100 }
-            );
-
-            // Only allow exactly agents/<something>/plan.md
-            const allowed = files.every(f => /^agents\/[^/]+\/plan\.md$/.test(f.filename));
-
-            const ok = hasLabel && allowed;
-
-            await github.rest.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: pr.head.sha,
-              state: ok ? 'success' : 'failure',
+      - name: Publish required status (safe-automerge)
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {owner, repo} = context.repo;
+            const sha = context.payload.pull_request.head.sha;
+            const hasLabel = '${{ steps.label.outputs.hasLabels }}' === 'true';
+            const risky = '${{ steps.diff.outputs.risky }}' === 'true';
+            const eligible = hasLabel && !risky;
+            await github.repos.createCommitStatus({
+              owner, repo, sha,
+              state: eligible ? 'success' : 'failure',
               context: 'safe-automerge',
-              description: ok
-                ? 'eligible (docs-only + automerge label)'
-                : 'Not eligible (risky paths or missing label)'
+              description: eligible ? 'Eligible (docs/agents-only + automerge label)' :
+                                      'Not eligible (risky paths or missing label)'
             });
+            core.setOutput('eligible', eligible ? 'true' : 'false');
+
+      - name: Enable native auto-merge (squash)
+        if: steps.label.outputs.hasLabels == 'true' && steps.diff.outputs.risky == 'false'
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          merge-method: squash
