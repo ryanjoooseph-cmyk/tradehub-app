@@ -1,105 +1,91 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will allow users to open, list, and update disputes, manage evidence URLs, and handle dispute statuses (OPEN, REVIEW, RESOLVED).
+## Directory Structure
+```
+/disputes_backend_326
+│
+├── /api
+│   ├── disputes.py               # API routes for disputes
+│   ├── __init__.py               # Initialize API module
+│   └── utils.py                  # Utility functions for API
+│
+├── /models
+│   ├── dispute.py                # Dispute model definition
+│   └── __init__.py               # Initialize models module
+│
+├── /schemas
+│   ├── dispute_schema.py         # Pydantic schemas for validation
+│   └── __init__.py               # Initialize schemas module
+│
+├── /services
+│   ├── dispute_service.py        # Business logic for disputes
+│   └── __init__.py               # Initialize services module
+│
+├── /tests
+│   ├── test_disputes.py          # Unit tests for disputes API
+│   └── __init__.py               # Initialize tests module
+│
+├── /migrations                    # Database migrations
+│   └── README.md                  # Migration instructions
+│
+└── app.py                        # Main application entry point
+```
 
-## File Structure
+## Responsibilities
 
-### API Implementation
+### API Layer
+- **`/api/disputes.py`**: 
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/{id}`: Update an existing dispute
+  - Handle request validation and response formatting.
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**: 
-      - Define API endpoints for listing, opening, and updating disputes.
-      - Handle request validation and response formatting.
-      - Implement CRUD operations for disputes.
+### Model Layer
+- **`/models/dispute.py`**: 
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement database interactions (CRUD operations).
 
-- **File Paths**
-  - `src/models/Dispute.js`
-    - **Responsibilities**: 
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement database interactions (e.g., MongoDB or SQL).
+### Schema Layer
+- **`/schemas/dispute_schema.py`**: 
+  - Create Pydantic schemas for:
+    - Dispute creation and update validation.
+    - Response formatting for dispute listing.
 
-- **File Paths**
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**: 
-      - Implement business logic for handling disputes.
-      - Create functions for listing, creating, and updating disputes.
-
-- **File Paths**
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**: 
-      - Set up Express routes for API endpoints.
-      - Connect routes to the appropriate controller functions.
-
-- **File Paths**
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities**: 
-      - Validate incoming requests for creating and updating disputes.
-      - Ensure evidence_urls is an array and status is one of the allowed values.
-
-### UI Implementation
-
-- **File Paths**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities**: 
-      - Display a list of disputes with their statuses and evidence URLs.
-      - Implement pagination and filtering options.
-
-- **File Paths**
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities**: 
-      - Provide a form for users to open a new dispute or update an existing one.
-      - Include fields for evidence URLs and status selection.
-
-- **File Paths**
-  - `src/hooks/useDisputes.js`
-    - **Responsibilities**: 
-      - Implement custom hooks for fetching, creating, and updating disputes.
-      - Handle API calls and manage local state.
-
-- **File Paths**
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities**: 
-      - Main page component to render the DisputeList and DisputeForm.
-      - Manage state for selected dispute and form visibility.
+### Service Layer
+- **`/services/dispute_service.py`**: 
+  - Implement business logic for:
+    - Creating a dispute.
+    - Listing disputes.
+    - Updating dispute status.
+  - Handle any necessary data transformations.
 
 ### Testing
+- **`/tests/test_disputes.py`**: 
+  - Write unit tests for:
+    - API endpoints.
+    - Service layer functions.
+    - Model validations.
 
-- **File Paths**
-  - `src/tests/api/disputes.test.js`
-    - **Responsibilities**: 
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
+### Main Application
+- **`app.py`**: 
+  - Set up the FastAPI application.
+  - Include API routes and middleware.
+  - Configure database connection.
 
-- **File Paths**
-  - `src/tests/components/DisputeForm.test.jsx`
-    - **Responsibilities**: 
-      - Write tests for the DisputeForm component.
-      - Ensure form validation and submission work as expected.
+## Milestones
+1. **API Development**: Complete by [Date].
+2. **Model and Schema Implementation**: Complete by [Date].
+3. **Service Logic**: Complete by [Date].
+4. **Testing**: Complete by [Date].
+5. **Deployment**: Complete by [Date].
 
-- **File Paths**
-  - `src/tests/hooks/useDisputes.test.js`
-    - **Responsibilities**: 
-      - Write tests for the useDisputes hook.
-      - Validate API interaction and state management.
-
-## Deployment
-
-- **File Paths**
-  - `docker-compose.yml`
-    - **Responsibilities**: 
-      - Define services for the API and database.
-      - Set up environment variables for deployment.
-
-- **File Paths**
-  - `README.md`
-    - **Responsibilities**: 
-      - Document setup instructions, API usage, and deployment steps.
-
-## Timeline
-- **Week 1**: API development (models, controllers, routes).
-- **Week 2**: UI development (components, hooks, pages).
-- **Week 3**: Testing and deployment preparation.
+## Notes
+- Ensure proper error handling and logging throughout the implementation.
+- Follow RESTful conventions for API design.
+- Use environment variables for sensitive configurations.
 ```
