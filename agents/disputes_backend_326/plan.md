@@ -5,89 +5,78 @@
 ```
 /disputes_backend_326
 ├── api
-│   ├── disputes.py
-│   └── __init__.py
+│   ├── disputes.js
+│   └── index.js
 ├── models
-│   ├── dispute.py
-│   └── __init__.py
-├── schemas
-│   ├── dispute_schema.py
-│   └── __init__.py
-├── services
-│   ├── dispute_service.py
-│   └── __init__.py
+│   └── disputeModel.js
+├── controllers
+│   └── disputeController.js
+├── routes
+│   └── disputeRoutes.js
+├── middleware
+│   └── authMiddleware.js
 ├── tests
-│   ├── test_disputes.py
-│   └── __init__.py
-├── app.py
-└── requirements.txt
+│   ├── disputeController.test.js
+│   └── disputeRoutes.test.js
+└── app.js
 ```
 
-## Responsibilities
+## File Responsibilities
 
 ### 1. API Layer
-- **File:** `/api/disputes.py`
-  - Define routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Implement request validation and response formatting.
+- **`/api/disputes.js`**
+  - Define API endpoints for disputes.
+  - Implement CRUD operations: 
+    - `GET /api/disputes` - List all disputes.
+    - `POST /api/disputes` - Create a new dispute.
+    - `PUT /api/disputes/:id` - Update an existing dispute.
+  
+- **`/api/index.js`**
+  - Centralize API route exports.
+  - Import and use dispute routes.
 
-### 2. Models
-- **File:** `/models/dispute.py`
-  - Create `Dispute` model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of strings.
-    - `status`: Enum with values OPEN, REVIEW, RESOLVED.
-  - Implement methods for CRUD operations.
+### 2. Model Layer
+- **`/models/disputeModel.js`**
+  - Define the Dispute schema.
+  - Include fields: `evidence_urls` (array), `status` (enum: OPEN/REVIEW/RESOLVED), and other necessary fields.
 
-### 3. Schemas
-- **File:** `/schemas/dispute_schema.py`
-  - Define Pydantic schemas for:
-    - Creating a dispute.
-    - Updating a dispute.
-    - Listing disputes.
-  - Ensure validation for `evidence_urls` and `status`.
-
-### 4. Services
-- **File:** `/services/dispute_service.py`
+### 3. Controller Layer
+- **`/controllers/disputeController.js`**
   - Implement business logic for:
-    - Fetching all disputes.
+    - Listing disputes.
     - Creating a new dispute.
-    - Updating an existing dispute.
-  - Handle status transitions and evidence URL management.
+    - Updating dispute status.
+  - Validate input data and handle errors.
 
-### 5. Tests
-- **File:** `/tests/test_disputes.py`
-  - Write unit tests for:
-    - API endpoints (GET, POST, PUT).
-    - Model methods.
-    - Service functions.
-  - Ensure coverage for all status transitions and validation rules.
+### 4. Route Layer
+- **`/routes/disputeRoutes.js`**
+  - Define routes for disputes.
+  - Connect routes to respective controller methods.
+  - Apply authentication middleware for secure routes.
 
-### 6. Main Application
-- **File:** `/app.py`
-  - Set up the FastAPI application.
-  - Include API routes from `api/disputes.py`.
-  - Configure middleware and CORS if necessary.
+### 5. Middleware
+- **`/middleware/authMiddleware.js`**
+  - Implement authentication checks for API requests.
+  - Ensure only authorized users can create/update disputes.
 
-### 7. Dependencies
-- **File:** `/requirements.txt`
-  - List required packages:
-    - `fastapi`
-    - `uvicorn`
-    - `pydantic`
-    - `sqlalchemy` (if using a database)
-    - `pytest` (for testing)
+### 6. Testing
+- **`/tests/disputeController.test.js`**
+  - Write unit tests for dispute controller methods.
+  - Test for successful and failure scenarios.
 
-## Timeline
-- **Week 1:** API and Model implementation.
-- **Week 2:** Schema and Service development.
-- **Week 3:** Testing and Documentation.
-- **Week 4:** Review and Deployment.
+- **`/tests/disputeRoutes.test.js`**
+  - Write integration tests for dispute routes.
+  - Validate API responses and status codes.
 
-## Notes
-- Ensure proper error handling and logging throughout the implementation.
-- Consider using a database for persistent storage of disputes.
-- Follow RESTful conventions for API design.
+### 7. Application Entry Point
+- **`/app.js`**
+  - Set up Express server.
+  - Import and use API routes.
+  - Configure middleware (body-parser, CORS, etc.).
+
+## Additional Notes
+- Ensure proper error handling and response formatting across all API endpoints.
+- Document API endpoints using Swagger or similar tools.
+- Set up environment variables for configuration (e.g., database connection).
+- Consider implementing pagination for listing disputes if the dataset is large.
 ```
