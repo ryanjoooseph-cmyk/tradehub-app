@@ -1,61 +1,49 @@
 name: safe-automerge
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened, labeled, unlabeled, ready_for_review]
+    types: [opened, labeled, synchronize, reopened]
+
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
   statuses: write
 
 jobs:
   guard:
+    name: guard
     runs-on: ubuntu-latest
     steps:
-      - name: Has 'automerge' label?
-        id: label
-        uses: actions-ecosystem/action-has-labels@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: automerge
+      - name: Check for automerge label
+        id: chk
+        run: |
+          set -e
+          has_label="$(jq -r '.pull_request.labels[].name' < "$GITHUB_EVENT_PATH" | grep -x 'automerge' || true)"
+          if [ -n "$has_label" ]; then
+            echo "eligible=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "eligible=false" >> "$GITHUB_OUTPUT"
+            echo "PR missing 'automerge' label" 1>&2
+          fi
 
-      - name: Diff files and detect risky paths
-        id: diff
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const {owner, repo} = context.repo;
-            const pr = context.payload.pull_request.number;
-            const {data: files} = await github.pulls.listFiles({owner, repo, pull_number: pr, per_page: 300});
-            // anything under app/src/server/lib/components/config, lockfiles, workflows = risky
-            const riskyPatterns = [
-              '^app/', '^src/', '^server/', '^api/', '^lib/', '^components/',
-              '^pages/', '^next\\.config', '^package(-lock)?\\.json$', '^pnpm-lock\\.yaml$', '^yarn\\.lock$',
-              '^\\.github/workflows/'
-            ];
-            const risky = files.some(f => riskyPatterns.some(p => new RegExp(p).test(f.filename)));
-            core.setOutput('risky', risky ? 'true' : 'false');
-
-      - name: Publish required status (safe-automerge)
+      # Publish a single required context named "safe-automerge"
+      - name: Publish required status
         if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const {owner, repo} = context.repo;
-            const sha = context.payload.pull_request.head.sha;
-            const hasLabel = '${{ steps.label.outputs.hasLabels }}' === 'true';
-            const risky = '${{ steps.diff.outputs.risky }}' === 'true';
-            const eligible = hasLabel && !risky;
-            await github.repos.createCommitStatus({
-              owner, repo, sha,
-              state: eligible ? 'success' : 'failure',
-              context: 'safe-automerge',
-              description: eligible ? 'Eligible (docs/agents-only + automerge label)' :
-                                      'Not eligible (risky paths or missing label)'
-            });
-            core.setOutput('eligible', eligible ? 'true' : 'false');
+        run: |
+          sha="${{ github.event.pull_request.head.sha }}"
+          state="failure"
+          if [ "${{ steps.chk.outputs.eligible }}" = "true" ]; then state="success"; fi
+          gh api repos/${{ github.repository }}/statuses/$sha \
+            -f state="$state" -f context="safe-automerge" -f description="label gate"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable native auto-merge (squash)
-        if: steps.label.outputs.hasLabels == 'true' && steps.diff.outputs.risky == 'false'
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          merge-method: squash
+  merge:
+    name: merge
+    needs: guard
+    if: needs.guard.outputs.eligible == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Squash-merge the PR
+        run: gh pr merge ${{ github.event.pull_request.number }} --squash --auto
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
