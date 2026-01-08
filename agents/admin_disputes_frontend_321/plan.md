@@ -2,92 +2,94 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses, with API calls to `/api/disputes`.
 
 ## File Structure
 
-```
-/src
-  ├── api
-  │   ├── disputes.js
-  ├── components
-  │   ├── AdminDisputesTable.js
-  │   ├── DisputeFilter.js
-  │   ├── StatusUpdateButton.js
-  ├── pages
-  │   ├── AdminDisputesPage.js
-  ├── styles
-  │   ├── AdminDisputes.css
-  ├── utils
-  │   ├── apiClient.js
-  └── index.js
-```
+### Frontend
 
-## Responsibilities
+- **File Paths**
+  - `src/components/AdminDisputesTable.js`
+    - **Responsibility**: Create the admin disputes table component with filters and actions.
+  - `src/components/DisputeRow.js`
+    - **Responsibility**: Create a row component for individual disputes, including status update actions.
+  - `src/hooks/useDisputes.js`
+    - **Responsibility**: Custom hook to fetch disputes data and handle updates.
+  - `src/pages/AdminDisputesPage.js`
+    - **Responsibility**: Main page component that renders the `AdminDisputesTable`.
+  - `src/services/api.js`
+    - **Responsibility**: API service to handle calls to `/api/disputes`.
+  - `src/styles/AdminDisputes.css`
+    - **Responsibility**: Styles for the admin disputes page and table.
 
-### API Layer
+### API
 
-- **File: `/src/api/disputes.js`**
-  - Implement API functions to interact with `/api/disputes`.
-  - Functions to fetch disputes, update dispute status, and apply filters.
+- **File Paths**
+  - `src/routes/api/disputes.js`
+    - **Responsibility**: Define API endpoints for fetching and updating disputes.
+  - `src/controllers/disputeController.js`
+    - **Responsibility**: Logic for handling disputes data retrieval and status updates.
+  - `src/models/Dispute.js`
+    - **Responsibility**: Mongoose model for the Dispute schema.
+  - `src/middleware/authMiddleware.js`
+    - **Responsibility**: Middleware for authenticating admin requests.
 
-### UI Components
+## Implementation Steps
 
-- **File: `/src/components/AdminDisputesTable.js`**
-  - Create a table to display disputes.
-  - Integrate sorting and pagination.
-  - Handle state management for dispute data.
+### Frontend Development
 
-- **File: `/src/components/DisputeFilter.js`**
-  - Build a filter component for filtering disputes by status, date, etc.
-  - Handle filter state and pass it to the table component.
+1. **Create AdminDisputesTable Component**
+   - Implement filters for dispute status and search.
+   - Render a list of `DisputeRow` components.
 
-- **File: `/src/components/StatusUpdateButton.js`**
-  - Create a button to update the status of a selected dispute.
-  - Trigger API call to update status on click.
+2. **Create DisputeRow Component**
+   - Display dispute details and current status.
+   - Add buttons for updating dispute status (e.g., "Resolve", "Reject").
 
-### Page Structure
+3. **Implement useDisputes Hook**
+   - Fetch disputes from `/api/disputes`.
+   - Handle state management for disputes and loading/error states.
 
-- **File: `/src/pages/AdminDisputesPage.js`**
-  - Assemble the AdminDisputesTable and DisputeFilter components.
-  - Manage overall state for disputes and filters.
-  - Handle loading states and error messages.
+4. **Build AdminDisputesPage Component**
+   - Integrate `AdminDisputesTable` and manage overall layout.
 
-### Styling
+5. **Style Components**
+   - Apply styles in `AdminDisputes.css` for a clean UI.
 
-- **File: `/src/styles/AdminDisputes.css`**
-  - Define styles for the admin disputes page, table, filters, and buttons.
+### API Development
 
-### Utility Functions
+1. **Define API Endpoints in disputes.js**
+   - GET `/api/disputes` - Fetch all disputes.
+   - PATCH `/api/disputes/:id` - Update dispute status.
 
-- **File: `/src/utils/apiClient.js`**
-  - Create a utility for making API calls (GET, POST, PUT).
-  - Handle error responses and manage API request configurations.
+2. **Implement Logic in disputeController.js**
+   - Fetch disputes from the database.
+   - Handle status updates and return appropriate responses.
 
-### Entry Point
+3. **Create Dispute Model**
+   - Define schema for disputes, including fields for status, details, and timestamps.
 
-- **File: `/src/index.js`**
-  - Set up routing to include the new `/admin/disputes/321` route.
-  - Render the AdminDisputesPage component.
-
-## Development Steps
-
-1. **Set up API functions** in `/src/api/disputes.js`.
-2. **Create UI components**: AdminDisputesTable, DisputeFilter, StatusUpdateButton.
-3. **Build the AdminDisputesPage** to integrate components.
-4. **Implement styling** in AdminDisputes.css.
-5. **Test API calls** and UI interactions.
-6. **Deploy and monitor** for any issues post-launch.
+4. **Set Up Authentication Middleware**
+   - Ensure only authenticated admins can access the disputes API.
 
 ## Testing
 
-- Unit tests for API functions in `/src/api/disputes.test.js`.
-- Component tests for AdminDisputesTable and DisputeFilter.
-- Integration tests for AdminDisputesPage.
+- **Frontend Testing**
+  - Write unit tests for components and hooks.
+  - Test API integration using mock data.
 
-## Documentation
+- **API Testing**
+  - Write integration tests for API endpoints.
+  - Validate response formats and error handling.
 
-- Update README with usage instructions for the new feature.
-- Document API endpoints and expected responses.
+## Deployment
 
+- Ensure the feature is included in the next deployment cycle.
+- Monitor for any issues post-deployment.
+
+## Timeline
+
+- **Week 1**: Frontend component development.
+- **Week 2**: API development and integration.
+- **Week 3**: Testing and deployment preparation.
 ```
