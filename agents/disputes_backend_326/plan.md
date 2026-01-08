@@ -1,94 +1,79 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
-```
-/disputes_backend_326
-├── api
-│   ├── disputes.py
-│   ├── __init__.py
-├── ui
-│   ├── components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   ├── DisputeItem.jsx
-│   ├── pages
-│   │   ├── DisputesPage.jsx
-│   ├── App.jsx
-│   ├── index.js
-├── models
-│   ├── dispute.py
-│   ├── __init__.py
-├── tests
-│   ├── test_disputes.py
-│   ├── test_ui_disputes.jsx
-├── requirements.txt
-└── README.md
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support creating, listing, and updating disputes with an `evidence_urls` array and a status field that can be OPEN, REVIEW, or RESOLVED.
 
-## API Implementation
-- **File: `api/disputes.py`**
-  - Define routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/<id>`: Update an existing dispute
-  - Implement logic to handle:
-    - Evidence URLs (array)
-    - Status management (OPEN/REVIEW/RESOLVED)
-  
-- **File: `api/__init__.py`**
-  - Initialize Flask app and register routes from `disputes.py`.
+## File Structure
 
-## UI Implementation
-- **File: `ui/components/DisputeList.jsx`**
-  - Fetch and display a list of disputes.
-  - Provide options to view, update, or delete disputes.
+### API Implementation
 
-- **File: `ui/components/DisputeForm.jsx`**
-  - Form to create or update a dispute.
-  - Include fields for evidence URLs and status selection.
+- **File Paths:**
+  - `src/api/disputes.js`
+  - `src/models/Dispute.js`
+  - `src/controllers/disputeController.js`
+  - `src/routes/disputeRoutes.js`
+  - `src/middleware/authMiddleware.js`
+  - `src/utils/responseHandler.js`
 
-- **File: `ui/components/DisputeItem.jsx`**
-  - Component to display individual dispute details.
-  - Include buttons for updating status and editing.
+- **Responsibilities:**
+  - `src/api/disputes.js`: Define API endpoints and integrate with Express.
+  - `src/models/Dispute.js`: Define the Dispute model schema (Mongoose/Sequelize).
+  - `src/controllers/disputeController.js`: Implement logic for create, list, and update operations.
+    - `createDispute(req, res)`: Handle dispute creation.
+    - `listDisputes(req, res)`: Fetch all disputes.
+    - `updateDispute(req, res)`: Update dispute status and evidence URLs.
+  - `src/routes/disputeRoutes.js`: Set up routes for `/api/disputes`.
+  - `src/middleware/authMiddleware.js`: Middleware for authentication and authorization.
+  - `src/utils/responseHandler.js`: Utility functions for standardized API responses.
 
-- **File: `ui/pages/DisputesPage.jsx`**
-  - Main page to render `DisputeList` and `DisputeForm`.
-  - Handle state management for disputes.
+### UI Implementation
 
-- **File: `ui/App.jsx`**
-  - Main application component.
-  - Set up routing to `DisputesPage`.
+- **File Paths:**
+  - `src/components/DisputeList.js`
+  - `src/components/DisputeForm.js`
+  - `src/pages/DisputePage.js`
+  - `src/services/disputeService.js`
+  - `src/styles/disputeStyles.css`
+  - `src/hooks/useDisputes.js`
 
-- **File: `ui/index.js`**
-  - Entry point for React application.
-  - Render `App` component.
+- **Responsibilities:**
+  - `src/components/DisputeList.js`: Display a list of disputes with status and evidence URLs.
+  - `src/components/DisputeForm.js`: Form for creating and updating disputes.
+  - `src/pages/DisputePage.js`: Main page to manage disputes, integrating list and form components.
+  - `src/services/disputeService.js`: API service for making requests to `/api/disputes`.
+    - `createDispute(data)`: POST request to create a dispute.
+    - `fetchDisputes()`: GET request to list disputes.
+    - `updateDispute(id, data)`: PUT request to update a dispute.
+  - `src/styles/disputeStyles.css`: Styles for dispute components.
+  - `src/hooks/useDisputes.js`: Custom hook for managing dispute state and effects.
 
-## Models Implementation
-- **File: `models/dispute.py`**
-  - Define Dispute model with fields:
-    - `id`
-    - `evidence_urls` (array)
-    - `status` (enum: OPEN, REVIEW, RESOLVED)
+## Testing
 
-- **File: `models/__init__.py`**
-  - Initialize database connection and models.
+- **File Paths:**
+  - `tests/api/dispute.test.js`
+  - `tests/ui/DisputePage.test.js`
 
-## Testing Implementation
-- **File: `tests/test_disputes.py`**
-  - Unit tests for API endpoints.
-  - Test cases for creating, listing, and updating disputes.
+- **Responsibilities:**
+  - `tests/api/dispute.test.js`: Unit tests for API endpoints and controller logic.
+  - `tests/ui/DisputePage.test.js`: Component tests for UI components related to disputes.
 
-- **File: `tests/test_ui_disputes.jsx`**
-  - Unit tests for UI components.
-  - Test rendering and interaction of `DisputeList` and `DisputeForm`.
+## Deployment
 
-## Dependencies
-- **File: `requirements.txt`**
-  - List required packages (Flask, Flask-RESTful, React, etc.).
+- **File Paths:**
+  - `Dockerfile`
+  - `docker-compose.yml`
+  - `README.md`
 
-## Documentation
-- **File: `README.md`**
-  - Overview of the feature.
-  - Instructions for setup and usage.
+- **Responsibilities:**
+  - `Dockerfile`: Containerize the application for deployment.
+  - `docker-compose.yml`: Define services for the application and database.
+  - `README.md`: Documentation for setup, usage, and deployment instructions.
+
+## Timeline
+
+- **Week 1**: API design and initial setup.
+- **Week 2**: Implement API endpoints and database models.
+- **Week 3**: Develop UI components and integrate with API.
+- **Week 4**: Testing and deployment preparation.
 ```
