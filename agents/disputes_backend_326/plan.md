@@ -1,111 +1,92 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+
 ## Directory Structure
+
 ```
-/disputes_backend
+/disputes_backend_326
+│
 ├── /api
-│   ├── disputes.py
-│   ├── __init__.py
-│   └── utils.py
-├── /models
-│   ├── dispute.py
-│   └── __init__.py
-├── /schemas
-│   ├── dispute_schema.py
-│   └── __init__.py
-├── /tests
-│   ├── test_disputes.py
-│   └── __init__.py
+│   ├── /controllers
+│   │   └── disputesController.js         # Handle API logic for disputes
+│   ├── /models
+│   │   └── disputeModel.js                # Define dispute schema and model
+│   ├── /routes
+│   │   └── disputesRoutes.js              # Define API routes for disputes
+│   └── /middlewares
+│       └── validateDispute.js             # Middleware for validating dispute data
+│
 ├── /ui
 │   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
+│   │   ├── DisputeList.js                 # Component to list disputes
+│   │   ├── DisputeForm.js                 # Component to create/update disputes
+│   │   └── DisputeStatus.js               # Component to display dispute status
 │   ├── /pages
-│   │   └── DisputePage.jsx
-│   ├── /styles
-│   │   └── DisputeStyles.css
-│   └── App.jsx
-└── server.py
+│   │   └── DisputePage.js                 # Main page for disputes
+│   └── /styles
+│       └── disputes.css                    # Styles for dispute components
+│
+└── /tests
+    ├── /api
+    │   └── disputes.test.js                # Unit tests for API endpoints
+    └── /ui
+        └── DisputeForm.test.js             # Unit tests for DisputeForm component
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. Create Dispute Model
-- **File:** `/models/dispute.py`
-- **Responsibilities:**
-  - Define Dispute class with fields: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED).
-  - Implement methods for CRUD operations.
+### API Implementation
 
-### 2. Define API Endpoints
-- **File:** `/api/disputes.py`
-- **Responsibilities:**
-  - Implement GET `/api/disputes` to list all disputes.
-  - Implement POST `/api/disputes` to create a new dispute.
-  - Implement PUT `/api/disputes/<id>` to update an existing dispute.
-  - Implement GET `/api/disputes/<id>` to retrieve a specific dispute.
+- **disputesController.js**
+  - Implement functions for:
+    - `createDispute(req, res)`: Handle creation of a new dispute.
+    - `listDisputes(req, res)`: Retrieve and return a list of disputes.
+    - `updateDispute(req, res)`: Update the status or evidence URLs of a dispute.
 
-### 3. Utility Functions
-- **File:** `/api/utils.py`
-- **Responsibilities:**
-  - Implement helper functions for validation and error handling.
+- **disputeModel.js**
+  - Define the dispute schema with fields:
+    - `id`: Unique identifier
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+    - `evidence_urls`: Array of strings
+    - `created_at`: Timestamp
 
-### 4. Define API Schemas
-- **File:** `/schemas/dispute_schema.py`
-- **Responsibilities:**
-  - Define request and response schemas using a validation library (e.g., Marshmallow).
+- **disputesRoutes.js**
+  - Set up routes:
+    - `POST /api/disputes`: Create a new dispute.
+    - `GET /api/disputes`: List all disputes.
+    - `PUT /api/disputes/:id`: Update an existing dispute.
 
-### 5. Testing API Endpoints
-- **File:** `/tests/test_disputes.py`
-- **Responsibilities:**
-  - Write unit tests for all API endpoints.
-  - Ensure tests cover various scenarios (valid/invalid data).
+- **validateDispute.js**
+  - Middleware to validate incoming request data for creating/updating disputes.
 
-## UI Implementation
+### UI Implementation
 
-### 6. Create Dispute Components
-- **File:** `/ui/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Display a list of disputes with status and actions (view/update).
+- **DisputeList.js**
+  - Fetch and display a list of disputes with their statuses.
 
-- **File:** `/ui/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Form for creating/updating disputes, including evidence URLs and status.
+- **DisputeForm.js**
+  - Form to create a new dispute or update an existing one, including fields for status and evidence URLs.
 
-- **File:** `/ui/components/DisputeDetail.jsx`
-- **Responsibilities:**
-  - Display detailed view of a single dispute.
+- **DisputeStatus.js**
+  - Component to visually represent the status of a dispute.
 
-### 7. Create Dispute Page
-- **File:** `/ui/pages/DisputePage.jsx`
-- **Responsibilities:**
-  - Integrate components to manage disputes.
-  - Handle routing and state management.
+- **DisputePage.js**
+  - Main page that integrates `DisputeList` and `DisputeForm`.
 
-### 8. Styling
-- **File:** `/ui/styles/DisputeStyles.css`
-- **Responsibilities:**
-  - Define styles for dispute components.
+### Testing
 
-### 9. Main Application File
-- **File:** `/ui/App.jsx`
-- **Responsibilities:**
-  - Set up routing for the application.
-  - Integrate API calls to fetch and manage disputes.
+- **disputes.test.js**
+  - Write unit tests for API endpoints to ensure correct functionality.
 
-## Server Setup
-- **File:** `/server.py`
-- **Responsibilities:**
-  - Set up the server to run the API.
-  - Configure CORS and middleware as needed.
-
-## Deployment
-- Ensure all components are tested and integrated.
-- Prepare for deployment on the chosen platform (e.g., Heroku, AWS).
+- **DisputeForm.test.js**
+  - Write unit tests for the `DisputeForm` component to validate user input and submission.
 
 ## Timeline
-- **Week 1:** API implementation and testing.
-- **Week 2:** UI components and integration.
-- **Week 3:** Final testing and deployment.
+- **Week 1**: API development (models, controllers, routes)
+- **Week 2**: UI development (components, pages, styles)
+- **Week 3**: Testing and bug fixing
+- **Week 4**: Final review and deployment
 ```
