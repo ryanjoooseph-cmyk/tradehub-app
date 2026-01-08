@@ -1,22 +1,25 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+
+## Directory Structure
+
 ```
 /project-root
 │
 ├── /api
-│   ├── /disputes
-│   │   ├── disputesController.js
-│   │   ├── disputesRoutes.js
-│   │   └── disputesService.js
+│   ├── /controllers
+│   │   └── disputesController.js
+│   ├── /models
+│   │   └── disputeModel.js
+│   ├── /routes
+│   │   └── disputesRoutes.js
 │   └── /middlewares
-│       └── authMiddleware.js
+│       └── validateDispute.js
 │
-├── /models
-│   └── disputeModel.js
-│
-├── /ui
+├── /client
 │   ├── /components
 │   │   ├── DisputeList.jsx
 │   │   ├── DisputeForm.jsx
@@ -26,82 +29,91 @@
 │   ├── /pages
 │   │   └── DisputesPage.jsx
 │   └── /styles
-│       └── Disputes.css
+│       └── disputes.css
 │
-├── /tests
-│   ├── /api
-│   │   └── disputes.test.js
-│   └── /ui
-│       └── DisputesPage.test.jsx
-│
-└── server.js
+└── /tests
+    ├── /api
+    │   └── disputes.test.js
+    └── /client
+        └── DisputeForm.test.jsx
 ```
 
 ## API Implementation
 
-### 1. **Model**
-- **File:** `/models/disputeModel.js`
-  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+### 1. Model Definition
+- **File:** `/api/models/disputeModel.js`
+- **Responsibilities:**
+  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
+  - Implement Mongoose model for MongoDB.
 
-### 2. **Controller**
-- **File:** `/api/disputes/disputesController.js`
-  - Implement functions:
-    - `createDispute(req, res)`: Handle dispute creation.
-    - `getDisputes(req, res)`: Retrieve list of disputes.
-    - `updateDispute(req, res)`: Update dispute status or evidence URLs.
+### 2. Controller Logic
+- **File:** `/api/controllers/disputesController.js`
+- **Responsibilities:**
+  - Implement functions for:
+    - `createDispute`: Handle POST requests to create a new dispute.
+    - `getDisputes`: Handle GET requests to list all disputes.
+    - `updateDispute`: Handle PUT requests to update an existing dispute.
 
-### 3. **Service**
-- **File:** `/api/disputes/disputesService.js`
-  - Implement business logic for:
-    - Creating, retrieving, and updating disputes.
-    - Validating status transitions (OPEN, REVIEW, RESOLVED).
+### 3. Route Definition
+- **File:** `/api/routes/disputesRoutes.js`
+- **Responsibilities:**
+  - Define routes for:
+    - `POST /api/disputes` for creating disputes.
+    - `GET /api/disputes` for listing disputes.
+    - `PUT /api/disputes/:id` for updating a dispute.
 
-### 4. **Routes**
-- **File:** `/api/disputes/disputesRoutes.js`
-  - Define RESTful routes:
-    - `POST /api/disputes`: Create a new dispute.
-    - `GET /api/disputes`: List all disputes.
-    - `PUT /api/disputes/:id`: Update a specific dispute.
-
-### 5. **Middleware**
-- **File:** `/api/middlewares/authMiddleware.js`
-  - Implement authentication middleware to protect routes.
+### 4. Middleware
+- **File:** `/api/middlewares/validateDispute.js`
+- **Responsibilities:**
+  - Validate incoming requests for creating and updating disputes.
+  - Ensure `evidence_urls` is an array and `status` is one of the allowed values.
 
 ## UI Implementation
 
-### 1. **Components**
-- **File:** `/ui/components/DisputeList.jsx`
-  - Display a list of disputes with status and action buttons.
+### 1. Dispute List Component
+- **File:** `/client/components/DisputeList.jsx`
+- **Responsibilities:**
+  - Fetch and display a list of disputes.
+  - Provide links to view and update individual disputes.
 
-- **File:** `/ui/components/DisputeForm.jsx`
-  - Form for creating/updating disputes, including evidence URLs.
+### 2. Dispute Form Component
+- **File:** `/client/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Handle the creation and updating of disputes.
+  - Include fields for `evidence_urls` and `status`.
 
-- **File:** `/ui/components/DisputeDetail.jsx`
-  - Detailed view of a selected dispute.
+### 3. Dispute Detail Component
+- **File:** `/client/components/DisputeDetail.jsx`
+- **Responsibilities:**
+  - Display detailed information about a selected dispute.
+  - Allow users to update the status of the dispute.
 
-### 2. **Hooks**
-- **File:** `/ui/hooks/useDisputes.js`
-  - Custom hook to manage API calls for disputes (fetch, create, update).
+### 4. Custom Hook
+- **File:** `/client/hooks/useDisputes.js`
+- **Responsibilities:**
+  - Create a custom hook for managing dispute data fetching and state.
 
-### 3. **Pages**
-- **File:** `/ui/pages/DisputesPage.jsx`
-  - Main page to render `DisputeList` and `DisputeForm`.
-
-### 4. **Styles**
-- **File:** `/ui/styles/Disputes.css`
-  - Basic styles for dispute components.
+### 5. Disputes Page
+- **File:** `/client/pages/DisputesPage.jsx`
+- **Responsibilities:**
+  - Combine `DisputeList` and `DisputeForm` components.
+  - Manage routing and state for dispute operations.
 
 ## Testing
 
-### 1. **API Tests**
+### 1. API Tests
 - **File:** `/tests/api/disputes.test.js`
-  - Unit tests for API endpoints using a testing framework (e.g., Jest).
+- **Responsibilities:**
+  - Write tests for all API endpoints to ensure correct functionality.
 
-### 2. **UI Tests**
-- **File:** `/tests/ui/DisputesPage.test.jsx`
-  - Component tests for rendering and interactions.
+### 2. Client Tests
+- **File:** `/tests/client/DisputeForm.test.jsx`
+- **Responsibilities:**
+  - Write tests for the `DisputeForm` component to validate user input and API interaction.
 
-## Deployment
-- Ensure all changes are documented and tested before merging into the main branch.
-- Deploy to staging for QA before production release.
+## Timeline
+- **Week 1:** API model, controller, and routes implementation.
+- **Week 2:** Middleware and UI components development.
+- **Week 3:** Testing and integration.
+- **Week 4:** Review and deployment.
 ```
