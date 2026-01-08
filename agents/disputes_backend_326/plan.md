@@ -1,114 +1,99 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
-```
-/disputes_backend_326
-├── api
-│   ├── disputes.py
-│   ├── __init__.py
-├── ui
-│   ├── components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   ├── pages
-│   │   ├── DisputesPage.jsx
-│   ├── App.jsx
-│   ├── index.js
-├── models
-│   ├── disputeModel.js
-├── services
-│   ├── disputeService.js
-├── tests
-│   ├── api
-│   │   ├── disputes.test.js
-│   ├── ui
-│   │   ├── DisputeList.test.jsx
-│   │   ├── DisputeForm.test.jsx
-├── .env
-├── package.json
-└── README.md
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, with an `evidence_urls` array and a status field that can be OPEN, REVIEW, or RESOLVED.
 
-## API Implementation
+## File Structure
 
-### File: `/api/disputes.py`
-- **Responsibilities:**
-  - Define Flask routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute with `evidence_urls` and `status`.
-    - `PUT /api/disputes/<id>`: Update an existing dispute's status or evidence.
-  - Implement request validation and error handling.
+### API Implementation
 
-### File: `/models/disputeModel.js`
-- **Responsibilities:**
-  - Define the Dispute schema with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement database interaction methods (CRUD).
+#### 1. API Routes
+- **File:** `src/routes/api/disputes.js`
+  - **Responsibilities:**
+    - Define API endpoints for:
+      - `GET /api/disputes` - List all disputes
+      - `POST /api/disputes` - Open a new dispute
+      - `PUT /api/disputes/:id` - Update an existing dispute
 
-### File: `/services/disputeService.js`
-- **Responsibilities:**
-  - Implement service methods for:
-    - Fetching disputes.
-    - Creating a dispute.
-    - Updating a dispute.
-  - Handle business logic and data transformations.
+#### 2. Controller Logic
+- **File:** `src/controllers/disputesController.js`
+  - **Responsibilities:**
+    - Handle business logic for:
+      - Retrieving disputes
+      - Creating a new dispute
+      - Updating dispute status and evidence URLs
 
-## UI Implementation
+#### 3. Model Definition
+- **File:** `src/models/Dispute.js`
+  - **Responsibilities:**
+    - Define the Dispute schema with fields:
+      - `id`
+      - `status` (OPEN/REVIEW/RESOLVED)
+      - `evidence_urls` (array)
+      - `created_at`
+      - `updated_at`
 
-### File: `/ui/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide UI for filtering and sorting disputes.
+#### 4. Middleware
+- **File:** `src/middleware/validateDispute.js`
+  - **Responsibilities:**
+    - Validate incoming request data for creating/updating disputes
 
-### File: `/ui/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Create a form for submitting new disputes.
-  - Include fields for `evidence_urls` and `status`.
-  - Handle form submission and validation.
+### UI Implementation
 
-### File: `/ui/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Combine `DisputeList` and `DisputeForm` components.
-  - Manage state for disputes and handle API calls.
+#### 5. UI Components
+- **File:** `src/components/DisputeList.js`
+  - **Responsibilities:**
+    - Display a list of disputes with status and evidence URLs
 
-### File: `/ui/App.jsx`
-- **Responsibilities:**
-  - Set up routing for the application.
-  - Include the `DisputesPage`.
+- **File:** `src/components/DisputeForm.js`
+  - **Responsibilities:**
+    - Form for creating and updating disputes
+    - Include fields for status and evidence URLs
 
-### File: `/ui/index.js`
-- **Responsibilities:**
-  - Render the main application component.
-  - Set up any necessary providers (e.g., Redux, Context API).
+#### 6. State Management
+- **File:** `src/store/disputeSlice.js`
+  - **Responsibilities:**
+    - Manage disputes state using Redux or Context API
+    - Actions for fetching, creating, and updating disputes
 
-## Testing
+#### 7. API Service
+- **File:** `src/services/disputeService.js`
+  - **Responsibilities:**
+    - Define functions for API calls:
+      - `fetchDisputes()`
+      - `createDispute(data)`
+      - `updateDispute(id, data)`
 
-### File: `/tests/api/disputes.test.js`
-- **Responsibilities:**
-  - Write unit tests for API endpoints.
-  - Test response formats and status codes.
+### Testing
 
-### File: `/tests/ui/DisputeList.test.jsx`
-- **Responsibilities:**
-  - Write tests for the `DisputeList` component.
-  - Mock API calls and test rendering.
+#### 8. API Tests
+- **File:** `tests/api/disputes.test.js`
+  - **Responsibilities:**
+    - Unit tests for API endpoints
+    - Test cases for all CRUD operations
 
-### File: `/tests/ui/DisputeForm.test.jsx`
-- **Responsibilities:**
-  - Write tests for the `DisputeForm` component.
-  - Validate form submission and error handling.
+#### 9. UI Tests
+- **File:** `tests/ui/DisputeForm.test.js`
+  - **Responsibilities:**
+    - Unit tests for DisputeForm component
+    - Validate form submission and state updates
 
-## Environment Setup
-### File: `/.env`
-- **Responsibilities:**
-  - Define environment variables for database connection and API keys.
+## Deployment
 
-## Documentation
-### File: `/README.md`
-- **Responsibilities:**
-  - Provide an overview of the feature.
-  - Include setup instructions and API documentation.
+#### 10. Documentation
+- **File:** `docs/api/disputes.md`
+  - **Responsibilities:**
+    - Document API endpoints, request/response formats, and error handling
+
+#### 11. Environment Configuration
+- **File:** `config/.env`
+  - **Responsibilities:**
+    - Define environment variables for database connection and API settings
+
+## Timeline
+- **Week 1:** API routes and controller implementation
+- **Week 2:** UI components and state management
+- **Week 3:** Testing and documentation
+- **Week 4:** Deployment and review
 ```
