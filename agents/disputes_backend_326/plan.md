@@ -1,103 +1,94 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an `evidence_urls` array and a status field with values OPEN, REVIEW, and RESOLVED.
+## Project Structure
+```
+/api
+    └── disputes
+        ├── disputesController.js
+        ├── disputesService.js
+        ├── disputesModel.js
+        └── disputesRoutes.js
+/ui
+    ├── components
+    │   └── DisputeList.jsx
+    │   └── DisputeForm.jsx
+    ├── pages
+    │   └── DisputePage.jsx
+    └── styles
+        └── DisputeStyles.css
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### 1. Model
+- **File:** `/api/disputes/disputesModel.js`
+- **Responsibilities:**
+  - Define Mongoose schema for Dispute with fields: `id`, `evidence_urls`, `status` (ENUM: OPEN, REVIEW, RESOLVED), `created_at`, `updated_at`.
+  - Implement methods for CRUD operations.
 
-- **File Paths:**
-  - `src/api/disputes/index.js`
-    - **Responsibilities:** 
-      - Define API routes for disputes.
-      - Handle GET, POST, and PUT requests.
-  
-  - `src/api/disputes/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement logic for creating, retrieving, and updating disputes.
-      - Validate input data and manage dispute status.
+### 2. Service
+- **File:** `/api/disputes/disputesService.js`
+- **Responsibilities:**
+  - Implement business logic for:
+    - Creating a new dispute.
+    - Retrieving all disputes.
+    - Updating a dispute status.
+  - Handle validation and error management.
 
-  - `src/api/disputes/models/disputeModel.js`
-    - **Responsibilities:**
-      - Define the dispute schema (including `evidence_urls` and `status`).
-      - Interact with the database for CRUD operations.
+### 3. Controller
+- **File:** `/api/disputes/disputesController.js`
+- **Responsibilities:**
+  - Define API endpoints:
+    - `POST /api/disputes` - Create a new dispute.
+    - `GET /api/disputes` - List all disputes.
+    - `PATCH /api/disputes/:id` - Update a dispute status.
+  - Call service methods and return appropriate responses.
 
-  - `src/api/disputes/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Define route handlers for `/api/disputes`.
-      - Connect routes to the appropriate controller functions.
+### 4. Routes
+- **File:** `/api/disputes/disputesRoutes.js`
+- **Responsibilities:**
+  - Set up Express routes for the API endpoints.
+  - Link routes to controller methods.
 
-  - `src/api/disputes/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data.
-      - Ensure `evidence_urls` is an array and status is one of the allowed values.
+## UI Implementation
 
-### UI Implementation
+### 1. Components
+- **File:** `/ui/components/DisputeList.jsx`
+- **Responsibilities:**
+  - Fetch and display a list of disputes.
+  - Provide UI for filtering by status.
 
-- **File Paths:**
-  - `src/components/DisputeList.js`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Provide options to view details and update status.
+- **File:** `/ui/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Form for creating/updating disputes.
+  - Handle file uploads for `evidence_urls`.
 
-  - `src/components/DisputeForm.js`
-    - **Responsibilities:**
-      - Form for creating and updating disputes.
-      - Handle input for `evidence_urls` and status selection.
+### 2. Pages
+- **File:** `/ui/pages/DisputePage.jsx`
+- **Responsibilities:**
+  - Combine `DisputeList` and `DisputeForm` components.
+  - Manage state for disputes and handle API calls.
 
-  - `src/services/disputeService.js`
-    - **Responsibilities:**
-      - API calls to `/api/disputes` for CRUD operations.
-      - Handle responses and errors from the API.
-
-  - `src/pages/DisputePage.js`
-    - **Responsibilities:**
-      - Main page for disputes.
-      - Integrate `DisputeList` and `DisputeForm` components.
-
-  - `src/styles/disputeStyles.css`
-    - **Responsibilities:**
-      - Styling for dispute-related components.
-      - Ensure responsive design for the dispute UI.
+### 3. Styles
+- **File:** `/ui/styles/DisputeStyles.css`
+- **Responsibilities:**
+  - Define styles for dispute components and pages.
+  - Ensure responsive design.
 
 ## Testing
-
-- **File Paths:**
-  - `src/api/disputes/tests/disputeController.test.js`
-    - **Responsibilities:**
-      - Unit tests for dispute controller functions.
-      - Test API responses for various scenarios.
-
-  - `src/components/__tests__/DisputeList.test.js`
-    - **Responsibilities:**
-      - Unit tests for the `DisputeList` component.
-      - Verify rendering and interaction.
-
-  - `src/components/__tests__/DisputeForm.test.js`
-    - **Responsibilities:**
-      - Unit tests for the `DisputeForm` component.
-      - Validate form submission and error handling.
+- **Files:** `/api/disputes/test/disputes.test.js`, `/ui/components/test/DisputeList.test.js`, `/ui/components/test/DisputeForm.test.js`
+- **Responsibilities:**
+  - Write unit tests for API endpoints and UI components.
+  - Ensure coverage for all CRUD operations and UI interactions.
 
 ## Deployment
-
-- **File Paths:**
-  - `deploy/config.js`
-    - **Responsibilities:**
-      - Configuration for deployment environment.
-      - Include API endpoint settings.
+- **Responsibilities:**
+  - Set up CI/CD pipeline for automated testing and deployment.
+  - Ensure environment variables for API are configured.
 
 ## Documentation
-
-- **File Paths:**
-  - `docs/api/disputes.md`
-    - **Responsibilities:**
-      - API documentation for `/api/disputes`.
-      - Include request/response examples.
-
-  - `docs/ui/disputes.md`
-    - **Responsibilities:**
-      - UI documentation for dispute management.
-      - User guide for interacting with the dispute features.
+- **Responsibilities:**
+  - Update API documentation with endpoint details.
+  - Provide usage examples for the frontend components.
 ```
