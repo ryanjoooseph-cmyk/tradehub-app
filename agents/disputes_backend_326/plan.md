@@ -4,110 +4,85 @@
 ## Directory Structure
 ```
 /disputes_backend_326
+│
 ├── /api
-│   ├── disputes.js
-│   └── index.js
+│   ├── disputes.py                # API endpoints for disputes
+│   ├── __init__.py                # Initialize API module
+│   └── utils.py                   # Utility functions for API
+│
 ├── /models
-│   └── disputeModel.js
-├── /controllers
-│   └── disputeController.js
-├── /routes
-│   └── disputeRoutes.js
-├── /middlewares
-│   └── authMiddleware.js
+│   ├── dispute.py                 # Dispute model definition
+│   └── __init__.py                # Initialize models module
+│
+├── /schemas
+│   ├── dispute_schema.py          # Pydantic schemas for dispute validation
+│   └── __init__.py                # Initialize schemas module
+│
+├── /services
+│   ├── dispute_service.py         # Business logic for disputes
+│   └── __init__.py                # Initialize services module
+│
 ├── /tests
-│   ├── disputeController.test.js
-│   └── disputeRoutes.test.js
-└── /client
-    ├── /components
-    │   ├── DisputeList.jsx
-    │   ├── DisputeForm.jsx
-    │   └── DisputeDetail.jsx
-    ├── /hooks
-    │   └── useDisputes.js
-    ├── /pages
-    │   └── DisputePage.jsx
-    └── App.js
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   └── __init__.py                # Initialize tests module
+│
+└── app.py                         # Main application entry point
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. **Model**
-- **File:** `/models/disputeModel.js`
-- **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED).
-  - Implement Mongoose model for MongoDB.
+### 1. API Endpoints (`/api/disputes.py`)
+- **GET /api/disputes**: List all disputes
+  - Fetch disputes from the database
+  - Return JSON response with dispute details
+- **POST /api/disputes**: Create a new dispute
+  - Validate input using `dispute_schema.py`
+  - Store the dispute in the database
+  - Return created dispute with status 201
+- **PUT /api/disputes/{id}**: Update an existing dispute
+  - Validate input and check if dispute exists
+  - Update dispute status and evidence_urls
+  - Return updated dispute with status 200
 
-### 2. **Controller**
-- **File:** `/controllers/disputeController.js`
-- **Responsibilities:**
-  - Implement functions to:
-    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
-    - `listDisputes(req, res)`: Handle GET requests to list all disputes.
-    - `updateDispute(req, res)`: Handle PUT requests to update a dispute's status or evidence URLs.
+### 2. Models (`/models/dispute.py`)
+- Define `Dispute` class with attributes:
+  - `id`: Unique identifier
+  - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - `evidence_urls`: List of URLs
+  - Implement methods for database interactions (CRUD)
 
-### 3. **Routes**
-- **File:** `/routes/disputeRoutes.js`
-- **Responsibilities:**
-  - Define routes for:
-    - `POST /api/disputes`: Create a new dispute.
-    - `GET /api/disputes`: List all disputes.
-    - `PUT /api/disputes/:id`: Update a specific dispute.
+### 3. Schemas (`/schemas/dispute_schema.py`)
+- Create Pydantic models for:
+  - Creating a dispute (validation of evidence_urls)
+  - Updating a dispute (validation of status and evidence_urls)
 
-### 4. **API Entry Point**
-- **File:** `/api/index.js`
-- **Responsibilities:**
-  - Set up Express server.
-  - Import and use dispute routes.
-  - Handle error middleware.
+### 4. Services (`/services/dispute_service.py`)
+- Implement business logic for:
+  - Fetching all disputes
+  - Creating a new dispute
+  - Updating an existing dispute
+- Handle any exceptions and return appropriate error messages
 
-## UI Implementation
+### 5. Tests (`/tests/test_disputes.py`)
+- Write unit tests for:
+  - API endpoints (GET, POST, PUT)
+  - Validation logic in schemas
+  - Service methods for CRUD operations
+- Ensure coverage for all edge cases
 
-### 5. **Components**
-- **File:** `/client/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Display a list of disputes.
-  - Provide links to view/update individual disputes.
+### 6. Main Application (`app.py`)
+- Set up FastAPI or Flask application
+- Include API routes from `api/disputes.py`
+- Configure database connection and middleware
 
-- **File:** `/client/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Form for creating/updating disputes.
-  - Handle input for `evidence_urls` and `status`.
+## Timeline
+- **Week 1**: Set up project structure and implement models
+- **Week 2**: Develop API endpoints and services
+- **Week 3**: Create schemas and write tests
+- **Week 4**: Finalize testing, documentation, and deployment
 
-- **File:** `/client/components/DisputeDetail.jsx`
-- **Responsibilities:**
-  - Display detailed view of a selected dispute.
-  - Allow updates to status and evidence URLs.
-
-### 6. **Hooks**
-- **File:** `/client/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Custom hook to fetch, create, and update disputes using Axios.
-
-### 7. **Pages**
-- **File:** `/client/pages/DisputePage.jsx`
-- **Responsibilities:**
-  - Main page for managing disputes.
-  - Integrate `DisputeList`, `DisputeForm`, and `DisputeDetail`.
-
-### 8. **App Entry Point**
-- **File:** `/client/App.js`
-- **Responsibilities:**
-  - Set up routing for the application.
-  - Integrate the DisputePage component.
-
-## Testing
-### 9. **Tests**
-- **File:** `/tests/disputeController.test.js`
-- **Responsibilities:**
-  - Unit tests for dispute controller functions.
-
-- **File:** `/tests/disputeRoutes.test.js`
-- **Responsibilities:**
-  - Integration tests for dispute API routes.
-
-## Additional Notes
-- Ensure proper validation and error handling in both API and UI.
-- Implement authentication middleware in `/middlewares/authMiddleware.js` for secure API access.
-- Use environment variables for configuration (e.g., database connection).
+## Notes
+- Ensure proper error handling and logging throughout the implementation.
+- Follow RESTful conventions for API design.
+- Consider security implications for handling URLs and user input.
 ```
