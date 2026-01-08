@@ -2,98 +2,94 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The UI will include an admin table with filters and actions to update dispute statuses. The API will handle data retrieval and updates.
 
 ## File Structure
 
-### Frontend
+### Frontend Implementation
 
-- **/src**
-  - **/components**
-    - **/AdminDisputesTable.js**  
-      - Responsibility: Render the table of disputes with filtering options.
-    - **/DisputeStatusDropdown.js**  
-      - Responsibility: Dropdown component for selecting dispute status.
-    - **/LoadingSpinner.js**  
-      - Responsibility: Display loading state while fetching data.
-  
-  - **/pages**
-    - **/AdminDisputesPage.js**  
-      - Responsibility: Main page component for `/admin/disputes/321`, integrates table and filters.
+#### 1. UI Components
+- **Path:** `src/components/AdminDisputesTable.js`
+  - **Responsibilities:** 
+    - Render the admin disputes table.
+    - Implement filters for dispute status and date.
+    - Handle pagination.
 
-  - **/hooks**
-    - **/useDisputes.js**  
-      - Responsibility: Custom hook to fetch disputes from API and manage state.
+- **Path:** `src/components/DisputeRow.js`
+  - **Responsibilities:** 
+    - Render individual dispute rows.
+    - Include buttons for updating dispute status.
 
-  - **/styles**
-    - **/AdminDisputes.css**  
-      - Responsibility: Styles for the admin disputes page and components.
+- **Path:** `src/components/FilterBar.js`
+  - **Responsibilities:** 
+    - Provide UI for filtering disputes.
+    - Emit filter changes to parent component.
 
-### API
+#### 2. Pages
+- **Path:** `src/pages/AdminDisputesPage.js`
+  - **Responsibilities:** 
+    - Main page component for `/admin/disputes/321`.
+    - Integrate `AdminDisputesTable` and `FilterBar`.
+    - Manage state for disputes and filters.
 
-- **/api**
-  - **/disputes.js**  
-    - Responsibility: API endpoint to handle GET and POST requests for disputes.
-      - **GET /api/disputes**  
-        - Fetch all disputes with optional filters.
-      - **POST /api/disputes/:id/status**  
-        - Update the status of a specific dispute.
+#### 3. Styles
+- **Path:** `src/styles/AdminDisputes.css`
+  - **Responsibilities:** 
+    - Define styles for the admin disputes table and filters.
 
-## Implementation Steps
+### API Implementation
 
-### Frontend Development
+#### 1. API Routes
+- **Path:** `src/api/disputes.js`
+  - **Responsibilities:** 
+    - Define API endpoints for fetching and updating disputes.
+    - Implement `/api/disputes` GET and POST methods.
 
-1. **Create AdminDisputesPage Component**  
-   - Set up routing for `/admin/disputes/321`.
-   - Integrate `AdminDisputesTable` and filters.
+#### 2. Controllers
+- **Path:** `src/controllers/disputeController.js`
+  - **Responsibilities:** 
+    - Handle business logic for disputes.
+    - Fetch disputes from the database.
+    - Update dispute status based on API requests.
 
-2. **Develop AdminDisputesTable Component**  
-   - Implement table structure to display disputes.
-   - Add filtering options for status and date.
+#### 3. Models
+- **Path:** `src/models/Dispute.js`
+  - **Responsibilities:** 
+    - Define the Dispute schema for database interactions.
 
-3. **Implement DisputeStatusDropdown Component**  
-   - Create dropdown for selecting dispute status.
-   - Connect to update functionality.
+### State Management
+- **Path:** `src/store/disputeSlice.js`
+  - **Responsibilities:** 
+    - Manage state related to disputes using Redux.
+    - Handle actions for fetching and updating disputes.
 
-4. **Create useDisputes Hook**  
-   - Fetch disputes from `/api/disputes` on component mount.
-   - Handle loading and error states.
+### Testing
+- **Path:** `src/tests/AdminDisputesTable.test.js`
+  - **Responsibilities:** 
+    - Write unit tests for `AdminDisputesTable` component.
 
-5. **Style Components**  
-   - Apply styles from `AdminDisputes.css` to ensure a cohesive look.
+- **Path:** `src/tests/disputeController.test.js`
+  - **Responsibilities:** 
+    - Write unit tests for dispute controller functions.
 
-### API Development
-
-1. **Set Up API Endpoint**  
-   - Create `/api/disputes` to handle GET requests for fetching disputes.
-   - Implement filtering logic based on query parameters.
-
-2. **Implement POST Method for Status Updates**  
-   - Create endpoint `/api/disputes/:id/status` to update dispute status.
-   - Validate input and handle errors.
-
-3. **Testing API Endpoints**  
-   - Write unit tests for GET and POST methods.
-   - Ensure proper error handling and response formats.
-
-## Testing
-
-- **Frontend Testing**
-  - Write unit tests for components using Jest and React Testing Library.
-  - Ensure filters and status updates work as expected.
-
-- **API Testing**
-  - Use Postman or similar tool to test API endpoints.
-  - Validate response data and error handling.
+## Integration
+- **Path:** `src/App.js`
+  - **Responsibilities:** 
+    - Define routes including `/admin/disputes/321`.
+    - Ensure proper rendering of `AdminDisputesPage`.
 
 ## Deployment
-
-- Prepare the feature for deployment in the staging environment.
-- Conduct user acceptance testing (UAT) with admin users.
-- Deploy to production once approved.
+- **Path:** `deploy/admin_disputes_setup.sh`
+  - **Responsibilities:** 
+    - Script for deploying the new feature to the production environment.
 
 ## Documentation
+- **Path:** `docs/admin_disputes_feature.md`
+  - **Responsibilities:** 
+    - Document the feature, including API endpoints and UI usage.
 
-- Update API documentation to include new endpoints.
-- Create user guide for admin users on how to use the new disputes feature.
+## Timeline
+- **Week 1:** UI components and API routes.
+- **Week 2:** Integration and testing.
+- **Week 3:** Deployment and documentation.
 ```
