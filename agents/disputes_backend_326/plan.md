@@ -1,106 +1,107 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Project Structure
 ```
-/src
-  ├── api
-  │   ├── disputes
-  │   │   ├── disputesController.js
-  │   │   ├── disputesModel.js
-  │   │   ├── disputesRoutes.js
-  │   │   └── disputesService.js
-  ├── components
-  │   ├── DisputeList.jsx
-  │   ├── DisputeForm.jsx
-  │   └── DisputeDetail.jsx
-  ├── hooks
-  │   └── useDisputes.js
-  ├── pages
-  │   └── DisputesPage.jsx
-  ├── styles
-  │   └── disputes.css
-  └── utils
-      └── api.js
+/disputes_backend_326
+├── /api
+│   ├── disputes.py
+│   ├── __init__.py
+│   └── utils.py
+├── /models
+│   ├── dispute.py
+│   └── __init__.py
+├── /schemas
+│   ├── dispute_schema.py
+│   └── __init__.py
+├── /tests
+│   ├── test_disputes.py
+│   └── __init__.py
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /pages
+│   │   └── DisputesPage.jsx
+│   ├── /styles
+│   │   └── disputes.css
+│   └── App.jsx
+└── server.py
 ```
 
 ## API Implementation
 
-### 1. `disputesRoutes.js`
-- **Responsibility**: Define API endpoints for disputes.
-- **Endpoints**:
-  - `GET /api/disputes`: List all disputes.
-  - `POST /api/disputes`: Create a new dispute.
-  - `PUT /api/disputes/:id`: Update an existing dispute.
+### File: `/api/disputes.py`
+- **Responsibilities:**
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Handle request validation and response formatting.
+  - Integrate with models and schemas.
 
-### 2. `disputesController.js`
-- **Responsibility**: Handle requests and responses for disputes.
-- **Functions**:
-  - `listDisputes(req, res)`: Fetch all disputes.
-  - `createDispute(req, res)`: Create a new dispute with evidence URLs and status.
-  - `updateDispute(req, res)`: Update a dispute's status or evidence URLs.
+### File: `/models/dispute.py`
+- **Responsibilities:**
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for CRUD operations.
 
-### 3. `disputesModel.js`
-- **Responsibility**: Define the dispute schema and interact with the database.
-- **Schema Fields**:
-  - `id`: Unique identifier.
-  - `evidence_urls`: Array of URLs.
-  - `status`: ENUM('OPEN', 'REVIEW', 'RESOLVED').
+### File: `/schemas/dispute_schema.py`
+- **Responsibilities:**
+  - Define Pydantic schemas for request and response validation.
+  - Include fields for `evidence_urls` and `status`.
 
-### 4. `disputesService.js`
-- **Responsibility**: Business logic for disputes.
-- **Functions**:
-  - `fetchDisputes()`: Retrieve disputes from the database.
-  - `addDispute(data)`: Save a new dispute.
-  - `modifyDispute(id, data)`: Update an existing dispute.
+### File: `/api/utils.py`
+- **Responsibilities:**
+  - Helper functions for common operations (e.g., fetching disputes, validating status).
 
 ## UI Implementation
 
-### 1. `DisputesPage.jsx`
-- **Responsibility**: Main page for displaying and managing disputes.
-- **Components Used**: `DisputeList`, `DisputeForm`.
+### File: `/ui/components/DisputeList.jsx`
+- **Responsibilities:**
+  - Display a list of disputes.
+  - Include buttons for viewing and updating disputes.
 
-### 2. `DisputeList.jsx`
-- **Responsibility**: Display a list of disputes.
-- **Features**: Show status and evidence URLs; allow navigation to dispute details.
+### File: `/ui/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Form for creating/updating a dispute.
+  - Handle input for `evidence_urls` and `status`.
 
-### 3. `DisputeForm.jsx`
-- **Responsibility**: Form for creating and updating disputes.
-- **Fields**:
-  - Input for evidence URLs.
-  - Dropdown for status selection (OPEN, REVIEW, RESOLVED).
+### File: `/ui/components/DisputeDetail.jsx`
+- **Responsibilities:**
+  - Display detailed information for a selected dispute.
+  - Allow status updates.
 
-### 4. `DisputeDetail.jsx`
-- **Responsibility**: Display detailed information about a selected dispute.
-- **Features**: Show evidence URLs and current status; provide update functionality.
+### File: `/ui/pages/DisputesPage.jsx`
+- **Responsibilities:**
+  - Main page to manage disputes.
+  - Integrate `DisputeList` and `DisputeForm`.
 
-### 5. `useDisputes.js`
-- **Responsibility**: Custom hook for managing disputes state and API calls.
-- **Functions**:
-  - `getDisputes()`: Fetch disputes.
-  - `submitDispute(data)`: Create or update a dispute.
+### File: `/ui/styles/disputes.css`
+- **Responsibilities:**
+  - Styling for dispute components.
 
-## Styles
-
-### 1. `disputes.css`
-- **Responsibility**: Styles for disputes UI components.
-- **Features**: Responsive design, clear layout for dispute information.
+### File: `/ui/App.jsx`
+- **Responsibilities:**
+  - Main application component.
+  - Set up routing for the disputes page.
 
 ## Testing
-- **Responsibility**: Ensure API and UI components are tested.
-- **Files**:
-  - `/tests/api/disputes.test.js`: API tests.
-  - `/tests/components/DisputeForm.test.jsx`: UI tests for the form.
-  - `/tests/hooks/useDisputes.test.js`: Tests for custom hook.
 
-## Deployment
-- **Responsibility**: Prepare for deployment.
-- **Tasks**:
-  - Ensure API is documented.
-  - Verify UI is responsive and accessible.
-  - Conduct final testing before release.
+### File: `/tests/test_disputes.py`
+- **Responsibilities:**
+  - Unit tests for API endpoints.
+  - Integration tests for UI components.
+  - Validate CRUD operations and status transitions.
+
+## Server Setup
+
+### File: `/server.py`
+- **Responsibilities:**
+  - Initialize the web server.
+  - Set up API routing and middleware.
+  - Connect to the database.
 ```
