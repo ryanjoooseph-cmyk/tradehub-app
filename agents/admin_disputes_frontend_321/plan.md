@@ -6,14 +6,14 @@
 /src
   ├── components
   │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
+  │   ├── FilterBar.jsx
+  │   └── StatusUpdateModal.jsx
   ├── pages
   │   └── AdminDisputesPage.jsx
   ├── api
   │   └── disputesApi.js
   ├── styles
-  │   └── AdminDisputesPage.css
+  │   └── AdminDisputes.css
   ├── hooks
   │   └── useDisputes.js
   └── utils
@@ -22,72 +22,70 @@
 
 ## Responsibilities
 
-### Components
+### 1. Components
 - **AdminDisputesTable.jsx**
-  - Render the admin disputes table with pagination and sorting.
-  - Integrate filtering options from `FilterComponent`.
+  - Render the table of disputes.
+  - Include pagination and sorting functionalities.
+  - Integrate filters from `FilterBar.jsx`.
 
-- **FilterComponent.jsx**
+- **FilterBar.jsx**
   - Provide UI for filtering disputes (e.g., by status, date).
   - Handle filter state and pass it to the `AdminDisputesTable`.
 
-- **StatusUpdateButton.jsx**
-  - Button to update the status of a selected dispute.
-  - Trigger API call to update status on click.
+- **StatusUpdateModal.jsx**
+  - Display modal for updating dispute status.
+  - Handle form submission to update status via API.
 
-### Pages
+### 2. Pages
 - **AdminDisputesPage.jsx**
-  - Main page component for `/admin/disputes/321`.
-  - Combine `AdminDisputesTable` and `FilterComponent`.
+  - Main page component for the route `/admin/disputes/321`.
+  - Integrate `AdminDisputesTable` and `FilterBar`.
   - Manage state for disputes and loading status.
 
-### API
+### 3. API
 - **disputesApi.js**
   - Define API calls to `/api/disputes` for fetching and updating disputes.
-  - Implement functions for:
-    - `fetchDisputes(filters)`
-    - `updateDisputeStatus(disputeId, newStatus)`
+  - Implement error handling for API responses.
 
-### Styles
-- **AdminDisputesPage.css**
-  - Style the admin disputes page, table, and filter components.
+### 4. Styles
+- **AdminDisputes.css**
+  - Style the components for a cohesive admin interface.
   - Ensure responsive design for various screen sizes.
 
-### Hooks
+### 5. Hooks
 - **useDisputes.js**
-  - Custom hook to manage disputes state and API calls.
-  - Handle loading, error states, and data fetching logic.
+  - Custom hook to manage fetching and updating disputes.
+  - Handle loading states and errors.
 
-### Utils
+### 6. Utilities
 - **constants.js**
-  - Define constants for dispute statuses and any other reusable values.
+  - Define constants for dispute statuses and API endpoints.
 
 ## Development Steps
 1. **Setup Routing**
    - Configure routing for `/admin/disputes/321` in the main app file.
 
-2. **Build API Layer**
-   - Implement `disputesApi.js` to handle API interactions.
+2. **Build Components**
+   - Develop `AdminDisputesTable`, `FilterBar`, and `StatusUpdateModal`.
 
-3. **Create UI Components**
-   - Develop `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+3. **Implement API Calls**
+   - Create functions in `disputesApi.js` for fetching and updating disputes.
 
-4. **Implement State Management**
-   - Use `useDisputes` to manage data fetching and state in `AdminDisputesPage`.
+4. **Integrate Components**
+   - Combine components in `AdminDisputesPage` and manage state.
 
 5. **Style Components**
-   - Apply styles from `AdminDisputesPage.css` to enhance UI.
+   - Apply styles in `AdminDisputes.css` for a polished UI.
 
 6. **Testing**
    - Write unit tests for components and API functions.
-   - Conduct integration tests for the complete flow.
+   - Perform integration testing for the complete flow.
 
 7. **Deployment**
    - Prepare for deployment and ensure all features are functional.
 
 ## Timeline
-- **Week 1:** Setup routing and API layer.
-- **Week 2:** Develop UI components and integrate state management.
-- **Week 3:** Style components and conduct testing.
-- **Week 4:** Finalize deployment preparations.
+- **Week 1**: Component development and API integration.
+- **Week 2**: Styling and testing.
+- **Week 3**: Final review and deployment preparation.
 ```
