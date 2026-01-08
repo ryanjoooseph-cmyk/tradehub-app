@@ -2,83 +2,79 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update the dispute status.
 
 ## File Structure
 
-### Frontend
+```
+/src
+  ├── api
+  │   ├── disputes.js              # API endpoint for fetching and updating disputes
+  ├── components
+  │   ├── AdminDisputesTable.jsx   # Component for displaying the disputes table
+  │   ├── DisputeFilter.jsx         # Component for filtering disputes
+  │   ├── StatusUpdateButton.jsx    # Component for updating dispute status
+  ├── pages
+  │   ├── AdminDisputesPage.jsx     # Main page component for /admin/disputes/321
+  ├── styles
+  │   ├── AdminDisputesPage.css     # Styles for the admin disputes page
+  ├── utils
+  │   ├── api.js                    # Utility functions for API calls
+```
 
-- **File Paths**
-  - `src/components/AdminDisputesTable.js`
-    - **Responsibility**: Create a table component to display disputes with filters for status and date.
-  
-  - `src/components/DisputeStatusDropdown.js`
-    - **Responsibility**: Create a dropdown component for selecting dispute status updates.
-  
-  - `src/pages/AdminDisputesPage.js`
-    - **Responsibility**: Main page component that integrates the `AdminDisputesTable` and handles API calls.
-  
-  - `src/hooks/useDisputes.js`
-    - **Responsibility**: Custom hook to fetch disputes from the API and manage state.
-  
-  - `src/utils/api.js`
-    - **Responsibility**: API utility functions to call `/api/disputes` for fetching and updating dispute statuses.
+## Responsibilities
 
-- **Styling**
-  - `src/styles/AdminDisputes.css`
-    - **Responsibility**: Styles for the admin disputes table and components.
+### API Implementation
 
-### Backend
+- **File: `/src/api/disputes.js`**
+  - Implement GET endpoint to fetch disputes based on filters.
+  - Implement PUT endpoint to update the status of a dispute.
+  - Ensure proper error handling and response formatting.
 
-- **File Paths**
-  - `src/routes/api/disputes.js`
-    - **Responsibility**: Define API routes for fetching and updating disputes.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibility**: Handle business logic for fetching disputes and updating their statuses.
-  
-  - `src/models/Dispute.js`
-    - **Responsibility**: Define the Dispute model/schema for database interactions.
-  
-  - `src/middleware/auth.js`
-    - **Responsibility**: Middleware for authenticating admin users before accessing dispute routes.
+### UI Implementation
 
-- **Database**
-  - `src/db/migrations/2023_10_01_create_disputes_table.sql`
-    - **Responsibility**: SQL migration file to create the disputes table in the database.
+- **File: `/src/pages/AdminDisputesPage.jsx`**
+  - Create the main page layout for displaying the disputes.
+  - Integrate `AdminDisputesTable` and `DisputeFilter` components.
+  - Handle state management for fetched disputes and filters.
 
-## Implementation Steps
+- **File: `/src/components/AdminDisputesTable.jsx`**
+  - Render a table to display the list of disputes.
+  - Include columns for dispute details and action buttons.
+  - Implement pagination and sorting functionalities.
 
-1. **Frontend Development**
-   - Create `AdminDisputesTable.js` to display disputes.
-   - Implement filtering functionality in `AdminDisputesTable.js`.
-   - Develop `DisputeStatusDropdown.js` for status updates.
-   - Integrate components in `AdminDisputesPage.js`.
-   - Implement `useDisputes.js` to manage API calls and state.
-   - Style components in `AdminDisputes.css`.
+- **File: `/src/components/DisputeFilter.jsx`**
+  - Create filter options for the disputes (e.g., status, date).
+  - Implement state management for filter inputs.
+  - Trigger API calls to fetch filtered disputes.
 
-2. **Backend Development**
-   - Set up API routes in `disputes.js` for GET and PUT requests.
-   - Implement logic in `disputeController.js` for fetching and updating disputes.
-   - Define the Dispute model in `Dispute.js`.
-   - Create authentication middleware in `auth.js`.
+- **File: `/src/components/StatusUpdateButton.jsx`**
+  - Create a button for updating the status of a dispute.
+  - Handle click events to call the update API.
+  - Provide feedback on success or failure of the update.
 
-3. **Testing**
-   - Write unit tests for frontend components.
-   - Write integration tests for API endpoints.
-   - Ensure all tests pass before deployment.
+### Styling
 
-4. **Deployment**
-   - Deploy frontend and backend to the staging environment.
-   - Conduct user acceptance testing (UAT).
-   - Deploy to production after successful testing.
+- **File: `/src/styles/AdminDisputesPage.css`**
+  - Style the admin disputes page and components for a clean UI.
+  - Ensure responsiveness and accessibility.
+
+## Testing
+
+- Write unit tests for API endpoints in `/src/api/disputes.test.js`.
+- Write component tests for UI components in `/src/components/*.test.js`.
+- Ensure end-to-end tests cover the full flow from filtering to status updates.
+
+## Deployment
+
+- Prepare the feature for deployment by merging into the main branch.
+- Ensure all tests pass and code is reviewed.
+- Update documentation for the new feature in the admin panel.
 
 ## Timeline
-- **Week 1**: Frontend development.
-- **Week 2**: Backend development.
-- **Week 3**: Testing and deployment.
 
-## Notes
-- Ensure all API responses are properly handled in the frontend.
-- Consider accessibility standards in UI components.
+- **Week 1:** API implementation and initial UI setup.
+- **Week 2:** Complete UI components and integrate filtering.
+- **Week 3:** Testing and bug fixing.
+- **Week 4:** Final review and deployment preparation.
 ```
