@@ -2,92 +2,106 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update the status of disputes.
 
 ## File Structure
 
-```
-/src
-  ├── api
-  │   ├── disputes.js
-  ├── components
-  │   ├── AdminDisputesTable.js
-  │   ├── DisputeFilter.js
-  │   ├── StatusUpdateButton.js
-  ├── pages
-  │   ├── AdminDisputesPage.js
-  ├── styles
-  │   ├── AdminDisputes.css
-  ├── utils
-  │   ├── apiClient.js
-  └── index.js
-```
+### Frontend
+
+- **src/**
+  - **components/**
+    - **AdminDisputesTable.js**  
+      - Responsible for rendering the disputes table with filters and actions.
+    - **DisputeFilter.js**  
+      - Responsible for filtering disputes based on status, date, etc.
+    - **DisputeRow.js**  
+      - Responsible for rendering each row of the disputes table.
+  
+  - **pages/**
+    - **AdminDisputesPage.js**  
+      - Main page component for `/admin/disputes/321`, integrating the table and filters.
+  
+  - **hooks/**
+    - **useDisputes.js**  
+      - Custom hook for fetching disputes data and managing state.
+  
+  - **api/**
+    - **disputesApi.js**  
+      - Responsible for making API calls to `/api/disputes` for fetching and updating dispute statuses.
+
+- **styles/**
+  - **AdminDisputes.css**  
+    - Styles for the admin disputes page and components.
+
+### Backend
+
+- **src/**
+  - **controllers/**
+    - **disputeController.js**  
+      - Handles API requests related to disputes, including fetching and updating status.
+  
+  - **routes/**
+    - **disputeRoutes.js**  
+      - Defines the API routes for disputes, including GET and PUT methods for `/api/disputes`.
+  
+  - **models/**
+    - **Dispute.js**  
+      - Mongoose model for the dispute schema.
+  
+  - **middlewares/**
+    - **authMiddleware.js**  
+      - Middleware for authenticating admin users.
 
 ## Responsibilities
 
-### API Layer
+### Frontend
 
-- **File: `/src/api/disputes.js`**
-  - Implement API functions to interact with `/api/disputes`.
-  - Functions to fetch disputes, update dispute status, and apply filters.
+1. **AdminDisputesTable.js**
+   - Render the table with dispute data.
+   - Integrate filtering functionality.
+   - Provide buttons for updating dispute status.
 
-### UI Components
+2. **DisputeFilter.js**
+   - Create filter inputs for status and date.
+   - Handle filter changes and update table data accordingly.
 
-- **File: `/src/components/AdminDisputesTable.js`**
-  - Create a table to display disputes.
-  - Integrate sorting and pagination.
-  - Handle state management for dispute data.
+3. **DisputeRow.js**
+   - Display individual dispute details.
+   - Include action buttons for updating status.
 
-- **File: `/src/components/DisputeFilter.js`**
-  - Build a filter component for filtering disputes by status, date, etc.
-  - Handle filter state and pass it to the table component.
+4. **AdminDisputesPage.js**
+   - Assemble the table and filters.
+   - Manage overall state and API calls using `useDisputes`.
 
-- **File: `/src/components/StatusUpdateButton.js`**
-  - Create a button to update the status of a selected dispute.
-  - Trigger API call to update status on click.
+5. **useDisputes.js**
+   - Fetch disputes data from `/api/disputes`.
+   - Handle loading and error states.
 
-### Page Structure
+6. **disputesApi.js**
+   - Implement functions for GET and PUT requests to `/api/disputes`.
 
-- **File: `/src/pages/AdminDisputesPage.js`**
-  - Assemble the AdminDisputesTable and DisputeFilter components.
-  - Manage overall state for disputes and filters.
-  - Handle loading states and error messages.
+### Backend
 
-### Styling
+1. **disputeController.js**
+   - Implement `getDisputes` method for fetching disputes.
+   - Implement `updateDisputeStatus` method for updating dispute statuses.
 
-- **File: `/src/styles/AdminDisputes.css`**
-  - Define styles for the admin disputes page, table, filters, and buttons.
+2. **disputeRoutes.js**
+   - Define routes for fetching and updating disputes.
+   - Ensure proper middleware is applied for authentication.
 
-### Utility Functions
+3. **Dispute.js**
+   - Define the schema for disputes, including fields for status, date, and details.
 
-- **File: `/src/utils/apiClient.js`**
-  - Create a utility for making API calls (GET, POST, PUT).
-  - Handle error responses and manage API request configurations.
+4. **authMiddleware.js**
+   - Ensure only authenticated admin users can access dispute routes.
 
-### Entry Point
+## Timeline
+- **Week 1:** Setup project structure and implement backend API.
+- **Week 2:** Develop frontend components and integrate with API.
+- **Week 3:** Testing and bug fixing.
+- **Week 4:** Deployment and documentation.
 
-- **File: `/src/index.js`**
-  - Set up routing to include the new `/admin/disputes/321` route.
-  - Render the AdminDisputesPage component.
-
-## Development Steps
-
-1. **Set up API functions** in `/src/api/disputes.js`.
-2. **Create UI components**: AdminDisputesTable, DisputeFilter, StatusUpdateButton.
-3. **Build the AdminDisputesPage** to integrate components.
-4. **Implement styling** in AdminDisputes.css.
-5. **Test API calls** and UI interactions.
-6. **Deploy and monitor** for any issues post-launch.
-
-## Testing
-
-- Unit tests for API functions in `/src/api/disputes.test.js`.
-- Component tests for AdminDisputesTable and DisputeFilter.
-- Integration tests for AdminDisputesPage.
-
-## Documentation
-
-- Update README with usage instructions for the new feature.
-- Document API endpoints and expected responses.
-
+## Conclusion
+This implementation plan provides a clear structure and responsibilities for building the admin disputes feature, ensuring a streamlined development process.
 ```
