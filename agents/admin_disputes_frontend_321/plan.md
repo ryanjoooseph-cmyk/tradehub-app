@@ -2,96 +2,93 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
 
 ## File Structure
 
 ### Frontend
 
 - **File Paths**
-  - `src/components/AdminDisputesTable.js`
-    - Responsible for rendering the disputes table with filters and actions.
-  - `src/components/DisputeRow.js`
-    - Responsible for rendering individual dispute rows and update actions.
+  - `src/components/AdminDisputesTable.jsx`
+    - **Responsibility**: Create the table component to display disputes with filters and actions.
+  
   - `src/hooks/useDisputes.js`
-    - Custom hook for fetching and managing disputes data.
-  - `src/pages/AdminDisputesPage.js`
-    - Main page component for the `/admin/disputes/321` route.
-  - `src/api/disputesApi.js`
-    - API utility functions for fetching and updating disputes.
+    - **Responsibility**: Custom hook to fetch disputes data from the API and manage state.
+  
+  - `src/pages/AdminDisputesPage.jsx`
+    - **Responsibility**: Main page component that renders `AdminDisputesTable` and handles routing.
+  
+  - `src/services/api.js`
+    - **Responsibility**: API service to handle requests to `/api/disputes` for fetching and updating dispute statuses.
+  
   - `src/styles/AdminDisputes.css`
-    - Styles specific to the admin disputes page and components.
+    - **Responsibility**: Styles for the admin disputes table and filters.
 
 ### Backend
 
 - **File Paths**
-  - `src/controllers/disputesController.js`
-    - Controller for handling API requests related to disputes.
-  - `src/routes/disputesRoutes.js`
-    - Defines the API routes for disputes, including GET and PUT methods.
+  - `src/controllers/disputeController.js`
+    - **Responsibility**: Controller to handle API requests related to disputes, including fetching and updating statuses.
+  
+  - `src/routes/disputeRoutes.js`
+    - **Responsibility**: Define routes for `/api/disputes` to connect to the dispute controller.
+  
   - `src/models/Dispute.js`
-    - Mongoose model for the Dispute schema.
-  - `src/services/disputesService.js`
-    - Business logic for fetching and updating disputes.
+    - **Responsibility**: Mongoose model for the Dispute schema, defining the structure of dispute documents in the database.
+  
   - `src/middleware/authMiddleware.js`
-    - Middleware for authenticating admin users.
+    - **Responsibility**: Middleware to ensure only authorized admin users can access dispute routes.
 
-## Responsibilities
+## Implementation Steps
 
-### Frontend
+### Frontend Development
 
-1. **AdminDisputesTable.js**
-   - Implement table structure with filters for dispute status and date.
-   - Integrate pagination for large datasets.
-   - Add buttons for updating dispute status.
+1. **Create AdminDisputesTable Component**
+   - Implement table structure with columns for dispute details and actions.
+   - Add filter inputs for searching disputes by status or date.
 
-2. **DisputeRow.js**
-   - Create a row component to display dispute details.
-   - Implement action buttons for status updates.
+2. **Implement useDisputes Hook**
+   - Fetch disputes from `/api/disputes` and manage loading and error states.
 
-3. **useDisputes.js**
-   - Fetch disputes data from the API.
-   - Handle loading and error states.
+3. **Build AdminDisputesPage**
+   - Integrate `AdminDisputesTable` and handle routing for `/admin/disputes/321`.
 
-4. **AdminDisputesPage.js**
-   - Set up routing for `/admin/disputes/321`.
-   - Combine `AdminDisputesTable` and manage state.
+4. **Style Components**
+   - Apply styles in `AdminDisputes.css` for a clean and responsive layout.
 
-5. **disputesApi.js**
-   - Create functions for GET and PUT requests to `/api/disputes`.
+### Backend Development
 
-### Backend
+1. **Set Up Dispute Model**
+   - Define the schema for disputes in `Dispute.js`.
 
-1. **disputesController.js**
-   - Implement methods for fetching disputes and updating their status.
-   - Validate input data for updates.
+2. **Create Dispute Controller**
+   - Implement functions to handle GET and PUT requests for disputes.
 
-2. **disputesRoutes.js**
-   - Define routes for fetching disputes (`GET /api/disputes`) and updating status (`PUT /api/disputes/:id`).
+3. **Define API Routes**
+   - Set up routes in `disputeRoutes.js` to connect to the controller methods.
 
-3. **Dispute.js**
-   - Define the schema for disputes, including fields for status, date, and details.
-
-4. **disputesService.js**
-   - Implement logic for querying disputes and updating their status in the database.
-
-5. **authMiddleware.js**
-   - Ensure only authenticated admin users can access the disputes API.
+4. **Implement Authentication Middleware**
+   - Ensure that only authenticated admin users can access the dispute API.
 
 ## Testing
 
-- **File Paths**
-  - `src/tests/AdminDisputesTable.test.js`
-  - `src/tests/disputesController.test.js`
-  - `src/tests/disputesService.test.js`
+- **Frontend**
+  - Write unit tests for `AdminDisputesTable` and `useDisputes`.
+  - Conduct integration tests for the complete flow from UI to API.
 
-- **Responsibilities**
-  - Write unit tests for components and API endpoints.
-  - Ensure all functionalities are covered, including edge cases.
+- **Backend**
+  - Write unit tests for dispute controller methods.
+  - Test API routes to ensure correct responses and status codes.
 
 ## Deployment
 
-- Ensure the feature is deployed to the staging environment for testing before moving to production.
-- Monitor API performance and UI responsiveness post-deployment.
+- Ensure all changes are merged into the main branch.
+- Deploy the updated frontend and backend to the staging environment for QA.
+- After successful testing, deploy to production.
 
+## Timeline
+
+- **Week 1**: Frontend development
+- **Week 2**: Backend development
+- **Week 3**: Testing and deployment
 ```
