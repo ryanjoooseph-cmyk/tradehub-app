@@ -2,108 +2,100 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update the status of disputes. It will interact with the `/api/disputes` endpoint.
 
 ## File Structure
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputeTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputes.js
-  ├── styles
-  │   └── AdminDisputes.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
-```
+### Frontend
 
-## Responsibilities
+- **File Paths**
+  - `src/components/AdminDisputesTable.jsx`
+    - **Responsibilities**: 
+      - Render the admin disputes table.
+      - Implement filtering functionality.
+      - Handle actions to update dispute status.
+  
+  - `src/hooks/useDisputes.js`
+    - **Responsibilities**: 
+      - Fetch disputes data from `/api/disputes`.
+      - Manage state for disputes and loading/error states.
+  
+  - `src/pages/AdminDisputesPage.jsx`
+    - **Responsibilities**: 
+      - Set up the route `/admin/disputes/321`.
+      - Integrate `AdminDisputesTable` component.
+  
+  - `src/services/api.js`
+    - **Responsibilities**: 
+      - Define API calls to `/api/disputes`.
+      - Handle request/response and error management.
 
-### UI Components
+  - `src/styles/AdminDisputes.css`
+    - **Responsibilities**: 
+      - Style the admin disputes table and filters.
 
-- **AdminDisputeTable.jsx**
-  - Render the table of disputes with pagination.
-  - Integrate filters for dispute status and date range.
-  - Handle row actions for updating dispute status.
+### Backend
 
-- **DisputeFilter.jsx**
-  - Provide filter inputs for status and date.
-  - Emit filter changes to the parent component.
+- **File Paths**
+  - `src/routes/disputes.js`
+    - **Responsibilities**: 
+      - Define the API route `/api/disputes`.
+      - Handle GET requests to fetch disputes.
+      - Handle PUT requests to update dispute status.
+  
+  - `src/controllers/disputesController.js`
+    - **Responsibilities**: 
+      - Implement logic for fetching disputes.
+      - Implement logic for updating dispute status.
+  
+  - `src/models/Dispute.js`
+    - **Responsibilities**: 
+      - Define the Dispute model/schema.
+      - Include methods for querying and updating disputes.
+  
+  - `src/middleware/authMiddleware.js`
+    - **Responsibilities**: 
+      - Ensure only authorized admin users can access the disputes API.
 
-- **StatusUpdateModal.jsx**
-  - Display a modal for confirming status updates.
-  - Handle user input for new status and trigger API call.
+## Tasks
 
-### Pages
+### Frontend Tasks
+1. **Create AdminDisputesTable Component**
+   - Implement table structure and filtering UI.
+   - Add buttons for updating dispute status.
 
-- **AdminDisputesPage.jsx**
-  - Main page component for `/admin/disputes/321`.
-  - Fetch disputes data using `useDisputes` hook.
-  - Render `AdminDisputeTable` and `DisputeFilter`.
+2. **Implement useDisputes Hook**
+   - Fetch data from `/api/disputes` and manage state.
 
-### API Integration
+3. **Set Up AdminDisputesPage**
+   - Create the route and integrate the table component.
 
-- **api/disputes.js**
-  - Define API calls for fetching disputes and updating status.
-  - Implement error handling for API responses.
+4. **Style the Component**
+   - Apply styles for a clean and functional UI.
 
-### Custom Hooks
+### Backend Tasks
+1. **Define API Route for Disputes**
+   - Create GET and PUT endpoints in `disputes.js`.
 
-- **hooks/useDisputes.js**
-  - Fetch disputes data from `/api/disputes` endpoint.
-  - Manage local state for disputes and loading/error states.
+2. **Implement Controller Logic**
+   - Fetch disputes and handle updates in `disputesController.js`.
 
-### Styles
+3. **Create Dispute Model**
+   - Define schema and methods for database interactions.
 
-- **styles/AdminDisputes.css**
-  - Define styles for the admin disputes table and filters.
-  - Ensure responsive design for mobile and desktop views.
+4. **Implement Authentication Middleware**
+   - Protect the API routes from unauthorized access.
 
-### Utilities
+## Testing
+- **Frontend**
+  - Write unit tests for components and hooks.
+  - Conduct integration tests for the entire page.
 
-- **utils/constants.js**
-  - Define constants for dispute statuses and API endpoints.
+- **Backend**
+  - Write unit tests for controller methods.
+  - Test API endpoints with tools like Postman or Jest.
 
-## Development Steps
-
-1. **Setup Project Structure**
-   - Create the file structure as outlined above.
-
-2. **Implement API Calls**
-   - Develop the API functions in `api/disputes.js`.
-
-3. **Create UI Components**
-   - Build `AdminDisputeTable`, `DisputeFilter`, and `StatusUpdateModal`.
-
-4. **Develop Main Page**
-   - Implement `AdminDisputesPage` to integrate components and API.
-
-5. **Add Custom Hook**
-   - Create `useDisputes` for data fetching and state management.
-
-6. **Style the Components**
-   - Apply styles in `AdminDisputes.css` for a polished UI.
-
-7. **Testing**
-   - Write unit tests for components and API functions.
-   - Conduct integration testing for the complete flow.
-
-8. **Documentation**
-   - Document the API endpoints and component usage.
-
-9. **Deployment**
-   - Prepare the feature for deployment and monitor for issues.
-
-## Timeline
-- **Week 1:** Setup and API implementation.
-- **Week 2:** UI component development and integration.
-- **Week 3:** Testing and documentation.
-- **Week 4:** Deployment and feedback collection.
+## Deployment
+- Ensure all changes are merged into the main branch.
+- Deploy to staging for QA testing before production release.
 ```
