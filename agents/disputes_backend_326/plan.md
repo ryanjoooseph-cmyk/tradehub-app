@@ -4,78 +4,86 @@
 ## Directory Structure
 ```
 /disputes_backend_326
-├── /api
-│   ├── disputes.js
-│   └── index.js
-├── /controllers
-│   └── disputesController.js
-├── /models
-│   └── disputeModel.js
-├── /routes
-│   └── disputesRoutes.js
-├── /services
-│   └── disputesService.js
-├── /middlewares
-│   └── authMiddleware.js
-├── /tests
-│   ├── disputesController.test.js
-│   └── disputesRoutes.test.js
-└── app.js
+│
+├── api
+│   ├── __init__.py
+│   ├── disputes.py
+│   └── utils.py
+│
+├── models
+│   ├── __init__.py
+│   └── dispute.py
+│
+├── schemas
+│   ├── __init__.py
+│   └── dispute_schema.py
+│
+├── services
+│   ├── __init__.py
+│   └── dispute_service.py
+│
+├── tests
+│   ├── __init__.py
+│   ├── test_disputes.py
+│   └── test_dispute_service.py
+│
+└── app.py
 ```
 
 ## Responsibilities
 
-### 1. API Implementation
-- **File:** `/api/disputes.js`
-  - Set up Express router for `/api/disputes` route.
-  - Define endpoints: 
-    - `GET /api/disputes` - List all disputes.
-    - `POST /api/disputes` - Create a new dispute.
-    - `PUT /api/disputes/:id` - Update an existing dispute.
+### 1. API Layer
+- **File:** `api/disputes.py`
+  - Implement routes for:
+    - `GET /api/disputes`: List all disputes.
+    - `POST /api/disputes`: Create a new dispute.
+    - `PUT /api/disputes/<id>`: Update an existing dispute.
+  - Handle request validation and response formatting.
 
-- **File:** `/api/index.js`
-  - Import and use the disputes router.
-  
-### 2. Controller Logic
-- **File:** `/controllers/disputesController.js`
-  - Implement functions to handle:
+### 2. Data Models
+- **File:** `models/dispute.py`
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier.
+    - `evidence_urls`: Array of strings.
+    - `status`: Enum (OPEN, REVIEW, RESOLVED).
+  - Implement methods for CRUD operations.
+
+### 3. Data Validation
+- **File:** `schemas/dispute_schema.py`
+  - Create Pydantic schemas for:
+    - Dispute creation and update validation.
+    - Ensure `evidence_urls` is an array and `status` is one of the defined enums.
+
+### 4. Business Logic
+- **File:** `services/dispute_service.py`
+  - Implement service functions for:
     - Listing disputes.
-    - Creating a new dispute (with `evidence_urls` and status).
-    - Updating dispute status (to OPEN/REVIEW/RESOLVED).
-
-### 3. Data Model
-- **File:** `/models/disputeModel.js`
-  - Define the dispute schema:
-    - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN/REVIEW/RESOLVED).
-  - Implement Mongoose model for database interactions.
-
-### 4. Service Layer
-- **File:** `/services/disputesService.js`
-  - Implement business logic for:
-    - Fetching disputes from the database.
     - Creating a new dispute.
-    - Updating dispute status.
+    - Updating the status of a dispute.
+  - Ensure proper error handling and logging.
 
-### 5. Middleware
-- **File:** `/middlewares/authMiddleware.js`
-  - Implement authentication middleware to protect routes if necessary.
+### 5. Testing
+- **File:** `tests/test_disputes.py`
+  - Write unit tests for API endpoints.
+  - Validate responses and status codes.
+  
+- **File:** `tests/test_dispute_service.py`
+  - Write unit tests for service functions.
+  - Test edge cases and error scenarios.
 
-### 6. Route Testing
-- **File:** `/tests/disputesController.test.js`
-  - Write unit tests for controller functions.
-
-- **File:** `/tests/disputesRoutes.test.js`
-  - Write integration tests for API routes.
-
-### 7. Main Application File
-- **File:** `/app.js`
-  - Set up Express application.
-  - Connect to the database.
-  - Use routes and middleware.
+### 6. Main Application
+- **File:** `app.py`
+  - Set up the FastAPI application.
+  - Include API routes and middleware.
+  - Configure CORS and other necessary settings.
 
 ## Timeline
-- **Week 1:** Set up project structure and implement API routes.
-- **Week 2:** Develop controller and service logic.
-- **Week 3:** Create models and middleware.
-- **Week 4:** Write tests and finalize documentation.
+- **Week 1:** Set up directory structure and implement API routes.
+- **Week 2:** Develop data models and validation schemas.
+- **Week 3:** Implement business logic and testing.
+- **Week 4:** Finalize testing, documentation, and deployment.
+
+## Documentation
+- Update README.md with API usage examples.
+- Document data model and schema details.
 ```
