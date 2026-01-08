@@ -4,78 +4,90 @@
 ## Directory Structure
 ```
 /disputes_backend_326
-├── /api
+├── api
+│   ├── disputes.py
+│   ├── __init__.py
+├── models
+│   ├── dispute.py
+│   ├── __init__.py
+├── services
+│   ├── dispute_service.py
+│   ├── __init__.py
+├── tests
+│   ├── test_disputes.py
+│   ├── __init__.py
+├── ui
+│   ├── disputes_page.html
 │   ├── disputes.js
-│   └── index.js
-├── /controllers
-│   └── disputesController.js
-├── /models
-│   └── disputeModel.js
-├── /routes
-│   └── disputesRoutes.js
-├── /services
-│   └── disputesService.js
-├── /middlewares
-│   └── authMiddleware.js
-├── /tests
-│   ├── disputesController.test.js
-│   └── disputesRoutes.test.js
-└── app.js
+│   ├── disputes.css
+└── app.py
 ```
 
-## Responsibilities
+## API Implementation
 
-### 1. API Implementation
-- **File:** `/api/disputes.js`
-  - Set up Express router for `/api/disputes` route.
-  - Define endpoints: 
-    - `GET /api/disputes` - List all disputes.
-    - `POST /api/disputes` - Create a new dispute.
-    - `PUT /api/disputes/:id` - Update an existing dispute.
+### File: `/api/disputes.py`
+- **Responsibilities:**
+  - Define Flask routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Handle request validation and response formatting.
 
-- **File:** `/api/index.js`
-  - Import and use the disputes router.
-  
-### 2. Controller Logic
-- **File:** `/controllers/disputesController.js`
-  - Implement functions to handle:
-    - Listing disputes.
-    - Creating a new dispute (with `evidence_urls` and status).
-    - Updating dispute status (to OPEN/REVIEW/RESOLVED).
+### File: `/models/dispute.py`
+- **Responsibilities:**
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for database interactions (CRUD).
 
-### 3. Data Model
-- **File:** `/models/disputeModel.js`
-  - Define the dispute schema:
-    - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN/REVIEW/RESOLVED).
-  - Implement Mongoose model for database interactions.
-
-### 4. Service Layer
-- **File:** `/services/disputesService.js`
+### File: `/services/dispute_service.py`
+- **Responsibilities:**
   - Implement business logic for:
-    - Fetching disputes from the database.
-    - Creating a new dispute.
-    - Updating dispute status.
+    - Creating a dispute
+    - Retrieving disputes
+    - Updating dispute status
+  - Validate evidence URLs and status transitions.
 
-### 5. Middleware
-- **File:** `/middlewares/authMiddleware.js`
-  - Implement authentication middleware to protect routes if necessary.
+## UI Implementation
 
-### 6. Route Testing
-- **File:** `/tests/disputesController.test.js`
-  - Write unit tests for controller functions.
+### File: `/ui/disputes_page.html`
+- **Responsibilities:**
+  - Create HTML structure for displaying disputes.
+  - Include forms for creating and updating disputes.
+  - Use placeholders for dynamic content.
 
-- **File:** `/tests/disputesRoutes.test.js`
-  - Write integration tests for API routes.
+### File: `/ui/disputes.js`
+- **Responsibilities:**
+  - Implement AJAX calls to API endpoints:
+    - Fetch disputes on page load
+    - Handle form submissions for creating/updating disputes
+  - Update the UI dynamically based on API responses.
 
-### 7. Main Application File
-- **File:** `/app.js`
-  - Set up Express application.
-  - Connect to the database.
-  - Use routes and middleware.
+### File: `/ui/disputes.css`
+- **Responsibilities:**
+  - Style the disputes page for better user experience.
+  - Ensure responsive design for various devices.
+
+## Testing
+
+### File: `/tests/test_disputes.py`
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Test model methods and service logic.
+  - Use a testing framework (e.g., pytest) for assertions.
+
+## Main Application
+
+### File: `/app.py`
+- **Responsibilities:**
+  - Initialize Flask app and register API routes.
+  - Set up database connection and configurations.
+  - Serve the UI files for the disputes page.
 
 ## Timeline
-- **Week 1:** Set up project structure and implement API routes.
-- **Week 2:** Develop controller and service logic.
-- **Week 3:** Create models and middleware.
-- **Week 4:** Write tests and finalize documentation.
+- **Week 1:** API development (routes, models, services)
+- **Week 2:** UI development (HTML, JS, CSS)
+- **Week 3:** Testing and bug fixing
+- **Week 4:** Deployment and documentation
 ```
