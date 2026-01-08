@@ -1,37 +1,55 @@
 name: merge-when-green
-
 on:
   pull_request_target:
     types: [opened, reopened, synchronize, labeled, ready_for_review]
-
 permissions:
   contents: write
   pull-requests: write
 
-concurrency:
-  group: mwg-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
-
 jobs:
   automerge:
-    if: >
-      github.event.pull_request.base.ref == 'main' &&
-      contains(toJson(github.event.pull_request.labels), 'automerge')
+    # need the label, cannot be draft
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'automerge') &&
+      github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for required checks (ignore this workflow)
-        uses: peter-evans/wait-for-checks@v3
+      - name: Check changed paths
+        id: paths
+        uses: dorny/paths-filter@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          allowed-conclusions: success
-          ignore-checks: |
-            merge-when-green / automerge
-            merge-when-green
-          timeout: 20m
-          interval: 10
+          filters: |
+            risky:
+              - 'app/api/**'
+              - 'server/**'
+              - 'lib/**'
+              - 'src/**'
+              - '**/*.yml'
+              - '**/*.yaml'
+              - '**/package*.json'
+              - 'pnpm-lock.yaml'
+              - 'yarn.lock'
+            safe:
+              - 'agents/**'
+              - '**/*.md'
+              - '.github/**'
 
-      - name: Squash-merge the PR (and delete branch)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
+      # If “risky” paths changed, we succeed but do nothing (manual review).
+      - name: Stop if risky (no-op success)
+        if: steps.paths.outputs.risky == 'true' && steps.paths.outputs.safe != 'true'
+        run: echo "Contains risky paths, skipping automerge."
+
+      - name: Enable PR automerge (squash)
+        if: steps.paths.outputs.risky != 'true'
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
+
+      - name: Merge when green
+        if: steps.paths.outputs.risky != 'true'
+        uses: peter-evans/merge-when-green@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
