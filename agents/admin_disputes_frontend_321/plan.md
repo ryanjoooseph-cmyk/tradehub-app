@@ -13,71 +13,69 @@
   ├── styles
   │   ├── AdminDisputesPage.css
   ├── utils
-  │   ├── apiUtils.js
-  └── App.js
+  │   ├── apiClient.js
+  ├── hooks
+  │   ├── useDisputes.js
 ```
 
-## File Responsibilities
+## Responsibilities
 
 ### API Layer
-- **`/src/api/disputes.js`**
-  - Implement API calls to `/api/disputes`.
-  - Functions:
-    - `fetchDisputes()`: Fetch all disputes.
-    - `updateDisputeStatus(disputeId, status)`: Update the status of a specific dispute.
+- **File:** `/src/api/disputes.js`
+  - Implement API calls to `/api/disputes` for fetching, updating, and filtering disputes.
+  - Define functions: `fetchDisputes`, `updateDisputeStatus`.
 
-### Components
-- **`/src/components/AdminDisputesTable.js`**
-  - Create a table to display disputes.
-  - Implement filters for sorting and searching disputes.
-  - Include action buttons to update dispute status (e.g., "Resolve", "Reject").
-  - Handle API calls using functions from `api/disputes.js`.
+### UI Components
+- **File:** `/src/components/AdminDisputesTable.js`
+  - Create a table component to display disputes with filters for status and date.
+  - Implement action buttons for updating dispute status.
+  - Use props to receive data and callback functions for status updates.
 
-### Pages
-- **`/src/pages/AdminDisputesPage.js`**
-  - Set up the main page for the admin disputes route.
-  - Render `AdminDisputesTable` component.
-  - Manage state for disputes and loading/error handling.
+### Page Structure
+- **File:** `/src/pages/AdminDisputesPage.js`
+  - Set up the main page layout for `/admin/disputes/321`.
+  - Integrate `AdminDisputesTable` component.
+  - Use `useDisputes` hook to manage state and API calls.
 
 ### Styles
-- **`/src/styles/AdminDisputesPage.css`**
-  - Style the Admin Disputes page and table.
-  - Ensure responsive design for various screen sizes.
+- **File:** `/src/styles/AdminDisputesPage.css`
+  - Style the Admin Disputes Page and table for a clean and responsive layout.
+  - Ensure filters and action buttons are visually distinct.
 
-### Utilities
-- **`/src/utils/apiUtils.js`**
-  - Create utility functions for API error handling and response parsing.
+### Utility Functions
+- **File:** `/src/utils/apiClient.js`
+  - Create a utility for making API requests (GET, POST, PUT).
+  - Handle error responses and loading states.
 
-### Main Application
-- **`/src/App.js`**
-  - Define the route for `/admin/disputes/321`.
-  - Ensure proper rendering of `AdminDisputesPage`.
+### Custom Hooks
+- **File:** `/src/hooks/useDisputes.js`
+  - Implement a custom hook to manage disputes state.
+  - Handle fetching, filtering, and updating disputes.
 
 ## Development Steps
-1. **Setup API Layer**
-   - Implement `fetchDisputes` and `updateDisputeStatus` in `disputes.js`.
+1. **Setup API Calls**
+   - Implement `fetchDisputes` and `updateDisputeStatus` in `/src/api/disputes.js`.
+   
+2. **Create UI Components**
+   - Build `AdminDisputesTable` in `/src/components/AdminDisputesTable.js`.
+   - Ensure it accepts props for data and actions.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable` with necessary props for data and actions.
-   - Implement filtering and action buttons.
+3. **Page Integration**
+   - Set up `AdminDisputesPage` in `/src/pages/AdminDisputesPage.js`.
+   - Use the `useDisputes` hook for data management.
 
-3. **Create Page Structure**
-   - Set up `AdminDisputesPage` to manage state and render the table.
+4. **Styling**
+   - Add styles in `/src/styles/AdminDisputesPage.css` for layout and components.
 
-4. **Style the Components**
-   - Write CSS for the page and table for a clean UI.
+5. **Testing**
+   - Write unit tests for API functions and components.
+   - Ensure integration tests for the complete page flow.
 
-5. **Integrate API with UI**
-   - Connect API calls to the table for fetching and updating disputes.
-
-6. **Testing**
-   - Write unit tests for API functions and component rendering.
-   - Perform integration testing for the complete flow.
-
-7. **Documentation**
+6. **Documentation**
    - Document API endpoints and usage in a README file.
+   - Comment code for clarity and maintainability.
 
 ## Deployment
 - Ensure all changes are merged into the main branch.
-- Deploy the application to the staging environment for QA.
+- Deploy to staging for QA testing before production release.
 ```
