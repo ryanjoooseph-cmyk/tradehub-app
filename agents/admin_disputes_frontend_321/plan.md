@@ -2,77 +2,90 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
 
 ## File Structure
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable
-  │   │   ├── AdminDisputesTable.jsx          # Table component for displaying disputes
-  │   │   ├── AdminDisputesTable.css          # Styles for the table component
-  │   │   └── AdminDisputesTable.test.js      # Unit tests for the table component
-  │   └── StatusUpdateModal
-  │       ├── StatusUpdateModal.jsx            # Modal for updating dispute status
-  │       ├── StatusUpdateModal.css            # Styles for the modal
-  │       └── StatusUpdateModal.test.js        # Unit tests for the modal
-  ├── pages
-  │   └── AdminDisputesPage.jsx                # Main page component for /admin/disputes/321
-  ├── hooks
-  │   └── useDisputes.js                       # Custom hook for fetching and managing disputes
-  ├── api
-  │   └── disputes.js                           # API calls related to disputes
-  ├── utils
-  │   └── filters.js                            # Utility functions for filtering disputes
-  └── App.js                                    # Main application file
-```
+### Frontend
+
+- **File Paths**
+  - `src/components/AdminDisputesTable.js`
+    - Responsible for rendering the disputes table with filters and actions.
+  - `src/components/DisputeFilter.js`
+    - Responsible for providing filter options for the disputes.
+  - `src/components/DisputeStatusUpdate.js`
+    - Responsible for handling status updates for selected disputes.
+  - `src/pages/AdminDisputesPage.js`
+    - Responsible for the main page layout and integrating components.
+  - `src/api/disputes.js`
+    - Responsible for API calls related to disputes.
+
+### Backend
+
+- **File Paths**
+  - `server/routes/disputes.js`
+    - Responsible for defining the API endpoints for disputes.
+  - `server/controllers/disputesController.js`
+    - Responsible for handling the business logic for disputes.
+  - `server/models/Dispute.js`
+    - Responsible for the dispute data model.
+  - `server/middleware/auth.js`
+    - Responsible for authentication middleware to secure the API.
+  - `server/utils/responseHandler.js`
+    - Responsible for standardizing API responses.
 
 ## Responsibilities
 
-### Components
-- **AdminDisputesTable.jsx**
-  - Render a table to display disputes with pagination and filtering options.
-  - Integrate with `useDisputes` hook to fetch and display data.
-  - Include action buttons for updating dispute status.
+### Frontend
 
-- **StatusUpdateModal.jsx**
-  - Create a modal for updating the status of a selected dispute.
-  - Handle form submission and call the appropriate API endpoint.
+1. **AdminDisputesTable.js**
+   - Fetch and display disputes data.
+   - Implement pagination and sorting.
+   - Integrate filters from `DisputeFilter.js`.
 
-### Pages
-- **AdminDisputesPage.jsx**
-  - Set up the route `/admin/disputes/321`.
-  - Render `AdminDisputesTable` and manage state for selected dispute.
+2. **DisputeFilter.js**
+   - Create filter options (e.g., status, date).
+   - Handle filter changes and update the table accordingly.
 
-### Hooks
-- **useDisputes.js**
-  - Implement logic to fetch disputes from `/api/disputes`.
-  - Provide filtering functionality and manage loading/error states.
+3. **DisputeStatusUpdate.js**
+   - Create a modal or inline action for updating dispute status.
+   - Call the API to update the status and refresh the table.
 
-### API
-- **disputes.js**
-  - Define API functions for fetching disputes and updating dispute status.
-  - Ensure proper error handling and response management.
+4. **AdminDisputesPage.js**
+   - Combine `AdminDisputesTable`, `DisputeFilter`, and `DisputeStatusUpdate`.
+   - Manage state for filters and selected disputes.
 
-### Utilities
-- **filters.js**
-  - Implement filtering logic for disputes based on user input.
+5. **api/disputes.js**
+   - Define functions for API calls (GET for fetching disputes, POST for updating status).
 
-## Testing
-- Write unit tests for components and hooks.
-- Ensure API functions are tested for various scenarios (success, failure).
+### Backend
 
-## Deployment
-- Integrate with CI/CD pipeline for automated testing and deployment.
-- Ensure proper environment variables are set for API endpoints.
+1. **routes/disputes.js**
+   - Define routes for:
+     - `GET /api/disputes` - Fetch all disputes with optional filters.
+     - `POST /api/disputes/update` - Update dispute status.
+
+2. **controllers/disputesController.js**
+   - Implement logic for fetching disputes and updating status.
+   - Validate incoming data and handle errors.
+
+3. **models/Dispute.js**
+   - Define the schema for the dispute data.
+   - Include necessary fields (e.g., id, status, createdAt).
+
+4. **middleware/auth.js**
+   - Implement authentication checks for API access.
+
+5. **utils/responseHandler.js**
+   - Standardize success and error responses for API calls.
 
 ## Timeline
-- **Week 1:** Component development and initial API setup.
-- **Week 2:** Integration of components, testing, and bug fixes.
-- **Week 3:** Final review, documentation, and deployment.
+- **Week 1**: Setup project structure and initial API endpoints.
+- **Week 2**: Develop frontend components and integrate with API.
+- **Week 3**: Testing and bug fixing.
+- **Week 4**: Final review and deployment.
 
-## Documentation
-- Update README with usage instructions and API documentation.
-- Document component props and expected data structures.
+## Notes
+- Ensure proper error handling and user feedback for actions.
+- Consider accessibility and responsiveness in the UI design.
 ```
