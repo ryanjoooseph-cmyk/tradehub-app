@@ -1,27 +1,23 @@
-export const kpis = {
-  escrowVolume: '$139,420',
-  releaseSLA: 27,
-  disputeRate: 2.3,
-};
+import type { EventInput } from '@fullcalendar/core';
 
-export const recentActivity = [
-  { time:'09:12', event:'Milestone funded', details:'JOB-3522  •  $3,250  •  Client: Lee' },
-  { time:'08:45', event:'Dispute opened', details:'JOB-3581  •  Electrical variation' },
-  { time:'08:07', event:'KYC passed', details:'Trade ABN 45 987 654 321' },
+// Demo resources: rows in resourceTimeGrid
+export const resources = [
+  { id: 'team-1', title: 'Team 1' },
+  { id: 'team-2', title: 'Team 2' },
+  { id: 'ute-1',  title: 'Ute #1' },
 ];
 
-export const disputes = [
-  { caseId:'DSP-126', jobId:'JOB-3501', status:'Inspector assigned', sla:16 },
-  { caseId:'DSP-128', jobId:'JOB-3603', status:'Evidence intake', sla:12 },
-];
+// Seed events (replace with API data later)
+const today = new Date();
+function iso(d: Date) { return d.toISOString().slice(0,19); }
 
-export function calendarEvents(){
-  const now = new Date();
-  const base = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const at = (d:number,h:number)=> new Date(base.getFullYear(), base.getMonth(), base.getDate()+d, h, 0, 0);
-  return [
-    { id:'e1', title:'Install downlights — Nguyen', start: at(0,9),  end: at(0,11) },
-    { id:'e2', title:'Quote: decking — Patel',     start: at(1,13), end: at(1,14) },
-    { id:'e3', title:'Switchboard upgrade — K. Lee', start: at(2,8), end: at(2,10) },
-  ];
-}
+const start1 = new Date(today); start1.setHours(9,0,0,0);
+const end1   = new Date(today); end1.setHours(11,0,0,0);
+
+const start2 = new Date(today); start2.setHours(12,0,0,0);
+const end2   = new Date(today); end2.setHours(15,0,0,0);
+
+export const calendarEvents: EventInput[] = [
+  { id: 'job-3501', title: 'JOB‑3501 – Rough‑in', start: iso(start1), end: iso(end1), resourceId: 'team-1' },
+  { id: 'job-3502', title: 'JOB‑3502 – Fit‑off',   start: iso(start2), end: iso(end2), resourceId: 'team-2' },
+];
