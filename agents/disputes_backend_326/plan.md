@@ -1,104 +1,97 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
-```
-/disputes_backend_326
-├── /api
-│   ├── disputes.py
-│   ├── __init__.py
-│   └── utils.py
-├── /models
-│   ├── dispute.py
-│   └── __init__.py
-├── /schemas
-│   ├── dispute_schema.py
-│   └── __init__.py
-├── /tests
-│   ├── test_disputes.py
-│   └── __init__.py
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.js
-│   │   ├── DisputeForm.js
-│   │   └── DisputeDetail.js
-│   ├── /pages
-│   │   ├── DisputePage.js
-│   │   └── index.js
-│   ├── /styles
-│   │   ├── Dispute.css
-│   │   └── index.css
-│   └── App.js
-└── server.py
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
 
-## API Implementation
+## File Structure
 
-### File: `/api/disputes.py`
-- **Responsibilities:**
-  - Define routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Handle request validation and response formatting.
+### API Implementation
 
-### File: `/api/utils.py`
-- **Responsibilities:**
-  - Utility functions for error handling and response generation.
+- **File Paths**
+  - `src/api/disputes/index.js`
+    - Responsible for defining the API routes and middleware for disputes.
+  - `src/api/disputes/controllers/disputeController.js`
+    - Contains the logic for handling requests related to disputes (open, list, update).
+  - `src/api/disputes/models/disputeModel.js`
+    - Defines the dispute schema and database interactions.
+  - `src/api/disputes/routes/disputeRoutes.js`
+    - Sets up the Express routes for the disputes API.
 
-### File: `/models/dispute.py`
-- **Responsibilities:**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement methods for CRUD operations.
+- **Responsibilities**
+  - `index.js`
+    - Initialize API and connect routes.
+  - `disputeController.js`
+    - Implement functions: `openDispute`, `listDisputes`, `updateDispute`.
+  - `disputeModel.js`
+    - Define the dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - `disputeRoutes.js`
+    - Define routes: 
+      - `POST /api/disputes` for opening a dispute.
+      - `GET /api/disputes` for listing disputes.
+      - `PUT /api/disputes/:id` for updating a dispute.
 
-### File: `/schemas/dispute_schema.py`
-- **Responsibilities:**
-  - Define request and response schemas using a validation library (e.g., Marshmallow).
+### UI Implementation
 
-## UI Implementation
+- **File Paths**
+  - `src/components/DisputeForm.js`
+    - UI component for opening a new dispute.
+  - `src/components/DisputeList.js`
+    - UI component for listing existing disputes.
+  - `src/components/DisputeDetail.js`
+    - UI component for viewing and updating a specific dispute.
+  - `src/services/disputeService.js`
+    - Contains functions for API calls related to disputes.
 
-### File: `/ui/components/DisputeList.js`
-- **Responsibilities:**
-  - Display a list of disputes with status and actions (view/update).
+- **Responsibilities**
+  - `DisputeForm.js`
+    - Handle form submission for opening a dispute, including evidence URLs.
+  - `DisputeList.js`
+    - Fetch and display a list of disputes with their statuses.
+  - `DisputeDetail.js`
+    - Fetch dispute details and allow updates to status and evidence URLs.
+  - `disputeService.js`
+    - Implement API calls: `createDispute`, `getDisputes`, `updateDispute`.
 
-### File: `/ui/components/DisputeForm.js`
-- **Responsibilities:**
-  - Form for creating and updating disputes.
-  - Handle input for `evidence_urls` and `status`.
+### Testing
 
-### File: `/ui/components/DisputeDetail.js`
-- **Responsibilities:**
-  - Show detailed view of a selected dispute.
+- **File Paths**
+  - `src/api/disputes/tests/disputeController.test.js`
+    - Unit tests for dispute controller functions.
+  - `src/components/__tests__/DisputeForm.test.js`
+    - Unit tests for the DisputeForm component.
+  - `src/components/__tests__/DisputeList.test.js`
+    - Unit tests for the DisputeList component.
+  - `src/components/__tests__/DisputeDetail.test.js`
+    - Unit tests for the DisputeDetail component.
 
-### File: `/ui/pages/DisputePage.js`
-- **Responsibilities:**
-  - Main page for managing disputes.
-  - Integrate `DisputeList` and `DisputeForm`.
+- **Responsibilities**
+  - `disputeController.test.js`
+    - Test API logic for creating, listing, and updating disputes.
+  - `DisputeForm.test.js`
+    - Test form validation and submission.
+  - `DisputeList.test.js`
+    - Test rendering and data fetching.
+  - `DisputeDetail.test.js`
+    - Test detail view and update functionality.
 
-### File: `/ui/styles/Dispute.css`
-- **Responsibilities:**
-  - Styles for dispute components.
+## Deployment
 
-## Testing
+- **File Paths**
+  - `src/config/config.js`
+    - Configuration settings for API and database connections.
+  - `src/server.js`
+    - Main server file to start the application.
 
-### File: `/tests/test_disputes.py`
-- **Responsibilities:**
-  - Unit tests for API endpoints.
-  - Integration tests for UI components.
+- **Responsibilities**
+  - `config.js`
+    - Set up environment variables and configurations.
+  - `server.js`
+    - Initialize the server and connect to the database.
 
-## Server Setup
-
-### File: `/server.py`
-- **Responsibilities:**
-  - Initialize the web server.
-  - Set up routing for the API and serve the UI.
-
-## Milestones
-1. **API Development**: Complete by [Date].
-2. **UI Development**: Complete by [Date].
-3. **Testing**: Complete by [Date].
-4. **Deployment**: Complete by [Date].
+## Timeline
+- **Week 1**: API setup and model definition.
+- **Week 2**: Implement API routes and controller logic.
+- **Week 3**: Develop UI components and integrate with API.
+- **Week 4**: Testing and deployment preparation.
 ```
