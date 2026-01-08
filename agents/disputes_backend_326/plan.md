@@ -1,98 +1,100 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Overview
+This plan outlines the development of the UI and API for managing disputes at the route `/api/disputes`. The feature will allow users to open, list, and update disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+
+## File Structure
+
 ```
-/disputes_backend_326
-├── api
-│   ├── disputes.py
-│   ├── __init__.py
-├── models
-│   ├── dispute.py
-│   ├── __init__.py
-├── schemas
-│   ├── dispute_schema.py
-│   ├── __init__.py
-├── services
-│   ├── dispute_service.py
-│   ├── __init__.py
-├── tests
-│   ├── test_disputes.py
-│   ├── __init__.py
-├── ui
-│   ├── disputes_page.html
-│   ├── disputes.js
-│   ├── styles.css
-└── app.py
+/src
+  ├── api
+  │   ├── disputes.js          # API route handlers for disputes
+  │   └── index.js             # Main API entry point
+  ├── components
+  │   ├── DisputeList.jsx      # Component to list all disputes
+  │   ├── DisputeForm.jsx      # Component to open/update a dispute
+  │   └── EvidenceUploader.jsx  # Component for uploading evidence URLs
+  ├── pages
+  │   └── DisputesPage.jsx      # Main page for disputes UI
+  ├── services
+  │   └── disputeService.js     # Service for API calls related to disputes
+  ├── styles
+  │   └── disputes.css          # Styles for disputes components
+  └── utils
+      └── apiUtils.js           # Utility functions for API requests
 ```
 
 ## API Implementation
 
-### 1. `api/disputes.py`
-- **Responsibilities**:
-  - Define API routes for `/api/disputes`.
-  - Implement endpoints:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
+### File: `/src/api/disputes.js`
+- **Responsibilities:**
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Open a new dispute
+    - `PUT /api/disputes/:id`: Update an existing dispute
   - Handle request validation and response formatting.
+  - Manage dispute statuses (OPEN, REVIEW, RESOLVED).
+  - Handle evidence URLs as an array in the dispute object.
 
-### 2. `models/dispute.py`
-- **Responsibilities**:
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement database interactions (CRUD operations).
-
-### 3. `schemas/dispute_schema.py`
-- **Responsibilities**:
-  - Define request and response schemas using a library like Marshmallow.
-  - Validate input data for creating and updating disputes.
-
-### 4. `services/dispute_service.py`
-- **Responsibilities**:
-  - Implement business logic for dispute management.
-  - Functions for creating, listing, and updating disputes.
-  - Handle status transitions and validations.
+### File: `/src/api/index.js`
+- **Responsibilities:**
+  - Set up Express.js server and middleware.
+  - Import and use the disputes routes.
 
 ## UI Implementation
 
-### 5. `ui/disputes_page.html`
-- **Responsibilities**:
-  - Create the HTML structure for displaying disputes.
-  - Include forms for creating and updating disputes.
-  - Display current status and evidence URLs.
+### File: `/src/components/DisputeList.jsx`
+- **Responsibilities:**
+  - Fetch and display a list of disputes.
+  - Allow users to view status and evidence URLs.
+  - Provide options to update or delete disputes.
 
-### 6. `ui/disputes.js`
-- **Responsibilities**:
-  - Implement JavaScript functions to handle API calls.
-  - Fetch disputes and update the UI dynamically.
-  - Handle form submissions for creating and updating disputes.
+### File: `/src/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Form for opening a new dispute or updating an existing one.
+  - Include fields for status and evidence URLs.
+  - Handle form submission and validation.
 
-### 7. `ui/styles.css`
-- **Responsibilities**:
-  - Style the disputes page for better user experience.
-  - Ensure responsive design for various devices.
+### File: `/src/components/EvidenceUploader.jsx`
+- **Responsibilities:**
+  - Component for uploading evidence URLs.
+  - Validate and manage the evidence URLs array.
+
+### File: `/src/pages/DisputesPage.jsx`
+- **Responsibilities:**
+  - Main page that integrates `DisputeList` and `DisputeForm`.
+  - Manage state for disputes and handle API calls via `disputeService`.
+
+## Service Layer
+
+### File: `/src/services/disputeService.js`
+- **Responsibilities:**
+  - Define functions for API calls:
+    - `fetchDisputes()`: GET request to fetch disputes.
+    - `createDispute(data)`: POST request to create a new dispute.
+    - `updateDispute(id, data)`: PUT request to update a dispute.
+
+## Styling
+
+### File: `/src/styles/disputes.css`
+- **Responsibilities:**
+  - Define styles for disputes components.
+  - Ensure responsive design and usability.
+
+## Utilities
+
+### File: `/src/utils/apiUtils.js`
+- **Responsibilities:**
+  - Create utility functions for handling API requests and responses.
+  - Include error handling and response parsing.
 
 ## Testing
+- Implement unit tests for API endpoints and UI components.
+- Ensure coverage for all functionalities related to disputes.
 
-### 8. `tests/test_disputes.py`
-- **Responsibilities**:
-  - Write unit tests for API endpoints.
-  - Test model methods and service functions.
-  - Validate UI interactions and API responses.
+## Deployment
+- Prepare for deployment by configuring environment variables and ensuring API security.
+- Document API endpoints and usage for frontend integration.
 
-## Main Application
-
-### 9. `app.py`
-- **Responsibilities**:
-  - Initialize the application and set up routing.
-  - Configure database connections and middleware.
-  - Serve the UI and API endpoints.
-
-## Additional Notes
-- Ensure proper error handling and logging throughout the application.
-- Consider implementing authentication if needed for dispute management.
-- Use environment variables for configuration settings.
 ```
