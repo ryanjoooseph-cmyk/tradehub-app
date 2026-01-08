@@ -3,99 +3,102 @@
 
 ## Directory Structure
 ```
-/api
-    ├── disputes
-    │   ├── disputesController.js
-    │   ├── disputesModel.js
-    │   ├── disputesRoutes.js
-    │   └── disputesService.js
-/public
-    ├── css
-    │   └── disputes.css
-    ├── js
-    │   └── disputes.js
-    └── index.html
+/disputes_backend_326
+│
+├── api
+│   ├── __init__.py
+│   ├── app.py
+│   ├── routes.py
+│   └── models.py
+│
+├── ui
+│   ├── index.html
+│   ├── css
+│   │   └── styles.css
+│   ├── js
+│   │   └── app.js
+│   └── components
+│       ├── DisputeList.js
+│       ├── DisputeForm.js
+│       └── DisputeDetail.js
+│
+├── tests
+│   ├── test_api.py
+│   └── test_ui.py
+│
+└── requirements.txt
 ```
 
 ## API Implementation
 
-### 1. `disputesModel.js`
-- **Responsibility**: Define the data model for disputes.
-- **Tasks**:
-  - Create a Mongoose schema for disputes with fields:
-    - `id`: String
-    - `evidence_urls`: Array of Strings
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `created_at`: Date
-    - `updated_at`: Date
+### File: `api/app.py`
+- **Responsibilities**: Initialize Flask app, configure CORS, set up database connection.
 
-### 2. `disputesService.js`
-- **Responsibility**: Business logic for handling disputes.
-- **Tasks**:
-  - Implement functions to:
-    - Create a new dispute.
-    - List all disputes.
-    - Update a dispute status.
-    - Validate evidence URLs.
-
-### 3. `disputesController.js`
-- **Responsibility**: Handle incoming API requests.
-- **Tasks**:
-  - Create methods for:
-    - `createDispute(req, res)`: Handle POST requests to create a dispute.
-    - `listDisputes(req, res)`: Handle GET requests to list disputes.
-    - `updateDispute(req, res)`: Handle PUT requests to update dispute status.
-
-### 4. `disputesRoutes.js`
-- **Responsibility**: Define API routes for disputes.
-- **Tasks**:
-  - Set up Express routes:
-    - `POST /api/disputes`: Create a new dispute.
+### File: `api/routes.py`
+- **Responsibilities**:
+  - Define API routes for:
     - `GET /api/disputes`: List all disputes.
-    - `PUT /api/disputes/:id`: Update a dispute status.
+    - `POST /api/disputes`: Create a new dispute.
+    - `PUT /api/disputes/<id>`: Update an existing dispute.
+  - Handle request validation and response formatting.
+
+### File: `api/models.py`
+- **Responsibilities**:
+  - Define Dispute model with fields:
+    - `id`: Unique identifier.
+    - `evidence_urls`: Array of URLs.
+    - `status`: Enum (OPEN, REVIEW, RESOLVED).
+  - Implement database operations (CRUD).
 
 ## UI Implementation
 
-### 5. `index.html`
-- **Responsibility**: Main HTML file for the disputes UI.
-- **Tasks**:
-  - Create a form for submitting new disputes.
-  - Create a section to list existing disputes with their statuses.
-  - Include buttons for updating dispute statuses.
+### File: `ui/index.html`
+- **Responsibilities**: Main HTML file to load the application.
 
-### 6. `disputes.js`
-- **Responsibility**: Handle front-end logic for disputes.
-- **Tasks**:
-  - Implement AJAX calls to the API:
-    - Create a new dispute.
-    - Fetch and display all disputes.
-    - Update dispute status based on user interaction.
+### File: `ui/css/styles.css`
+- **Responsibilities**: Basic styling for the UI components.
 
-### 7. `disputes.css`
-- **Responsibility**: Style the disputes UI.
-- **Tasks**:
-  - Style the dispute form and list.
-  - Ensure responsive design for mobile compatibility.
+### File: `ui/js/app.js`
+- **Responsibilities**: 
+  - Initialize application.
+  - Set up event listeners for API calls.
+  - Manage state for disputes.
+
+### File: `ui/components/DisputeList.js`
+- **Responsibilities**: 
+  - Fetch and display list of disputes.
+  - Handle dispute selection for detail view.
+
+### File: `ui/components/DisputeForm.js`
+- **Responsibilities**: 
+  - Form for creating/updating disputes.
+  - Validate input and submit to API.
+
+### File: `ui/components/DisputeDetail.js`
+- **Responsibilities**: 
+  - Display detailed view of a selected dispute.
+  - Allow status updates and evidence URL management.
 
 ## Testing
-### 8. `disputes.test.js`
-- **Responsibility**: Unit and integration tests for disputes.
-- **Tasks**:
-  - Write tests for API endpoints.
-  - Write tests for front-end functionality.
 
-## Deployment
-### 9. Deployment Steps
-- **Responsibility**: Prepare for deployment.
-- **Tasks**:
-  - Ensure all environment variables are set.
-  - Run database migrations if necessary.
-  - Deploy to the production server.
+### File: `tests/test_api.py`
+- **Responsibilities**: 
+  - Unit tests for API endpoints.
+  - Validate response formats and status codes.
 
-## Documentation
-### 10. API Documentation
-- **Responsibility**: Document API endpoints.
-- **Tasks**:
-  - Create a README.md with API usage examples.
-  - Include details on request/response formats.
+### File: `tests/test_ui.py`
+- **Responsibilities**: 
+  - Unit tests for UI components.
+  - Ensure correct rendering and functionality.
+
+## Dependencies
+
+### File: `requirements.txt`
+- **Responsibilities**: List required packages (Flask, Flask-CORS, etc.).
+
+## Timeline
+- **Week 1**: Set up API structure and database models.
+- **Week 2**: Implement API routes and testing.
+- **Week 3**: Develop UI components and integrate with API.
+- **Week 4**: Testing and bug fixing.
 ```
