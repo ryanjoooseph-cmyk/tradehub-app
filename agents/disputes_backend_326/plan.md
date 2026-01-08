@@ -1,115 +1,99 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
-
-## Directory Structure
-
+## Project Structure
 ```
-/disputes_backend_326
+/project-root
 │
 ├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── models.py                  # Database models for disputes
-│   ├── schemas.py                 # Pydantic schemas for request/response validation
-│   └── __init__.py                # API package initialization
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesRoutes.js
+│   │   └── disputesService.js
+│   └── /middleware
+│       └── authMiddleware.js
+│
+├── /models
+│   └── disputeModel.js
 │
 ├── /ui
 │   ├── /components
-│   │   ├── DisputeForm.jsx        # Form for creating/updating disputes
-│   │   ├── DisputeList.jsx        # Component for listing disputes
-│   │   └── DisputeItem.jsx        # Component for displaying individual dispute
-│   │
-│   ├── /pages
-│   │   └── DisputesPage.jsx       # Main page for disputes UI
-│   │
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
 │   ├── /hooks
-│   │   └── useDisputes.js         # Custom hook for API calls related to disputes
-│   │
-│   ├── /styles
-│   │   └── disputes.css           # CSS styles for disputes UI
-│   │
-│   └── App.jsx                    # Main application component
+│   │   └── useDisputes.js
+│   ├── /pages
+│   │   └── DisputesPage.jsx
+│   └── /styles
+│       └── Disputes.css
 │
 ├── /tests
-│   ├── test_disputes_api.py       # Unit tests for API endpoints
-│   ├── test_disputes_ui.jsx       # Unit tests for UI components
-│   └── __init__.py                # Tests package initialization
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /ui
+│       └── DisputesPage.test.jsx
 │
-└── requirements.txt                # Project dependencies
+├── /config
+│   └── dbConfig.js
+│
+└── server.js
 ```
 
-## API Implementation
+## Responsibilities
 
-### File: `/api/disputes.py`
-- **Responsibilities:**
-  - Define routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
+### API Implementation
+- **disputesController.js**
+  - Implement functions to handle requests: `listDisputes`, `createDispute`, `updateDispute`.
+  - Validate input and manage response formats.
 
-### File: `/api/models.py`
-- **Responsibilities:**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+- **disputesRoutes.js**
+  - Define routes for `/api/disputes`:
+    - `GET /api/disputes` - List all disputes.
+    - `POST /api/disputes` - Create a new dispute.
+    - `PUT /api/disputes/:id` - Update an existing dispute.
 
-### File: `/api/schemas.py`
-- **Responsibilities:**
-  - Define Pydantic schemas for:
-    - Request body for creating/updating disputes
-    - Response models for listing disputes
+- **disputesService.js**
+  - Business logic for disputes, including CRUD operations.
+  - Interact with the database model.
 
-## UI Implementation
+- **disputeModel.js**
+  - Define the Dispute schema with fields: `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED).
 
-### File: `/ui/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Create a form for users to input dispute details and evidence URLs.
-  - Handle form submission to the API.
+- **authMiddleware.js**
+  - Middleware for authentication and authorization of API requests.
 
-### File: `/ui/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide options to update or delete disputes.
+### UI Implementation
+- **DisputeList.jsx**
+  - Component to display a list of disputes with status and actions.
 
-### File: `/ui/components/DisputeItem.jsx`
-- **Responsibilities:**
-  - Display individual dispute details and status.
-  - Include buttons for updating status or adding evidence.
+- **DisputeForm.jsx**
+  - Form component for creating and updating disputes.
 
-### File: `/ui/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Implement API calls for fetching, creating, and updating disputes.
-  - Manage loading and error states.
+- **DisputeDetail.jsx**
+  - Component to show detailed information of a selected dispute.
 
-### File: `/ui/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Combine `DisputeForm` and `DisputeList` components.
-  - Manage overall state and interactions.
+- **useDisputes.js**
+  - Custom hook to manage API calls and state for disputes.
 
-## Testing
+- **DisputesPage.jsx**
+  - Main page component to render the dispute list and form.
 
-### File: `/tests/test_disputes_api.py`
-- **Responsibilities:**
-  - Write unit tests for API endpoints.
-  - Validate response formats and status codes.
+- **Disputes.css**
+  - Styles for dispute components.
 
-### File: `/tests/test_disputes_ui.jsx`
-- **Responsibilities:**
-  - Write unit tests for UI components.
-  - Ensure proper rendering and interaction.
+### Testing
+- **disputes.test.js**
+  - Unit tests for API endpoints and service logic.
 
-## Dependencies
-- Update `requirements.txt` with necessary libraries (e.g., FastAPI, Pydantic, React, Axios).
+- **DisputesPage.test.jsx**
+  - Unit tests for UI components and hooks.
 
-## Timeline
-- **Week 1:** API development
-- **Week 2:** UI development
-- **Week 3:** Testing and bug fixing
-- **Week 4:** Deployment and review
+### Configuration
+- **dbConfig.js**
+  - Database connection configuration for the API.
+
+### Server Setup
+- **server.js**
+  - Set up Express server and middleware, including routes for disputes.
 ```
