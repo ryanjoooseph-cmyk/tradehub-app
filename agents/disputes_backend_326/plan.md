@@ -3,89 +3,102 @@
 
 ## Project Structure
 ```
-/disputes_backend_326
+/project-root
 │
 ├── /api
-│   ├── /controllers
-│   │   └── disputesController.js        # Handle API logic for disputes
-│   ├── /models
-│   │   └── disputeModel.js               # Define dispute schema and model
-│   ├── /routes
-│   │   └── disputesRoutes.js             # Define API routes for disputes
-│   ├── /middlewares
-│   │   └── authMiddleware.js             # Handle authentication for API routes
-│   └── /validators
-│       └── disputeValidator.js           # Validate incoming requests
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesRoutes.js
+│   │   └── disputesService.js
+│   └── /middlewares
+│       └── authMiddleware.js
 │
-├── /client
+├── /models
+│   └── disputeModel.js
+│
+├── /ui
 │   ├── /components
-│   │   ├── DisputeList.js                # Component to list disputes
-│   │   ├── DisputeForm.js                # Component to create/update disputes
-│   │   └── DisputeDetail.js              # Component to view dispute details
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeDetail.jsx
+│   │   └── DisputeForm.jsx
 │   ├── /hooks
-│   │   └── useDisputes.js                # Custom hook for fetching/updating disputes
-│   ├── /services
-│   │   └── disputeService.js             # API service for dispute-related requests
+│   │   └── useDisputes.js
+│   ├── /pages
+│   │   └── DisputesPage.jsx
 │   └── /styles
-│       └── disputes.css                   # Styles for dispute components
+│       └── Disputes.css
 │
 ├── /tests
 │   ├── /api
-│   │   └── disputes.test.js               # Unit tests for API endpoints
-│   └── /client
-│       └── DisputeForm.test.js            # Unit tests for DisputeForm component
+│   │   └── disputes.test.js
+│   └── /ui
+│       └── DisputesPage.test.jsx
 │
-└── server.js                              # Main server file to initialize API
+└── server.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-1. **disputeModel.js**
-   - Define the Dispute schema with fields: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED), `created_at`, `updated_at`.
+### 1. **Model Definition**
+- **File:** `/models/disputeModel.js`
+- **Responsibility:** Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
 
-2. **disputesController.js**
-   - Implement functions:
-     - `listDisputes(req, res)`: Fetch all disputes.
-     - `createDispute(req, res)`: Create a new dispute.
-     - `updateDispute(req, res)`: Update an existing dispute by ID.
+### 2. **Service Layer**
+- **File:** `/api/disputes/disputesService.js`
+- **Responsibility:** Implement business logic for:
+  - Fetching all disputes (GET)
+  - Creating a new dispute (POST)
+  - Updating an existing dispute (PUT)
 
-3. **disputesRoutes.js**
-   - Set up routes:
-     - `GET /api/disputes`: List all disputes.
-     - `POST /api/disputes`: Create a new dispute.
-     - `PUT /api/disputes/:id`: Update a dispute by ID.
+### 3. **Controller Layer**
+- **File:** `/api/disputes/disputesController.js`
+- **Responsibility:** Handle HTTP requests and responses for:
+  - `GET /api/disputes` - List all disputes
+  - `POST /api/disputes` - Create a new dispute
+  - `PUT /api/disputes/:id` - Update a dispute status or evidence_urls
 
-4. **disputeValidator.js**
-   - Validate request bodies for creating/updating disputes (e.g., ensure `evidence_urls` is an array, `status` is valid).
+### 4. **Routing**
+- **File:** `/api/disputes/disputesRoutes.js`
+- **Responsibility:** Define routes for disputes and link them to the controller methods.
 
-5. **authMiddleware.js**
-   - Implement authentication checks for API routes.
+### 5. **Middleware**
+- **File:** `/api/middlewares/authMiddleware.js`
+- **Responsibility:** Implement authentication checks for API routes.
 
-### Client Implementation
-1. **DisputeList.js**
-   - Fetch and display a list of disputes using `useDisputes` hook.
+## UI Implementation
 
-2. **DisputeForm.js**
-   - Create a form to handle dispute creation and updates, including input for `evidence_urls` and `status`.
+### 1. **Dispute List Component**
+- **File:** `/ui/components/DisputeList.jsx`
+- **Responsibility:** Display a list of disputes with status and evidence URLs.
 
-3. **DisputeDetail.js**
-   - Display detailed information for a selected dispute.
+### 2. **Dispute Detail Component**
+- **File:** `/ui/components/DisputeDetail.jsx`
+- **Responsibility:** Show detailed view of a selected dispute, including options to update status and add evidence URLs.
 
-4. **useDisputes.js**
-   - Custom hook to manage API calls for fetching, creating, and updating disputes.
+### 3. **Dispute Form Component**
+- **File:** `/ui/components/DisputeForm.jsx`
+- **Responsibility:** Form for creating or updating disputes.
 
-5. **disputeService.js**
-   - Implement API calls for disputes (GET, POST, PUT).
+### 4. **Custom Hook**
+- **File:** `/ui/hooks/useDisputes.js`
+- **Responsibility:** Fetch disputes from the API and manage state for the UI.
 
-### Testing
-1. **disputes.test.js**
-   - Write unit tests for API endpoints to ensure correct functionality and error handling.
+### 5. **Disputes Page**
+- **File:** `/ui/pages/DisputesPage.jsx`
+- **Responsibility:** Main page to render the dispute list and handle navigation to detail and form components.
 
-2. **DisputeForm.test.js**
-   - Write unit tests for the DisputeForm component to ensure form validation and submission work as expected.
+## Testing
+
+### 1. **API Tests**
+- **File:** `/tests/api/disputes.test.js`
+- **Responsibility:** Write tests for API endpoints to ensure correct functionality.
+
+### 2. **UI Tests**
+- **File:** `/tests/ui/DisputesPage.test.jsx`
+- **Responsibility:** Write tests for the DisputesPage and its components.
 
 ## Deployment
-- Ensure all code is reviewed and merged into the main branch.
-- Deploy the API and client applications to the respective environments.
+- Ensure all changes are committed and pushed to the repository.
+- Deploy to staging environment for QA testing.
+- After approval, deploy to production.
 ```
