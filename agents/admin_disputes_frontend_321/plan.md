@@ -2,86 +2,93 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the necessary files and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+This plan outlines the development of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The UI will include an admin table with filters and actions to update dispute statuses. The API will handle data retrieval and updates.
 
 ## File Structure
 
 ### Frontend
 
-#### 1. UI Components
-- **File:** `src/components/AdminDisputesTable.js`
-  - **Responsibilities:** 
-    - Render the disputes table with filters.
-    - Handle pagination and sorting.
-    - Display dispute details.
+- **/src**
+  - **/components**
+    - **AdminDisputesTable.jsx**  
+      - Responsibility: Render the admin disputes table with filters and actions.
+    - **DisputeRow.jsx**  
+      - Responsibility: Render individual dispute rows with status update options.
+    - **FilterComponent.jsx**  
+      - Responsibility: Provide filtering options for the disputes table.
+  
+  - **/pages**
+    - **AdminDisputesPage.jsx**  
+      - Responsibility: Main page component for `/admin/disputes/321`, integrating the table and filters.
 
-- **File:** `src/components/DisputeStatusDropdown.js`
-  - **Responsibilities:** 
-    - Provide a dropdown for updating dispute status.
-    - Emit events on status change.
+  - **/hooks**
+    - **useDisputes.js**  
+      - Responsibility: Custom hook for fetching and managing disputes data from the API.
 
-- **File:** `src/components/Filters.js`
-  - **Responsibilities:** 
-    - Render filter inputs (e.g., status, date range).
-    - Handle filter state and updates.
-
-#### 2. Pages
-- **File:** `src/pages/AdminDisputesPage.js`
-  - **Responsibilities:** 
-    - Main page component for `/admin/disputes/321`.
-    - Integrate `AdminDisputesTable` and `Filters`.
-    - Manage API calls to fetch disputes.
-
-#### 3. Styles
-- **File:** `src/styles/AdminDisputes.css`
-  - **Responsibilities:** 
-    - Define styles for the admin disputes page and components.
+  - **/styles**
+    - **AdminDisputes.css**  
+      - Responsibility: Styles for the admin disputes page and components.
 
 ### API
 
-#### 1. API Endpoints
-- **File:** `src/api/disputes.js`
-  - **Responsibilities:** 
-    - Define functions to call `/api/disputes` for fetching and updating disputes.
-    - Handle API responses and errors.
+- **/api**
+  - **/disputes**
+    - **index.js**  
+      - Responsibility: Main API endpoint for handling GET and POST requests for disputes.
+    - **getDisputes.js**  
+      - Responsibility: Function to retrieve disputes based on filters.
+    - **updateDisputeStatus.js**  
+      - Responsibility: Function to update the status of a specific dispute.
 
-#### 2. API Routes
-- **File:** `server/routes/disputes.js`
-  - **Responsibilities:** 
-    - Implement Express routes for handling disputes.
-    - Define GET and POST methods for fetching and updating dispute statuses.
+### Tests
 
-#### 3. Controllers
-- **File:** `server/controllers/disputesController.js`
-  - **Responsibilities:** 
-    - Handle business logic for disputes.
-    - Interact with the database to fetch and update dispute records.
+- **/tests**
+  - **/components**
+    - **AdminDisputesTable.test.js**  
+      - Responsibility: Unit tests for the AdminDisputesTable component.
+    - **DisputeRow.test.js**  
+      - Responsibility: Unit tests for the DisputeRow component.
+  
+  - **/api**
+    - **disputes.test.js**  
+      - Responsibility: Integration tests for the disputes API endpoints.
 
-### State Management
-- **File:** `src/store/disputesSlice.js`
-  - **Responsibilities:** 
-    - Manage disputes state using Redux or Context API.
-    - Handle actions for fetching and updating disputes.
+## Development Tasks
 
-### Testing
-- **File:** `src/tests/AdminDisputesPage.test.js`
-  - **Responsibilities:** 
-    - Write unit tests for the `AdminDisputesPage` component.
-    - Ensure proper rendering and API interaction.
+1. **Setup Project Structure**
+   - Create necessary directories and files as outlined above.
 
-- **File:** `src/tests/disputesAPI.test.js`
-  - **Responsibilities:** 
-    - Write tests for API functions in `disputes.js`.
-    - Validate API responses and error handling.
+2. **Develop Frontend Components**
+   - Implement `AdminDisputesTable.jsx` to display the table.
+   - Create `DisputeRow.jsx` for individual dispute rendering.
+   - Build `FilterComponent.jsx` for filtering functionality.
+   - Integrate components in `AdminDisputesPage.jsx`.
 
-## Deployment
-- **File:** `docker-compose.yml`
-  - **Responsibilities:** 
-    - Define services for frontend and backend.
-    - Ensure proper environment setup for deployment.
+3. **Implement API Endpoints**
+   - Create `index.js` for the disputes API.
+   - Implement `getDisputes.js` to handle GET requests.
+   - Implement `updateDisputeStatus.js` for updating dispute statuses.
 
-## Documentation
-- **File:** `docs/admin_disputes_feature.md`
-  - **Responsibilities:** 
-    - Document feature overview, API endpoints, and usage instructions.
+4. **Add State Management**
+   - Use `useDisputes.js` to manage API calls and state in the frontend.
+
+5. **Styling**
+   - Write CSS in `AdminDisputes.css` for a clean and responsive design.
+
+6. **Testing**
+   - Write unit tests for components and API endpoints.
+   - Ensure all tests pass before deployment.
+
+7. **Documentation**
+   - Document API endpoints and frontend components for future reference.
+
+## Timeline
+- **Week 1:** Setup project structure and develop frontend components.
+- **Week 2:** Implement API endpoints and state management.
+- **Week 3:** Styling and testing.
+- **Week 4:** Documentation and final review.
+
+## Notes
+- Ensure to handle error states and loading indicators in the UI.
+- Consider accessibility best practices in the UI design.
 ```
