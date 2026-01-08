@@ -23,8 +23,10 @@
 │   │   └── DisputeDetail.jsx
 │   ├── /hooks
 │   │   └── useDisputes.js
-│   └── /pages
-│       └── DisputesPage.jsx
+│   ├── /pages
+│   │   └── DisputesPage.jsx
+│   └── /styles
+│       └── Disputes.css
 │
 ├── /tests
 │   ├── /api
@@ -54,14 +56,14 @@
 ### 3. **Routing**
 - **File:** `/api/disputes/disputesRoutes.js`
 - **Responsibilities:**
-  - Set up Express routes for the disputes API.
-  - Connect routes to respective controller functions.
+  - Define routes for disputes API.
+  - Integrate controller functions with respective HTTP methods.
 
 ### 4. **Service Layer**
 - **File:** `/api/disputes/disputesService.js`
 - **Responsibilities:**
-  - Implement business logic for dispute operations.
-  - Handle database interactions.
+  - Implement business logic for disputes.
+  - Handle database interactions and data validation.
 
 ### 5. **Middleware**
 - **File:** `/api/middleware/authMiddleware.js`
@@ -70,47 +72,53 @@
 
 ## UI Implementation
 
-### 6. **Components**
+### 6. **Dispute List Component**
 - **File:** `/ui/components/DisputeList.jsx`
 - **Responsibilities:**
-  - Display a list of disputes with status and evidence URLs.
+  - Fetch and display a list of disputes.
+  - Allow navigation to dispute details.
 
+### 7. **Dispute Form Component**
 - **File:** `/ui/components/DisputeForm.jsx`
 - **Responsibilities:**
-  - Form for creating/updating disputes.
+  - Handle creation and updating of disputes.
+  - Manage form state and validation.
 
+### 8. **Dispute Detail Component**
 - **File:** `/ui/components/DisputeDetail.jsx`
 - **Responsibilities:**
-  - Display detailed view of a selected dispute.
+  - Display detailed information of a selected dispute.
+  - Provide options to update status and add evidence URLs.
 
-### 7. **Custom Hook**
+### 9. **Custom Hook**
 - **File:** `/ui/hooks/useDisputes.js`
 - **Responsibilities:**
-  - Fetch disputes from the API.
-  - Handle state management for disputes.
+  - Create a custom hook for fetching and managing disputes state.
 
-### 8. **Page Component**
+### 10. **Main Page**
 - **File:** `/ui/pages/DisputesPage.jsx`
 - **Responsibilities:**
-  - Combine components to create the main disputes page.
-  - Handle routing and state management.
+  - Integrate components to create the main disputes interface.
+
+### 11. **Styling**
+- **File:** `/ui/styles/Disputes.css`
+- **Responsibilities:**
+  - Style the disputes components for a cohesive UI.
 
 ## Testing
 
-### 9. **API Tests**
+### 12. **API Tests**
 - **File:** `/tests/api/disputes.test.js`
 - **Responsibilities:**
-  - Write tests for API endpoints (GET, POST, PUT).
-  - Validate response structure and status codes.
+  - Write unit tests for API endpoints using Jest and Supertest.
 
-### 10. **UI Tests**
+### 13. **UI Tests**
 - **File:** `/tests/ui/DisputesPage.test.jsx`
 - **Responsibilities:**
-  - Write tests for the DisputesPage component.
-  - Validate rendering and interaction of UI components.
+  - Write tests for UI components using React Testing Library.
 
 ## Deployment
-- Ensure all changes are documented and tested.
-- Deploy API and UI to the staging environment for QA.
+- Ensure all code is reviewed and merged into the main branch.
+- Deploy API and UI to the staging environment for testing.
 - Monitor logs and performance post-deployment.
 ```
