@@ -2,93 +2,81 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support creating, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
 
 ## File Structure
 
 ### API Implementation
 
-- **File Paths**
+- **File Paths:**
   - `src/api/disputes.js`
-    - **Responsibilities**:
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate input data and handle errors.
-  
   - `src/models/Dispute.js`
-    - **Responsibilities**:
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
   - `src/controllers/disputeController.js`
-    - **Responsibilities**:
-      - Implement controller functions for:
-        - `createDispute(req, res)`: Open a new dispute.
-        - `getDisputes(req, res)`: List all disputes.
-        - `updateDispute(req, res)`: Update dispute status and evidence URLs.
-  
   - `src/routes/disputeRoutes.js`
-    - **Responsibilities**:
-      - Set up Express routes for:
-        - `POST /api/disputes`: Create a dispute.
-        - `GET /api/disputes`: List disputes.
-        - `PUT /api/disputes/:id`: Update a dispute.
+  - `src/middleware/authMiddleware.js`
+
+- **Responsibilities:**
+  - `src/api/disputes.js`: Define API endpoints for disputes.
+  - `src/models/Dispute.js`: Create a Mongoose model for Dispute with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
+  - `src/controllers/disputeController.js`: Implement functions to handle:
+    - `createDispute(req, res)`: Create a new dispute.
+    - `listDisputes(req, res)`: Retrieve all disputes.
+    - `updateDispute(req, res)`: Update an existing dispute's status or evidence URLs.
+  - `src/routes/disputeRoutes.js`: Set up Express routes for:
+    - `POST /api/disputes`: Create dispute.
+    - `GET /api/disputes`: List disputes.
+    - `PUT /api/disputes/:id`: Update dispute.
+  - `src/middleware/authMiddleware.js`: Implement authentication middleware to protect routes.
 
 ### UI Implementation
 
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**:
-      - Display a list of disputes.
-      - Include filtering options based on status.
-  
+- **File Paths:**
   - `src/components/DisputeForm.js`
-    - **Responsibilities**:
-      - Form for creating and updating disputes.
-      - Fields for status and evidence URLs.
-  
+  - `src/components/DisputeList.js`
   - `src/pages/DisputePage.js`
-    - **Responsibilities**:
-      - Main page to manage disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-  
   - `src/services/disputeService.js`
-    - **Responsibilities**:
-      - API calls to interact with `/api/disputes`.
-      - Functions for creating, listing, and updating disputes.
+  - `src/styles/disputeStyles.css`
 
-### Testing
+- **Responsibilities:**
+  - `src/components/DisputeForm.js`: Create a form component for submitting new disputes, including fields for evidence URLs and status.
+  - `src/components/DisputeList.js`: Display a list of disputes with options to update status or view details.
+  - `src/pages/DisputePage.js`: Main page to render `DisputeForm` and `DisputeList`.
+  - `src/services/disputeService.js`: Implement API calls for:
+    - `createDispute(data)`: Call to create a new dispute.
+    - `getDisputes()`: Call to fetch all disputes.
+    - `updateDispute(id, data)`: Call to update a dispute.
+  - `src/styles/disputeStyles.css`: Style components for the dispute UI.
 
-- **File Paths**
-  - `tests/api/dispute.test.js`
-    - **Responsibilities**:
-      - Unit tests for API endpoints.
-      - Test cases for creating, listing, and updating disputes.
-  
-  - `tests/ui/DisputePage.test.js`
-    - **Responsibilities**:
-      - Unit tests for UI components.
-      - Test rendering of disputes and form submission.
+## Testing
 
-### Documentation
+- **File Paths:**
+  - `src/tests/disputeController.test.js`
+  - `src/tests/disputeRoutes.test.js`
+  - `src/tests/DisputeForm.test.js`
+  - `src/tests/DisputeList.test.js`
 
-- **File Paths**
-  - `docs/api/disputes.md`
-    - **Responsibilities**:
-      - Document API endpoints, request/response formats, and error handling.
-  
-  - `docs/ui/disputes.md`
-    - **Responsibilities**:
-      - Document UI components and their usage.
+- **Responsibilities:**
+  - `src/tests/disputeController.test.js`: Unit tests for dispute controller functions.
+  - `src/tests/disputeRoutes.test.js`: Integration tests for API routes.
+  - `src/tests/DisputeForm.test.js`: Unit tests for the DisputeForm component.
+  - `src/tests/DisputeList.test.js`: Unit tests for the DisputeList component.
+
+## Deployment
+
+- **File Paths:**
+  - `Dockerfile`
+  - `docker-compose.yml`
+  - `src/config/config.js`
+
+- **Responsibilities:**
+  - `Dockerfile`: Create a Docker image for the application.
+  - `docker-compose.yml`: Set up services for the application and database.
+  - `src/config/config.js`: Manage environment variables and configuration settings.
 
 ## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controllers and services.
-- **Week 3**: Develop UI components and integrate with API.
-- **Week 4**: Testing and documentation.
 
-## Notes
-- Ensure proper error handling and validation throughout the API.
-- Consider user authentication for dispute management.
-- Follow coding standards and best practices for maintainability.
+- **Week 1**: API setup and model creation.
+- **Week 2**: Implement API controllers and routes.
+- **Week 3**: Develop UI components and integrate with API.
+- **Week 4**: Testing and deployment preparation.
 ```
