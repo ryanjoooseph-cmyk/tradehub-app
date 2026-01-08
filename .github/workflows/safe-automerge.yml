@@ -1,32 +1,64 @@
 name: safe-automerge
-
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, labeled, unlabeled, reopened, ready_for_review]
 
 permissions:
   contents: write
   pull-requests: write
+  statuses: write
 
 jobs:
   guard:
+    name: guard
     runs-on: ubuntu-latest
-
     steps:
-      # (optional) keep your path filter / risky checks here
-
-      - name: Ensure `automerge` label is actually present (live read)
+      - name: Decide eligibility
+        id: gate
         uses: actions/github-script@v7
         with:
           script: |
-            const pr = context.payload.pull_request;
-            const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+            const pr = context.payload.pull_request
+            // 1) require the 'automerge' label
+            const hasLabel = pr.labels.some(l => l.name === 'automerge')
+
+            // 2) allow only safe paths (adjust if you like)
+            const SAFE = [
+              /^agents\/.+\/plan\.md$/,
+              /^docs\//,
+              /^README\.md$/,
+              /^CHANGELOG\.md$/
+            ]
+            const files = await github.paginate(
+              github.pulls.listFiles, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number
+              }
+            )
+            const risky = files.some(f => !SAFE.some(rx => rx.test(f.filename)))
+
+            core.setOutput('eligible', (hasLabel && !risky) ? 'true' : 'false')
+
+      # *** This is the key: publish the *status context* your branch rule requires ***
+      - name: Publish required status (safe-automerge)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const eligible = '${{ steps.gate.outputs.eligible }}' === 'true'
+            await github.repos.createCommitStatus({
               owner: context.repo.owner,
-              repo:  context.repo.repo,
-              issue_number: pr.number,
-            });
-            const names = labels.map(l => l.name.toLowerCase());
-            core.info('Labels: ' + names.join(', '));
-            if (!names.includes('automerge')) {
-              core.setFailed("missing 'automerge' label");
-            }
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: eligible ? 'success' : 'failure',
+              context: 'safe-automerge', // <-- matches your Branch Protection required check *exactly*
+              description: eligible ? 'docs/agents-only with automerge label' : 'risky paths or missing label',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${context.payload.pull_request.number}/files`
+            })
+
+      # Merge after the status is green (no “enable-automerge” job needed)
+      - name: Squash-merge when eligible
+        if: steps.gate.outputs.eligible == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr merge ${{ github.event.pull_request.number }} --squash --auto
