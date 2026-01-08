@@ -1,90 +1,113 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
+## Overview
+This plan outlines the structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes with an `evidence_urls` array and a status field that can be OPEN, REVIEW, or RESOLVED.
+
 ## Directory Structure
+
 ```
 /disputes_backend_326
 │
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # Initialize API module
-│   └── utils.py                   # Utility functions for API
+├── api
+│   ├── controllers
+│   │   └── disputesController.js
+│   ├── models
+│   │   └── disputeModel.js
+│   ├── routes
+│   │   └── disputesRoutes.js
+│   └── middleware
+│       └── authMiddleware.js
 │
-├── /models
-│   ├── dispute.py                 # Dispute model definition
-│   └── __init__.py                # Initialize models module
+├── ui
+│   ├── components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── pages
+│   │   └── DisputePage.jsx
+│   ├── services
+│   │   └── disputeService.js
+│   └── styles
+│       └── disputes.css
 │
-├── /schemas
-│   ├── dispute_schema.py          # Pydantic schemas for validation
-│   └── __init__.py                # Initialize schemas module
-│
-├── /services
-│   ├── dispute_service.py         # Business logic for disputes
-│   └── __init__.py                # Initialize services module
-│
-├── /tests
-│   ├── test_disputes.py           # Unit tests for disputes API
-│   └── __init__.py                # Initialize tests module
-│
-├── /migrations                     # Database migrations
-│   └── 001_create_disputes_table.sql # SQL for creating disputes table
-│
-└── app.py                         # Main application entry point
+└── tests
+    ├── api
+    │   └── disputes.test.js
+    └── ui
+        └── DisputePage.test.jsx
 ```
 
 ## Responsibilities
 
-### API Implementation
-- **File:** `/api/disputes.py`
-  - Define routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
+### API
 
-### Model Definition
-- **File:** `/models/dispute.py`
-  - Create a Dispute class with fields:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement database interactions.
+- **`/api/disputes`**
+  - **GET**: List all disputes
+    - **File**: `api/controllers/disputesController.js`
+    - **Responsibility**: Implement logic to fetch and return all disputes.
+  
+  - **POST**: Open a new dispute
+    - **File**: `api/controllers/disputesController.js`
+    - **Responsibility**: Implement logic to create a new dispute with `evidence_urls` and status set to OPEN.
 
-### Schema Validation
-- **File:** `/schemas/dispute_schema.py`
-  - Define Pydantic models for:
-    - Creating a dispute
-    - Updating a dispute
-  - Ensure proper validation of `evidence_urls` and `status`.
+  - **PUT**: Update an existing dispute
+    - **File**: `api/controllers/disputesController.js`
+    - **Responsibility**: Implement logic to update the status or evidence URLs of a dispute.
 
-### Business Logic
-- **File:** `/services/dispute_service.py`
-  - Implement functions for:
-    - Listing disputes
-    - Creating a dispute
-    - Updating a dispute
-  - Handle business rules related to dispute status transitions.
+- **Model**
+  - **File**: `api/models/disputeModel.js`
+  - **Responsibility**: Define the dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, and `updated_at`.
 
-### Testing
-- **File:** `/tests/test_disputes.py`
-  - Write unit tests for:
-    - API endpoints
-    - Service functions
-  - Ensure coverage for all status transitions and edge cases.
+- **Routes**
+  - **File**: `api/routes/disputesRoutes.js`
+  - **Responsibility**: Set up the Express routes for the API endpoints.
 
-### Database Migration
-- **File:** `/migrations/001_create_disputes_table.sql`
-  - Create SQL script to define the disputes table schema in the database.
+- **Middleware**
+  - **File**: `api/middleware/authMiddleware.js`
+  - **Responsibility**: Implement authentication middleware to protect the API routes.
 
-### Application Setup
-- **File:** `/app.py`
-  - Initialize the FastAPI application.
-  - Include the disputes API routes.
-  - Configure database connection.
+### UI
+
+- **Components**
+  - **DisputeList.jsx**
+    - **Responsibility**: Display a list of disputes with options to view details or update status.
+  
+  - **DisputeForm.jsx**
+    - **Responsibility**: Provide a form to create or update a dispute with fields for `evidence_urls` and status.
+
+  - **DisputeDetail.jsx**
+    - **Responsibility**: Show detailed information about a selected dispute.
+
+- **Pages**
+  - **DisputePage.jsx**
+    - **Responsibility**: Main page to manage disputes, integrating the list and form components.
+
+- **Services**
+  - **disputeService.js**
+    - **Responsibility**: Handle API calls to the backend for disputes (GET, POST, PUT).
+
+- **Styles**
+  - **disputes.css**
+    - **Responsibility**: Style the dispute components and pages.
+
+### Tests
+
+- **API Tests**
+  - **File**: `tests/api/disputes.test.js`
+  - **Responsibility**: Write tests for API endpoints to ensure correct functionality.
+
+- **UI Tests**
+  - **File**: `tests/ui/DisputePage.test.jsx`
+  - **Responsibility**: Write tests for the UI components and their interactions.
 
 ## Timeline
-- **Week 1:** API and model setup
-- **Week 2:** Schema and service implementation
-- **Week 3:** Testing and migration
-- **Week 4:** Final review and deployment
+- **Week 1**: Set up API structure and implement basic endpoints.
+- **Week 2**: Develop UI components and integrate with API.
+- **Week 3**: Write tests and perform QA.
+- **Week 4**: Final review and deployment.
+
+## Notes
+- Ensure proper error handling and validation in both API and UI.
+- Consider user experience for dispute management in the UI design.
 ```
