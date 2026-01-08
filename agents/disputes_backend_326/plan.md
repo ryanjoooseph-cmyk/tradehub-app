@@ -1,86 +1,90 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Directory Structure
 ```
 /disputes_backend_326
-│
-├── /api
-│   ├── /controllers
-│   │   └── disputesController.js
-│   ├── /routes
-│   │   └── disputesRoutes.js
-│   ├── /models
-│   │   └── disputeModel.js
-│   ├── /middlewares
-│   │   └── validateDispute.js
-│   └── /utils
-│       └── responseFormatter.js
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.js
-│   │   ├── DisputeForm.js
-│   │   └── DisputeDetail.js
-│   ├── /hooks
-│   │   └── useDisputes.js
-│   ├── /pages
-│   │   └── DisputesPage.js
-│   ├── /styles
-│   │   └── disputes.css
-│   └── /services
-│       └── disputeService.js
-│
-└── /tests
-    ├── /api
-    │   └── disputesController.test.js
-    └── /ui
-        └── DisputeList.test.js
+├── api
+│   ├── disputes.py
+│   ├── __init__.py
+├── models
+│   ├── dispute.py
+│   ├── __init__.py
+├── schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+├── services
+│   ├── dispute_service.py
+│   ├── __init__.py
+├── tests
+│   ├── test_disputes.py
+│   ├── __init__.py
+├── app.py
+└── requirements.txt
 ```
 
 ## Responsibilities
 
-### API Implementation
-- **disputesController.js**
-  - Implement functions to handle:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
-- **disputesRoutes.js**
-  - Define API routes and link them to controller functions.
-- **disputeModel.js**
-  - Define the Dispute schema with fields:
-    - `id`, `evidence_urls` (array), `status` (enum: OPEN/REVIEW/RESOLVED).
-- **validateDispute.js**
-  - Middleware to validate incoming dispute data for creation and updates.
-- **responseFormatter.js**
-  - Utility to standardize API responses.
+### 1. API Layer
+- **File:** `api/disputes.py`
+  - Implement routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/<id>` - Update an existing dispute
+  - Ensure responses include `evidence_urls` and `status`.
 
-### UI Implementation
-- **DisputeList.js**
-  - Component to display a list of disputes.
-  - Fetch disputes using `useDisputes` hook.
-- **DisputeForm.js**
-  - Component for creating/updating disputes.
-  - Handle form submission and validation.
-- **DisputeDetail.js**
-  - Component to show detailed view of a selected dispute.
-- **useDisputes.js**
-  - Custom hook to manage API calls for disputes.
-- **DisputesPage.js**
-  - Main page component to render `DisputeList` and `DisputeForm`.
-- **disputes.css**
-  - Styles for dispute components.
+### 2. Models
+- **File:** `models/dispute.py`
+  - Define the `Dispute` model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for CRUD operations.
 
-### Testing
-- **disputesController.test.js**
-  - Unit tests for API controller functions.
-- **DisputeList.test.js**
-  - Unit tests for the DisputeList component.
+### 3. Schemas
+- **File:** `schemas/dispute_schema.py`
+  - Create Pydantic schema for request and response validation:
+    - `DisputeCreate`: For creating disputes
+    - `DisputeUpdate`: For updating disputes
+    - `DisputeResponse`: For listing disputes
+
+### 4. Services
+- **File:** `services/dispute_service.py`
+  - Implement business logic for:
+    - Creating a dispute
+    - Listing disputes
+    - Updating dispute status
+  - Handle validation and error management.
+
+### 5. Tests
+- **File:** `tests/test_disputes.py`
+  - Write unit tests for:
+    - API endpoints
+    - Service methods
+    - Model validations
+  - Ensure coverage for all status scenarios (OPEN, REVIEW, RESOLVED).
+
+### 6. Main Application
+- **File:** `app.py`
+  - Set up the FastAPI application.
+  - Include the disputes API routes.
+  - Configure CORS and middleware if necessary.
+
+### 7. Dependencies
+- **File:** `requirements.txt`
+  - List required packages:
+    - FastAPI
+    - SQLAlchemy (or relevant ORM)
+    - Pydantic
+    - pytest (for testing)
 
 ## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement API controllers and middleware.
-- **Week 3**: Develop UI components and hooks.
-- **Week 4**: Write tests and perform integration testing.
+- **Week 1:** Set up project structure and implement API routes.
+- **Week 2:** Develop models and schemas.
+- **Week 3:** Implement service logic and write tests.
+- **Week 4:** Finalize testing and deploy to staging.
+
+## Notes
+- Ensure proper error handling and logging throughout the implementation.
+- Consider security measures for handling evidence URLs.
 ```
