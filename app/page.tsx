@@ -1,9 +1,5 @@
-// app/page.tsx  (TEMP public homepage)
+// app/page.tsx
+import { redirect } from 'next/navigation';
 export default function Home() {
-  return (
-    <main style={{padding: 24}}>
-      <h1>TradeHub (auth OFF temporarily)</h1>
-      <p>Replace this with whatever you want public while you build.</p>
-    </main>
-  );
+  redirect('/login'); // or '/dashboard' if you handle session in that route
 }
