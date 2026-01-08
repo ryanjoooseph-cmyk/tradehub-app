@@ -1,33 +1,49 @@
+// app/ops/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 
 export default function Ops() {
   const [health, setHealth] = useState<any>(null);
-  const [kicking, setKicking] = useState(false);
+  const [last, setLast] = useState<string>('');
+  const [redeploying, setRedeploying] = useState(false);
 
-  const load = async () => {
+  async function load() {
     const r = await fetch('/api/health', { cache: 'no-store' });
-    setHealth(await r.json());
-  };
+    const j = await r.json();
+    setHealth(j);
+    setLast(new Date().toLocaleTimeString());
+  }
 
-  useEffect(() => { load(); const id = setInterval(load, 5000); return () => clearInterval(id); }, []);
+  useEffect(() => {
+    load();
+    const id = setInterval(load, 5000);
+    return () => clearInterval(id);
+  }, []);
 
-  const redeploy = async () => {
-    setKicking(true);
-    try { await fetch('/api/redeploy', { method: 'POST' }); } finally { setKicking(false); }
-  };
+  async function redeploy() {
+    setRedeploying(true);
+    try {
+      const r = await fetch('/api/redeploy', { method: 'POST' });
+      const j = await r.json();
+      alert(j.ok ? 'Redeploy triggered' : `Redeploy failed (${j.status || ''})`);
+    } finally {
+      setRedeploying(false);
+    }
+  }
 
   return (
-    <main style={{maxWidth:800, margin:'40px auto', fontFamily:'system-ui'}}>
+    <main style={{ padding: 24 }}>
       <h1>Ops</h1>
-      <button onClick={redeploy} disabled={kicking} style={{padding:'8px 14px'}}>
-        {kicking ? 'Triggering…' : 'Trigger Redeploy'}
+      <p>Auth is ON everywhere else. This page is public for monitoring.</p>
+
+      <h3>Health</h3>
+      <pre>{JSON.stringify(health, null, 2)}</pre>
+      <p>Last refresh: {last}</p>
+
+      <button onClick={redeploy} disabled={redeploying}>
+        {redeploying ? 'Triggering…' : 'Trigger redeploy'}
       </button>
-      <pre style={{background:'#f6f6f6', padding:12, marginTop:16}}>
-        {JSON.stringify(health, null, 2)}
-      </pre>
-      <p style={{opacity:.7}}>This page auto-refreshes every 5s.</p>
     </main>
   );
 }
