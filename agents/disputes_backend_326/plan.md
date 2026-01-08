@@ -1,106 +1,107 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and statuses (OPEN, REVIEW, RESOLVED).
+
+## File Structure
+
 ```
-/disputes_backend_326
-│
-├── api
-│   ├── __init__.py
-│   ├── app.py
-│   ├── routes
-│   │   ├── __init__.py
-│   │   └── disputes.py
-│   └── models
-│       ├── __init__.py
-│       └── dispute.py
-│
-├── ui
-│   ├── index.html
-│   ├── css
-│   │   └── styles.css
-│   └── js
-│       ├── app.js
-│       └── api.js
-│
-├── tests
-│   ├── __init__.py
-│   ├── test_routes.py
-│   └── test_models.py
-│
-└── requirements.txt
+/src
+  ├── api
+  │   ├── disputes
+  │   │   ├── disputesController.js
+  │   │   ├── disputesModel.js
+  │   │   ├── disputesRoutes.js
+  │   │   └── disputesService.js
+  ├── components
+  │   ├── DisputeList.js
+  │   ├── DisputeForm.js
+  │   └── DisputeDetail.js
+  ├── pages
+  │   ├── DisputePage.js
+  ├── styles
+  │   └── disputes.css
+  └── utils
+      └── apiClient.js
 ```
 
 ## API Implementation
 
-### File: `api/routes/disputes.py`
-- **Responsibilities:**
-  - Define routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Handle request validation and response formatting.
+### 1. `disputesModel.js`
+- **Responsibilities**: Define the dispute schema and model for database interactions.
+- **Tasks**:
+  - Create a Mongoose schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
 
-### File: `api/models/dispute.py`
-- **Responsibilities:**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement methods for CRUD operations.
+### 2. `disputesService.js`
+- **Responsibilities**: Business logic for handling disputes.
+- **Tasks**:
+  - Implement functions to create, retrieve, and update disputes.
+  - Ensure validation for `status` and `evidence_urls`.
 
-### File: `api/app.py`
-- **Responsibilities:**
-  - Initialize Flask app.
-  - Register routes from `routes/disputes.py`.
-  - Configure database connection.
+### 3. `disputesController.js`
+- **Responsibilities**: Handle incoming API requests.
+- **Tasks**:
+  - Create methods for:
+    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
+    - `getDisputes(req, res)`: Handle GET requests to list all disputes.
+    - `updateDispute(req, res)`: Handle PUT requests to update a specific dispute.
+
+### 4. `disputesRoutes.js`
+- **Responsibilities**: Define API routes for disputes.
+- **Tasks**:
+  - Set up Express routes for `/api/disputes` with appropriate HTTP methods.
 
 ## UI Implementation
 
-### File: `ui/index.html`
-- **Responsibilities:**
-  - Create the main HTML structure.
-  - Include links to CSS and JS files.
-  - Set up placeholders for displaying disputes.
+### 1. `DisputeList.js`
+- **Responsibilities**: Display a list of all disputes.
+- **Tasks**:
+  - Fetch disputes from the API and render them in a table format.
+  - Include buttons for viewing details and updating disputes.
 
-### File: `ui/css/styles.css`
-- **Responsibilities:**
-  - Style the UI components for disputes.
-  - Ensure responsive design.
+### 2. `DisputeForm.js`
+- **Responsibilities**: Form for creating and updating disputes.
+- **Tasks**:
+  - Create a form with fields for `status` and `evidence_urls`.
+  - Handle form submission to create or update disputes via the API.
 
-### File: `ui/js/app.js`
-- **Responsibilities:**
-  - Handle UI interactions (e.g., form submissions).
-  - Call API endpoints to fetch/update disputes.
+### 3. `DisputeDetail.js`
+- **Responsibilities**: Display detailed information about a specific dispute.
+- **Tasks**:
+  - Fetch and display dispute details based on dispute ID.
+  - Include options to update the status or add evidence URLs.
 
-### File: `ui/js/api.js`
-- **Responsibilities:**
-  - Define functions to interact with the API:
-    - `fetchDisputes()`: GET request to list disputes.
-    - `createDispute(data)`: POST request to create a dispute.
-    - `updateDispute(id, data)`: PUT request to update a dispute.
+### 4. `DisputePage.js`
+- **Responsibilities**: Main page for disputes.
+- **Tasks**:
+  - Integrate `DisputeList`, `DisputeForm`, and `DisputeDetail` components.
+  - Manage state for selected dispute and form visibility.
 
-## Testing Implementation
+## Styling
 
-### File: `tests/test_routes.py`
-- **Responsibilities:**
-  - Write unit tests for API routes.
-  - Test all CRUD operations and response formats.
+### 1. `disputes.css`
+- **Responsibilities**: Style the dispute components.
+- **Tasks**:
+  - Define styles for the dispute list, form, and detail views.
 
-### File: `tests/test_models.py`
-- **Responsibilities:**
-  - Write unit tests for the Dispute model.
-  - Test data validation and CRUD methods.
+## Utility
 
-## Dependencies
+### 1. `apiClient.js`
+- **Responsibilities**: Centralized API client for making requests.
+- **Tasks**:
+  - Implement functions for GET, POST, and PUT requests to `/api/disputes`.
 
-### File: `requirements.txt`
-- **Responsibilities:**
-  - List required packages (e.g., Flask, SQLAlchemy, etc.).
+## Testing
+- Write unit tests for API endpoints in `disputesController.js`.
+- Write integration tests for UI components.
 
-## Milestones
-1. **API Development**: Complete by [Date].
-2. **UI Development**: Complete by [Date].
-3. **Testing**: Complete by [Date].
-4. **Deployment**: Complete by [Date].
+## Deployment
+- Ensure the API is deployed and accessible at the specified route.
+- Deploy the UI changes to the frontend application.
+
+## Timeline
+- **Week 1**: API development (Model, Service, Controller, Routes).
+- **Week 2**: UI development (Components, Pages, Styling).
+- **Week 3**: Testing and deployment.
 ```
