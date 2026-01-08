@@ -1,13 +1,47 @@
 name: safe-automerge
 on:
   pull_request_target:
-    types: [opened, reopened, synchronize, labeled, ready_for_review]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 permissions:
   contents: read
   pull-requests: read
 
 jobs:
-  present:
+  guard:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "gate present"
+      - name: Require 'automerge' label
+        id: label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const has = (context.payload.pull_request.labels || [])
+              .some(l => l.name === 'automerge');
+            core.setOutput('has', has);
+            if (!has) core.setFailed("PR missing 'automerge' label.");
+
+      - name: Checkout PR head
+        if: steps.label.outputs.has == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: List changed files
+        if: steps.label.outputs.has == 'true'
+        id: changed
+        uses: tj-actions/changed-files@v45
+
+      - name: Enforce safe paths
+        if: steps.label.outputs.has == 'true'
+        run: |
+          SAFE_REGEX='^(agents/|docs/|README\.md|.*\.md)'
+          bad=0
+          for f in ${{ steps.changed.outputs.all_changed_files }}; do
+            if [[ ! "$f" =~ $SAFE_REGEX ]]; then
+              echo "Unsafe path: $f"; bad=1
+            fi
+          done
+          if [ $bad -ne 0 ]; then
+            echo "::error::PR touches unsafe paths"; exit 1
+          fi
