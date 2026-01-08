@@ -4,90 +4,89 @@
 ## Directory Structure
 ```
 /disputes_backend_326
-├── /api
-│   ├── disputes.py
+│
+├── api
 │   ├── __init__.py
-├── /models
-│   ├── dispute.py
+│   ├── app.py
+│   └── routes
+│       ├── __init__.py
+│       └── disputes.py
+│
+├── models
 │   ├── __init__.py
-├── /schemas
-│   ├── dispute_schema.py
+│   └── dispute.py
+│
+├── schemas
 │   ├── __init__.py
-├── /services
-│   ├── dispute_service.py
+│   └── dispute_schema.py
+│
+├── services
 │   ├── __init__.py
-├── /tests
+│   └── dispute_service.py
+│
+├── tests
+│   ├── __init__.py
 │   ├── test_disputes.py
-│   ├── __init__.py
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   ├── /pages
-│   │   ├── DisputePage.jsx
-│   ├── /styles
-│   │   ├── disputes.css
-├── app.py
-├── requirements.txt
+│   └── test_dispute_service.py
+│
+└── requirements.txt
 ```
 
 ## Responsibilities
 
-### API Implementation
-- **`/api/disputes.py`**
-  - Define routes for:
+### 1. API Layer
+- **File:** `/api/routes/disputes.py`
+  - Implement routes for:
     - `GET /api/disputes`: List all disputes
     - `POST /api/disputes`: Create a new dispute
     - `PUT /api/disputes/<id>`: Update an existing dispute
   - Handle request validation and response formatting.
 
-- **`/models/dispute.py`**
-  - Define the Dispute model with fields:
-    - `id`
-    - `evidence_urls` (array)
-    - `status` (ENUM: OPEN, REVIEW, RESOLVED)
-  - Implement database interactions (CRUD operations).
+### 2. Model Layer
+- **File:** `/models/dispute.py`
+  - Define the `Dispute` model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for CRUD operations.
 
-- **`/schemas/dispute_schema.py`**
-  - Define request and response schemas using a validation library (e.g., Marshmallow).
-  - Validate `evidence_urls` and `status`.
+### 3. Schema Layer
+- **File:** `/schemas/dispute_schema.py`
+  - Create Pydantic schemas for:
+    - `DisputeCreate`: For creating disputes
+    - `DisputeUpdate`: For updating disputes
+    - `DisputeResponse`: For returning dispute data
 
-- **`/services/dispute_service.py`**
-  - Implement business logic for disputes:
-    - Fetching, creating, and updating disputes.
-    - Handling status transitions.
+### 4. Service Layer
+- **File:** `/services/dispute_service.py`
+  - Implement business logic for:
+    - Listing disputes
+    - Creating disputes
+    - Updating dispute status
+  - Handle interactions with the model layer.
 
-### UI Implementation
-- **`/ui/components/DisputeList.jsx`**
-  - Create a component to display a list of disputes.
-  - Implement sorting and filtering options.
-
-- **`/ui/components/DisputeForm.jsx`**
-  - Create a form for creating/updating disputes.
-  - Include fields for `evidence_urls` and `status`.
-
-- **`/ui/pages/DisputePage.jsx`**
-  - Create a page that integrates `DisputeList` and `DisputeForm`.
-  - Handle API calls to fetch and submit dispute data.
-
-- **`/ui/styles/disputes.css`**
-  - Style the dispute components and page for a cohesive UI.
-
-### Testing
-- **`/tests/test_disputes.py`**
+### 5. Testing
+- **File:** `/tests/test_disputes.py`
   - Write unit tests for API endpoints.
-  - Write integration tests for the UI components.
+  - Test response status codes and data integrity.
+  
+- **File:** `/tests/test_dispute_service.py`
+  - Write unit tests for service layer functions.
+  - Mock database interactions.
 
-### Configuration
-- **`app.py`**
-  - Set up the Flask/FastAPI application.
-  - Register API routes and configure CORS if necessary.
+### 6. Requirements
+- **File:** `/requirements.txt`
+  - List dependencies (e.g., FastAPI, SQLAlchemy, Pydantic, pytest).
 
-- **`requirements.txt`**
-  - List all dependencies (Flask/FastAPI, SQLAlchemy, Marshmallow, React, etc.).
+## Milestones
+1. **API Development**: Complete routes and request handling (2 weeks).
+2. **Model and Schema Implementation**: Define data structures (1 week).
+3. **Service Logic**: Implement business logic (1 week).
+4. **Testing**: Write and run tests (1 week).
+5. **Documentation**: Update README with API usage (1 week).
 
-## Timeline
-- **Week 1**: API endpoints and models.
-- **Week 2**: UI components and integration.
-- **Week 3**: Testing and deployment.
+## Notes
+- Ensure proper error handling and validation throughout the API.
+- Consider implementing pagination for the list endpoint.
+- Use environment variables for configuration (e.g., database URL).
 ```
