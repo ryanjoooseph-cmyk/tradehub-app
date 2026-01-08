@@ -4,86 +4,77 @@
 ## Directory Structure
 ```
 /disputes_backend_326
-│
-├── /api
-│   ├── disputes.py               # API endpoints for disputes
-│   ├── __init__.py               # Initialize API module
-│
-├── /models
-│   ├── dispute.py                # Dispute model definition
-│   ├── __init__.py               # Initialize models module
-│
-├── /schemas
-│   ├── dispute_schema.py         # Pydantic schemas for validation
-│   ├── __init__.py               # Initialize schemas module
-│
-├── /services
-│   ├── dispute_service.py        # Business logic for disputes
-│   ├── __init__.py               # Initialize services module
-│
-├── /tests
-│   ├── test_disputes.py          # Unit tests for disputes API
-│   ├── __init__.py               # Initialize tests module
-│
-├── /migrations                    # Database migrations
-│   ├── 001_initial.py             # Initial migration for disputes table
-│
-└── app.py                        # Main application entry point
+├── api
+│   ├── disputes.py
+│   └── __init__.py
+├── models
+│   ├── dispute.py
+│   └── __init__.py
+├── routes
+│   ├── disputes_route.py
+│   └── __init__.py
+├── services
+│   ├── disputes_service.py
+│   └── __init__.py
+├── tests
+│   ├── test_disputes.py
+│   └── __init__.py
+└── app.py
 ```
 
 ## Responsibilities
 
-### 1. API Endpoints (`/api/disputes.py`)
-- **GET /api/disputes**: List all disputes
-  - Fetch disputes from the database
-  - Return JSON response with disputes array
-- **POST /api/disputes**: Create a new dispute
-  - Validate input using `dispute_schema.py`
-  - Save dispute to the database
-  - Return created dispute with status 201
-- **PUT /api/disputes/{id}**: Update an existing dispute
-  - Validate input using `dispute_schema.py`
-  - Update dispute in the database
-  - Return updated dispute
+### 1. API Layer
+- **File: `api/disputes.py`**
+  - Define API endpoints for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Handle request validation and response formatting.
 
-### 2. Models (`/models/dispute.py`)
-- Define `Dispute` class with fields:
-  - `id`: Unique identifier
-  - `evidence_urls`: Array of URLs
-  - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Timestamps for created/updated
+### 2. Models
+- **File: `models/dispute.py`**
+  - Create a `Dispute` model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of strings
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for database interactions (CRUD).
 
-### 3. Schemas (`/schemas/dispute_schema.py`)
-- Create Pydantic model for dispute validation:
-  - Fields matching the `Dispute` model
-  - Ensure `evidence_urls` is a list of strings
-  - Ensure `status` is one of the defined enums
+### 3. Routes
+- **File: `routes/disputes_route.py`**
+  - Define route handlers for API endpoints.
+  - Integrate with the service layer for business logic.
 
-### 4. Services (`/services/dispute_service.py`)
-- Implement functions for:
-  - Fetching all disputes
-  - Creating a new dispute
-  - Updating an existing dispute
-- Handle business logic and data manipulation
+### 4. Services
+- **File: `services/disputes_service.py`**
+  - Implement business logic for:
+    - Listing disputes
+    - Creating a dispute
+    - Updating a dispute status
+  - Validate input data and manage state transitions for disputes.
 
-### 5. Tests (`/tests/test_disputes.py`)
-- Write unit tests for:
-  - API endpoints (GET, POST, PUT)
-  - Validation logic in schemas
-  - Service functions for disputes
+### 5. Testing
+- **File: `tests/test_disputes.py`**
+  - Write unit tests for:
+    - API endpoints
+    - Service methods
+    - Model validations
+  - Ensure coverage for all status transitions and edge cases.
 
-### 6. Migrations (`/migrations/001_initial.py`)
-- Create migration script to set up the `disputes` table in the database.
-
-### 7. Main Application (`app.py`)
-- Set up FastAPI or Flask application
-- Include API routes from `disputes.py`
-- Configure database connection and middleware
+### 6. Main Application
+- **File: `app.py`**
+  - Set up the Flask application.
+  - Register routes and configure middleware.
+  - Initialize database connection.
 
 ## Timeline
-- **Week 1**: Set up directory structure and initial files
-- **Week 2**: Implement API endpoints and models
-- **Week 3**: Develop services and schemas
-- **Week 4**: Write tests and perform integration testing
-- **Week 5**: Finalize documentation and prepare for deployment
+- **Week 1**: Set up project structure and implement models.
+- **Week 2**: Develop API endpoints and service logic.
+- **Week 3**: Write tests and perform integration testing.
+- **Week 4**: Review, refactor, and prepare for deployment.
+
+## Notes
+- Ensure proper error handling and logging throughout the application.
+- Follow RESTful conventions for API design.
+- Use environment variables for configuration settings.
 ```
