@@ -21,79 +21,84 @@
 │   ├── __init__.py
 ├── /ui
 │   ├── /components
-│   │   ├── DisputeList.js
 │   │   ├── DisputeForm.js
+│   │   ├── DisputeList.js
+│   │   ├── DisputeItem.js
 │   ├── /pages
 │   │   ├── DisputePage.js
-│   ├── /styles
-│   │   ├── DisputeStyles.css
-└── app.py
+│   ├── App.js
+│   ├── index.js
+├── requirements.txt
+└── README.md
 ```
 
 ## API Implementation
 
 ### File: `/api/disputes.py`
 - **Responsibilities:**
-  - Define routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Handle request validation and response formatting.
+  - Define routes for `/api/disputes`.
+  - Implement GET, POST, and PUT methods for handling disputes.
+  - Validate input using schemas.
+  - Return appropriate HTTP status codes and responses.
 
 ### File: `/models/dispute.py`
 - **Responsibilities:**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement database interactions.
+  - Define the Dispute model with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - Implement methods for CRUD operations.
 
 ### File: `/schemas/dispute_schema.py`
 - **Responsibilities:**
-  - Define request and response schemas using a validation library (e.g., Marshmallow).
-  - Validate input data for creating and updating disputes.
+  - Define Pydantic schemas for request and response validation.
+  - Include fields: `status` (OPEN/REVIEW/RESOLVED), `evidence_urls` (array).
 
 ### File: `/services/dispute_service.py`
 - **Responsibilities:**
-  - Implement business logic for:
-    - Fetching disputes.
-    - Creating new disputes.
-    - Updating dispute statuses.
-  - Interact with the Dispute model.
+  - Implement business logic for disputes.
+  - Handle interactions with the database.
+  - Provide methods for creating, listing, and updating disputes.
 
 ### File: `/tests/test_disputes.py`
 - **Responsibilities:**
   - Write unit tests for API endpoints.
-  - Test model methods and service functions.
-  - Ensure validation works as expected.
+  - Test model methods and service logic.
+  - Validate response structures and status codes.
 
 ## UI Implementation
-
-### File: `/ui/components/DisputeList.js`
-- **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide options to view details and update status.
 
 ### File: `/ui/components/DisputeForm.js`
 - **Responsibilities:**
   - Create a form for submitting new disputes.
-  - Include fields for evidence URLs and status selection.
+  - Include fields for status and evidence URLs.
+  - Handle form submission and validation.
+
+### File: `/ui/components/DisputeList.js`
+- **Responsibilities:**
+  - Fetch and display a list of disputes.
+  - Allow users to filter by status.
+
+### File: `/ui/components/DisputeItem.js`
+- **Responsibilities:**
+  - Display individual dispute details.
+  - Provide options to update status or add evidence URLs.
 
 ### File: `/ui/pages/DisputePage.js`
 - **Responsibilities:**
-  - Integrate `DisputeList` and `DisputeForm` components.
-  - Manage state and handle API interactions.
+  - Combine `DisputeForm` and `DisputeList` components.
+  - Manage state and API calls for disputes.
 
-### File: `/ui/styles/DisputeStyles.css`
+### File: `/ui/App.js`
 - **Responsibilities:**
-  - Define styles for dispute components and pages.
-  - Ensure responsive design and user-friendly layout.
+  - Set up routing for the application.
+  - Integrate the DisputePage component.
 
-## Main Application File
-
-### File: `/app.py`
+### File: `/ui/index.js`
 - **Responsibilities:**
-  - Initialize the web application.
-  - Set up API routing and UI serving.
-  - Configure database connection and middleware.
+  - Render the main application.
+  - Set up any necessary providers (e.g., context, state management).
+
+## Additional Notes
+- Ensure to follow RESTful principles for API design.
+- Use appropriate error handling and logging.
+- Consider implementing pagination for dispute listing.
+- Ensure UI is responsive and accessible.
 ```
