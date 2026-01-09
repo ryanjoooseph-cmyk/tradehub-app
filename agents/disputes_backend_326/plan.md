@@ -4,83 +4,73 @@
 ## Directory Structure
 ```
 /disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API routes for disputes
-│   ├── __init__.py                # Initialize API module
-│   └── utils.py                   # Utility functions for API
-│
-├── /models
-│   ├── dispute.py                 # Dispute model definition
-│   └── __init__.py                # Initialize models module
-│
-├── /schemas
-│   ├── dispute_schema.py          # Pydantic schemas for validation
-│   └── __init__.py                # Initialize schemas module
-│
-├── /services
-│   ├── dispute_service.py         # Business logic for disputes
-│   └── __init__.py                # Initialize services module
-│
-├── /tests
-│   ├── test_disputes.py           # Unit tests for disputes API
-│   └── __init__.py                # Initialize tests module
-│
-└── app.py                         # Main application entry point
+├── api
+│   ├── disputes.js
+│   └── index.js
+├── models
+│   └── disputeModel.js
+├── controllers
+│   └── disputeController.js
+├── routes
+│   └── disputeRoutes.js
+├── middleware
+│   └── errorHandler.js
+├── tests
+│   ├── disputeController.test.js
+│   └── disputeRoutes.test.js
+└── app.js
 ```
 
 ## Responsibilities
 
-### API Layer
-- **`/api/disputes.py`**
-  - Define routes for:
+### 1. API Layer
+- **File:** `/api/disputes.js`
+  - Define API endpoints for disputes: 
     - `GET /api/disputes` - List all disputes
     - `POST /api/disputes` - Create a new dispute
-    - `PUT /api/disputes/{id}` - Update an existing dispute
-  - Implement request handling and response formatting.
+    - `PUT /api/disputes/:id` - Update an existing dispute
 
-- **`/api/utils.py`**
-  - Helper functions for error handling and response formatting.
+- **File:** `/api/index.js`
+  - Initialize and export the API routes.
 
-### Models
-- **`/models/dispute.py`**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs for evidence
-    - `status`: Enum for OPEN, REVIEW, RESOLVED
-  - Implement database interactions (CRUD operations).
+### 2. Model Layer
+- **File:** `/models/disputeModel.js`
+  - Define the Dispute schema:
+    - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN/REVIEW/RESOLVED), `created_at`, `updated_at`.
+  - Implement methods for database interactions (CRUD).
 
-### Schemas
-- **`/schemas/dispute_schema.py`**
-  - Define Pydantic schemas for:
-    - Creating a dispute
-    - Updating a dispute
-    - Validating input data.
+### 3. Controller Layer
+- **File:** `/controllers/disputeController.js`
+  - Implement controller functions:
+    - `listDisputes(req, res)` - Fetch and return all disputes.
+    - `createDispute(req, res)` - Validate input and create a new dispute.
+    - `updateDispute(req, res)` - Validate input and update dispute status/evidence.
 
-### Services
-- **`/services/dispute_service.py`**
-  - Implement business logic for:
-    - Creating a dispute
-    - Listing disputes
-    - Updating dispute status
-  - Interact with the model layer for data persistence.
+### 4. Routes Layer
+- **File:** `/routes/disputeRoutes.js`
+  - Set up route handlers for disputes using Express.js.
+  - Connect routes to respective controller functions.
 
-### Testing
-- **`/tests/test_disputes.py`**
-  - Write unit tests for:
-    - API endpoints
-    - Service layer functions
-    - Input validation using schemas.
+### 5. Middleware
+- **File:** `/middleware/errorHandler.js`
+  - Implement error handling middleware to manage API errors gracefully.
 
-### Main Application
-- **`app.py`**
-  - Set up the FastAPI application.
-  - Include API routes and middleware.
-  - Configure database connection.
+### 6. Testing
+- **File:** `/tests/disputeController.test.js`
+  - Write unit tests for dispute controller functions.
 
-## Timeline
-- **Week 1**: Set up project structure and define models.
-- **Week 2**: Implement API routes and services.
-- **Week 3**: Create schemas and write tests.
-- **Week 4**: Finalize testing and documentation.
+- **File:** `/tests/disputeRoutes.test.js`
+  - Write integration tests for dispute routes.
+
+### 7. Main Application
+- **File:** `/app.js`
+  - Set up Express server.
+  - Import and use dispute routes.
+  - Apply middleware for error handling.
+
+## Additional Notes
+- Ensure proper validation for `evidence_urls` and `status` fields.
+- Use environment variables for database connection settings.
+- Follow RESTful API best practices.
+- Document API endpoints using Swagger or similar tools.
 ```
