@@ -1,0 +1,67 @@
+name: pr-guard
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  classify:
+    runs-on: ubuntu-latest
+    outputs:
+      deps: ${{ steps.filter.outputs.deps }}
+      config: ${{ steps.filter.outputs.config }}
+      ui: ${{ steps.filter.outputs.ui }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filters: |
+            deps:
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'yarn.lock'
+              - 'package-lock.json'
+            config:
+              - '.github/**'
+            ui:
+              - 'app/**'
+              - 'components/**'
+              - '!app/**/api/**'
+      - uses: actions-ecosystem/action-add-labels@v1
+        if: ${{ steps.filter.outputs.deps == 'true' }}
+        with:
+          labels: allow-deps,automerge
+      - uses: actions-ecosystem/action-add-labels@v1
+        if: ${{ steps.filter.outputs.config == 'true' }}
+        with:
+          labels: allow-config,automerge
+      - uses: actions-ecosystem/action-add-labels@v1
+        if: ${{ steps.filter.outputs.ui == 'true' }}
+        with:
+          labels: automerge
+  guard:
+    runs-on: ubuntu-latest
+    needs: classify
+    steps:
+      - name: fail on unsafe paths
+        run: |
+          if [ "${{ needs.classify.outputs.deps }}" != "true" ] && \
+             [ "${{ needs.classify.outputs.config }}" != "true" ] && \
+             [ "${{ needs.classify.outputs.ui }}" != "true" ]; then
+            echo "unsafe files touched"
+            exit 1
+          fi
+  automerge:
+    runs-on: ubuntu-latest
+    needs: guard
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            await github.graphql(
+              'mutation($id:ID!){ enablePullRequestAutoMerge(input:{pullRequestId:$id, mergeMethod:SQUASH}){ clientMutationId } }',
+              { id: pr.node_id }
+            );
