@@ -16,79 +16,79 @@
 │   ├── disputeModel.js             # Mongoose model for disputes
 │
 ├── /routes
-│   ├── disputesRoutes.js           # Route definitions for disputes
+│   ├── disputesRoutes.js           # Express routes for disputes
 │
 ├── /middlewares
-│   ├── validateDispute.js          # Middleware for validating dispute data
+│   ├── authMiddleware.js           # Authentication middleware
+│
+├── /validations
+│   ├── disputeValidation.js         # Validation logic for disputes
 │
 ├── /tests
-│   ├── disputes.test.js            # Unit tests for disputes API
+│   ├── disputes.test.js             # Unit tests for disputes API
 │
 ├── /config
-│   ├── db.js                       # Database connection setup
+│   ├── db.js                       # Database connection configuration
+│   └── server.js                   # Server configuration
 │
 └── /utils
-    ├── responseHandler.js           # Utility for standardizing API responses
+    ├── responseHandler.js          # Utility for standardized API responses
 ```
 
 ## Responsibilities
 
-### 1. **API Implementation**
-- **File:** `/api/disputes.js`
-  - Define routes for:
-    - `POST /api/disputes` - Create a new dispute
-    - `GET /api/disputes` - List all disputes
-    - `PUT /api/disputes/:id` - Update a specific dispute
-  - Integrate with `disputesController.js` for business logic.
+### API Layer
+- **`/api/disputes.js`**
+  - Define API endpoints for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/:id`: Update an existing dispute
+  - Integrate with controller methods.
 
-### 2. **Controller Logic**
-- **File:** `/controllers/disputesController.js`
-  - Implement functions for:
-    - `createDispute(req, res)` - Handle dispute creation.
-    - `listDisputes(req, res)` - Retrieve all disputes.
-    - `updateDispute(req, res)` - Update dispute status and evidence URLs.
-  - Ensure proper error handling and response formatting.
+### Controller Layer
+- **`/controllers/disputesController.js`**
+  - Implement methods for:
+    - `listDisputes`: Fetch all disputes from the database.
+    - `createDispute`: Validate and create a new dispute.
+    - `updateDispute`: Validate and update the status of a dispute.
 
-### 3. **Database Model**
-- **File:** `/models/disputeModel.js`
+### Model Layer
+- **`/models/disputeModel.js`**
   - Define Mongoose schema for disputes:
-    - Fields: `status` (enum: OPEN/REVIEW/RESOLVED), `evidence_urls` (array of strings).
-  - Implement methods for CRUD operations.
+    - Fields: `id`, `status` (OPEN/REVIEW/RESOLVED), `evidence_urls` (array).
+  - Implement methods for database interactions.
 
-### 4. **Route Definitions**
-- **File:** `/routes/disputesRoutes.js`
-  - Set up Express routes and link them to controller methods.
-  - Ensure middleware for validation is applied.
+### Route Layer
+- **`/routes/disputesRoutes.js`**
+  - Set up route handlers for disputes.
+  - Apply authentication middleware.
 
-### 5. **Validation Middleware**
-- **File:** `/middlewares/validateDispute.js`
-  - Validate incoming request data for creating/updating disputes.
-  - Check for required fields and correct data types.
+### Middleware Layer
+- **`/middlewares/authMiddleware.js`**
+  - Implement authentication checks for API access.
 
-### 6. **Testing**
-- **File:** `/tests/disputes.test.js`
-  - Write unit tests for:
-    - API endpoints (create, list, update).
-    - Validation logic.
-  - Use a testing framework (e.g., Jest or Mocha).
+### Validation Layer
+- **`/validations/disputeValidation.js`**
+  - Define validation rules for dispute creation and updates.
 
-### 7. **Database Configuration**
-- **File:** `/config/db.js`
+### Testing Layer
+- **`/tests/disputes.test.js`**
+  - Write unit tests for API endpoints and controller methods.
+
+### Configuration Layer
+- **`/config/db.js`**
   - Set up MongoDB connection.
-  - Handle connection errors and ensure proper connection lifecycle.
+  
+- **`/config/server.js`**
+  - Configure Express server settings.
 
-### 8. **Response Handling Utility**
-- **File:** `/utils/responseHandler.js`
-  - Create utility functions for standardizing API responses (success/error).
+### Utility Layer
+- **`/utils/responseHandler.js`**
+  - Create a utility function for standardized API responses.
 
 ## Timeline
-- **Week 1:** API and controller setup.
-- **Week 2:** Model and middleware implementation.
-- **Week 3:** Testing and validation.
-- **Week 4:** Final review and deployment.
-
-## Notes
-- Ensure to follow RESTful conventions.
-- Use proper status codes for API responses.
-- Document API endpoints for future reference.
+- **Week 1**: Set up project structure and configure database.
+- **Week 2**: Implement API routes and controller logic.
+- **Week 3**: Develop model schema and validation logic.
+- **Week 4**: Write tests and finalize documentation.
 ```
