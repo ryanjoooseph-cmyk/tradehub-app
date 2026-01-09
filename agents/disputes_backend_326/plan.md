@@ -1,101 +1,99 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Directory Structure
 ```
 /disputes_backend_326
-├── /api
+├── api
 │   ├── disputes.py
 │   ├── __init__.py
-├── /models
+├── models
 │   ├── dispute.py
 │   ├── __init__.py
-├── /schemas
+├── schemas
 │   ├── dispute_schema.py
 │   ├── __init__.py
-├── /services
+├── services
 │   ├── dispute_service.py
 │   ├── __init__.py
-├── /tests
+├── tests
 │   ├── test_disputes.py
 │   ├── __init__.py
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   ├── /pages
-│   │   ├── DisputePage.jsx
-│   ├── /styles
-│   │   ├── dispute.css
-├── app.py
-├── requirements.txt
+├── ui
+│   ├── disputes_page.html
+│   ├── disputes.js
+│   ├── styles.css
+└── app.py
 ```
 
 ## API Implementation
 
-### 1. **API Routes** - `/api/disputes`
-- **File:** `/api/disputes.py`
-  - Implement GET, POST, PUT methods for disputes.
-  - Define endpoints:
+### 1. `api/disputes.py`
+- **Responsibilities**:
+  - Define API routes for disputes.
+  - Implement CRUD operations:
     - `GET /api/disputes`: List all disputes.
     - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/{id}`: Update an existing dispute.
-  - Validate input and output using schemas.
+    - `PUT /api/disputes/<id>`: Update an existing dispute.
+  - Handle request validation and response formatting.
 
-### 2. **Data Models**
-- **File:** `/models/dispute.py`
-  - Define `Dispute` model with fields:
-    - `id`: Integer (Primary Key)
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of Strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+### 2. `models/dispute.py`
+- **Responsibilities**:
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier.
+    - `evidence_urls`: Array of URLs.
+    - `status`: Enum (OPEN, REVIEW, RESOLVED).
+  - Implement methods for database interactions.
 
-### 3. **Schemas**
-- **File:** `/schemas/dispute_schema.py`
-  - Create Pydantic schemas for request and response validation:
-    - `DisputeCreate`: For creating disputes.
-    - `DisputeUpdate`: For updating disputes.
-    - `DisputeResponse`: For listing disputes.
+### 3. `schemas/dispute_schema.py`
+- **Responsibilities**:
+  - Define Pydantic schemas for request and response validation.
+  - Create schemas for creating and updating disputes.
 
-### 4. **Service Layer**
-- **File:** `/services/dispute_service.py`
-  - Implement business logic for:
-    - Fetching all disputes.
-    - Creating a new dispute.
-    - Updating an existing dispute.
+### 4. `services/dispute_service.py`
+- **Responsibilities**:
+  - Implement business logic for disputes.
+  - Create functions for:
+    - Listing disputes.
+    - Creating a dispute.
+    - Updating a dispute status.
+
+### 5. `tests/test_disputes.py`
+- **Responsibilities**:
+  - Write unit tests for API endpoints.
+  - Test model methods and service functions.
 
 ## UI Implementation
 
-### 5. **UI Components**
-- **File:** `/ui/components/DisputeList.jsx`
-  - Fetch and display list of disputes.
-  - Handle status display and actions (update).
+### 6. `ui/disputes_page.html`
+- **Responsibilities**:
+  - Create the HTML structure for displaying disputes.
+  - Include forms for creating and updating disputes.
 
-- **File:** `/ui/components/DisputeForm.jsx`
-  - Form for creating/updating disputes.
-  - Input fields for status and evidence URLs.
+### 7. `ui/disputes.js`
+- **Responsibilities**:
+  - Implement JavaScript functions for:
+    - Fetching disputes from the API.
+    - Submitting new disputes.
+    - Updating dispute status.
+  - Handle UI interactions and dynamic updates.
 
-### 6. **UI Pages**
-- **File:** `/ui/pages/DisputePage.jsx`
-  - Main page to render `DisputeList` and `DisputeForm`.
-  - Manage state for form submissions and list updates.
+### 8. `ui/styles.css`
+- **Responsibilities**:
+  - Define styles for the disputes page.
+  - Ensure responsive design and user-friendly layout.
 
-### 7. **Styling**
-- **File:** `/ui/styles/dispute.css`
-  - Basic styling for dispute components and layout.
+## Main Application Entry
 
-## Testing
-### 8. **Unit Tests**
-- **File:** `/tests/test_disputes.py`
-  - Write tests for API endpoints and service functions.
-  - Ensure coverage for all CRUD operations.
+### 9. `app.py`
+- **Responsibilities**:
+  - Initialize the Flask application.
+  - Register API routes and UI templates.
+  - Configure database connection and middleware.
 
-## Dependencies
-- **File:** `requirements.txt`
-  - List required packages (Flask, SQLAlchemy, Pydantic, etc.).
-
-## Deployment
-- Ensure API is accessible at `/api/disputes`.
-- Deploy UI and API together, ensuring CORS is configured if necessary.
+## Additional Notes
+- Ensure proper error handling and logging throughout the application.
+- Follow RESTful API design principles.
+- Use environment variables for configuration settings.
+- Set up CI/CD for automated testing and deployment.
 ```
