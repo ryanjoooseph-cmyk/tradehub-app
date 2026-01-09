@@ -1,0 +1,26 @@
+name: label
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const files = await github.paginate(github.rest.pulls.listFiles, { owner, repo, pull_number: pr.number, per_page: 100 })
+            const names = files.map(f => f.filename)
+            const depsOnly = names.length > 0 && names.every(n => /(^|\/)(package\.json|pnpm-lock\.yaml|yarn\.lock|package-lock\.json)$/.test(n))
+            const touchesCfg = names.some(n => n.startsWith('.github/'))
+            const add = []
+            if (depsOnly) add.push('allow-deps','automerge')
+            if (touchesCfg) add.push('allow-config')
+            if (add.length) await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: [...new Set(add)] })
