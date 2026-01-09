@@ -1,105 +1,117 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+
 ## Directory Structure
+
 ```
-/disputes_backend_326
-├── api
-│   ├── disputes.py
-│   ├── __init__.py
-├── ui
-│   ├── components
+/project-root
+│
+├── /api
+│   ├── /controllers
+│   │   └── disputesController.js
+│   ├── /models
+│   │   └── disputeModel.js
+│   ├── /routes
+│   │   └── disputesRoutes.js
+│   └── /middlewares
+│       └── validateDispute.js
+│
+├── /client
+│   ├── /components
 │   │   ├── DisputeList.jsx
 │   │   ├── DisputeForm.jsx
-│   │   ├── DisputeItem.jsx
-│   ├── pages
-│   │   ├── DisputesPage.jsx
-│   ├── App.js
-│   ├── index.js
-├── models
-│   ├── dispute.py
-│   ├── __init__.py
-├── tests
-│   ├── test_disputes.py
-│   ├── test_ui.py
-├── requirements.txt
-└── README.md
+│   │   └── DisputeDetail.jsx
+│   ├── /services
+│   │   └── disputeService.js
+│   └── /pages
+│       └── DisputePage.jsx
+│
+└── /tests
+    ├── /api
+    │   └── disputes.test.js
+    └── /client
+        └── DisputePage.test.jsx
 ```
 
 ## API Implementation
 
-### File: `/disputes_backend_326/api/disputes.py`
+### 1. Model Definition
+- **File:** `/api/models/disputeModel.js`
 - **Responsibilities:**
-  - Define API endpoints for disputes:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Handle request validation and response formatting.
-  - Implement status management (OPEN/REVIEW/RESOLVED).
-  - Manage `evidence_urls` array in dispute records.
+  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - Implement Mongoose model for MongoDB.
 
-### File: `/disputes_backend_326/models/dispute.py`
+### 2. Controller Logic
+- **File:** `/api/controllers/disputesController.js`
 - **Responsibilities:**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-    - `evidence_urls`: Array of strings.
-  - Implement methods for CRUD operations.
+  - `createDispute(req, res)`: Handle POST requests to create a new dispute.
+  - `getDisputes(req, res)`: Handle GET requests to list all disputes.
+  - `updateDispute(req, res)`: Handle PUT requests to update an existing dispute.
 
-## UI Implementation
+### 3. Route Definition
+- **File:** `/api/routes/disputesRoutes.js`
+- **Responsibilities:**
+  - Define routes for `/api/disputes`:
+    - POST `/api/disputes` for creating disputes.
+    - GET `/api/disputes` for listing disputes.
+    - PUT `/api/disputes/:id` for updating disputes.
 
-### File: `/disputes_backend_326/ui/components/DisputeList.jsx`
+### 4. Middleware
+- **File:** `/api/middlewares/validateDispute.js`
+- **Responsibilities:**
+  - Validate incoming requests for creating and updating disputes.
+  - Ensure `evidence_urls` is an array and `status` is one of OPEN/REVIEW/RESOLVED.
+
+## Client Implementation
+
+### 1. Dispute List Component
+- **File:** `/client/components/DisputeList.jsx`
 - **Responsibilities:**
   - Fetch and display a list of disputes.
-  - Render `DisputeItem` for each dispute.
+  - Provide links to view/update each dispute.
 
-### File: `/disputes_backend_326/ui/components/DisputeForm.jsx`
+### 2. Dispute Form Component
+- **File:** `/client/components/DisputeForm.jsx`
 - **Responsibilities:**
-  - Provide a form to create or update disputes.
-  - Handle input for `evidence_urls` and status selection.
+  - Form for creating and updating disputes.
+  - Handle input for `evidence_urls` and `status`.
 
-### File: `/disputes_backend_326/ui/components/DisputeItem.jsx`
+### 3. Dispute Detail Component
+- **File:** `/client/components/DisputeDetail.jsx`
 - **Responsibilities:**
-  - Display individual dispute details.
-  - Include buttons for updating and deleting disputes.
+  - Display detailed information about a selected dispute.
+  - Allow updates to the dispute status.
 
-### File: `/disputes_backend_326/ui/pages/DisputesPage.jsx`
+### 4. Service Layer
+- **File:** `/client/services/disputeService.js`
 - **Responsibilities:**
-  - Combine `DisputeList` and `DisputeForm`.
-  - Manage state for creating and updating disputes.
+  - Implement API calls to the backend for creating, listing, and updating disputes.
 
-### File: `/disputes_backend_326/ui/App.js`
+### 5. Main Page
+- **File:** `/client/pages/DisputePage.jsx`
 - **Responsibilities:**
-  - Set up routing for the application.
-  - Integrate the `DisputesPage`.
-
-### File: `/disputes_backend_326/ui/index.js`
-- **Responsibilities:**
-  - Render the main application component.
-  - Set up any necessary providers (e.g., Redux, Context API).
+  - Integrate `DisputeList` and `DisputeForm` components.
+  - Manage state for displaying disputes and handling updates.
 
 ## Testing
 
-### File: `/disputes_backend_326/tests/test_disputes.py`
+### 1. API Tests
+- **File:** `/tests/api/disputes.test.js`
 - **Responsibilities:**
   - Write unit tests for API endpoints.
-  - Validate response formats and status codes.
+  - Test validation middleware.
 
-### File: `/disputes_backend_326/tests/test_ui.py`
+### 2. Client Tests
+- **File:** `/tests/client/DisputePage.test.jsx`
 - **Responsibilities:**
-  - Write tests for UI components.
-  - Ensure proper rendering and state management.
+  - Write tests for rendering and functionality of `DisputePage`.
 
-## Dependencies
-
-### File: `/disputes_backend_326/requirements.txt`
-- **Responsibilities:**
-  - List required packages for API and UI (e.g., Flask, React, Axios).
-
-## Documentation
-
-### File: `/disputes_backend_326/README.md`
-- **Responsibilities:**
-  - Provide an overview of the feature.
-  - Include setup instructions and API usage examples.
+## Timeline
+- **Week 1:** Set up models and API routes.
+- **Week 2:** Implement controllers and middleware.
+- **Week 3:** Develop client components and service layer.
+- **Week 4:** Write tests and perform integration testing.
 ```
