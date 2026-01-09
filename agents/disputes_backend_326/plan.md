@@ -5,97 +5,81 @@
 ```
 /disputes_backend_326
 │
-├── api
-│   ├── __init__.py
-│   ├── disputes.py
-│   └── utils.py
+├── /api
+│   ├── disputes.js                # API route handling for disputes
+│   └── index.js                   # Main API entry point
 │
-├── models
-│   ├── __init__.py
-│   └── dispute.py
+├── /controllers
+│   ├── disputesController.js       # Business logic for disputes
 │
-├── schemas
-│   ├── __init__.py
-│   └── dispute_schema.py
+├── /models
+│   ├── disputeModel.js             # Mongoose model for disputes
 │
-├── tests
-│   ├── __init__.py
-│   ├── test_disputes.py
-│   └── test_utils.py
+├── /routes
+│   ├── disputesRoutes.js           # Route definitions for disputes
 │
-├── ui
-│   ├── __init__.py
-│   ├── dispute_list.py
-│   ├── dispute_detail.py
-│   └── components
-│       ├── __init__.py
-│       └── evidence_upload.py
+├── /middlewares
+│   ├── authMiddleware.js           # Authentication middleware
 │
-├── requirements.txt
-└── app.py
+├── /tests
+│   ├── disputes.test.js            # Unit tests for disputes API
+│
+└── /config
+    ├── db.js                       # Database connection configuration
+    └── server.js                   # Server setup and configuration
 ```
 
 ## Responsibilities
 
 ### API Implementation
-- **`/api/disputes/disputes.py`**
-  - Implement routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/<id>`: Update an existing dispute
+- **/api/disputes.js**
+  - Define routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
   - Handle request validation and response formatting.
 
-- **`/api/disputes/utils.py`**
-  - Utility functions for dispute status management (OPEN, REVIEW, RESOLVED).
-  - Functions for validating evidence URLs.
+- **/routes/disputesRoutes.js**
+  - Set up Express routes for disputes.
+  - Integrate with `disputesController`.
 
-### Model Definition
-- **`/models/dispute.py`**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+### Business Logic
+- **/controllers/disputesController.js**
+  - Implement functions for:
+    - `listDisputes()` - Fetch all disputes from the database.
+    - `createDispute(data)` - Validate and save a new dispute.
+    - `updateDispute(id, data)` - Validate and update an existing dispute.
+  - Handle status management (OPEN/REVIEW/RESOLVED) and evidence URLs.
 
-### Schema Validation
-- **`/schemas/dispute_schema.py`**
-  - Define Pydantic schemas for:
-    - Creating a dispute
-    - Updating a dispute
-    - Listing disputes
+### Data Modeling
+- **/models/disputeModel.js**
+  - Define Mongoose schema for disputes:
+    - Fields: `id`, `status`, `evidence_urls` (array), `created_at`, `updated_at`.
+  - Implement methods for CRUD operations.
 
-### UI Implementation
-- **`/ui/dispute_list.py`**
-  - Create a UI component to list all disputes.
-  - Implement filtering and sorting functionality.
-
-- **`/ui/dispute_detail.py`**
-  - Create a UI component to view and update a specific dispute.
-  - Include functionality to upload evidence URLs.
-
-- **`/ui/components/evidence_upload.py`**
-  - Implement a reusable component for evidence URL uploads.
+### Middleware
+- **/middlewares/authMiddleware.js**
+  - Implement authentication checks for API routes.
+  - Ensure only authorized users can create or update disputes.
 
 ### Testing
-- **`/tests/test_disputes.py`**
-  - Write unit tests for API endpoints.
-  - Test all CRUD operations and status updates.
-
-- **`/tests/test_utils.py`**
-  - Write tests for utility functions in `utils.py`.
+- **/tests/disputes.test.js**
+  - Write unit tests for:
+    - API endpoints (GET, POST, PUT).
+    - Controller functions.
+  - Use a testing framework (e.g., Jest or Mocha).
 
 ### Configuration
-- **`/requirements.txt`**
-  - List necessary dependencies (Flask, Pydantic, etc.).
-
-- **`/app.py`**
-  - Initialize the Flask app and register API routes.
-  - Set up CORS and error handling.
+- **/config/db.js**
+  - Set up MongoDB connection using Mongoose.
+  
+- **/config/server.js**
+  - Initialize Express server.
+  - Configure middleware (body-parser, CORS, etc.).
 
 ## Timeline
-- **Week 1**: API and model implementation.
-- **Week 2**: UI components and schema validation.
-- **Week 3**: Testing and integration.
-- **Week 4**: Review and deployment.
+- **Week 1**: Set up project structure, implement models and routes.
+- **Week 2**: Develop controllers and middleware.
+- **Week 3**: Write tests and finalize API documentation.
+- **Week 4**: Conduct code reviews and deploy to staging.
 ```
