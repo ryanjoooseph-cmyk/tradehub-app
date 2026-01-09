@@ -7,68 +7,106 @@
 │
 ├── /src
 │   ├── /api
-│   │   ├── disputes.js               # API route for disputes
-│   │   └── index.js                  # Main API index file
-│   ├── /controllers
-│   │   └── disputesController.js      # Business logic for disputes
-│   ├── /models
-│   │   └── disputeModel.js            # Mongoose model for disputes
-│   ├── /routes
-│   │   └── disputesRoutes.js          # Route definitions for disputes
-│   ├── /middlewares
-│   │   └── authMiddleware.js          # Authentication middleware
-│   ├── /utils
-│   │   └── responseFormatter.js        # Utility for formatting API responses
-│   └── /views
-│       ├── /disputes
-│       │   ├── DisputeList.jsx        # UI component for listing disputes
-│       │   ├── DisputeDetail.jsx      # UI component for dispute details
-│       │   └── DisputeForm.jsx        # UI component for creating/updating disputes
-│       └── App.js                     # Main application component
+│   │   ├── disputes.js
+│   │   └── disputes.test.js
+│   ├── /components
+│   │   ├── DisputeList.js
+│   │   ├── DisputeForm.js
+│   │   └── DisputeItem.js
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   ├── /styles
+│   │   └── DisputeStyles.css
+│   └── App.js
 │
 ├── /tests
-│   ├── /api
-│   │   └── disputes.test.js           # API tests for disputes
-│   ├── /controllers
-│   │   └── disputesController.test.js  # Tests for disputes controller
-│   └── /views
-│       └── DisputeForm.test.js        # Tests for DisputeForm component
+│   ├── api
+│   │   └── disputes.test.js
+│   └── components
+│       └── DisputeList.test.js
 │
 ├── /config
-│   └── db.js                          # Database configuration
+│   └── apiConfig.js
 │
-├── /package.json                       # Project dependencies
-└── /server.js                         # Main server file
+└── package.json
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **`/src/api/disputes.js`**: Define the Express route for `/api/disputes` to handle GET, POST, and PUT requests.
-- **`/src/controllers/disputesController.js`**: Implement functions to handle business logic for listing, creating, and updating disputes.
-- **`/src/models/disputeModel.js`**: Create a Mongoose model for disputes with fields: `evidence_urls`, `status`, and timestamps.
-- **`/src/routes/disputesRoutes.js`**: Set up routing for disputes and link to the controller functions.
-- **`/src/middlewares/authMiddleware.js`**: Implement authentication checks for API access.
+### File: `/src/api/disputes.js`
+- **Responsibilities:**
+  - Define RESTful API endpoints for disputes.
+  - Implement CRUD operations:
+    - `GET /api/disputes`: List all disputes.
+    - `POST /api/disputes`: Create a new dispute.
+    - `PUT /api/disputes/:id`: Update an existing dispute.
+  - Handle status updates (OPEN/REVIEW/RESOLVED).
+  - Validate and process `evidence_urls` array.
 
-### UI Implementation
-- **`/src/views/disputes/DisputeList.jsx`**: Create a UI component to list all disputes with status and actions.
-- **`/src/views/disputes/DisputeDetail.jsx`**: Create a UI component to display details of a selected dispute.
-- **`/src/views/disputes/DisputeForm.jsx`**: Create a form component for creating and updating disputes, including input for `evidence_urls` and `status`.
+### File: `/src/api/disputes.test.js`
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Test all CRUD operations and status transitions.
+  - Ensure proper error handling and response formats.
 
-### Testing
-- **`/tests/api/disputes.test.js`**: Write tests for API endpoints to ensure correct functionality.
-- **`/tests/controllers/disputesController.test.js`**: Write unit tests for the controller logic.
-- **`/tests/views/DisputeForm.test.js`**: Write tests for the DisputeForm component to ensure proper rendering and functionality.
+## UI Implementation
 
-### Configuration
-- **`/config/db.js`**: Set up MongoDB connection for the application.
+### File: `/src/components/DisputeList.js`
+- **Responsibilities:**
+  - Fetch and display a list of disputes.
+  - Render `DisputeItem` for each dispute.
+  - Provide filtering options based on status.
 
-### Main Application
-- **`/server.js`**: Initialize the Express server and connect to the database, set up middleware, and include routes.
+### File: `/src/components/DisputeForm.js`
+- **Responsibilities:**
+  - Create a form for submitting new disputes.
+  - Include fields for evidence URLs and status selection.
+  - Handle form submission and validation.
 
-## Timeline
-- **Week 1**: API setup and model creation.
-- **Week 2**: UI component development.
-- **Week 3**: Testing and integration.
-- **Week 4**: Final review and deployment.
+### File: `/src/components/DisputeItem.js`
+- **Responsibilities:**
+  - Display individual dispute details.
+  - Provide buttons for updating status and viewing evidence.
+  - Trigger update actions via props.
+
+### File: `/src/hooks/useDisputes.js`
+- **Responsibilities:**
+  - Custom hook for managing dispute state.
+  - Fetch disputes from the API and handle loading/error states.
+  - Provide functions for creating and updating disputes.
+
+### File: `/src/styles/DisputeStyles.css`
+- **Responsibilities:**
+  - Define styles for dispute components.
+  - Ensure responsive design and accessibility.
+
+### File: `/src/App.js`
+- **Responsibilities:**
+  - Integrate all components.
+  - Set up routing for the disputes feature.
+  - Manage global state if necessary.
+
+## Testing
+
+### File: `/tests/api/disputes.test.js`
+- **Responsibilities:**
+  - Test API endpoints using a testing framework (e.g., Jest).
+  - Validate responses for all CRUD operations.
+
+### File: `/tests/components/DisputeList.test.js`
+- **Responsibilities:**
+  - Test rendering and functionality of `DisputeList`.
+  - Mock API calls to ensure component behavior.
+
+## Configuration
+
+### File: `/config/apiConfig.js`
+- **Responsibilities:**
+  - Centralize API configuration (base URL, headers).
+  - Export configuration for use in API files.
+
+## Notes
+- Ensure proper error handling and user feedback in the UI.
+- Follow best practices for API security and data validation.
+- Document API endpoints and UI components for future reference.
 ```
