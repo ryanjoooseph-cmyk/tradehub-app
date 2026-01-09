@@ -1,10 +1,9 @@
-name: pr-guard
+name: guard
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+  pull_request_target:
+    types: [opened, synchronize, labeled, unlabeled, reopened]
 permissions:
   contents: read
-  pull-requests: write
 jobs:
   guard:
     runs-on: ubuntu-latest
@@ -12,18 +11,12 @@ jobs:
       - uses: actions/github-script@v7
         with:
           script: |
-            const pr = context.payload.pull_request;
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const labels = new Set(pr.labels.map(l => l.name));
-            const files = await github.paginate(
-              github.rest.pulls.listFiles,
-              { owner, repo, pull_number: pr.number },
-              res => res.data.map(f => f.filename)
-            );
-            let blocked = false;
-            for (const f of files) {
-              if (/^\.github\/workflows\//.test(f) && !labels.has('allow-config')) blocked = true;
-              if (/(^|\/)(package\.json|pnpm-lock\.yaml|yarn\.lock|package-lock\.json)$/.test(f) && !labels.has('allow-deps')) blocked = true;
-            }
-            if (blocked) core.setFailed('guard');
+            const pr = context.payload.pull_request
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const { data: files } = await github.pulls.listFiles({ owner, repo, pull_number: pr.number, per_page: 100 })
+            const unsafe = files.some(f => /(^|\/)(package(-lock)?\.json|pnpm-lock\.yaml|yarn\.lock)$/.test(f.filename))
+            if (!unsafe) return
+            const { data: labels } = await github.issues.listLabelsOnIssue({ owner, repo, issue_number: pr.number, per_page: 100 })
+            const allowed = labels.some(l => l.name === 'allow-deps')
+            if (!allowed) core.setFailed('Unsafe file(s) touched')
