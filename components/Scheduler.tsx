@@ -1,42 +1,47 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-
-type EventInput = {
-  id?: string
-  title: string
-  start: string
-  end?: string
-  allDay?: boolean
-}
+import { useState } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import type { EventInput } from '@fullcalendar/core';
 
 export default function Scheduler() {
-  const [events, setEvents] = useState<EventInput[]>([
-    { id: 'seed-1', title: 'Example event', start: new Date().toISOString() }
-  ])
+  const [events, setEvents] = useState<EventInput[]>([]);
 
   return (
-    <div className="p-6">
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        }}
-        initialView="dayGridMonth"
-        editable
-        selectable
-        events={events}
-        dateClick={(info) => {
-          const id = crypto.randomUUID()
-          setEvents(prev => [...prev, { id, title: 'New event', start: info.dateStr, allDay: true }])
-        }}
-      />
-    </div>
-  )
+    <FullCalendar
+      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+      initialView="timeGridWeek"
+      headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
+      selectable
+      selectMirror
+      editable
+      eventStartEditable
+      eventDurationEditable
+      events={events}
+      select={(info) => {
+        setEvents((prev) => [
+          ...prev,
+          { id: String(Date.now()), title: 'New Job', start: info.startStr, end: info.endStr },
+        ]);
+      }}
+      eventDrop={(info) => {
+        setEvents((prev) =>
+          prev.map((e) =>
+            e.id === info.event.id ? { ...e, start: info.event.startStr, end: info.event.endStr } : e
+          )
+        );
+      }}
+      eventResize={(info) => {
+        setEvents((prev) =>
+          prev.map((e) =>
+            e.id === info.event.id ? { ...e, start: info.event.startStr, end: info.event.endStr } : e
+          )
+        );
+      }}
+      height="auto"
+    />
+  );
 }
