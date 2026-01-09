@@ -1,104 +1,105 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
-```
-/disputes_backend_326
-├── api
-│   ├── disputes.py
-│   ├── __init__.py
-├── models
-│   ├── dispute.py
-│   ├── __init__.py
-├── schemas
-│   ├── dispute_schema.py
-│   ├── __init__.py
-├── services
-│   ├── dispute_service.py
-│   ├── __init__.py
-├── tests
-│   ├── test_disputes.py
-│   ├── __init__.py
-├── ui
-│   ├── disputes_page.html
-│   ├── disputes.js
-│   ├── styles.css
-└── app.py
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
 
-## API Implementation
+## File Structure
 
-### 1. **API Endpoints** (`/api/disputes`)
-- **File**: `api/disputes.py`
-  - **Responsibilities**:
-    - Define routes for:
-      - `GET /api/disputes`: List all disputes.
-      - `POST /api/disputes`: Create a new dispute.
-      - `PUT /api/disputes/<id>`: Update an existing dispute.
-    - Handle request validation and response formatting.
+### API Implementation
 
-### 2. **Data Models**
-- **File**: `models/dispute.py`
-  - **Responsibilities**:
-    - Define the `Dispute` model with fields:
-      - `id`: Unique identifier.
-      - `evidence_urls`: Array of URLs.
-      - `status`: Enum (OPEN, REVIEW, RESOLVED).
-    - Implement methods for CRUD operations.
+- **File Paths:**
+  - `src/api/disputes.js`
+    - **Responsibilities:**
+      - Define API endpoints for disputes.
+      - Implement CRUD operations (Create, Read, Update).
+      - Validate input data and manage status transitions.
+  
+  - `src/models/Dispute.js`
+    - **Responsibilities:**
+      - Define the Dispute model schema (fields: id, evidence_urls, status).
+      - Implement methods for database interactions.
 
-### 3. **Schemas for Validation**
-- **File**: `schemas/dispute_schema.py`
-  - **Responsibilities**:
-    - Define Pydantic schemas for:
-      - Creating a dispute.
-      - Updating a dispute.
-      - Listing disputes.
+  - `src/controllers/disputeController.js`
+    - **Responsibilities:**
+      - Handle business logic for disputes.
+      - Implement functions for creating, listing, and updating disputes.
 
-### 4. **Service Layer**
-- **File**: `services/dispute_service.py`
-  - **Responsibilities**:
-    - Implement business logic for:
-      - Fetching disputes.
-      - Creating a new dispute.
-      - Updating dispute status.
-    - Interact with the database model.
+  - `src/routes/disputeRoutes.js`
+    - **Responsibilities:**
+      - Define Express routes for API endpoints.
+      - Link routes to controller functions.
 
-## UI Implementation
+  - `src/middleware/validateDispute.js`
+    - **Responsibilities:**
+      - Middleware to validate incoming requests for disputes.
+      - Ensure evidence_urls is an array and status is one of the allowed values.
 
-### 5. **Frontend Page**
-- **File**: `ui/disputes_page.html`
-  - **Responsibilities**:
-    - Create a user interface for displaying disputes.
-    - Include forms for creating and updating disputes.
+### UI Implementation
 
-### 6. **JavaScript Logic**
-- **File**: `ui/disputes.js`
-  - **Responsibilities**:
-    - Implement AJAX calls to the API for:
-      - Fetching disputes on page load.
-      - Submitting new disputes.
-      - Updating existing disputes.
-    - Handle UI updates based on API responses.
+- **File Paths:**
+  - `src/components/DisputeList.js`
+    - **Responsibilities:**
+      - Display a list of disputes.
+      - Provide options to filter by status.
 
-### 7. **Styling**
-- **File**: `ui/styles.css`
-  - **Responsibilities**:
-    - Style the disputes page for better user experience.
-    - Ensure responsive design for various devices.
+  - `src/components/DisputeForm.js`
+    - **Responsibilities:**
+      - Form for creating and updating disputes.
+      - Handle input for evidence URLs and status selection.
 
-## Testing
-### 8. **Unit Tests**
-- **File**: `tests/test_disputes.py`
-  - **Responsibilities**:
-    - Write tests for API endpoints.
-    - Validate service layer logic.
-    - Ensure UI components function as expected.
+  - `src/pages/DisputePage.js`
+    - **Responsibilities:**
+      - Main page for dispute management.
+      - Integrate `DisputeList` and `DisputeForm`.
 
-## Main Application Entry
-### 9. **Application Setup**
-- **File**: `app.py`
-  - **Responsibilities**:
-    - Initialize the web application.
-    - Register API routes and UI templates.
-    - Configure database connections and middleware.
+  - `src/services/disputeService.js`
+    - **Responsibilities:**
+      - API service for making requests to `/api/disputes`.
+      - Implement functions for create, list, and update operations.
+
+  - `src/hooks/useDisputes.js`
+    - **Responsibilities:**
+      - Custom hook to manage dispute state and API calls.
+      - Handle loading and error states.
+
+### Testing
+
+- **File Paths:**
+  - `src/tests/api/disputes.test.js`
+    - **Responsibilities:**
+      - Unit tests for API endpoints.
+      - Test CRUD operations and validation logic.
+
+  - `src/tests/components/DisputeForm.test.js`
+    - **Responsibilities:**
+      - Unit tests for the DisputeForm component.
+      - Validate form submission and error handling.
+
+  - `src/tests/hooks/useDisputes.test.js`
+    - **Responsibilities:**
+      - Unit tests for the custom hook.
+      - Ensure correct state management and API interactions.
+
+## Timeline
+- **Week 1:**
+  - Set up API structure and models.
+  - Implement basic CRUD operations.
+
+- **Week 2:**
+  - Develop UI components and integrate with API.
+  - Implement state management with hooks.
+
+- **Week 3:**
+  - Write tests for API and UI components.
+  - Conduct code reviews and finalize implementation.
+
+- **Week 4:**
+  - Deploy to staging environment.
+  - Gather feedback and make necessary adjustments.
+
+## Notes
+- Ensure proper error handling and user feedback in the UI.
+- Follow best practices for API security and data validation.
+- Document API endpoints and usage for future reference.
 ```
