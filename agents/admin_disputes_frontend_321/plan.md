@@ -1,97 +1,129 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Project Structure
 
 ```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+/project-root
+│
+├── /src
+│   ├── /components
+│   │   ├── AdminDisputesTable.jsx
+│   │   ├── FilterBar.jsx
+│   │   └── StatusUpdateModal.jsx
+│   │
+│   ├── /pages
+│   │   └── AdminDisputesPage.jsx
+│   │
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   │
+│   ├── /api
+│   │   └── disputesApi.js
+│   │
+│   ├── /styles
+│   │   └── AdminDisputes.css
+│   │
+│   └── /utils
+│       └── constants.js
+│
+├── /tests
+│   ├── /components
+│   │   ├── AdminDisputesTable.test.js
+│   │   ├── FilterBar.test.js
+│   │   └── StatusUpdateModal.test.js
+│   │
+│   └── /pages
+│       └── AdminDisputesPage.test.js
+│
+└── /public
+    └── index.html
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### Components
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+- **AdminDisputesTable.jsx**
+  - Render the table of disputes with pagination and sorting.
+  - Integrate filters from `FilterBar`.
+  - Handle actions to update dispute status.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+- **FilterBar.jsx**
+  - Provide UI elements for filtering disputes (e.g., by status, date).
+  - Emit filter changes to `AdminDisputesPage`.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+- **StatusUpdateModal.jsx**
+  - Display modal for updating the status of a selected dispute.
+  - Call the API to update status and refresh the table.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+### Pages
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+- **AdminDisputesPage.jsx**
+  - Main page component for `/admin/disputes/321`.
+  - Manage state for disputes and filters.
+  - Fetch disputes data using `useDisputes` hook.
+  - Handle updates and re-fetch data after status changes.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+### Hooks
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+- **useDisputes.js**
+  - Custom hook to fetch disputes from `/api/disputes`.
+  - Manage loading and error states.
+  - Provide a function to refresh disputes after updates.
 
-## Development Steps
+### API
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+- **disputesApi.js**
+  - Define API calls for fetching disputes and updating status.
+  - Handle error responses and return structured data.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+### Styles
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+- **AdminDisputes.css**
+  - Style the components for the admin disputes page.
+  - Ensure responsive design for various screen sizes.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+### Utilities
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
+- **constants.js**
+  - Define constants for API endpoints, status codes, and filter options.
 
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
+### Tests
 
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+- **AdminDisputesTable.test.js**
+  - Unit tests for `AdminDisputesTable` component.
+
+- **FilterBar.test.js**
+  - Unit tests for `FilterBar` component.
+
+- **StatusUpdateModal.test.js**
+  - Unit tests for `StatusUpdateModal` component.
+
+- **AdminDisputesPage.test.js**
+  - Integration tests for `AdminDisputesPage`.
+
+## Timeline
+
+1. **Week 1: Setup**
+   - Create project structure and install dependencies.
+   - Set up routing for `/admin/disputes/321`.
+
+2. **Week 2: Component Development**
+   - Implement `AdminDisputesTable`, `FilterBar`, and `StatusUpdateModal`.
+   - Style components using CSS.
+
+3. **Week 3: API Integration**
+   - Implement API calls in `disputesApi.js`.
+   - Integrate API with components and hooks.
+
+4. **Week 4: Testing**
+   - Write unit and integration tests.
+   - Conduct code reviews and fix issues.
+
+5. **Week 5: Deployment**
+   - Prepare for deployment and finalize documentation.
+   - Deploy to staging for QA.
+
+## Notes
+- Ensure accessibility standards are met.
+- Follow coding standards and best practices throughout development.
