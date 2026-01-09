@@ -1,108 +1,106 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Directory Structure
 ```
 /api
-    ├── disputes
-    │   ├── disputes.controller.js
-    │   ├── disputes.service.js
-    │   ├── disputes.model.js
-    │   ├── disputes.routes.js
-    │   └── disputes.validation.js
-/ui
+    └── disputes.js           # API route for disputes
+/src
     ├── components
-    │   ├── DisputeList.jsx
-    │   ├── DisputeDetail.jsx
-    │   └── DisputeForm.jsx
+    │   └── DisputeForm.js    # UI component for creating/updating disputes
     ├── pages
-    │   └── DisputesPage.jsx
+    │   └── DisputePage.js     # UI page for listing and managing disputes
     ├── services
-    │   └── disputeApi.js
-    └── App.jsx
+    │   └── disputeService.js   # API service for dispute-related requests
+    └── styles
+        └── DisputeStyles.css   # Styles for dispute components
 ```
 
 ## API Implementation
 
-### 1. Model Definition
-- **File:** `/api/disputes/disputes.model.js`
+### File: `/api/disputes.js`
 - **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  - Implement Mongoose model for MongoDB.
+  - Define routes for handling disputes:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
+  - Implement logic for:
+    - Validating input data
+    - Managing dispute statuses (OPEN, REVIEW, RESOLVED)
+    - Handling evidence_urls array for each dispute
+  - Connect to the database to perform CRUD operations.
 
-### 2. Controller Logic
-- **File:** `/api/disputes/disputes.controller.js`
-- **Responsibilities:**
-  - Implement functions to handle:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
-  - Validate input and manage responses.
+### Example Route Handlers:
+```javascript
+// GET /api/disputes
+app.get('/api/disputes', async (req, res) => {
+    // Logic to fetch and return disputes
+});
 
-### 3. Service Layer
-- **File:** `/api/disputes/disputes.service.js`
-- **Responsibilities:**
-  - Implement business logic for disputes.
-  - Interact with the database using the model.
-  - Handle status updates and evidence URL management.
+// POST /api/disputes
+app.post('/api/disputes', async (req, res) => {
+    // Logic to create a new dispute
+});
 
-### 4. Routing
-- **File:** `/api/disputes/disputes.routes.js`
-- **Responsibilities:**
-  - Define API routes for disputes.
-  - Connect routes to the appropriate controller functions.
-
-### 5. Validation
-- **File:** `/api/disputes/disputes.validation.js`
-- **Responsibilities:**
-  - Validate request bodies for creating and updating disputes.
-  - Ensure status is one of OPEN/REVIEW/RESOLVED.
+// PUT /api/disputes/:id
+app.put('/api/disputes/:id', async (req, res) => {
+    // Logic to update an existing dispute
+});
+```
 
 ## UI Implementation
 
-### 1. Dispute List Component
-- **File:** `/ui/components/DisputeList.jsx`
+### File: `/src/components/DisputeForm.js`
 - **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide links to view details of each dispute.
+  - Create a form for users to submit new disputes or update existing ones.
+  - Include fields for dispute details, status selection, and evidence URLs.
+  - Handle form submission and validation.
 
-### 2. Dispute Detail Component
-- **File:** `/ui/components/DisputeDetail.jsx`
+### File: `/src/pages/DisputePage.js`
 - **Responsibilities:**
-  - Display detailed information about a selected dispute.
-  - Allow users to update the dispute status and add evidence URLs.
+  - Display a list of all disputes with options to view, edit, or delete.
+  - Integrate `DisputeForm` for creating/updating disputes.
+  - Fetch disputes from the API and manage state.
 
-### 3. Dispute Form Component
-- **File:** `/ui/components/DisputeForm.jsx`
+### File: `/src/services/disputeService.js`
 - **Responsibilities:**
-  - Provide a form for creating new disputes.
-  - Validate input and submit to the API.
-
-### 4. Disputes Page
-- **File:** `/ui/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Combine DisputeList and DisputeForm components.
-  - Manage state for disputes and handle API interactions.
-
-### 5. API Service
-- **File:** `/ui/services/disputeApi.js`
-- **Responsibilities:**
-  - Implement functions to call the API endpoints for disputes.
+  - Define functions to interact with the API:
+    - `fetchDisputes()` - Fetch all disputes
+    - `createDispute(data)` - Create a new dispute
+    - `updateDispute(id, data)` - Update an existing dispute
   - Handle API responses and errors.
 
-### 6. Main Application
-- **File:** `/ui/App.jsx`
+### Example Service Functions:
+```javascript
+export const fetchDisputes = async () => {
+    // Fetch disputes from API
+};
+
+export const createDispute = async (data) => {
+    // Send POST request to create a dispute
+};
+
+export const updateDispute = async (id, data) => {
+    // Send PUT request to update a dispute
+};
+```
+
+## Styles Implementation
+
+### File: `/src/styles/DisputeStyles.css`
 - **Responsibilities:**
-  - Set up routing for the application.
-  - Integrate DisputesPage into the main application layout.
+  - Define styles for dispute components and pages.
+  - Ensure responsive design and accessibility.
 
 ## Testing
-- **Files:** `/api/tests/disputes.test.js`, `/ui/tests/DisputeList.test.jsx`, `/ui/tests/DisputeForm.test.jsx`
-- **Responsibilities:**
-  - Write unit tests for API endpoints and UI components.
-  - Ensure all functionalities are covered and working as expected.
+- Implement unit tests for API routes in `/api/tests/disputes.test.js`.
+- Implement component tests for `DisputeForm` and `DisputePage` in `/src/tests`.
 
 ## Deployment
-- Ensure API is deployed to the server and UI is built for production.
-- Update documentation with API endpoints and usage examples.
+- Ensure the API is deployed to the server and accessible at `/api/disputes`.
+- Deploy the UI to the frontend hosting service.
+
+## Documentation
+- Update API documentation to include new endpoints and usage examples.
+- Document UI components and their props in the codebase.
 ```
