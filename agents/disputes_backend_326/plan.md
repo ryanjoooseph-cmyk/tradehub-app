@@ -7,92 +7,90 @@
 ├── /api
 │   ├── disputes.py
 │   ├── __init__.py
-│   └── models.py
+├── /models
+│   ├── dispute.py
+│   ├── __init__.py
+├── /schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+├── /services
+│   ├── dispute_service.py
+│   ├── __init__.py
+├── /tests
+│   ├── test_disputes.py
+│   ├── __init__.py
 ├── /ui
 │   ├── /components
 │   │   ├── DisputeList.jsx
 │   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── /hooks
-│   │   └── useDisputes.js
 │   ├── /pages
-│   │   └── DisputesPage.jsx
+│   │   ├── DisputePage.jsx
 │   ├── /styles
-│   │   └── Disputes.css
-│   ├── App.jsx
-│   └── index.js
+│   │   ├── disputes.css
+├── app.py
 └── requirements.txt
 ```
 
 ## API Implementation
 
-### File: `/api/disputes.py`
-- **Responsibilities:**
-  - Define Flask routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Handle request validation and response formatting.
+### 1. Define Dispute Model
+- **File:** `/models/dispute.py`
+- **Responsibility:** Create a Dispute class with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
 
-### File: `/api/models.py`
-- **Responsibilities:**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of strings
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement database interactions (CRUD operations).
+### 2. Create API Endpoints
+- **File:** `/api/disputes.py`
+- **Responsibility:** 
+  - Implement GET `/api/disputes` to list all disputes.
+  - Implement POST `/api/disputes` to create a new dispute.
+  - Implement PUT `/api/disputes/<id>` to update an existing dispute status or evidence_urls.
+
+### 3. Define Schemas
+- **File:** `/schemas/dispute_schema.py`
+- **Responsibility:** Create a schema for validating dispute data (e.g., status must be one of OPEN/REVIEW/RESOLVED).
+
+### 4. Implement Service Logic
+- **File:** `/services/dispute_service.py`
+- **Responsibility:** 
+  - Create functions for CRUD operations on disputes.
+  - Handle business logic for updating dispute status and evidence URLs.
+
+### 5. Write Tests
+- **File:** `/tests/test_disputes.py`
+- **Responsibility:** 
+  - Write unit tests for API endpoints.
+  - Test service functions for correctness.
 
 ## UI Implementation
 
-### File: `/ui/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide options to view details or create a new dispute.
+### 1. Create Dispute List Component
+- **File:** `/ui/components/DisputeList.jsx`
+- **Responsibility:** Fetch and display a list of disputes with their statuses.
 
-### File: `/ui/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Form for creating/updating disputes.
-  - Handle input for `evidence_urls` and `status`.
+### 2. Create Dispute Form Component
+- **File:** `/ui/components/DisputeForm.jsx`
+- **Responsibility:** Provide a form for users to submit new disputes or update existing ones.
 
-### File: `/ui/components/DisputeDetail.jsx`
-- **Responsibilities:**
-  - Display detailed information about a selected dispute.
-  - Allow status updates and evidence URL management.
+### 3. Create Dispute Page
+- **File:** `/ui/pages/DisputePage.jsx`
+- **Responsibility:** Combine `DisputeList` and `DisputeForm` components; manage state for displaying and updating disputes.
 
-### File: `/ui/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Custom hook to manage API calls related to disputes.
-  - Handle state management for disputes data.
+### 4. Add Styles
+- **File:** `/ui/styles/disputes.css`
+- **Responsibility:** Style the dispute components for a user-friendly interface.
 
-### File: `/ui/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Main page to render `DisputeList` and `DisputeForm`.
-  - Manage routing and overall layout.
+## Additional Tasks
 
-### File: `/ui/styles/Disputes.css`
-- **Responsibilities:**
-  - Define styles for dispute components.
-  - Ensure responsive design.
+### 1. Update Requirements
+- **File:** `/requirements.txt`
+- **Responsibility:** Add necessary libraries (e.g., Flask, Flask-RESTful, React, Axios).
 
-### File: `/ui/App.jsx`
-- **Responsibilities:**
-  - Main application component.
-  - Set up routing for the application.
+### 2. Documentation
+- **File:** `/README.md`
+- **Responsibility:** Document API endpoints, UI components, and setup instructions.
 
-### File: `/ui/index.js`
-- **Responsibilities:**
-  - Entry point for the React application.
-  - Render the `App` component.
+### 3. Code Review
+- **Responsibility:** Conduct a code review to ensure quality and adherence to standards.
 
-## Additional Notes
-- **Testing:**
-  - Implement unit tests for API endpoints in `/api/test_disputes.py`.
-  - Create component tests for UI in `/ui/__tests__/`.
-
-- **Documentation:**
-  - Update API documentation in `/api/README.md`.
-  - Provide usage instructions for the UI in `/ui/README.md`.
-
-- **Dependencies:**
-  - List required packages in `requirements.txt` (Flask, React, etc.).
+### 4. Deployment
+- **Responsibility:** Prepare the application for deployment (Docker, CI/CD setup).
 ```
