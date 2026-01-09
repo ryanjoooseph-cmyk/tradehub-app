@@ -2,98 +2,110 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
 
 ## File Structure
 
-```
-/disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
-```
-
-## Responsibilities
-
 ### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
+
+- **File Paths**
+  - `src/api/disputes.js`
+  - `src/models/Dispute.js`
+  - `src/controllers/disputeController.js`
+  - `src/routes/disputeRoutes.js`
+  - `src/middleware/authMiddleware.js`
+  - `src/utils/responseHandler.js`
+
+- **Responsibilities**
+  - `src/api/disputes.js`
+    - Set up Express router for dispute-related endpoints.
   
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+  - `src/models/Dispute.js`
+    - Define the Dispute model schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  
+  - `src/controllers/disputeController.js`
+    - Implement functions:
+      - `createDispute(req, res)`: Handle POST requests to create a new dispute.
+      - `getDisputes(req, res)`: Handle GET requests to list all disputes.
+      - `updateDispute(req, res)`: Handle PUT requests to update an existing dispute.
+  
+  - `src/routes/disputeRoutes.js`
+    - Define routes:
+      - `POST /api/disputes`: Create a new dispute.
+      - `GET /api/disputes`: List all disputes.
+      - `PUT /api/disputes/:id`: Update a specific dispute.
+  
+  - `src/middleware/authMiddleware.js`
+    - Implement authentication middleware to protect dispute routes.
+  
+  - `src/utils/responseHandler.js`
+    - Create utility functions for standardized API responses.
 
 ### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+- **File Paths**
+  - `src/components/DisputeForm.js`
+  - `src/components/DisputeList.js`
+  - `src/pages/DisputePage.js`
+  - `src/services/disputeService.js`
+  - `src/styles/disputeStyles.css`
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+- **Responsibilities**
+  - `src/components/DisputeForm.js`
+    - Create a form component for submitting new disputes, including fields for `evidence_urls`.
+  
+  - `src/components/DisputeList.js`
+    - Create a component to display the list of disputes with their statuses.
+  
+  - `src/pages/DisputePage.js`
+    - Implement the main page to render `DisputeForm` and `DisputeList`.
+  
+  - `src/services/disputeService.js`
+    - Implement API calls:
+      - `createDispute(data)`: POST request to create a dispute.
+      - `fetchDisputes()`: GET request to retrieve all disputes.
+      - `updateDispute(id, data)`: PUT request to update a dispute.
+  
+  - `src/styles/disputeStyles.css`
+    - Define styles for dispute components and layout.
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+## Testing
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+- **File Paths**
+  - `tests/api/dispute.test.js`
+  - `tests/ui/DisputeForm.test.js`
+  - `tests/ui/DisputeList.test.js`
+
+- **Responsibilities**
+  - `tests/api/dispute.test.js`
+    - Write unit tests for API endpoints using Jest and Supertest.
+  
+  - `tests/ui/DisputeForm.test.js`
+    - Write unit tests for the DisputeForm component.
+  
+  - `tests/ui/DisputeList.test.js`
+    - Write unit tests for the DisputeList component.
+
+## Deployment
+
+- **File Paths**
+  - `docker-compose.yml`
+  - `Dockerfile`
+  - `src/config/config.js`
+
+- **Responsibilities**
+  - `docker-compose.yml`
+    - Define services for the application and database.
+  
+  - `Dockerfile`
+    - Create a Docker image for the application.
+  
+  - `src/config/config.js`
+    - Manage environment variables and configurations for deployment.
 
 ## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
-
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- **Week 1**: API development (models, controllers, routes)
+- **Week 2**: UI development (components, services)
+- **Week 3**: Testing and deployment preparation
+- **Week 4**: Final review and launch
 ```
