@@ -1,4 +1,4 @@
-import Scheduler from '@/components/Scheduler';
+import Scheduler from '@/components/Scheduler'
 
 export default function CalendarPage() {
   return (
@@ -6,5 +6,5 @@ export default function CalendarPage() {
       <h1 className="text-xl font-semibold mb-4">Jobs Calendar</h1>
       <Scheduler />
     </div>
-  );
+  )
 }
