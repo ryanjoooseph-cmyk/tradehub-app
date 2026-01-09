@@ -1,0 +1,36 @@
+name: auto-label-automerge
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label_and_enable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const {owner, repo} = context.repo;
+            const files = await github.paginate(github.rest.pulls.listFiles, { owner, repo, pull_number: pr.number, per_page: 100 });
+            const names = files.map(f => f.filename);
+
+            const labels = new Set(["automerge"]);
+            const last = (p) => p.split("/").pop() || p;
+
+            if (names.some(n => /^(package\.json|package-lock\.json|pnpm-lock\.yaml|yarn\.lock)$/i.test(last(n)))) labels.add("allow-deps");
+            if (names.some(n => n.startsWith(".github/"))) labels.add("allow-config");
+
+            await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: Array.from(labels) });
+
+            try {
+              await github.graphql(
+                `mutation($id:ID!){ enablePullRequestAutoMerge(input:{pullRequestId:$id, mergeMethod:SQUASH}){ clientMutationId } }`,
+                { id: pr.node_id }
+              );
+            } catch (e) {}
