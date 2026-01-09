@@ -1,108 +1,96 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Directory Structure
 ```
-/api
-    ├── disputes
-    │   ├── disputes.controller.js
-    │   ├── disputes.service.js
-    │   ├── disputes.model.js
-    │   ├── disputes.routes.js
-    │   └── disputes.validation.js
-/ui
-    ├── components
-    │   ├── DisputeList.jsx
-    │   ├── DisputeDetail.jsx
-    │   └── DisputeForm.jsx
-    ├── pages
-    │   └── DisputesPage.jsx
-    ├── services
-    │   └── disputeApi.js
-    └── App.jsx
+/disputes_backend_326
+│
+├── /api
+│   ├── disputes.py                # API routes for disputes
+│   ├── __init__.py                # Initialize API package
+│
+├── /models
+│   ├── dispute.py                 # Dispute model definition
+│   ├── __init__.py                # Initialize models package
+│
+├── /schemas
+│   ├── dispute_schema.py          # Pydantic schemas for validation
+│   ├── __init__.py                # Initialize schemas package
+│
+├── /services
+│   ├── dispute_service.py         # Business logic for disputes
+│   ├── __init__.py                # Initialize services package
+│
+├── /tests
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   ├── __init__.py                # Initialize tests package
+│
+├── /migrations                     # Database migrations folder
+│
+└── app.py                         # Main application entry point
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. Model Definition
-- **File:** `/api/disputes/disputes.model.js`
-- **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  - Implement Mongoose model for MongoDB.
+### 1. API Implementation
+- **File:** `/api/disputes.py`
+  - Define routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/{id}` - Update an existing dispute
+  - Implement request handling and response formatting.
 
-### 2. Controller Logic
-- **File:** `/api/disputes/disputes.controller.js`
-- **Responsibilities:**
-  - Implement functions to handle:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
-  - Validate input and manage responses.
+### 2. Model Definition
+- **File:** `/models/dispute.py`
+  - Create a Dispute model with fields:
+    - `id`: UUID
+    - `evidence_urls`: List of strings
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Define database interactions (CRUD operations).
 
-### 3. Service Layer
-- **File:** `/api/disputes/disputes.service.js`
-- **Responsibilities:**
-  - Implement business logic for disputes.
-  - Interact with the database using the model.
-  - Handle status updates and evidence URL management.
+### 3. Schema Validation
+- **File:** `/schemas/dispute_schema.py`
+  - Define Pydantic schemas for:
+    - Creating a dispute
+    - Updating a dispute
+    - Listing disputes
+  - Ensure validation of `evidence_urls` and `status`.
 
-### 4. Routing
-- **File:** `/api/disputes/disputes.routes.js`
-- **Responsibilities:**
-  - Define API routes for disputes.
-  - Connect routes to the appropriate controller functions.
+### 4. Business Logic
+- **File:** `/services/dispute_service.py`
+  - Implement functions for:
+    - Fetching all disputes
+    - Creating a dispute
+    - Updating a dispute status
+  - Handle business rules and data manipulation.
 
-### 5. Validation
-- **File:** `/api/disputes/disputes.validation.js`
-- **Responsibilities:**
-  - Validate request bodies for creating and updating disputes.
-  - Ensure status is one of OPEN/REVIEW/RESOLVED.
+### 5. Testing
+- **File:** `/tests/test_disputes.py`
+  - Write unit tests for:
+    - API endpoints (GET, POST, PUT)
+    - Model methods
+    - Service functions
+  - Use a testing framework (e.g., pytest).
 
-## UI Implementation
+### 6. Database Migrations
+- **Folder:** `/migrations`
+  - Create migration scripts for the Dispute model.
+  - Ensure the database schema is up-to-date.
 
-### 1. Dispute List Component
-- **File:** `/ui/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide links to view details of each dispute.
+### 7. Main Application
+- **File:** `app.py`
+  - Set up the FastAPI application.
+  - Include API routes and middleware.
+  - Configure database connection.
 
-### 2. Dispute Detail Component
-- **File:** `/ui/components/DisputeDetail.jsx`
-- **Responsibilities:**
-  - Display detailed information about a selected dispute.
-  - Allow users to update the dispute status and add evidence URLs.
+## Timeline
+- **Week 1:** API routes and model definition.
+- **Week 2:** Schema validation and business logic.
+- **Week 3:** Testing and database migrations.
+- **Week 4:** Final review and deployment.
 
-### 3. Dispute Form Component
-- **File:** `/ui/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Provide a form for creating new disputes.
-  - Validate input and submit to the API.
-
-### 4. Disputes Page
-- **File:** `/ui/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Combine DisputeList and DisputeForm components.
-  - Manage state for disputes and handle API interactions.
-
-### 5. API Service
-- **File:** `/ui/services/disputeApi.js`
-- **Responsibilities:**
-  - Implement functions to call the API endpoints for disputes.
-  - Handle API responses and errors.
-
-### 6. Main Application
-- **File:** `/ui/App.jsx`
-- **Responsibilities:**
-  - Set up routing for the application.
-  - Integrate DisputesPage into the main application layout.
-
-## Testing
-- **Files:** `/api/tests/disputes.test.js`, `/ui/tests/DisputeList.test.jsx`, `/ui/tests/DisputeForm.test.jsx`
-- **Responsibilities:**
-  - Write unit tests for API endpoints and UI components.
-  - Ensure all functionalities are covered and working as expected.
-
-## Deployment
-- Ensure API is deployed to the server and UI is built for production.
-- Update documentation with API endpoints and usage examples.
+## Notes
+- Ensure proper error handling and logging.
+- Follow RESTful conventions for API design.
+- Document the API endpoints using OpenAPI specifications.
 ```
