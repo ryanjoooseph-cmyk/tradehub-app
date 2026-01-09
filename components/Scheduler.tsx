@@ -24,9 +24,9 @@ export default function Scheduler() {
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
-        editable={true}
-        selectable={true}
-        droppable={true}
+        editable
+        selectable
+        droppable
         events={events}
         dateClick={(info) => {
           const id = String(Date.now());
