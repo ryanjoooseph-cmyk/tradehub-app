@@ -1,77 +1,94 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Project Structure
+## Overview
+This plan outlines the development of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, leveraging the `/api/disputes` endpoint.
 
+## File Structure
+
+### Frontend
+
+- **File Paths**
+  - `src/components/AdminDisputesTable.js`
+    - **Responsibility**: Create a table component to display disputes with filtering options.
+  
+  - `src/components/DisputeStatusDropdown.js`
+    - **Responsibility**: Create a dropdown component for updating dispute statuses.
+
+  - `src/pages/AdminDisputesPage.js`
+    - **Responsibility**: Main page component that integrates the `AdminDisputesTable` and handles routing.
+
+  - `src/hooks/useDisputes.js`
+    - **Responsibility**: Custom hook to fetch disputes data from the API and manage state.
+
+  - `src/styles/AdminDisputes.css`
+    - **Responsibility**: Styles for the admin disputes page and components.
+
+### API
+
+- **File Paths**
+  - `src/api/disputes.js`
+    - **Responsibility**: API service to handle requests to `/api/disputes`.
+
+  - `src/controllers/disputeController.js`
+    - **Responsibility**: Controller to manage dispute-related logic and status updates.
+
+  - `src/routes/disputeRoutes.js`
+    - **Responsibility**: Define routes for dispute-related API endpoints.
+
+  - `src/models/Dispute.js`
+    - **Responsibility**: Mongoose model for the dispute schema.
+
+  - `src/middleware/authMiddleware.js`
+    - **Responsibility**: Middleware to ensure only authorized users can access dispute endpoints.
+
+## Development Tasks
+
+### Frontend Tasks
+1. **Create AdminDisputesTable Component**
+   - Implement table structure to display disputes.
+   - Add filtering options (e.g., by status, date).
+
+2. **Implement DisputeStatusDropdown Component**
+   - Create dropdown for selecting dispute status.
+   - Handle status change events.
+
+3. **Develop AdminDisputesPage**
+   - Integrate `AdminDisputesTable` and `DisputeStatusDropdown`.
+   - Set up routing for `/admin/disputes/321`.
+
+4. **Create useDisputes Hook**
+   - Fetch disputes from the API.
+   - Manage loading and error states.
+
+5. **Style Components**
+   - Apply styles from `AdminDisputes.css` to ensure a cohesive UI.
+
+### API Tasks
+1. **Set Up Dispute API Service**
+   - Implement GET and PATCH methods in `disputes.js`.
+
+2. **Develop Dispute Controller Logic**
+   - Create functions to handle fetching disputes and updating statuses.
+
+3. **Define API Routes**
+   - Set up routes in `disputeRoutes.js` for fetching and updating disputes.
+
+4. **Implement Mongoose Model**
+   - Define the Dispute schema in `Dispute.js`.
+
+5. **Add Authentication Middleware**
+   - Ensure API routes are protected by adding `authMiddleware.js`.
+
+## Testing
+- **File Paths**
+  - `src/tests/AdminDisputes.test.js`
+    - **Responsibility**: Write unit tests for the AdminDisputes components.
+
+  - `src/tests/api/disputes.test.js`
+    - **Responsibility**: Write integration tests for the dispute API.
+
+## Deployment
+- Ensure all changes are merged into the main branch.
+- Deploy to staging for QA testing before production release.
 ```
-/src
-  ├── /components
-  │   ├── DisputeTable.jsx
-  │   ├── FilterBar.jsx
-  │   └── StatusActionDropdown.jsx
-  ├── /pages
-  │   └── AdminDisputesPage.jsx
-  ├── /api
-  │   └── disputes.js
-  ├── /hooks
-  │   └── useDisputes.js
-  ├── /styles
-  │   └── AdminDisputes.css
-  ├── /utils
-  │   └── apiUtils.js
-  └── /tests
-      ├── DisputeTable.test.js
-      ├── FilterBar.test.js
-      └── AdminDisputesPage.test.js
-```
-
-## Responsibilities
-
-### 1. **DisputeTable.jsx**
-- **Path:** `/src/components/DisputeTable.jsx`
-- **Responsibility:** Render the table of disputes with pagination and sorting. Integrate filters from `FilterBar` and handle updates to dispute status.
-
-### 2. **FilterBar.jsx**
-- **Path:** `/src/components/FilterBar.jsx`
-- **Responsibility:** Provide UI elements for filtering disputes (e.g., by status, date). Communicate filter changes to `DisputeTable`.
-
-### 3. **StatusActionDropdown.jsx**
-- **Path:** `/src/components/StatusActionDropdown.jsx`
-- **Responsibility:** Dropdown component for selecting dispute status updates. Trigger API calls to update the status of selected disputes.
-
-### 4. **AdminDisputesPage.jsx**
-- **Path:** `/src/pages/AdminDisputesPage.jsx`
-- **Responsibility:** Main page component that combines `DisputeTable` and `FilterBar`. Manage state and lifecycle for fetching disputes from the API.
-
-### 5. **disputes.js**
-- **Path:** `/src/api/disputes.js`
-- **Responsibility:** Define API calls to `/api/disputes` for fetching disputes and updating their status. Handle error responses and data formatting.
-
-### 6. **useDisputes.js**
-- **Path:** `/src/hooks/useDisputes.js`
-- **Responsibility:** Custom hook to manage fetching, filtering, and updating disputes. Provide state management and side effects.
-
-### 7. **AdminDisputes.css**
-- **Path:** `/src/styles/AdminDisputes.css`
-- **Responsibility:** Styles for the admin disputes page, including table layout, filter bar, and dropdown components.
-
-### 8. **apiUtils.js**
-- **Path:** `/src/utils/apiUtils.js`
-- **Responsibility:** Utility functions for handling API requests and responses, including error handling and data transformation.
-
-### 9. **Tests**
-- **Path:** `/src/tests/`
-- **Responsibility:** Write unit tests for components and hooks:
-  - `DisputeTable.test.js`: Test rendering and functionality of the dispute table.
-  - `FilterBar.test.js`: Test filter functionality and integration with `DisputeTable`.
-  - `AdminDisputesPage.test.js`: Test overall page rendering and API integration.
-
-## Timeline
-- **Week 1:** Component development (`DisputeTable`, `FilterBar`, `StatusActionDropdown`)
-- **Week 2:** API integration and custom hook (`useDisputes`)
-- **Week 3:** Styling and testing
-- **Week 4:** Final review and deployment preparation
-
-## Notes
-- Ensure accessibility standards are met for all UI components.
-- Implement responsive design for mobile compatibility.
-- Use state management (e.g., Context API or Redux) if necessary for global state.
