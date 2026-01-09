@@ -4,72 +4,91 @@
 ## Directory Structure
 ```
 /disputes_backend_326
-├── api
-│   ├── disputes.py
-│   └── __init__.py
-├── models
-│   ├── dispute.py
-│   └── __init__.py
-├── schemas
-│   ├── dispute_schema.py
-│   └── __init__.py
-├── services
-│   ├── dispute_service.py
-│   └── __init__.py
-├── tests
-│   ├── test_disputes.py
-│   └── __init__.py
-└── app.py
+│
+├── /api
+│   ├── disputes.py              # API routes for disputes
+│   ├── __init__.py              # API package initialization
+│
+├── /models
+│   ├── dispute.py               # Dispute model definition
+│   ├── __init__.py              # Models package initialization
+│
+├── /schemas
+│   ├── dispute_schema.py        # Pydantic schemas for dispute validation
+│   ├── __init__.py              # Schemas package initialization
+│
+├── /services
+│   ├── dispute_service.py       # Business logic for disputes
+│   ├── __init__.py              # Services package initialization
+│
+├── /tests
+│   ├── test_disputes.py         # Unit tests for disputes API
+│   ├── __init__.py              # Tests package initialization
+│
+├── /utils
+│   ├── response_formatter.py     # Utility for formatting API responses
+│   ├── __init__.py              # Utils package initialization
+│
+└── app.py                       # Main application entry point
 ```
 
 ## Responsibilities
 
-### 1. API Implementation
-- **File:** `api/disputes.py`
+### API Layer
+- **`/api/disputes.py`**
   - Define routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/{id}` - Update an existing dispute
   - Handle request validation and response formatting.
 
-### 2. Model Definition
-- **File:** `models/dispute.py`
-  - Create a `Dispute` class with attributes:
+### Models
+- **`/models/dispute.py`**
+  - Define the Dispute model with fields:
     - `id`: Unique identifier
     - `evidence_urls`: Array of URLs
     - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement methods for database interactions.
+  - Implement database interactions (CRUD operations).
 
-### 3. Schema Validation
-- **File:** `schemas/dispute_schema.py`
-  - Define Pydantic models for:
-    - Creating a dispute
-    - Updating a dispute
-  - Validate `evidence_urls` as an array of strings and `status` as one of the defined enums.
+### Schemas
+- **`/schemas/dispute_schema.py`**
+  - Create Pydantic schemas for:
+    - Dispute creation and update requests
+    - Response models for disputes
 
-### 4. Service Layer
-- **File:** `services/dispute_service.py`
+### Services
+- **`/services/dispute_service.py`**
   - Implement business logic for:
-    - Fetching all disputes
-    - Creating a new dispute
-    - Updating an existing dispute
-  - Interact with the `Dispute` model for database operations.
+    - Creating a dispute
+    - Listing disputes
+    - Updating dispute status
+  - Interact with the Dispute model for data persistence.
 
-### 5. Testing
-- **File:** `tests/test_disputes.py`
+### Tests
+- **`/tests/test_disputes.py`**
   - Write unit tests for:
     - API endpoints (GET, POST, PUT)
-    - Service layer methods
-  - Use a testing framework (e.g., pytest) to ensure coverage.
+    - Service layer functions
+  - Ensure coverage for all status transitions and validation.
 
-### 6. Main Application Entry
-- **File:** `app.py`
+### Utilities
+- **`/utils/response_formatter.py`**
+  - Create utility functions for consistent API response formatting.
+
+### Main Application
+- **`app.py`**
   - Initialize the FastAPI application.
-  - Include the disputes API routes.
-  - Configure middleware and CORS if necessary.
+  - Include API routes from `disputes.py`.
+  - Set up middleware and error handling.
 
-## Additional Notes
-- Ensure proper error handling and logging throughout the implementation.
-- Document API endpoints using OpenAPI specifications.
-- Consider implementing authentication if required for dispute management.
+## Timeline
+- **Week 1**: Set up project structure, define models and schemas.
+- **Week 2**: Implement API routes and service logic.
+- **Week 3**: Write tests and finalize documentation.
+- **Week 4**: Review, refactor, and deploy.
+
+## Notes
+- Ensure proper error handling for invalid inputs.
+- Validate URLs in `evidence_urls` array.
+- Use environment variables for configuration (e.g., database connection).
 ```
