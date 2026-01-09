@@ -1,88 +1,99 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Overview
+This plan outlines the steps to build the UI and API for managing disputes at the route `/api/disputes`. The feature will allow users to open, list, and update disputes, including an array of evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+
+## File Structure
+
 ```
-/disputes_backend
-├── /api
-│   ├── disputes.js
-│   ├── disputes.test.js
-│   └── validation.js
-├── /models
-│   ├── disputeModel.js
-│   └── disputeModel.test.js
-├── /controllers
-│   ├── disputeController.js
-│   └── disputeController.test.js
-├── /routes
-│   └── disputeRoutes.js
-├── /middleware
-│   └── authMiddleware.js
-├── /config
-│   └── db.js
-└── /utils
-    └── responseFormatter.js
+/api
+    └── disputes.js               # API route for disputes
+/src
+    ├── components
+    │   └── DisputeForm.jsx       # UI component for opening/updating disputes
+    ├── pages
+    │   └── DisputeList.jsx        # UI component for listing disputes
+    ├── services
+    │   └── disputeService.js      # Service for API calls related to disputes
+    └── styles
+        └── DisputeStyles.css      # Styles for dispute components
 ```
 
-## Responsibilities
+## API Implementation
 
-### 1. **API Implementation**
-- **File:** `/api/disputes.js`
+### File: `/api/disputes.js`
+- **Responsibilities:**
   - Define API endpoints for:
     - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
+    - `POST /api/disputes`: Open a new dispute
     - `PUT /api/disputes/:id`: Update an existing dispute
-  - Handle request and response formatting.
+  - Handle request validation and error responses.
+  - Manage dispute statuses (OPEN, REVIEW, RESOLVED).
+  - Store and retrieve evidence URLs.
 
-- **File:** `/api/validation.js`
-  - Implement validation logic for incoming requests (e.g., required fields, status values).
+### Tasks:
+1. **Setup Express Router**: Initialize the router and define routes.
+2. **Implement GET endpoint**: Fetch all disputes from the database.
+3. **Implement POST endpoint**: Validate input and create a new dispute.
+4. **Implement PUT endpoint**: Validate input and update the specified dispute.
+5. **Error Handling**: Implement error handling for invalid requests and server errors.
 
-### 2. **Model Definition**
-- **File:** `/models/disputeModel.js`
-  - Define the Dispute schema with fields:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement database interactions (CRUD operations).
+## UI Implementation
 
-- **File:** `/models/disputeModel.test.js`
-  - Write unit tests for the dispute model.
+### File: `/src/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Create a form for users to submit new disputes or update existing ones.
+  - Include fields for dispute details and evidence URLs.
+  - Handle form submission and validation.
 
-### 3. **Controller Logic**
-- **File:** `/controllers/disputeController.js`
-  - Implement controller functions for:
-    - `listDisputes`: Fetch all disputes.
-    - `createDispute`: Create a new dispute.
-    - `updateDispute`: Update dispute status or evidence URLs.
+### File: `/src/pages/DisputeList.jsx`
+- **Responsibilities:**
+  - Display a list of all disputes.
+  - Allow users to view details and update status of each dispute.
+  - Integrate with the disputeService for API calls.
 
-- **File:** `/controllers/disputeController.test.js`
-  - Write unit tests for controller functions.
+### Tasks:
+1. **Design Form Layout**: Create input fields for dispute details and evidence URLs.
+2. **Handle Form Submission**: Implement logic to call the API on form submission.
+3. **Fetch Disputes**: Use disputeService to fetch and display disputes in a list.
+4. **Update Dispute Status**: Implement functionality to update the status of disputes.
 
-### 4. **Routing Setup**
-- **File:** `/routes/disputeRoutes.js`
-  - Set up routes for the API endpoints defined in `disputes.js`.
-  - Integrate middleware for authentication (if required).
+## Service Implementation
 
-### 5. **Middleware**
-- **File:** `/middleware/authMiddleware.js`
-  - Implement authentication middleware to protect routes.
+### File: `/src/services/disputeService.js`
+- **Responsibilities:**
+  - Create functions for API calls:
+    - `fetchDisputes()`: GET request to fetch all disputes.
+    - `createDispute(data)`: POST request to create a new dispute.
+    - `updateDispute(id, data)`: PUT request to update an existing dispute.
 
-### 6. **Database Configuration**
-- **File:** `/config/db.js`
-  - Set up database connection (MongoDB, PostgreSQL, etc.).
+### Tasks:
+1. **Implement API Call Functions**: Use fetch/axios to interact with the API.
+2. **Handle Responses**: Manage success and error responses for API calls.
 
-### 7. **Utility Functions**
-- **File:** `/utils/responseFormatter.js`
-  - Create utility functions for consistent API response formatting.
+## Styles Implementation
 
-### 8. **Testing**
-- Ensure all tests are written and pass for:
-  - Model, controller, and API routes.
-- Use a testing framework (e.g., Jest, Mocha).
+### File: `/src/styles/DisputeStyles.css`
+- **Responsibilities:**
+  - Define styles for the DisputeForm and DisputeList components.
+  - Ensure responsive design and user-friendly UI.
 
-### 9. **Documentation**
-- Update API documentation to include new endpoints and usage examples.
+### Tasks:
+1. **Create Base Styles**: Define styles for form elements and lists.
+2. **Responsive Design**: Ensure components are mobile-friendly.
 
-### 10. **Deployment**
-- Prepare deployment scripts/configuration for the API service.
+## Testing
+- Write unit tests for API endpoints and service functions.
+- Write integration tests for UI components.
+- Ensure all tests pass before deployment.
+
+## Deployment
+- Prepare the application for deployment on the chosen platform (e.g., Heroku, AWS).
+- Ensure environment variables are set for API endpoints.
+
+## Timeline
+- **Week 1**: API development and testing.
+- **Week 2**: UI development and integration.
+- **Week 3**: Testing and deployment preparation.
 ```
