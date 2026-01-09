@@ -1,103 +1,88 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Directory Structure
 ```
 /disputes_backend_326
-│
-├── /api
-│   ├── /controllers
-│   │   └── disputesController.js
-│   ├── /models
-│   │   └── disputeModel.js
-│   ├── /routes
-│   │   └── disputesRoutes.js
-│   └── /middlewares
-│       └── authMiddleware.js
-│
-├── /client
-│   ├── /components
-│   │   ├── DisputeList.js
-│   │   ├── DisputeForm.js
-│   │   └── DisputeDetail.js
-│   ├── /services
-│   │   └── disputeService.js
-│   └── /styles
-│       └── disputeStyles.css
-│
-├── /tests
-│   ├── /api
-│   │   └── disputes.test.js
-│   └── /client
-│       └── DisputeList.test.js
-│
-└── server.js
+├── api
+│   ├── disputes.py
+│   ├── __init__.py
+├── models
+│   ├── dispute.py
+│   ├── __init__.py
+├── schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+├── services
+│   ├── dispute_service.py
+│   ├── __init__.py
+├── tests
+│   ├── test_disputes.py
+│   ├── __init__.py
+├── app.py
+└── requirements.txt
 ```
 
 ## Responsibilities
 
-### API Implementation
+### API Layer
+- **File:** `api/disputes.py`
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Handle request validation and response formatting.
 
-- **`/api/controllers/disputesController.js`**
-  - Implement functions to handle:
-    - `getAllDisputes`: Fetch all disputes.
-    - `createDispute`: Create a new dispute with evidence URLs.
-    - `updateDispute`: Update status or evidence URLs of a dispute.
+### Models
+- **File:** `models/dispute.py`
+  - Create a `Dispute` model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for database interactions.
 
-- **`/api/models/disputeModel.js`**
-  - Define the Dispute schema:
-    - Fields: `id`, `status` (OPEN/REVIEW/RESOLVED), `evidence_urls` (array), `created_at`, `updated_at`.
+### Schemas
+- **File:** `schemas/dispute_schema.py`
+  - Define Pydantic schemas for:
+    - Dispute creation and update requests
+    - Response models for listing disputes
 
-- **`/api/routes/disputesRoutes.js`**
-  - Set up Express routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
+### Services
+- **File:** `services/dispute_service.py`
+  - Implement business logic for:
+    - Creating a dispute
+    - Listing disputes
+    - Updating dispute status
+  - Interact with the `Dispute` model for database operations.
 
-- **`/api/middlewares/authMiddleware.js`**
-  - Implement authentication middleware to protect routes.
+### Tests
+- **File:** `tests/test_disputes.py`
+  - Write unit tests for:
+    - API endpoints
+    - Service layer methods
+  - Ensure coverage for all status transitions and edge cases.
 
-### Client Implementation
+### Main Application
+- **File:** `app.py`
+  - Set up the FastAPI application.
+  - Include the disputes API routes.
+  - Configure CORS and middleware as necessary.
 
-- **`/client/components/DisputeList.js`**
-  - Display a list of disputes with status and evidence URLs.
-  - Implement functionality to filter by status.
-
-- **`/client/components/DisputeForm.js`**
-  - Create a form for submitting new disputes.
-  - Include fields for evidence URLs and status selection.
-
-- **`/client/components/DisputeDetail.js`**
-  - Show detailed view of a selected dispute.
-  - Allow updates to status and evidence URLs.
-
-- **`/client/services/disputeService.js`**
-  - Implement API calls for:
-    - Fetching disputes.
-    - Creating a new dispute.
-    - Updating an existing dispute.
-
-- **`/client/styles/disputeStyles.css`**
-  - Style components for dispute listing and forms.
-
-### Testing
-
-- **`/tests/api/disputes.test.js`**
-  - Write unit tests for API endpoints using Jest/Supertest.
-
-- **`/tests/client/DisputeList.test.js`**
-  - Write unit tests for the DisputeList component using React Testing Library.
-
-### Server Setup
-
-- **`server.js`**
-  - Set up Express server.
-  - Connect to the database.
-  - Use routes and middleware.
+### Dependencies
+- **File:** `requirements.txt`
+  - List required packages:
+    - `fastapi`
+    - `uvicorn`
+    - `pydantic`
+    - `sqlalchemy` (or any ORM)
+    - `pytest` (for testing)
 
 ## Timeline
-- **Week 1**: API development (models, controllers, routes).
-- **Week 2**: Client development (components, services).
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+- **Week 1:** Set up project structure and implement models and schemas.
+- **Week 2:** Develop API endpoints and service logic.
+- **Week 3:** Write tests and conduct code reviews.
+- **Week 4:** Finalize documentation and deploy to staging.
+
+## Documentation
+- Update README.md with API usage instructions and examples.
 ```
