@@ -10,69 +10,84 @@
   │   └── StatusUpdateModal.jsx
   ├── pages
   │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
+  ├── api
+  │   └── disputes.js
+  ├── hooks
+  │   └── useDisputes.js
   ├── styles
   │   └── AdminDisputesPage.css
   └── utils
-      └── api.js
+      └── constants.js
 ```
 
-## Responsibilities
+## File Responsibilities
 
-### 1. Components
+### Components
 - **AdminDisputesTable.jsx**
-  - Render a table to display disputes.
-  - Implement sorting and filtering functionality.
-  - Handle row actions for updating dispute status.
+  - Render the table of disputes with pagination and sorting.
+  - Integrate filters from `FilterBar.jsx`.
+  - Handle actions to update dispute status.
 
 - **FilterBar.jsx**
-  - Provide UI elements (dropdowns, checkboxes) for filtering disputes.
-  - Emit filter changes to the parent component.
+  - Provide UI elements for filtering disputes (e.g., by status, date).
+  - Communicate filter changes to `AdminDisputesTable`.
 
 - **StatusUpdateModal.jsx**
-  - Display a modal for updating the status of a selected dispute.
-  - Handle form submission and validation.
+  - Modal for updating the status of a selected dispute.
+  - Handle form submission and call the API to update status.
 
-### 2. Pages
+### Pages
 - **AdminDisputesPage.jsx**
-  - Main page component for `/admin/disputes/321`.
+  - Main page component for the route `/admin/disputes/321`.
   - Integrate `AdminDisputesTable` and `FilterBar`.
-  - Manage state for disputes and filters.
-  - Fetch disputes data from the API on mount.
+  - Manage state for selected dispute and filters.
 
-### 3. Services
-- **disputesService.js**
-  - Define API calls to `/api/disputes`.
-  - Implement functions for fetching disputes, updating status, and handling errors.
+### API
+- **disputes.js**
+  - Define API calls for fetching disputes and updating status.
+  - Implement error handling and response parsing.
 
-### 4. Styles
+### Hooks
+- **useDisputes.js**
+  - Custom hook to manage fetching and updating disputes.
+  - Handle loading states and error management.
+
+### Styles
 - **AdminDisputesPage.css**
-  - Style the Admin Disputes page and its components.
-  - Ensure responsive design for better usability.
+  - Styles for the Admin Disputes page and its components.
 
-### 5. Utils
-- **api.js**
-  - Set up Axios or Fetch for API calls.
-  - Handle common API error responses and logging.
+### Utils
+- **constants.js**
+  - Define constants for dispute statuses and API endpoints.
 
-## API Endpoints
-- **GET /api/disputes**
-  - Fetch all disputes with optional filters.
+## Development Steps
+1. **Setup Route**
+   - Configure routing for `/admin/disputes/321` in the main app file.
 
-- **PUT /api/disputes/:id**
-  - Update the status of a specific dispute.
+2. **Build Components**
+   - Develop `AdminDisputesTable`, `FilterBar`, and `StatusUpdateModal`.
+   - Ensure components are reusable and maintainable.
 
-## Testing
-- Create unit tests for components in `/src/components/__tests__/`.
-- Implement integration tests for API calls in `/src/services/__tests__/`.
+3. **Implement API Calls**
+   - Create functions in `disputes.js` for fetching and updating disputes.
 
-## Documentation
-- Update README.md with usage instructions for the new feature.
-- Document API endpoints in `/docs/api.md`.
+4. **Create Custom Hook**
+   - Implement `useDisputes.js` to encapsulate API logic and state management.
 
-## Timeline
-- **Week 1**: Component development and styling.
-- **Week 2**: API integration and testing.
-- **Week 3**: Final review and deployment preparation.
+5. **Integrate Components**
+   - Combine components in `AdminDisputesPage.jsx` and manage state.
+
+6. **Style the Page**
+   - Apply styles from `AdminDisputesPage.css` to enhance UI.
+
+7. **Testing**
+   - Write unit tests for components and API functions.
+   - Conduct integration tests for the complete flow.
+
+8. **Documentation**
+   - Document the API endpoints and component usage in README.md.
+
+## Deployment
+- Prepare for deployment by ensuring all components are responsive and accessible.
+- Verify API integration and conduct user acceptance testing (UAT).
 ```
