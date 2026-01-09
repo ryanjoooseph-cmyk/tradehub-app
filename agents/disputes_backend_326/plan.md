@@ -1,74 +1,94 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Directory Structure
 ```
-/project-root
+/disputes_backend_326
 │
-├── /src
-│   ├── /api
-│   │   ├── disputes.js               # API route for disputes
-│   │   └── index.js                  # Main API index file
-│   ├── /controllers
-│   │   └── disputesController.js      # Business logic for disputes
-│   ├── /models
-│   │   └── disputeModel.js            # Mongoose model for disputes
-│   ├── /routes
-│   │   └── disputesRoutes.js          # Route definitions for disputes
-│   ├── /middlewares
-│   │   └── authMiddleware.js          # Authentication middleware
-│   ├── /utils
-│   │   └── responseFormatter.js        # Utility for formatting API responses
-│   └── /views
-│       ├── /disputes
-│       │   ├── DisputeList.jsx        # UI component for listing disputes
-│       │   ├── DisputeDetail.jsx      # UI component for dispute details
-│       │   └── DisputeForm.jsx        # UI component for creating/updating disputes
-│       └── App.js                     # Main application component
+├── /api
+│   ├── disputes.py                # API endpoints for disputes
+│   ├── __init__.py                # Initialize API module
+│   └── utils.py                   # Utility functions for API
+│
+├── /models
+│   ├── dispute.py                 # Dispute model definition
+│   └── __init__.py                # Initialize models module
+│
+├── /schemas
+│   ├── dispute_schema.py          # Pydantic schema for dispute validation
+│   └── __init__.py                # Initialize schemas module
+│
+├── /services
+│   ├── dispute_service.py         # Business logic for disputes
+│   └── __init__.py                # Initialize services module
 │
 ├── /tests
-│   ├── /api
-│   │   └── disputes.test.js           # API tests for disputes
-│   ├── /controllers
-│   │   └── disputesController.test.js  # Tests for disputes controller
-│   └── /views
-│       └── DisputeForm.test.js        # Tests for DisputeForm component
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   └── __init__.py                # Initialize tests module
 │
-├── /config
-│   └── db.js                          # Database configuration
+├── /migrations                     # Database migrations (if using ORM)
+│   └── ...
 │
-├── /package.json                       # Project dependencies
-└── /server.js                         # Main server file
+└── app.py                         # Main application entry point
 ```
 
 ## Responsibilities
 
-### API Implementation
-- **`/src/api/disputes.js`**: Define the Express route for `/api/disputes` to handle GET, POST, and PUT requests.
-- **`/src/controllers/disputesController.js`**: Implement functions to handle business logic for listing, creating, and updating disputes.
-- **`/src/models/disputeModel.js`**: Create a Mongoose model for disputes with fields: `evidence_urls`, `status`, and timestamps.
-- **`/src/routes/disputesRoutes.js`**: Set up routing for disputes and link to the controller functions.
-- **`/src/middlewares/authMiddleware.js`**: Implement authentication checks for API access.
+### API Layer
+- **`/api/disputes.py`**
+  - Define routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/{id}` - Update an existing dispute
+  - Handle request validation and response formatting.
 
-### UI Implementation
-- **`/src/views/disputes/DisputeList.jsx`**: Create a UI component to list all disputes with status and actions.
-- **`/src/views/disputes/DisputeDetail.jsx`**: Create a UI component to display details of a selected dispute.
-- **`/src/views/disputes/DisputeForm.jsx`**: Create a form component for creating and updating disputes, including input for `evidence_urls` and `status`.
+### Model Layer
+- **`/models/dispute.py`**
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs for evidence
+    - `status`: Enum for OPEN, REVIEW, RESOLVED
+  - Implement methods for CRUD operations.
+
+### Schema Layer
+- **`/schemas/dispute_schema.py`**
+  - Create Pydantic schemas for:
+    - Creating a dispute
+    - Updating a dispute
+    - Listing disputes
+  - Ensure validation of `evidence_urls` and `status`.
+
+### Service Layer
+- **`/services/dispute_service.py`**
+  - Implement business logic for:
+    - Fetching disputes
+    - Creating disputes
+    - Updating disputes
+  - Interact with the model layer for data persistence.
 
 ### Testing
-- **`/tests/api/disputes.test.js`**: Write tests for API endpoints to ensure correct functionality.
-- **`/tests/controllers/disputesController.test.js`**: Write unit tests for the controller logic.
-- **`/tests/views/DisputeForm.test.js`**: Write tests for the DisputeForm component to ensure proper rendering and functionality.
-
-### Configuration
-- **`/config/db.js`**: Set up MongoDB connection for the application.
+- **`/tests/test_disputes.py`**
+  - Write unit tests for:
+    - API endpoints
+    - Service methods
+    - Model validations
+  - Ensure coverage for all status scenarios (OPEN, REVIEW, RESOLVED).
 
 ### Main Application
-- **`/server.js`**: Initialize the Express server and connect to the database, set up middleware, and include routes.
+- **`/app.py`**
+  - Set up the FastAPI application.
+  - Include API routes from `disputes.py`.
+  - Configure middleware and CORS if necessary.
 
 ## Timeline
-- **Week 1**: API setup and model creation.
-- **Week 2**: UI component development.
-- **Week 3**: Testing and integration.
-- **Week 4**: Final review and deployment.
+1. **Week 1**: Set up directory structure and initial files.
+2. **Week 2**: Implement API endpoints and model definitions.
+3. **Week 3**: Develop service logic and validation schemas.
+4. **Week 4**: Write tests and conduct integration testing.
+5. **Week 5**: Final review, documentation, and deployment.
+
+## Notes
+- Ensure proper error handling and logging throughout the API.
+- Consider implementing pagination for the list endpoint.
+- Review security practices for handling URLs and sensitive data.
 ```
