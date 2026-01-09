@@ -2,81 +2,81 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the development of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update the dispute status.
+This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update the status of disputes.
 
 ## File Structure
 
-### Frontend Implementation
+### Frontend
 
-#### 1. UI Components
-- **File Path:** `src/components/AdminDisputesTable.jsx`
-  - **Responsibilities:** 
-    - Render the admin table with dispute data.
-    - Implement filters for dispute status and date range.
-    - Handle pagination.
+- **File Paths**
+  - `src/components/AdminDisputesTable.js`
+    - **Responsibility**: Create a table component to display disputes with filtering options.
+  - `src/components/DisputeStatusDropdown.js`
+    - **Responsibility**: Dropdown component for updating dispute status.
+  - `src/pages/AdminDisputesPage.js`
+    - **Responsibility**: Main page component that integrates the table and handles routing.
+  - `src/hooks/useDisputes.js`
+    - **Responsibility**: Custom hook for fetching disputes data from the API.
+  - `src/utils/api.js`
+    - **Responsibility**: API utility functions for making requests to `/api/disputes`.
 
-- **File Path:** `src/components/DisputeStatusDropdown.jsx`
-  - **Responsibilities:**
-    - Provide a dropdown for selecting dispute status.
-    - Trigger status update actions.
+### Backend
 
-- **File Path:** `src/pages/AdminDisputesPage.jsx`
-  - **Responsibilities:**
-    - Main page component for `/admin/disputes/321`.
-    - Integrate `AdminDisputesTable` and manage state.
+- **File Paths**
+  - `src/routes/api/disputes.js`
+    - **Responsibility**: Define API endpoints for fetching and updating disputes.
+  - `src/controllers/disputeController.js`
+    - **Responsibility**: Logic for handling disputes data, including fetching and updating status.
+  - `src/models/Dispute.js`
+    - **Responsibility**: Mongoose model for the Dispute schema.
+  - `src/middleware/authMiddleware.js`
+    - **Responsibility**: Middleware for validating admin access to the API.
 
-#### 2. Styles
-- **File Path:** `src/styles/AdminDisputes.css`
-  - **Responsibilities:**
-    - Define styles for the admin disputes table and dropdown components.
+## Implementation Steps
 
-### API Implementation
+### Frontend Development
 
-#### 1. API Routes
-- **File Path:** `src/routes/api/disputes.js`
-  - **Responsibilities:**
-    - Define API endpoints for fetching disputes and updating status.
-    - Implement GET `/api/disputes` to retrieve dispute data.
-    - Implement PATCH `/api/disputes/:id/status` to update dispute status.
+1. **Create AdminDisputesTable Component**
+   - Implement table layout with columns for dispute details and status.
+   - Add filtering options for status and date.
 
-#### 2. Controller Logic
-- **File Path:** `src/controllers/disputeController.js`
-  - **Responsibilities:**
-    - Handle business logic for fetching disputes and updating status.
-    - Validate input data for status updates.
+2. **Create DisputeStatusDropdown Component**
+   - Implement dropdown for selecting new status.
+   - Ensure it triggers an update action on selection.
 
-#### 3. Middleware
-- **File Path:** `src/middleware/authMiddleware.js`
-  - **Responsibilities:**
-    - Ensure only authenticated admin users can access the dispute API.
+3. **Develop AdminDisputesPage**
+   - Integrate `AdminDisputesTable` and handle state management.
+   - Use `useDisputes` hook to fetch and display data.
 
-### State Management
-- **File Path:** `src/store/disputeSlice.js`
-  - **Responsibilities:**
-    - Manage state for disputes using Redux.
-    - Handle actions for fetching disputes and updating status.
+4. **Implement API Utility Functions**
+   - Create functions in `api.js` to handle GET and PUT requests to `/api/disputes`.
 
-### Testing
-- **File Path:** `src/tests/AdminDisputesTable.test.js`
-  - **Responsibilities:**
-    - Write unit tests for the `AdminDisputesTable` component.
+### Backend Development
 
-- **File Path:** `src/tests/disputeController.test.js`
-  - **Responsibilities:**
-    - Write tests for the dispute controller functions.
+1. **Define API Endpoints in disputes.js**
+   - Create GET endpoint for fetching disputes.
+   - Create PUT endpoint for updating dispute status.
 
-## Development Steps
-1. **Setup API Routes**: Implement the necessary API routes and controller logic.
-2. **Create UI Components**: Develop the admin disputes table and status dropdown.
-3. **Integrate State Management**: Set up Redux for managing dispute data.
-4. **Implement Filters**: Add filtering functionality to the admin table.
-5. **Testing**: Write and run tests for both frontend and backend components.
-6. **Deployment**: Prepare the feature for deployment and monitor for issues.
+2. **Implement Logic in disputeController.js**
+   - Fetch disputes from the database and return as JSON.
+   - Handle status updates and return updated dispute.
 
-## Timeline
-- **Week 1**: API setup and controller logic.
-- **Week 2**: UI component development and state management.
-- **Week 3**: Testing and final adjustments.
-- **Week 4**: Deployment and monitoring.
+3. **Create Dispute Model**
+   - Define schema with fields for dispute details and status.
 
+4. **Setup Authentication Middleware**
+   - Ensure only authorized admins can access the disputes API.
+
+## Testing
+
+- **File Paths**
+  - `src/tests/AdminDisputesTable.test.js`
+    - **Responsibility**: Unit tests for the AdminDisputesTable component.
+  - `src/tests/disputeController.test.js`
+    - **Responsibility**: Tests for dispute fetching and updating logic.
+
+## Deployment
+
+- Ensure all changes are merged into the main branch.
+- Deploy to staging for QA testing before production release.
 ```
