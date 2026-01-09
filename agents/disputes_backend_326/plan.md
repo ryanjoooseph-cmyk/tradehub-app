@@ -1,99 +1,104 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Project Structure
 ```
-/disputes_backend_326
+/project-root
 │
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
-├── /ui
+├── /src
+│   ├── /api
+│   │   ├── disputes.js
+│   │   └── disputes.test.js
 │   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeItem.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
 │   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
+│   │   └── disputes.css
+│   └── App.js
 │
 ├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
+│   └── disputes.test.js
 │
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+├── /utils
+│   └── api.js
+│
+└── package.json
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+### File: `/src/api/disputes.js`
+- **Responsibilities:**
+  - Define Express routes for:
+    - `GET /api/disputes`: Fetch all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/:id`: Update an existing dispute
+  - Handle request validation and error responses.
+  - Implement logic for managing `evidence_urls` and `status` fields.
 
-### UI Implementation
-- **DisputeList.jsx**
+### File: `/src/api/disputes.test.js`
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Test for successful creation, retrieval, and updating of disputes.
+  - Validate error handling for invalid requests.
+
+## UI Implementation
+
+### File: `/src/components/DisputeList.jsx`
+- **Responsibilities:**
   - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+  - Render `DisputeItem` for each dispute.
+  - Include filtering options based on status.
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+### File: `/src/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Provide a form to create/update disputes.
+  - Handle input for `evidence_urls` and `status`.
+  - Submit form data to the API.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### File: `/src/components/DisputeItem.jsx`
+- **Responsibilities:**
+  - Display individual dispute details.
+  - Include buttons for updating and deleting disputes.
+  - Show current status and evidence URLs.
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+### File: `/src/hooks/useDisputes.js`
+- **Responsibilities:**
+  - Create a custom hook for managing dispute state.
+  - Fetch disputes from the API and handle loading/error states.
+  - Provide functions for creating and updating disputes.
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+### File: `/src/styles/disputes.css`
+- **Responsibilities:**
+  - Style the dispute components for better UX.
+  - Ensure responsive design for mobile and desktop views.
 
-## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+### File: `/src/App.js`
+- **Responsibilities:**
+  - Integrate all components.
+  - Set up routing if necessary.
+  - Provide context or state management for disputes.
+
+## Testing
+
+### File: `/tests/disputes.test.js`
+- **Responsibilities:**
+  - Write integration tests for the API.
+  - Ensure all endpoints respond correctly under various conditions.
+
+## Utilities
+
+### File: `/src/utils/api.js`
+- **Responsibilities:**
+  - Create a centralized API utility for making HTTP requests.
+  - Handle authentication and error responses.
 
 ## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- Ensure to follow RESTful conventions for API design.
+- Use appropriate HTTP status codes for responses.
+- Validate inputs on both client and server sides.
+- Consider using a state management library if the application grows.
 ```
