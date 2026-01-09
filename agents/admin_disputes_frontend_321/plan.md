@@ -2,94 +2,92 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses.
 
 ## File Structure
 
-### Frontend
+```
+/src
+  ├── components
+  │   ├── AdminDisputesTable.jsx
+  │   ├── DisputeFilter.jsx
+  │   └── StatusUpdateModal.jsx
+  ├── pages
+  │   └── AdminDisputesPage.jsx
+  ├── api
+  │   └── disputes.js
+  ├── styles
+  │   └── AdminDisputesPage.css
+  └── utils
+      └── apiHelper.js
+```
 
-#### 1. Components
-- **File:** `src/components/AdminDisputeTable.js`
-  - **Responsibilities:** Render the admin dispute table with filters and actions. Handle state management for disputes.
+## Responsibilities
 
-- **File:** `src/components/DisputeFilter.js`
-  - **Responsibilities:** Provide filtering options for disputes (e.g., status, date range).
+### 1. UI Components
 
-- **File:** `src/components/DisputeActionButtons.js`
-  - **Responsibilities:** Render buttons for updating dispute status (e.g., Approve, Reject).
+- **`/src/components/AdminDisputesTable.jsx`**
+  - Responsible for rendering the table of disputes.
+  - Includes columns for dispute details and action buttons for status updates.
+  - Integrates with the filter component.
 
-#### 2. Pages
-- **File:** `src/pages/AdminDisputesPage.js`
-  - **Responsibilities:** Main page component for `/admin/disputes/321`. Integrate `AdminDisputeTable`, `DisputeFilter`, and handle API calls.
+- **`/src/components/DisputeFilter.jsx`**
+  - Provides filter options for the disputes (e.g., by status, date).
+  - Triggers API calls to fetch filtered data.
 
-#### 3. Styles
-- **File:** `src/styles/AdminDisputes.css`
-  - **Responsibilities:** Styles for the admin disputes page and components.
+- **`/src/components/StatusUpdateModal.jsx`**
+  - Modal component for confirming status updates.
+  - Handles user input for new status and triggers the update API call.
 
-### API
+### 2. Page Component
 
-#### 1. Routes
-- **File:** `src/api/disputes.js`
-  - **Responsibilities:** Define API calls to `/api/disputes` for fetching, updating, and filtering disputes.
+- **`/src/pages/AdminDisputesPage.jsx`**
+  - Main page component for `/admin/disputes/321`.
+  - Combines `AdminDisputesTable` and `DisputeFilter`.
+  - Manages state for disputes and loading status.
 
-#### 2. Controllers
-- **File:** `src/controllers/disputeController.js`
-  - **Responsibilities:** Handle business logic for disputes, including fetching disputes and updating their status.
+### 3. API Integration
 
-#### 3. Models
-- **File:** `src/models/Dispute.js`
-  - **Responsibilities:** Define the dispute schema and methods for database interactions.
+- **`/src/api/disputes.js`**
+  - Contains functions to call the backend API for fetching disputes and updating statuses.
+  - Functions:
+    - `fetchDisputes(filters)`
+    - `updateDisputeStatus(disputeId, newStatus)`
 
-### State Management
-- **File:** `src/store/disputeSlice.js`
-  - **Responsibilities:** Create a Redux slice for managing dispute state, including actions and reducers for fetching and updating disputes.
+### 4. Styles
 
-### Tests
-- **File:** `src/tests/AdminDisputeTable.test.js`
-  - **Responsibilities:** Unit tests for the `AdminDisputeTable` component.
+- **`/src/styles/AdminDisputesPage.css`**
+  - Styles for the Admin Disputes page and components.
+  - Ensure responsive design and usability.
 
-- **File:** `src/tests/disputeApi.test.js`
-  - **Responsibilities:** Integration tests for the API endpoints related to disputes.
+### 5. Utility Functions
 
-## Implementation Steps
+- **`/src/utils/apiHelper.js`**
+  - Helper functions for API calls (e.g., error handling, response parsing).
 
-1. **Setup Project Structure**
-   - Create necessary folders and files as outlined above.
+## Development Steps
 
-2. **Develop API Endpoints**
-   - Implement `/api/disputes` in `disputes.js`.
-   - Create controller methods in `disputeController.js`.
-
-3. **Create Models**
-   - Define the `Dispute` model in `Dispute.js`.
-
-4. **Build Frontend Components**
-   - Develop `AdminDisputeTable`, `DisputeFilter`, and `DisputeActionButtons`.
-
-5. **Integrate Components in Page**
-   - Implement `AdminDisputesPage` to combine all components.
-
-6. **Implement State Management**
-   - Create Redux slice for disputes in `disputeSlice.js`.
-
-7. **Styling**
-   - Add styles in `AdminDisputes.css`.
-
-8. **Testing**
-   - Write unit and integration tests for components and API.
-
-9. **Review and Refactor**
-   - Conduct code reviews and refactor as necessary.
-
-10. **Deployment**
-    - Prepare for deployment and ensure all features are functioning as expected.
+1. **Set up the project structure** as outlined above.
+2. **Develop UI components**:
+   - Implement `AdminDisputesTable`, `DisputeFilter`, and `StatusUpdateModal`.
+3. **Create the page component**:
+   - Implement `AdminDisputesPage` to integrate all components.
+4. **Implement API calls**:
+   - Develop functions in `disputes.js` for fetching and updating disputes.
+5. **Style the components**:
+   - Apply CSS styles to ensure a cohesive look.
+6. **Testing**:
+   - Write unit tests for components and API functions.
+   - Perform integration testing for the complete flow.
+7. **Documentation**:
+   - Document the API endpoints and UI component usage.
 
 ## Timeline
-- **Week 1:** Setup and API development.
-- **Week 2:** Frontend component development.
-- **Week 3:** Integration, testing, and deployment.
+- **Week 1**: Set up project structure and develop UI components.
+- **Week 2**: Implement API integration and page component.
+- **Week 3**: Testing and documentation.
 
 ## Notes
-- Ensure accessibility and responsiveness in UI components.
-- Follow best practices for API security and error handling.
+- Ensure accessibility standards are met in UI components.
+- Consider performance optimizations for large datasets in the disputes table.
 ```
