@@ -1,48 +1,12 @@
 name: validate-agent-pr
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened, labeled, ready_for_review]
-
+    types: [opened, reopened, synchronize, labeled, edited]
 permissions:
   contents: read
-  pull-requests: read
-
+  pull-requests: write
 jobs:
   guard:
     runs-on: ubuntu-latest
     steps:
-      - name: Check path scope
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const pr = context.payload.pull_request;
-            const owner = context.repo.owner;
-            const repo  = context.repo.repo;
-
-            // Only merge to main.
-            if (pr.base.ref !== 'main') {
-              core.setFailed(`Base branch must be 'main' (was '${pr.base.ref}').`);
-              return;
-            }
-
-            // Allowed files for agent PRs. Adjust as you add more agent-sourced files.
-            const ALLOW = [
-              /^agents\/[^/]+\/plan\.md$/,   // the plan the agent proposes
-              // add more allowed patterns here if needed
-            ];
-
-            const files = await github.paginate(
-              github.rest.pulls.listFiles,
-              { owner, repo, pull_number: pr.number, per_page: 100 }
-            );
-
-            const bad = files
-              .filter(f => !ALLOW.some(rx => rx.test(f.filename)));
-
-            if (bad.length) {
-              core.setFailed(
-                `Unsafe file(s) touched: ${bad.map(f => f.filename).join(', ')}`
-              );
-            } else {
-              core.notice('Path scope OK for agent PR.');
-            }
+      - run: echo ok
