@@ -1,99 +1,102 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Project Structure
 ```
 /disputes_backend_326
 │
 ├── /api
 │   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
+│   ├── __init__.py                # Initialize API module
+│   └── utils.py                   # Utility functions for API
 │
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
+├── /models
+│   ├── dispute.py                 # Dispute model definition
+│   └── __init__.py                # Initialize models module
+│
+├── /schemas
+│   ├── dispute_schema.py          # Pydantic schema for dispute validation
+│   └── __init__.py                # Initialize schemas module
+│
+├── /services
+│   ├── dispute_service.py         # Business logic for disputes
+│   └── __init__.py                # Initialize services module
 │
 ├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   └── __init__.py                # Initialize tests module
 │
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+├── /frontend
+│   ├── /components
+│   │   ├── DisputeList.vue        # Vue component for listing disputes
+│   │   ├── DisputeForm.vue        # Vue component for creating/updating disputes
+│   │   └── EvidenceUploader.vue    # Vue component for uploading evidence
+│   ├── /views
+│   │   └── DisputeView.vue        # Main view for disputes
+│   ├── /store
+│   │   └── disputeStore.js        # Vuex store for managing dispute state
+│   └── App.vue                    # Main application component
+│
+├── /config
+│   ├── config.py                  # Configuration settings
+│   └── __init__.py                # Initialize config module
+│
+└── main.py                        # Entry point for the application
 ```
 
 ## Responsibilities
 
 ### API Implementation
-- **disputes.py**
-  - Define endpoints:
+- **`/api/disputes.py`**: 
+  - Define routes for:
     - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
+    - `POST /api/disputes`: Create a new dispute
     - `PUT /api/disputes/{id}`: Update an existing dispute
   - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
+
+- **`/models/dispute.py`**: 
+  - Create the Dispute model with fields:
     - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+    - `evidence_urls`: Array of URLs for evidence
+    - `status`: Enum with values OPEN, REVIEW, RESOLVED
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+- **`/schemas/dispute_schema.py`**: 
+  - Define Pydantic schemas for request and response validation.
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+- **`/services/dispute_service.py`**: 
+  - Implement business logic for creating, listing, and updating disputes.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### Frontend Implementation
+- **`/frontend/components/DisputeList.vue`**: 
+  - Display a list of disputes with status and actions.
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+- **`/frontend/components/DisputeForm.vue`**: 
+  - Form for creating and updating disputes.
+
+- **`/frontend/components/EvidenceUploader.vue`**: 
+  - Component for uploading and managing evidence URLs.
+
+- **`/frontend/views/DisputeView.vue`**: 
+  - Main view to integrate dispute components.
+
+- **`/frontend/store/disputeStore.js`**: 
+  - Vuex store to manage disputes state and actions.
 
 ### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+- **`/tests/test_disputes.py`**: 
+  - Write unit tests for API endpoints and service logic.
+
+### Configuration
+- **`/config/config.py`**: 
+  - Manage application settings and environment variables.
+
+### Entry Point
+- **`main.py`**: 
+  - Set up the application, including API routing and frontend integration.
 
 ## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
-
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- **Week 1**: API and model setup
+- **Week 2**: Frontend component development
+- **Week 3**: Testing and integration
+- **Week 4**: Final review and deployment
 ```
