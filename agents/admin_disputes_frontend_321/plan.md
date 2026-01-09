@@ -1,97 +1,98 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
-
+## Project Structure
 ```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+/project-root
+│
+├── /frontend
+│   ├── /src
+│   │   ├── /components
+│   │   │   ├── AdminDisputesTable.jsx
+│   │   │   ├── FilterBar.jsx
+│   │   │   └── StatusUpdateModal.jsx
+│   │   ├── /pages
+│   │   │   └── AdminDisputesPage.jsx
+│   │   ├── /hooks
+│   │   │   └── useDisputes.js
+│   │   ├── /styles
+│   │   │   └── AdminDisputes.css
+│   │   └── App.js
+│   └── package.json
+│
+├── /backend
+│   ├── /api
+│   │   ├── /disputes
+│   │   │   ├── disputesController.js
+│   │   │   ├── disputesRoutes.js
+│   │   │   └── disputesService.js
+│   │   └── /middleware
+│   │       └── authMiddleware.js
+│   ├── /models
+│   │   └── Dispute.js
+│   ├── /config
+│   │   └── db.js
+│   └── server.js
+│
+└── README.md
 ```
 
-## Responsibilities
+## Frontend Implementation
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### 1. AdminDisputesPage.jsx
+- **Path:** `/frontend/src/pages/AdminDisputesPage.jsx`
+- **Responsibility:** Main page component that renders the AdminDisputesTable and FilterBar. Handles API calls to fetch disputes.
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+### 2. AdminDisputesTable.jsx
+- **Path:** `/frontend/src/components/AdminDisputesTable.jsx`
+- **Responsibility:** Displays the list of disputes in a table format. Includes buttons for updating dispute status.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+### 3. FilterBar.jsx
+- **Path:** `/frontend/src/components/FilterBar.jsx`
+- **Responsibility:** Provides filtering options for disputes (e.g., by status, date). Updates the displayed disputes based on user input.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+### 4. StatusUpdateModal.jsx
+- **Path:** `/frontend/src/components/StatusUpdateModal.jsx`
+- **Responsibility:** Modal component for confirming status updates. Triggers API calls to update dispute status.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+### 5. useDisputes.js
+- **Path:** `/frontend/src/hooks/useDisputes.js`
+- **Responsibility:** Custom hook for managing disputes state and API interactions (fetching, updating).
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+### 6. AdminDisputes.css
+- **Path:** `/frontend/src/styles/AdminDisputes.css`
+- **Responsibility:** Styles for the Admin Disputes page and its components.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+## Backend Implementation
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+### 1. disputesController.js
+- **Path:** `/backend/api/disputes/disputesController.js`
+- **Responsibility:** Handles incoming requests related to disputes. Contains methods for fetching and updating disputes.
 
-## Development Steps
+### 2. disputesRoutes.js
+- **Path:** `/backend/api/disputes/disputesRoutes.js`
+- **Responsibility:** Defines API routes for disputes (GET, POST, PUT). Connects routes to controller methods.
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+### 3. disputesService.js
+- **Path:** `/backend/api/disputes/disputesService.js`
+- **Responsibility:** Contains business logic for disputes, including database interactions (CRUD operations).
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+### 4. Dispute.js
+- **Path:** `/backend/models/Dispute.js`
+- **Responsibility:** Mongoose model for the Dispute schema. Defines the structure of dispute documents in the database.
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+### 5. authMiddleware.js
+- **Path:** `/backend/api/middleware/authMiddleware.js`
+- **Responsibility:** Middleware for authenticating admin users before accessing dispute routes.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+### 6. db.js
+- **Path:** `/backend/config/db.js`
+- **Responsibility:** Database connection setup (MongoDB or SQL).
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
+### 7. server.js
+- **Path:** `/backend/server.js`
+- **Responsibility:** Main server file to start the Express application and connect middleware and routes.
 
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
-
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+## Additional Notes
+- Ensure proper error handling and validation for API requests.
+- Implement unit tests for both frontend and backend components.
+- Document API endpoints in the README.md file.
