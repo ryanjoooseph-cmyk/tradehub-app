@@ -1,100 +1,96 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+## Project Structure
+```
+/disputes_backend_326
+│
+├── /api
+│   ├── disputes.py                # API routes for disputes
+│   ├── __init__.py                # Initialize API module
+│   └── utils.py                   # Utility functions for API
+│
+├── /models
+│   ├── dispute.py                 # Dispute model definition
+│   └── __init__.py                # Initialize models module
+│
+├── /schemas
+│   ├── dispute_schema.py          # Pydantic schema for dispute validation
+│   └── __init__.py                # Initialize schemas module
+│
+├── /services
+│   ├── dispute_service.py         # Business logic for dispute handling
+│   └── __init__.py                # Initialize services module
+│
+├── /tests
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   └── __init__.py                # Initialize tests module
+│
+├── /frontend
+│   ├── /components
+│   │   ├── DisputeList.jsx        # Component to list disputes
+│   │   ├── DisputeForm.jsx        # Component to create/update disputes
+│   │   └── EvidenceUploader.jsx    # Component for uploading evidence URLs
+│   │
+│   ├── /pages
+│   │   └── DisputesPage.jsx       # Main page for disputes
+│   │
+│   ├── /styles
+│   │   └── disputes.css            # Styles for disputes UI
+│   │
+│   └── App.js                     # Main application file
+│
+└── requirements.txt                # Dependencies for the project
+```
 
-## File Structure
+## Responsibilities
 
 ### API Implementation
+- **/api/disputes.py**
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/{id}`: Update an existing dispute
+  - Handle request validation and response formatting.
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**: 
-      - Define API routes for GET, POST, and PUT requests.
-      - Implement logic for opening, listing, and updating disputes.
-      - Validate input data and manage dispute statuses.
+- **/models/dispute.py**
+  - Create a Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
 
-  - `src/models/Dispute.js`
-    - **Responsibilities**: 
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (CRUD operations).
+- **/schemas/dispute_schema.py**
+  - Define Pydantic schema for dispute creation and update validation.
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**: 
-      - Handle request logic for disputes (create, read, update).
-      - Interact with the Dispute model to perform database operations.
-      - Return appropriate responses to the client.
+- **/services/dispute_service.py**
+  - Implement business logic for:
+    - Fetching disputes
+    - Creating new disputes
+    - Updating dispute status
 
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**: 
-      - Define Express routes for `/api/disputes`.
-      - Link routes to the corresponding controller methods.
+### Frontend Implementation
+- **/frontend/components/DisputeList.jsx**
+  - Fetch and display a list of disputes.
+  
+- **/frontend/components/DisputeForm.jsx**
+  - Form for creating and updating disputes.
+  
+- **/frontend/components/EvidenceUploader.jsx**
+  - Component to handle uploading and displaying evidence URLs.
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities**: 
-      - Middleware to validate incoming data for disputes (e.g., status and evidence_urls).
+- **/frontend/pages/DisputesPage.jsx**
+  - Integrate components to create a cohesive disputes page.
 
-### UI Implementation
+- **/frontend/styles/disputes.css**
+  - Style the disputes components for a user-friendly interface.
 
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**: 
-      - Display a list of disputes.
-      - Provide options to view details and update status.
-
-  - `src/components/DisputeForm.js`
-    - **Responsibilities**: 
-      - Form for creating and updating disputes.
-      - Include fields for evidence URLs and status selection.
-
-  - `src/pages/DisputePage.js`
-    - **Responsibilities**: 
-      - Main page for disputes.
-      - Integrate DisputeList and DisputeForm components.
-      - Handle state management for disputes.
-
-  - `src/services/disputeService.js`
-    - **Responsibilities**: 
-      - API calls to the backend for disputes (GET, POST, PUT).
-      - Handle responses and errors.
-
-  - `src/styles/DisputeStyles.css`
-    - **Responsibilities**: 
-      - Styles for dispute components and pages.
-
-## Testing
-
-- **File Paths**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities**: 
-      - Unit tests for API endpoints.
-      - Test for successful and error responses.
-
-  - `tests/ui/DisputePage.test.js`
-    - **Responsibilities**: 
-      - Unit tests for UI components.
-      - Test rendering and interaction logic.
-
-## Deployment
-
-- **File Paths**
-  - `docker-compose.yml`
-    - **Responsibilities**: 
-      - Define services for API and database.
-      - Set up environment variables for deployment.
-
-  - `README.md`
-    - **Responsibilities**: 
-      - Documentation for setup, usage, and API endpoints.
+### Testing
+- **/tests/test_disputes.py**
+  - Write unit tests for API endpoints and service logic.
 
 ## Timeline
-- **Week 1**: API development (models, routes, controllers).
-- **Week 2**: UI development (components, pages, services).
-- **Week 3**: Testing and deployment setup.
-- **Week 4**: Final review and adjustments.
-
-## Notes
-- Ensure proper error handling and validation throughout the API and UI.
-- Consider user authentication for dispute management.
+- **Week 1**: Set up project structure and API routes.
+- **Week 2**: Implement models and schemas.
+- **Week 3**: Develop frontend components.
+- **Week 4**: Write tests and finalize the implementation.
 ```
