@@ -5,110 +5,100 @@
 ```
 /project-root
 │
-├── /api
+├── /src
+│   ├── /api
+│   │   ├── disputes.js               # API route for disputes
+│   │   └── index.js                  # Main API index file
+│   │
 │   ├── /controllers
-│   │   └── disputesController.js
-│   ├── /routes
-│   │   └── disputesRoutes.js
+│   │   ├── disputesController.js      # Business logic for disputes
+│   │
 │   ├── /models
-│   │   └── disputeModel.js
-│   └── /middlewares
-│       └── authMiddleware.js
+│   │   ├── disputeModel.js            # Mongoose model for disputes
+│   │
+│   ├── /routes
+│   │   ├── disputesRoutes.js          # Route definitions for disputes
+│   │
+│   ├── /middlewares
+│   │   ├── validateDispute.js         # Middleware for validating disputes
+│   │
+│   ├── /tests
+│   │   ├── disputes.test.js           # Unit tests for disputes API
+│   │
+│   └── /ui
+│       ├── /components
+│       │   ├── DisputeList.js         # Component to list disputes
+│       │   ├── DisputeForm.js         # Component for creating/updating disputes
+│       │   └── DisputeDetail.js       # Component for viewing dispute details
+│       │
+│       ├── /pages
+│       │   ├── DisputesPage.js        # Main page for disputes
+│       │
+│       ├── /styles
+│       │   ├── disputes.css            # Styles for disputes UI
+│       │
+│       └── /hooks
+│           ├── useDisputes.js         # Custom hook for fetching disputes
 │
-├── /client
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── /services
-│   │   └── disputeService.js
-│   └── /pages
-│       └── DisputesPage.jsx
-│
-├── /config
-│   └── dbConfig.js
-│
-└── /tests
-    ├── /api
-    │   └── disputes.test.js
-    └── /client
-        └── DisputeForm.test.jsx
+└── /config
+    ├── db.js                          # Database connection setup
+    └── server.js                      # Server setup
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. Model Definition
-- **File:** `/api/models/disputeModel.js`
-- **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
-  - Implement Mongoose model for MongoDB.
+### API Implementation
+- **`/src/api/disputes.js`**
+  - Define API endpoints: GET, POST, PUT for `/api/disputes`
+  - Handle request and response formats
 
-### 2. Controller Logic
-- **File:** `/api/controllers/disputesController.js`
-- **Responsibilities:**
-  - Implement functions to:
-    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
-    - `getDisputes(req, res)`: Handle GET requests to list all disputes.
-    - `updateDispute(req, res)`: Handle PUT requests to update dispute status or evidence URLs.
+- **`/src/controllers/disputesController.js`**
+  - Implement functions for:
+    - `listDisputes`: Fetch all disputes
+    - `createDispute`: Create a new dispute
+    - `updateDispute`: Update existing dispute status and evidence_urls
 
-### 3. Route Definition
-- **File:** `/api/routes/disputesRoutes.js`
-- **Responsibilities:**
-  - Define routes for:
-    - `POST /api/disputes`: Create a new dispute.
-    - `GET /api/disputes`: List all disputes.
-    - `PUT /api/disputes/:id`: Update a specific dispute.
+- **`/src/models/disputeModel.js`**
+  - Define Mongoose schema for disputes with fields:
+    - `status` (enum: OPEN, REVIEW, RESOLVED)
+    - `evidence_urls` (array of strings)
 
-### 4. Middleware
-- **File:** `/api/middlewares/authMiddleware.js`
-- **Responsibilities:**
-  - Implement authentication middleware to protect routes.
+- **`/src/routes/disputesRoutes.js`**
+  - Set up routes to connect API endpoints to controller functions
 
-## Client Implementation
+- **`/src/middlewares/validateDispute.js`**
+  - Validate incoming data for creating/updating disputes
 
-### 1. Dispute List Component
-- **File:** `/client/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide links to view or update each dispute.
+### UI Implementation
+- **`/src/ui/components/DisputeList.js`**
+  - Display a list of disputes with status and actions
 
-### 2. Dispute Form Component
-- **File:** `/client/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Create a form for submitting new disputes or updating existing ones.
-  - Handle file uploads for evidence URLs.
+- **`/src/ui/components/DisputeForm.js`**
+  - Form for creating and updating disputes, including evidence URLs
 
-### 3. Dispute Detail Component
-- **File:** `/client/components/DisputeDetail.jsx`
-- **Responsibilities:**
-  - Display detailed information about a selected dispute.
-  - Allow users to update status and evidence URLs.
+- **`/src/ui/components/DisputeDetail.js`**
+  - Detailed view of a selected dispute
 
-### 4. Service Layer
-- **File:** `/client/services/disputeService.js`
-- **Responsibilities:**
-  - Implement API calls to interact with the backend for creating, listing, and updating disputes.
+- **`/src/ui/pages/DisputesPage.js`**
+  - Main page to render the dispute list and form
 
-### 5. Page Integration
-- **File:** `/client/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Integrate DisputeList and DisputeForm components.
-  - Manage state and handle user interactions.
+- **`/src/ui/hooks/useDisputes.js`**
+  - Custom hook to fetch disputes from the API and manage state
 
-## Testing
+### Testing
+- **`/src/tests/disputes.test.js`**
+  - Write unit tests for API endpoints and UI components
 
-### 1. API Tests
-- **File:** `/tests/api/disputes.test.js`
-- **Responsibilities:**
-  - Write unit tests for API endpoints using Jest and Supertest.
+### Configuration
+- **`/src/config/db.js`**
+  - Set up MongoDB connection
 
-### 2. Client Tests
-- **File:** `/tests/client/DisputeForm.test.jsx`
-- **Responsibilities:**
-  - Write unit tests for the DisputeForm component using React Testing Library.
+- **`/src/config/server.js`**
+  - Initialize Express server and middleware
 
-## Notes
-- Ensure to handle error responses and validation for both API and UI.
-- Use environment variables for sensitive configurations.
-- Follow coding standards and best practices throughout the implementation.
+## Timeline
+- **Week 1**: API setup and model definition
+- **Week 2**: Implement API controllers and routes
+- **Week 3**: UI component development
+- **Week 4**: Testing and final adjustments
 ```
