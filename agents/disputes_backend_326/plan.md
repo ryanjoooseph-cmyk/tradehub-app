@@ -1,125 +1,101 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an `evidence_urls` array and a status field with values OPEN, REVIEW, and RESOLVED.
-
 ## Directory Structure
-
 ```
-/project-root
-│
-├── /api
-│   ├── /controllers
-│   │   └── disputesController.js
-│   ├── /models
-│   │   └── disputeModel.js
-│   ├── /routes
-│   │   └── disputesRoutes.js
-│   └── /middlewares
-│       └── validateDispute.js
-│
-├── /client
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── /hooks
-│   │   └── useDisputes.js
-│   ├── /pages
-│   │   └── DisputesPage.jsx
-│   └── /styles
-│       └── disputes.css
-│
-└── /tests
-    ├── /api
-    │   └── disputes.test.js
-    └── /client
-        └── DisputesPage.test.jsx
+/disputes_backend_326
+├── api
+│   ├── __init__.py
+│   ├── disputes.py
+│   └── utils.py
+├── models
+│   ├── __init__.py
+│   └── dispute.py
+├── schemas
+│   ├── __init__.py
+│   └── dispute_schema.py
+├── tests
+│   ├── __init__.py
+│   ├── test_disputes.py
+│   └── test_utils.py
+├── ui
+│   ├── __init__.py
+│   ├── dispute_list.html
+│   ├── dispute_detail.html
+│   └── styles.css
+└── app.py
 ```
 
 ## API Implementation
 
-### 1. **Dispute Model**
-- **File:** `/api/models/disputeModel.js`
+### File: `api/disputes.py`
 - **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
-  - Implement Mongoose model for MongoDB.
+  - Define API routes for `/api/disputes`
+  - Implement CRUD operations for disputes
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/<id>` - Update an existing dispute
+  - Handle request validation and response formatting
+  - Integrate with models and schemas
 
-### 2. **Dispute Controller**
-- **File:** `/api/controllers/disputesController.js`
+### File: `models/dispute.py`
 - **Responsibilities:**
-  - Implement functions to handle:
-    - `createDispute`: Create a new dispute.
-    - `getDisputes`: List all disputes.
-    - `updateDispute`: Update an existing dispute's status and evidence URLs.
+  - Define the Dispute model with fields:
+    - `id`
+    - `evidence_urls` (array)
+    - `status` (enum: OPEN/REVIEW/RESOLVED)
+  - Implement database interactions (CRUD operations)
 
-### 3. **Dispute Routes**
-- **File:** `/api/routes/disputesRoutes.js`
+### File: `schemas/dispute_schema.py`
 - **Responsibilities:**
-  - Define API endpoints:
-    - `POST /api/disputes`: Create a dispute.
-    - `GET /api/disputes`: Retrieve all disputes.
-    - `PUT /api/disputes/:id`: Update a specific dispute.
-
-### 4. **Validation Middleware**
-- **File:** `/api/middlewares/validateDispute.js`
-- **Responsibilities:**
-  - Validate incoming requests for creating and updating disputes.
-  - Ensure `evidence_urls` is an array and `status` is one of the allowed values.
+  - Define Pydantic schemas for request and response validation
+  - Create schemas for:
+    - Creating a dispute
+    - Updating a dispute
+    - Listing disputes
 
 ## UI Implementation
 
-### 1. **Dispute List Component**
-- **File:** `/client/components/DisputeList.jsx`
+### File: `ui/dispute_list.html`
 - **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide links to view/update each dispute.
+  - Create a UI for listing all disputes
+  - Include buttons for creating and viewing details of disputes
+  - Use AJAX to fetch disputes from the API
 
-### 2. **Dispute Form Component**
-- **File:** `/client/components/DisputeForm.jsx`
+### File: `ui/dispute_detail.html`
 - **Responsibilities:**
-  - Form for creating/updating disputes.
-  - Handle input for `evidence_urls` and `status`.
+  - Create a UI for viewing and updating a specific dispute
+  - Display evidence URLs and status
+  - Include form for updating status and adding evidence URLs
 
-### 3. **Dispute Detail Component**
-- **File:** `/client/components/DisputeDetail.jsx`
+### File: `ui/styles.css`
 - **Responsibilities:**
-  - Display detailed information about a selected dispute.
-  - Allow updates to the dispute status and evidence URLs.
-
-### 4. **Custom Hook for Disputes**
-- **File:** `/client/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Manage API calls for fetching, creating, and updating disputes.
-  - Handle loading and error states.
-
-### 5. **Disputes Page**
-- **File:** `/client/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Combine `DisputeList` and `DisputeForm` components.
-  - Manage state for displaying the list and form.
+  - Style the dispute list and detail pages
+  - Ensure responsive design for usability
 
 ## Testing
 
-### 1. **API Tests**
-- **File:** `/tests/api/disputes.test.js`
+### File: `tests/test_disputes.py`
 - **Responsibilities:**
-  - Write unit tests for API endpoints.
-  - Test validation middleware.
+  - Write unit tests for API endpoints
+  - Test CRUD operations and response formats
 
-### 2. **Client Tests**
-- **File:** `/tests/client/DisputesPage.test.jsx`
+### File: `tests/test_utils.py`
 - **Responsibilities:**
-  - Write tests for the DisputesPage component.
-  - Ensure components render correctly and handle state.
+  - Write utility tests for helper functions in `utils.py`
+  - Ensure data validation and error handling
 
-## Timeline
-- **Week 1:** API implementation (Model, Controller, Routes, Middleware).
-- **Week 2:** UI implementation (Components, Hooks, Page).
-- **Week 3:** Testing and bug fixing.
+## Main Application
 
-## Notes
-- Ensure proper error handling and user feedback in the UI.
-- Consider accessibility best practices in the UI components.
+### File: `app.py`
+- **Responsibilities:**
+  - Initialize the web application
+  - Set up routing for API and UI
+  - Configure database connection and middleware
+
+## Milestones
+1. **API Development** - Complete by [Date]
+2. **UI Development** - Complete by [Date]
+3. **Testing** - Complete by [Date]
+4. **Deployment** - Complete by [Date]
 ```
