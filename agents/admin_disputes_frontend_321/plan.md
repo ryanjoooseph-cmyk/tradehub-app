@@ -2,90 +2,93 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
 
 ## File Structure
 
-```
-/src
-├── components
-│   ├── AdminDisputesTable.jsx          # Component for displaying disputes in a table format
-│   ├── DisputeFilter.jsx                # Component for filtering disputes
-│   └── StatusUpdateButton.jsx           # Component for updating dispute status
-├── pages
-│   └── AdminDisputesPage.jsx            # Main page for admin disputes
-├── api
-│   └── disputes.js                      # API calls related to disputes
-├── styles
-│   └── AdminDisputesPage.css            # Styles for the admin disputes page
-└── utils
-    └── apiHelpers.js                    # Helper functions for API calls
-```
+### Frontend
+
+- **File Paths**
+  - `src/components/AdminDisputesTable.js`
+    - Responsible for rendering the admin disputes table with filters and actions.
+  - `src/components/DisputeFilter.js`
+    - Responsible for the filter UI component to filter disputes based on criteria.
+  - `src/hooks/useDisputes.js`
+    - Custom hook for fetching and managing disputes data.
+  - `src/services/api.js`
+    - Responsible for API calls to `/api/disputes`.
+  - `src/pages/AdminDisputesPage.js`
+    - Main page component that integrates the table and filter components.
+  - `src/styles/AdminDisputes.css`
+    - Styles for the admin disputes page and components.
+
+### Backend
+
+- **File Paths**
+  - `src/routes/disputes.js`
+    - Defines the API endpoints for fetching and updating disputes.
+  - `src/controllers/disputeController.js`
+    - Contains the logic for handling disputes data and status updates.
+  - `src/models/Dispute.js`
+    - Mongoose model for the dispute schema.
+  - `src/middleware/auth.js`
+    - Middleware for admin authentication and authorization.
+  - `src/utils/responseHandler.js`
+    - Utility functions for standardizing API responses.
 
 ## Responsibilities
 
-### 1. Components
+### Frontend
 
-- **AdminDisputesTable.jsx**
-  - Fetch and display disputes in a table format.
-  - Integrate filtering options from `DisputeFilter.jsx`.
-  - Handle status updates via `StatusUpdateButton.jsx`.
+1. **AdminDisputesTable.js**
+   - Render the disputes in a table format.
+   - Include actions for updating dispute status (e.g., approve, reject).
 
-- **DisputeFilter.jsx**
-  - Provide UI elements for filtering disputes (e.g., by status, date).
-  - Emit filter changes to `AdminDisputesTable.jsx`.
+2. **DisputeFilter.js**
+   - Provide filter options (e.g., status, date range).
+   - Trigger data fetching based on selected filters.
 
-- **StatusUpdateButton.jsx**
-  - Provide a button for updating the status of a selected dispute.
-  - Trigger API call to update status.
+3. **useDisputes.js**
+   - Fetch disputes from the API.
+   - Manage state for disputes and loading/error states.
 
-### 2. Pages
+4. **api.js**
+   - Implement functions for GET and POST requests to `/api/disputes`.
 
-- **AdminDisputesPage.jsx**
-  - Set up the main layout for the admin disputes page.
-  - Integrate `AdminDisputesTable` and `DisputeFilter`.
-  - Handle loading states and error messages.
+5. **AdminDisputesPage.js**
+   - Combine `AdminDisputesTable` and `DisputeFilter`.
+   - Handle overall page layout and state management.
 
-### 3. API
+6. **AdminDisputes.css**
+   - Style the components for a clean admin interface.
 
-- **disputes.js**
-  - Implement API calls to `/api/disputes` for:
-    - Fetching all disputes.
-    - Updating dispute status.
-  - Handle error responses and return structured data.
+### Backend
 
-### 4. Styles
+1. **disputes.js**
+   - Create endpoints for:
+     - `GET /api/disputes`: Fetch all disputes.
+     - `POST /api/disputes/:id/status`: Update dispute status.
 
-- **AdminDisputesPage.css**
-  - Style the admin disputes page, table, filters, and buttons.
-  - Ensure responsive design for various screen sizes.
+2. **disputeController.js**
+   - Implement logic for fetching disputes and updating their statuses.
+   - Handle validation and error responses.
 
-### 5. Utilities
+3. **Dispute.js**
+   - Define the schema for disputes, including fields for status, user info, etc.
 
-- **apiHelpers.js**
-  - Create helper functions for making API requests.
-  - Include error handling and response parsing.
+4. **auth.js**
+   - Ensure only authenticated admins can access the disputes API.
 
-## Development Steps
-
-1. **Set up the project structure** as outlined above.
-2. **Implement API calls** in `disputes.js`.
-3. **Develop UI components**:
-   - Start with `DisputeFilter.jsx`.
-   - Build `AdminDisputesTable.jsx`.
-   - Create `StatusUpdateButton.jsx`.
-4. **Integrate components** in `AdminDisputesPage.jsx`.
-5. **Style the components** using `AdminDisputesPage.css`.
-6. **Test the functionality**:
-   - Ensure API calls work as expected.
-   - Validate filtering and status updates.
-7. **Conduct code reviews** and finalize the implementation.
+5. **responseHandler.js**
+   - Standardize API responses for success and error cases.
 
 ## Timeline
+- **Week 1**: Setup project structure and implement frontend components.
+- **Week 2**: Develop backend API and connect with frontend.
+- **Week 3**: Testing and bug fixing.
+- **Week 4**: Final review and deployment.
 
-- **Week 1**: Set up project structure and implement API.
-- **Week 2**: Develop UI components and integrate.
-- **Week 3**: Style components and conduct testing.
-- **Week 4**: Code review and final adjustments.
-
+## Notes
+- Ensure to follow best practices for code quality and documentation.
+- Implement unit tests for both frontend and backend components.
 ```
