@@ -1,100 +1,108 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+## Project Structure
+```
+/disputes_backend_326
+├── /api
+│   ├── disputes.py
+│   ├── __init__.py
+├── /models
+│   ├── dispute.py
+│   ├── __init__.py
+├── /schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+├── /services
+│   ├── dispute_service.py
+│   ├── __init__.py
+├── /tests
+│   ├── test_disputes.py
+│   ├── __init__.py
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.js
+│   │   ├── DisputeForm.js
+│   ├── /pages
+│   │   ├── DisputesPage.js
+│   ├── /styles
+│   │   ├── disputes.css
+├── app.py
+├── requirements.txt
+└── README.md
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### File: `/api/disputes.py`
+- **Responsibilities:**
+  - Define API routes for:
+    - `GET /api/disputes`: List all disputes.
+    - `POST /api/disputes`: Create a new dispute.
+    - `PUT /api/disputes/<id>`: Update an existing dispute.
+  - Handle request validation and response formatting.
 
-- **File Paths:**
-  - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API endpoints for disputes.
-      - Implement CRUD operations: create, read, update.
-      - Handle request validation and error responses.
+### File: `/models/dispute.py`
+- **Responsibilities:**
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement database interactions (CRUD operations).
 
-  - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model/schema.
-      - Include fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
+### File: `/schemas/dispute_schema.py`
+- **Responsibilities:**
+  - Define request and response schemas using a validation library (e.g., Marshmallow).
+  - Ensure data integrity for disputes.
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for API logic.
-      - Functions: `createDispute`, `getDisputes`, `updateDispute`.
+### File: `/services/dispute_service.py`
+- **Responsibilities:**
+  - Implement business logic for disputes.
+  - Interact with the Dispute model for data operations.
+  - Handle status updates and evidence URL management.
 
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for `/api/disputes`.
-      - Link routes to controller functions.
+## UI Implementation
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data.
-      - Ensure evidence_urls is an array and status is one of OPEN/REVIEW/RESOLVED.
+### File: `/ui/components/DisputeList.js`
+- **Responsibilities:**
+  - Fetch and display a list of disputes.
+  - Provide options to view details and update status.
 
-### UI Implementation
+### File: `/ui/components/DisputeForm.js`
+- **Responsibilities:**
+  - Create a form for submitting new disputes.
+  - Include fields for evidence URLs and status selection.
 
-- **File Paths:**
-  - `src/components/DisputeForm.js`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Include fields for evidence URLs and status selection.
+### File: `/ui/pages/DisputesPage.js`
+- **Responsibilities:**
+  - Main page to render `DisputeList` and `DisputeForm`.
+  - Handle routing and state management.
 
-  - `src/components/DisputeList.js`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Include options to view details and update status.
-
-  - `src/pages/DisputePage.js`
-    - **Responsibilities:**
-      - Main page for managing disputes.
-      - Integrate `DisputeForm` and `DisputeList`.
-
-  - `src/services/disputeService.js`
-    - **Responsibilities:**
-      - API service for making requests to `/api/disputes`.
-      - Functions: `createDispute`, `fetchDisputes`, `updateDispute`.
-
-  - `src/styles/disputeStyles.css`
-    - **Responsibilities:**
-      - Define styles for dispute components.
-      - Ensure responsive design for forms and lists.
+### File: `/ui/styles/disputes.css`
+- **Responsibilities:**
+  - Define styles for dispute components and pages.
 
 ## Testing
 
-- **File Paths:**
-  - `src/tests/api/dispute.test.js`
-    - **Responsibilities:**
-      - Unit tests for API endpoints.
-      - Test CRUD operations and validation.
+### File: `/tests/test_disputes.py`
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Test model methods and service logic.
+  - Ensure UI components render correctly and handle user interactions.
 
-  - `src/tests/ui/DisputeForm.test.js`
-    - **Responsibilities:**
-      - Unit tests for the DisputeForm component.
-      - Validate form submission and error handling.
+## Additional Files
 
-  - `src/tests/ui/DisputeList.test.js`
-    - **Responsibilities:**
-      - Unit tests for the DisputeList component.
-      - Validate rendering of disputes and update functionality.
+### File: `/app.py`
+- **Responsibilities:**
+  - Initialize the Flask app and register API routes.
+  - Set up CORS and middleware if necessary.
 
-## Deployment
+### File: `/requirements.txt`
+- **Responsibilities:**
+  - List required packages for the project (Flask, SQLAlchemy, etc.).
 
-- **File Paths:**
-  - `docker-compose.yml`
-    - **Responsibilities:**
-      - Define services for API and UI.
-      - Set up environment variables for deployment.
-
-  - `README.md`
-    - **Responsibilities:**
-      - Document setup, usage, and deployment instructions.
-
-## Timeline
-- **Week 1:** API development (models, routes, controllers).
-- **Week 2:** UI development (components, services).
-- **Week 3:** Testing and deployment preparation.
+### File: `/README.md`
+- **Responsibilities:**
+  - Provide an overview of the project.
+  - Include setup instructions and usage examples.
 ```
