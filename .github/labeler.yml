@@ -1,13 +1,14 @@
 allow-deps:
   - 'package.json'
-  - 'package-lock.json'
   - 'pnpm-lock.yaml'
   - 'yarn.lock'
+  - 'package-lock.json'
+
 allow-config:
-  - '.github/**'
-  - 'next.config.*'
-  - 'vite.config.*'
-  - 'tsconfig*.json'
-  - 'render.*'
-  - 'Dockerfile'
-  - 'docker/**'
+  - '.github/workflows/**'
+
+ui-only:
+  - 'app/**'
+  - 'app/components/**'
+  - 'app/tradehub/**'
+  - 'app/styles/**'
