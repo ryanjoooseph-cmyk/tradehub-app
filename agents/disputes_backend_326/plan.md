@@ -3,115 +3,86 @@
 
 ## Directory Structure
 ```
-/disputes_backend_326
+/disputes_backend
 │
 ├── /api
-│   ├── /controllers
-│   │   └── disputesController.js
-│   ├── /models
-│   │   └── disputeModel.js
-│   ├── /routes
-│   │   └── disputesRoutes.js
-│   └── /middlewares
-│       └── authMiddleware.js
+│   ├── disputes.js               # API routes for disputes
+│   └── index.js                  # Main API entry point
 │
-├── /client
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── /services
-│   │   └── disputeService.js
-│   └── /styles
-│       └── disputes.css
+├── /controllers
+│   ├── disputesController.js      # Business logic for disputes
+│
+├── /models
+│   ├── disputeModel.js            # Mongoose model for disputes
+│
+├── /middlewares
+│   ├── authMiddleware.js          # Authentication middleware
+│
+├── /validations
+│   ├── disputeValidation.js        # Validation schema for disputes
 │
 ├── /tests
-│   ├── /api
-│   │   └── disputes.test.js
-│   └── /client
-│       └── DisputeList.test.jsx
+│   ├── disputes.test.js           # Unit tests for disputes API
 │
-└── server.js
+├── /config
+│   ├── db.js                      # Database connection configuration
+│   └── server.js                  # Server configuration
+│
+└── /utils
+    ├── responseFormatter.js        # Utility for formatting API responses
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. **Dispute Model**
-- **File:** `/api/models/disputeModel.js`
-- **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED).
-  - Implement Mongoose model for MongoDB.
+### 1. **API Routes (`/api/disputes.js`)**
+- Define routes for:
+  - `GET /api/disputes` - List all disputes
+  - `POST /api/disputes` - Create a new dispute
+  - `PUT /api/disputes/:id` - Update an existing dispute
+- Integrate with controller methods.
 
-### 2. **Dispute Controller**
-- **File:** `/api/controllers/disputesController.js`
-- **Responsibilities:**
-  - Implement functions to:
-    - `listDisputes`: Retrieve all disputes.
-    - `createDispute`: Create a new dispute with evidence URLs.
-    - `updateDispute`: Update status and evidence URLs of an existing dispute.
+### 2. **Controller Logic (`/controllers/disputesController.js`)**
+- Implement functions for:
+  - `listDisputes` - Fetch all disputes from the database.
+  - `createDispute` - Validate and save a new dispute.
+  - `updateDispute` - Validate and update an existing dispute.
+- Handle status management (OPEN/REVIEW/RESOLVED).
 
-### 3. **Dispute Routes**
-- **File:** `/api/routes/disputesRoutes.js`
-- **Responsibilities:**
-  - Define routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
+### 3. **Database Model (`/models/disputeModel.js`)**
+- Define Mongoose schema for disputes:
+  - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN, REVIEW, RESOLVED), `created_at`, `updated_at`.
+- Implement methods for CRUD operations.
 
-### 4. **Authentication Middleware**
-- **File:** `/api/middlewares/authMiddleware.js`
-- **Responsibilities:**
-  - Implement middleware to authenticate requests.
+### 4. **Validation (`/validations/disputeValidation.js`)**
+- Create validation schema using Joi or similar for:
+  - Creating a dispute (evidence_urls required, status defaults to OPEN).
+  - Updating a dispute (status must be one of the defined enums).
 
-## Client Implementation
+### 5. **Middleware (`/middlewares/authMiddleware.js`)**
+- Implement authentication middleware to protect routes.
+- Ensure only authorized users can create or update disputes.
 
-### 5. **Dispute Components**
-- **File:** `/client/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide options to view details and update status.
+### 6. **Testing (`/tests/disputes.test.js`)**
+- Write unit tests for:
+  - API endpoints (GET, POST, PUT).
+  - Controller functions.
+  - Validation logic.
 
-- **File:** `/client/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Form to create a new dispute with evidence URLs.
+### 7. **Configuration (`/config/db.js`, `/config/server.js`)**
+- Set up MongoDB connection in `db.js`.
+- Configure Express server settings in `server.js`.
 
-- **File:** `/client/components/DisputeDetail.jsx`
-- **Responsibilities:**
-  - Display details of a selected dispute and allow updates.
-
-### 6. **Dispute Service**
-- **File:** `/client/services/disputeService.js`
-- **Responsibilities:**
-  - Implement API calls to interact with the backend:
-    - `getDisputes()`
-    - `createDispute(data)`
-    - `updateDispute(id, data)`
-
-### 7. **Styling**
-- **File:** `/client/styles/disputes.css`
-- **Responsibilities:**
-  - Style the dispute components for a user-friendly interface.
-
-## Testing
-
-### 8. **API Tests**
-- **File:** `/tests/api/disputes.test.js`
-- **Responsibilities:**
-  - Write unit tests for API endpoints using Jest and Supertest.
-
-### 9. **Client Tests**
-- **File:** `/tests/client/DisputeList.test.jsx`
-- **Responsibilities:**
-  - Write unit tests for the DisputeList component using React Testing Library.
-
-## Server Setup
-- **File:** `server.js`
-- **Responsibilities:**
-  - Set up Express server and connect to MongoDB.
-  - Use routes and middleware for the disputes API.
+### 8. **Response Formatting (`/utils/responseFormatter.js`)**
+- Create utility functions to standardize API responses (success/error).
 
 ## Timeline
-- **Week 1:** API implementation (models, controllers, routes).
-- **Week 2:** Client implementation (components, services, styling).
-- **Week 3:** Testing and bug fixes.
+- **Week 1**: Set up project structure, implement models, and routes.
+- **Week 2**: Develop controller logic and validation.
+- **Week 3**: Implement middleware and testing.
+- **Week 4**: Finalize documentation and deploy.
+
+## Notes
+- Ensure proper error handling throughout the API.
+- Consider pagination for listing disputes if the dataset is large.
+- Review security practices for handling user data and evidence URLs.
 ```
