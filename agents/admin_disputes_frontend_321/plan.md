@@ -2,7 +2,7 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the development of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update the status of disputes.
+This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
 
 ## File Structure
 
@@ -11,69 +11,94 @@ This plan outlines the development of the UI and API for managing disputes in th
 - **src/**
   - **components/**
     - **DisputeTable.jsx**  
-      - Responsibility: Render the table of disputes with filters and actions.
-    - **DisputeFilter.jsx**  
-      - Responsibility: Provide filtering options for the disputes table.
-    - **DisputeStatusUpdate.jsx**  
-      - Responsibility: Handle status updates for selected disputes.
+      - Responsible for rendering the table of disputes with filtering options.
+    - **DisputeRow.jsx**  
+      - Responsible for rendering individual dispute rows with action buttons.
+    - **FilterComponent.jsx**  
+      - Responsible for filtering disputes based on criteria (e.g., status, date).
+  
   - **pages/**
     - **AdminDisputesPage.jsx**  
-      - Responsibility: Main page component for `/admin/disputes/321`, integrating the table and filters.
+      - Main page component that integrates `DisputeTable` and `FilterComponent`.
+  
   - **hooks/**
     - **useDisputes.js**  
-      - Responsibility: Custom hook to fetch disputes from the API and manage state.
+      - Custom hook for fetching disputes from the API and managing state.
+  
   - **styles/**
     - **DisputeTable.css**  
-      - Responsibility: Styles for the dispute table and related components.
-
-### API
+      - Styles for the dispute table and its components.
 
 - **src/api/**
+  - **disputeApi.js**  
+    - API service for making calls to `/api/disputes` for fetching and updating disputes.
+
+### Backend
+
+- **routes/**
   - **disputes.js**  
-    - Responsibility: Define API calls related to disputes, including fetching, updating status, and filtering.
-  - **routes/**
-    - **disputes.js**  
-      - Responsibility: Express routes for handling API requests related to disputes.
-  - **controllers/**
-    - **disputeController.js**  
-      - Responsibility: Logic for processing requests and interacting with the database for disputes.
-  - **models/**
-    - **Dispute.js**  
-      - Responsibility: Mongoose model/schema for the dispute data structure.
+    - Express route handler for `/api/disputes` to manage GET and POST requests.
 
-### Tests
+- **controllers/**
+  - **disputeController.js**  
+    - Logic for handling dispute data retrieval and status updates.
 
-- **src/tests/**
-  - **DisputeTable.test.js**  
-    - Responsibility: Unit tests for the DisputeTable component.
-  - **DisputeFilter.test.js**  
-    - Responsibility: Unit tests for the DisputeFilter component.
-  - **api/disputes.test.js**  
-    - Responsibility: Integration tests for the disputes API endpoints.
+- **models/**
+  - **Dispute.js**  
+    - Mongoose model for the dispute schema.
+
+- **middlewares/**
+  - **authMiddleware.js**  
+    - Middleware for authenticating admin users.
 
 ## Responsibilities
 
-### Frontend Development
-- **DisputeTable.jsx**: Implement table structure, integrate with `useDisputes` for data fetching, and add action buttons for status updates.
-- **DisputeFilter.jsx**: Create filter inputs and handle state changes to filter displayed disputes.
-- **DisputeStatusUpdate.jsx**: Implement functionality to update dispute status via API calls.
-- **AdminDisputesPage.jsx**: Combine components and manage overall layout and state.
+### Frontend
 
-### API Development
-- **disputes.js**: Set up API endpoints for fetching disputes and updating their status.
-- **disputeController.js**: Implement logic for fetching disputes from the database and updating their status based on requests.
-- **Dispute.js**: Define the schema for disputes, including fields for status, description, and timestamps.
+- **DisputeTable.jsx**  
+  - Implement table structure and integrate filtering logic.
+  
+- **DisputeRow.jsx**  
+  - Create action buttons for updating dispute status (e.g., resolve, reject).
+  
+- **FilterComponent.jsx**  
+  - Implement filtering logic and UI elements for filtering disputes.
 
-### Testing
-- Write unit tests for each component and integration tests for API endpoints to ensure functionality and reliability.
+- **AdminDisputesPage.jsx**  
+  - Combine components and manage overall state and API calls.
 
-## Timeline
-- **Week 1**: Set up project structure and implement UI components.
-- **Week 2**: Develop API endpoints and connect frontend with backend.
-- **Week 3**: Write tests and perform QA.
-- **Week 4**: Final review and deployment.
+- **useDisputes.js**  
+  - Fetch disputes from the API and handle loading/error states.
 
-## Notes
-- Ensure that all components are responsive and accessible.
-- Follow best practices for API security and data validation.
+- **disputeApi.js**  
+  - Implement functions to fetch disputes and update their statuses.
+
+### Backend
+
+- **disputes.js**  
+  - Define routes for fetching disputes and updating statuses.
+
+- **disputeController.js**  
+  - Implement logic for retrieving disputes and updating their statuses based on requests.
+
+- **Dispute.js**  
+  - Define the schema for dispute data including fields like `status`, `createdAt`, etc.
+
+- **authMiddleware.js**  
+  - Ensure that only authenticated admin users can access the dispute routes.
+
+## Testing
+
+- **Frontend Tests**
+  - Unit tests for components using Jest and React Testing Library.
+  - Integration tests for API calls using Mock Service Worker (MSW).
+
+- **Backend Tests**
+  - Unit tests for controllers and routes using Mocha/Chai.
+  - Integration tests for API endpoints.
+
+## Deployment
+
+- Ensure the feature is included in the next deployment cycle.
+- Monitor for any issues post-deployment and gather feedback for improvements.
 ```
