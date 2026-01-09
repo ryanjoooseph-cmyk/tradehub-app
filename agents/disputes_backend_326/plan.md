@@ -1,99 +1,83 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Project Structure
 ```
 /disputes_backend_326
 │
 ├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
+│   ├── /controllers
+│   │   └── disputesController.js        # Handle API logic for disputes
+│   ├── /models
+│   │   └── disputeModel.js              # Define dispute schema and model
+│   ├── /routes
+│   │   └── disputesRoutes.js            # Define API routes for disputes
+│   ├── /middlewares
+│   │   └── validateDispute.js           # Middleware for validating dispute data
+│   └── /utils
+│       └── responseHandler.js            # Utility for standardized API responses
 │
-├── /ui
+├── /client
 │   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
+│   │   ├── DisputeList.jsx               # Component to list all disputes
+│   │   ├── DisputeForm.jsx               # Component to create/update a dispute
+│   │   └── DisputeDetail.jsx             # Component to view dispute details
+│   ├── /hooks
+│   │   └── useDisputes.js                # Custom hook for fetching/updating disputes
+│   ├── /services
+│   │   └── disputeService.js             # API service for dispute-related requests
+│   └── /styles
+│       └── disputes.css                   # CSS styles for dispute components
 │
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+└── /tests
+    ├── /api
+    │   └── disputesController.test.js     # Unit tests for disputes controller
+    ├── /client
+    │   └── DisputeForm.test.jsx           # Unit tests for DisputeForm component
+    └── /integration
+        └── disputesIntegration.test.js     # Integration tests for disputes API
 ```
 
 ## Responsibilities
 
 ### API Implementation
-- **disputes.py**
-  - Define endpoints:
+- **disputesController.js**
+  - Implement functions to handle:
     - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/:id`: Update an existing dispute
+- **disputeModel.js**
+  - Define the schema for disputes with fields:
+    - `evidence_urls` (Array)
+    - `status` (Enum: OPEN, REVIEW, RESOLVED)
+- **disputesRoutes.js**
+  - Set up routes for disputes API endpoints
+- **validateDispute.js**
+  - Middleware to validate incoming dispute data
 
-### UI Implementation
+### Client Implementation
 - **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
-
+  - Fetch and display a list of disputes
 - **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
-
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
-
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+  - Form for creating/updating disputes with validation
+- **DisputeDetail.jsx**
+  - Display details of a selected dispute
+- **useDisputes.js**
+  - Custom hook to manage API calls and state for disputes
+- **disputeService.js**
+  - Implement API calls for disputes (GET, POST, PUT)
 
 ### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+- **disputesController.test.js**
+  - Write unit tests for controller functions
+- **DisputeForm.test.jsx**
+  - Write unit tests for the DisputeForm component
+- **disputesIntegration.test.js**
+  - Write integration tests for the API endpoints
 
 ## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
-
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- **Week 1**: Set up API structure and implement models/controllers
+- **Week 2**: Develop client components and hooks
+- **Week 3**: Write tests and conduct integration testing
+- **Week 4**: Final review and deployment preparation
 ```
