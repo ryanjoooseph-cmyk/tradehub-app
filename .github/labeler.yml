@@ -1,14 +1,24 @@
-allow-deps:
-  - 'package.json'
-  - 'pnpm-lock.yaml'
-  - 'yarn.lock'
-  - 'package-lock.json'
-
-allow-config:
-  - '.github/workflows/**'
-
-ui-only:
-  - 'app/**'
-  - 'app/components/**'
-  - 'app/tradehub/**'
-  - 'app/styles/**'
+name: label_guard
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const files = await github.paginate(github.rest.pulls.listFiles, { owner, repo, pull_number: pr.number, per_page: 100 })
+            const names = files.map(f => f.filename)
+            const add = new Set()
+            if (names.some(n => /(^|\/)(package\.json|pnpm-lock\.yaml|yarn\.lock|package-lock\.json)$/.test(n))) add.add('allow-deps')
+            if (names.some(n => n.startsWith('.github/'))) add.add('allow-config')
+            add.add('automerge')
+            if (add.size) await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: [...add] })
