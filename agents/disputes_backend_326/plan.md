@@ -1,8 +1,4 @@
-```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
-
-## Overview
-This plan outlines the necessary steps to build the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, with an array for evidence URLs and a status field that can be OPEN, REVIEW, or RESOLVED.
 
 ## Directory Structure
 
@@ -10,102 +6,106 @@ This plan outlines the necessary steps to build the UI and API for managing disp
 /disputes_backend_326
 │
 ├── /api
-│   ├── disputes.js               # API route handling for disputes
-│   ├── disputesController.js      # Business logic for disputes
-│   ├── disputesModel.js           # Mongoose model for disputes
-│   └── index.js                   # Main API entry point
+│   ├── disputes.py
+│   ├── __init__.py
+│   └── utils.py
 │
-├── /ui
-│   ├── /components
-│   │   ├── DisputeForm.jsx        # Form for creating/updating disputes
-│   │   ├── DisputeList.jsx        # Component to list all disputes
-│   │   └── DisputeItem.jsx        # Component to display individual dispute
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /hooks
-│   │   └── useDisputes.js         # Custom hook for API calls related to disputes
-│   │
-│   ├── /styles
-│   │   └── disputes.css            # Styles for dispute components
-│   │
-│   └── App.jsx                    # Main application component
+├── /models
+│   ├── dispute.py
+│   └── __init__.py
+│
+├── /schemas
+│   ├── dispute_schema.py
+│   └── __init__.py
 │
 ├── /tests
-│   ├── disputes.test.js            # Unit tests for disputes API
-│   └── DisputeForm.test.jsx        # Unit tests for DisputeForm component
+│   ├── test_disputes.py
+│   └── __init__.py
 │
-├── /config
-│   └── db.js                      # Database configuration
+├── /frontend
+│   ├── /components
+│   │   ├── DisputeList.vue
+│   │   ├── DisputeForm.vue
+│   │   └── DisputeDetail.vue
+│   ├── /views
+│   │   ├── DisputeView.vue
+│   │   └── __init__.vue
+│   └── App.vue
 │
-└── server.js                      # Main server file
+├── /static
+│   └── styles.css
+│
+└── requirements.txt
 ```
 
 ## Responsibilities
 
 ### API Implementation
 
-1. **disputes.js**
-   - Define routes for GET, POST, and PUT requests.
-   - Route handlers for listing, creating, and updating disputes.
+- **`/api/disputes.py`**
+  - Implement RESTful routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Open a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Handle status management (OPEN/REVIEW/RESOLVED)
+  - Validate evidence_urls array
 
-2. **disputesController.js**
-   - Implement logic for handling disputes:
-     - `listDisputes`: Fetch all disputes.
-     - `createDispute`: Create a new dispute with evidence URLs.
-     - `updateDispute`: Update the status and evidence URLs of a dispute.
+- **`/api/utils.py`**
+  - Utility functions for dispute status validation and evidence URL checks.
 
-3. **disputesModel.js**
-   - Define the Mongoose schema for disputes:
-     - Fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+### Model Implementation
 
-4. **index.js**
-   - Set up API middleware and connect to the database.
+- **`/models/dispute.py`**
+  - Define the Dispute model with fields:
+    - `id`, `status`, `evidence_urls`, `created_at`, `updated_at`
+  - Implement methods for CRUD operations.
 
-### UI Implementation
+### Schema Implementation
 
-1. **DisputeForm.jsx**
-   - Create a form for users to submit new disputes or update existing ones.
-   - Handle input for evidence URLs and status selection.
-
-2. **DisputeList.jsx**
-   - Fetch and display a list of disputes.
-   - Include functionality to filter by status.
-
-3. **DisputeItem.jsx**
-   - Display individual dispute details and provide options to update status.
-
-4. **DisputePage.jsx**
-   - Main page that integrates `DisputeList` and `DisputeForm`.
-
-5. **useDisputes.js**
-   - Implement API calls to fetch, create, and update disputes.
-
-6. **disputes.css**
-   - Style the dispute components for better user experience.
+- **`/schemas/dispute_schema.py`**
+  - Define Pydantic schemas for request and response validation.
+  - Include fields for status and evidence_urls.
 
 ### Testing
 
-1. **disputes.test.js**
-   - Write tests for API endpoints to ensure correct functionality.
+- **`/tests/test_disputes.py`**
+  - Write unit tests for API endpoints.
+  - Test for status transitions and evidence URL validation.
 
-2. **DisputeForm.test.jsx**
-   - Write tests for the DisputeForm component to validate user input.
+### Frontend Implementation
 
-### Configuration
+- **`/frontend/components/DisputeList.vue`**
+  - Display a list of disputes with status indicators.
 
-1. **db.js**
-   - Configure MongoDB connection settings.
+- **`/frontend/components/DisputeForm.vue`**
+  - Form for opening a new dispute, including evidence URL input.
 
-2. **server.js**
-   - Set up Express server and middleware for API.
+- **`/frontend/components/DisputeDetail.vue`**
+  - Show details of a selected dispute and allow status updates.
 
-## Timeline
-- **Week 1**: API development (routes, controllers, models).
-- **Week 2**: UI development (components, pages, hooks).
-- **Week 3**: Testing and debugging.
-- **Week 4**: Final review and deployment.
+- **`/frontend/views/DisputeView.vue`**
+  - Main view to manage disputes, integrating list and form components.
 
-```
+### Styling
+
+- **`/static/styles.css`**
+  - Basic styles for dispute components and layout.
+
+### Dependencies
+
+- **`requirements.txt`**
+  - List necessary packages (e.g., FastAPI, SQLAlchemy, Pydantic, Vue.js).
+
+## Milestones
+
+1. **API Development**: Complete by [Date]
+2. **Model & Schema Development**: Complete by [Date]
+3. **Frontend Components**: Complete by [Date]
+4. **Testing**: Complete by [Date]
+5. **Deployment**: Complete by [Date]
+
+## Notes
+
+- Ensure proper error handling and validation throughout the API.
+- Follow RESTful conventions for API design.
+- Use Vue.js for frontend development with a focus on component reusability.
