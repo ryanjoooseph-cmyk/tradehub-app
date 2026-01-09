@@ -1,25 +1,23 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an `evidence_urls` array and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## Directory Structure
-
+## Project Structure
 ```
-/project-root
+/disputes_backend_326
 │
 ├── /api
 │   ├── /controllers
 │   │   └── disputesController.js
-│   ├── /models
-│   │   └── disputeModel.js
 │   ├── /routes
 │   │   └── disputesRoutes.js
-│   └── /middlewares
-│       └── validateDispute.js
+│   ├── /models
+│   │   └── disputeModel.js
+│   ├── /middlewares
+│   │   └── validateDispute.js
+│   └── /utils
+│       └── responseHandler.js
 │
-├── /client
+├── /ui
 │   ├── /components
 │   │   ├── DisputeList.jsx
 │   │   ├── DisputeForm.jsx
@@ -28,98 +26,73 @@ This plan outlines the implementation of the UI and API for managing disputes at
 │   │   └── useDisputes.js
 │   ├── /pages
 │   │   └── DisputesPage.jsx
-│   └── /styles
-│       └── disputes.css
+│   ├── /styles
+│   │   └── disputes.css
+│   └── /services
+│       └── disputeService.js
 │
 └── /tests
     ├── /api
     │   └── disputes.test.js
-    └── /client
-        └── DisputesPage.test.jsx
+    └── /ui
+        └── DisputeList.test.jsx
 ```
 
 ## API Implementation
 
-### 1. **Dispute Model**
-- **File:** `/api/models/disputeModel.js`
-- **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
-  - Implement Mongoose model for MongoDB.
+### 1. **Dispute Model** (`/api/models/disputeModel.js`)
+- Define the Dispute schema with fields:
+  - `id`
+  - `evidence_urls` (Array)
+  - `status` (ENUM: OPEN, REVIEW, RESOLVED)
+- Implement Mongoose model.
 
-### 2. **Dispute Controller**
-- **File:** `/api/controllers/disputesController.js`
-- **Responsibilities:**
-  - Implement functions to handle:
-    - `createDispute`: Create a new dispute.
-    - `getDisputes`: List all disputes.
-    - `updateDispute`: Update an existing dispute's status and evidence URLs.
+### 2. **Dispute Controller** (`/api/controllers/disputesController.js`)
+- **Functions**:
+  - `createDispute(req, res)`: Handle creation of a new dispute.
+  - `getDisputes(req, res)`: Fetch all disputes.
+  - `updateDispute(req, res)`: Update a dispute's status or evidence_urls.
 
-### 3. **Dispute Routes**
-- **File:** `/api/routes/disputesRoutes.js`
-- **Responsibilities:**
-  - Define API endpoints:
-    - `POST /api/disputes`: Create a dispute.
-    - `GET /api/disputes`: Retrieve all disputes.
-    - `PUT /api/disputes/:id`: Update a specific dispute.
+### 3. **Dispute Routes** (`/api/routes/disputesRoutes.js`)
+- Define routes:
+  - `POST /api/disputes`: Create a dispute.
+  - `GET /api/disputes`: List all disputes.
+  - `PUT /api/disputes/:id`: Update a dispute.
 
-### 4. **Validation Middleware**
-- **File:** `/api/middlewares/validateDispute.js`
-- **Responsibilities:**
-  - Validate incoming requests for creating and updating disputes.
-  - Ensure `evidence_urls` is an array and `status` is one of the allowed values.
+### 4. **Validation Middleware** (`/api/middlewares/validateDispute.js`)
+- Validate request body for creating/updating disputes.
+
+### 5. **Response Handler** (`/api/utils/responseHandler.js`)
+- Standardize API responses.
 
 ## UI Implementation
 
-### 1. **Dispute List Component**
-- **File:** `/client/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide links to view/update each dispute.
+### 1. **Dispute Components** (`/ui/components`)
+- **DisputeList.jsx**: Display list of disputes.
+- **DisputeForm.jsx**: Form for creating/updating disputes.
+- **DisputeDetail.jsx**: Show details of a selected dispute.
 
-### 2. **Dispute Form Component**
-- **File:** `/client/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Form for creating/updating disputes.
-  - Handle input for `evidence_urls` and `status`.
+### 2. **Custom Hook** (`/ui/hooks/useDisputes.js`)
+- Fetch disputes from API and manage state.
 
-### 3. **Dispute Detail Component**
-- **File:** `/client/components/DisputeDetail.jsx`
-- **Responsibilities:**
-  - Display detailed information about a selected dispute.
-  - Allow updates to the dispute status and evidence URLs.
+### 3. **Disputes Page** (`/ui/pages/DisputesPage.jsx`)
+- Integrate components to display and manage disputes.
 
-### 4. **Custom Hook for Disputes**
-- **File:** `/client/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Manage API calls for fetching, creating, and updating disputes.
-  - Handle loading and error states.
+### 4. **Dispute Service** (`/ui/services/disputeService.js`)
+- Implement API calls for creating, listing, and updating disputes.
 
-### 5. **Disputes Page**
-- **File:** `/client/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Combine `DisputeList` and `DisputeForm` components.
-  - Manage state for displaying the list and form.
+### 5. **Styles** (`/ui/styles/disputes.css`)
+- Basic styling for dispute components.
 
 ## Testing
 
-### 1. **API Tests**
-- **File:** `/tests/api/disputes.test.js`
-- **Responsibilities:**
-  - Write unit tests for API endpoints.
-  - Test validation middleware.
+### 1. **API Tests** (`/tests/api/disputes.test.js`)
+- Test all API endpoints for expected behavior.
 
-### 2. **Client Tests**
-- **File:** `/tests/client/DisputesPage.test.jsx`
-- **Responsibilities:**
-  - Write tests for the DisputesPage component.
-  - Ensure components render correctly and handle state.
+### 2. **UI Tests** (`/tests/ui/DisputeList.test.jsx`)
+- Test rendering and functionality of DisputeList component.
 
-## Timeline
-- **Week 1:** API implementation (Model, Controller, Routes, Middleware).
-- **Week 2:** UI implementation (Components, Hooks, Page).
-- **Week 3:** Testing and bug fixing.
-
-## Notes
-- Ensure proper error handling and user feedback in the UI.
-- Consider accessibility best practices in the UI components.
+## Deployment
+- Ensure all endpoints are documented.
+- Prepare for CI/CD integration.
 ```
