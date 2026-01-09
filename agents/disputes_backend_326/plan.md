@@ -4,85 +4,79 @@
 ## Directory Structure
 ```
 /disputes_backend_326
-├── api
-│   ├── disputes.py
-│   ├── __init__.py
-├── models
-│   ├── dispute.py
-│   ├── __init__.py
-├── schemas
-│   ├── dispute_schema.py
-│   ├── __init__.py
-├── services
-│   ├── dispute_service.py
-│   ├── __init__.py
-├── tests
-│   ├── test_disputes.py
-│   ├── __init__.py
-├── app.py
-└── requirements.txt
+│
+├── /api
+│   ├── disputes.py               # API routes for disputes
+│   ├── __init__.py               # Initialize API module
+│   └── utils.py                  # Utility functions for API
+│
+├── /models
+│   ├── dispute.py                # Dispute model definition
+│   └── __init__.py               # Initialize models module
+│
+├── /schemas
+│   ├── dispute_schema.py         # Pydantic schemas for dispute validation
+│   └── __init__.py               # Initialize schemas module
+│
+├── /services
+│   ├── dispute_service.py        # Business logic for disputes
+│   └── __init__.py               # Initialize services module
+│
+├── /tests
+│   ├── test_disputes.py          # Unit tests for disputes API
+│   └── __init__.py               # Initialize tests module
+│
+└── app.py                        # Main application entry point
 ```
 
 ## Responsibilities
 
 ### API Layer
-- **File:** `api/disputes.py`
+- **`/api/disputes.py`**
   - Define routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/<id>`: Update an existing dispute
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/{id}` - Update an existing dispute
   - Handle request validation and response formatting.
 
 ### Models
-- **File:** `models/dispute.py`
-  - Create a `Dispute` model with fields:
+- **`/models/dispute.py`**
+  - Define the Dispute model with fields:
     - `id`: Unique identifier
     - `evidence_urls`: Array of URLs
     - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement methods for database interactions.
+  - Implement database interactions (CRUD operations).
 
 ### Schemas
-- **File:** `schemas/dispute_schema.py`
-  - Define Pydantic schemas for:
-    - Dispute creation and update requests
-    - Response models for listing disputes
+- **`/schemas/dispute_schema.py`**
+  - Create Pydantic schemas for:
+    - Dispute creation and update validation.
+    - Ensure `evidence_urls` is an array and `status` is one of the defined enums.
 
 ### Services
-- **File:** `services/dispute_service.py`
+- **`/services/dispute_service.py`**
   - Implement business logic for:
-    - Creating a dispute
     - Listing disputes
+    - Creating a new dispute
     - Updating dispute status
-  - Interact with the `Dispute` model for database operations.
+  - Interact with the model layer for data persistence.
 
-### Tests
-- **File:** `tests/test_disputes.py`
+### Testing
+- **`/tests/test_disputes.py`**
   - Write unit tests for:
-    - API endpoints
-    - Service layer methods
-  - Ensure coverage for all status transitions and edge cases.
+    - API endpoints (success and error cases)
+    - Service layer functions
+    - Model validations
 
 ### Main Application
-- **File:** `app.py`
+- **`app.py`**
   - Set up the FastAPI application.
-  - Include the disputes API routes.
-  - Configure CORS and middleware as necessary.
-
-### Dependencies
-- **File:** `requirements.txt`
-  - List required packages:
-    - `fastapi`
-    - `uvicorn`
-    - `pydantic`
-    - `sqlalchemy` (or any ORM)
-    - `pytest` (for testing)
+  - Include API routes and middleware if necessary.
+  - Configure database connection.
 
 ## Timeline
-- **Week 1:** Set up project structure and implement models and schemas.
-- **Week 2:** Develop API endpoints and service logic.
-- **Week 3:** Write tests and conduct code reviews.
-- **Week 4:** Finalize documentation and deploy to staging.
-
-## Documentation
-- Update README.md with API usage instructions and examples.
+- **Week 1**: Set up project structure and implement models.
+- **Week 2**: Develop API routes and services.
+- **Week 3**: Create schemas and write tests.
+- **Week 4**: Finalize testing and deployment preparations.
 ```
