@@ -6,89 +6,84 @@
 /disputes_backend_326
 │
 ├── /api
-│   ├── disputes.js                # API route for handling disputes
-│   └── index.js                   # Main API entry point
-│
-├── /controllers
-│   ├── disputesController.js       # Business logic for disputes
+│   ├── disputes.py               # API routes for disputes
+│   ├── __init__.py               # API package initialization
 │
 ├── /models
-│   ├── disputeModel.js             # Mongoose model for disputes
+│   ├── dispute.py                # Dispute model definition
+│   ├── __init__.py               # Models package initialization
 │
-├── /routes
-│   ├── disputesRoutes.js           # Route definitions for disputes
+├── /schemas
+│   ├── dispute_schema.py         # Pydantic schemas for validation
+│   ├── __init__.py               # Schemas package initialization
 │
-├── /middlewares
-│   ├── validateDispute.js          # Middleware for validating dispute data
+├── /services
+│   ├── dispute_service.py        # Business logic for disputes
+│   ├── __init__.py               # Services package initialization
 │
 ├── /tests
-│   ├── disputes.test.js            # Unit tests for disputes API
+│   ├── test_disputes.py          # Unit tests for disputes API
+│   ├── __init__.py               # Tests package initialization
 │
-├── /config
-│   ├── db.js                       # Database connection setup
+├── /migrations                    # Database migration files
 │
-└── /utils
-    ├── responseHandler.js           # Utility for standardizing API responses
+└── app.py                        # Main application entry point
 ```
 
 ## Responsibilities
 
-### 1. **API Implementation**
-- **File:** `/api/disputes.js`
+### API Layer
+- **File: `/api/disputes.py`**
   - Define routes for:
-    - `POST /api/disputes` - Create a new dispute
-    - `GET /api/disputes` - List all disputes
-    - `PUT /api/disputes/:id` - Update a specific dispute
-  - Integrate with `disputesController.js` for business logic.
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/{id}`: Update an existing dispute
+  - Implement request handling and response formatting.
 
-### 2. **Controller Logic**
-- **File:** `/controllers/disputesController.js`
-  - Implement functions for:
-    - `createDispute(req, res)` - Handle dispute creation.
-    - `listDisputes(req, res)` - Retrieve all disputes.
-    - `updateDispute(req, res)` - Update dispute status and evidence URLs.
-  - Ensure proper error handling and response formatting.
+### Model Layer
+- **File: `/models/dispute.py`**
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement database interactions (CRUD operations).
 
-### 3. **Database Model**
-- **File:** `/models/disputeModel.js`
-  - Define Mongoose schema for disputes:
-    - Fields: `status` (enum: OPEN/REVIEW/RESOLVED), `evidence_urls` (array of strings).
-  - Implement methods for CRUD operations.
+### Schema Layer
+- **File: `/schemas/dispute_schema.py`**
+  - Create Pydantic schemas for:
+    - Input validation for creating/updating disputes
+    - Output serialization for listing disputes
 
-### 4. **Route Definitions**
-- **File:** `/routes/disputesRoutes.js`
-  - Set up Express routes and link them to controller methods.
-  - Ensure middleware for validation is applied.
+### Service Layer
+- **File: `/services/dispute_service.py`**
+  - Implement business logic for:
+    - Creating a dispute
+    - Retrieving all disputes
+    - Updating a dispute status
+  - Handle interactions between the API and the model layer.
 
-### 5. **Validation Middleware**
-- **File:** `/middlewares/validateDispute.js`
-  - Validate incoming request data for creating/updating disputes.
-  - Check for required fields and correct data types.
-
-### 6. **Testing**
-- **File:** `/tests/disputes.test.js`
+### Testing
+- **File: `/tests/test_disputes.py`**
   - Write unit tests for:
-    - API endpoints (create, list, update).
-    - Validation logic.
-  - Use a testing framework (e.g., Jest or Mocha).
+    - API endpoints (status codes, response formats)
+    - Service layer functions (business logic correctness)
+    - Model interactions (database CRUD operations)
 
-### 7. **Database Configuration**
-- **File:** `/config/db.js`
-  - Set up MongoDB connection.
-  - Handle connection errors and ensure proper connection lifecycle.
-
-### 8. **Response Handling Utility**
-- **File:** `/utils/responseHandler.js`
-  - Create utility functions for standardizing API responses (success/error).
+### Main Application
+- **File: `/app.py`**
+  - Set up the FastAPI application.
+  - Include API routes from `disputes.py`.
+  - Configure database connection and middleware.
 
 ## Timeline
-- **Week 1:** API and controller setup.
-- **Week 2:** Model and middleware implementation.
-- **Week 3:** Testing and validation.
-- **Week 4:** Final review and deployment.
+- **Week 1**: Set up project structure and initial files.
+- **Week 2**: Implement API routes and model definitions.
+- **Week 3**: Develop service layer logic and schemas.
+- **Week 4**: Write tests and perform integration testing.
+- **Week 5**: Review, refactor, and finalize documentation.
 
 ## Notes
-- Ensure to follow RESTful conventions.
-- Use proper status codes for API responses.
-- Document API endpoints for future reference.
+- Ensure proper error handling and validation throughout the API.
+- Consider implementing pagination for the disputes list endpoint.
+- Use environment variables for configuration (e.g., database URL).
 ```
