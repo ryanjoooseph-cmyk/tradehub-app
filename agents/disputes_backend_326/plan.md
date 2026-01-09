@@ -1,104 +1,74 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Directory Structure
 ```
 /disputes_backend_326
-├── /api
+├── api
 │   ├── disputes.py
-│   ├── __init__.py
-│   └── utils.py
-├── /models
+│   └── __init__.py
+├── models
 │   ├── dispute.py
 │   └── __init__.py
-├── /schemas
+├── schemas
 │   ├── dispute_schema.py
 │   └── __init__.py
-├── /tests
+├── services
+│   ├── dispute_service.py
+│   └── __init__.py
+├── tests
 │   ├── test_disputes.py
 │   └── __init__.py
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── /pages
-│   │   └── DisputesPage.jsx
-│   ├── /hooks
-│   │   └── useDisputes.js
-│   └── App.js
-└── requirements.txt
+└── app.py
 ```
 
-## API Implementation
+## File Responsibilities
 
-### File: `/api/disputes.py`
-- **Responsibilities**:
-  - Define API routes for:
+### 1. API Layer
+- **`/api/disputes.py`**
+  - Define Flask routes for:
     - `GET /api/disputes`: List all disputes
     - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
   - Handle request validation and response formatting.
 
-### File: `/api/utils.py`
-- **Responsibilities**:
-  - Utility functions for error handling and response formatting.
-
-### File: `/models/dispute.py`
-- **Responsibilities**:
+### 2. Models
+- **`/models/dispute.py`**
   - Define the Dispute model with fields:
     - `id`: Unique identifier
+    - `evidence_urls`: Array of strings
     - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of URLs
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+  - Implement methods for database interactions (CRUD).
 
-### File: `/schemas/dispute_schema.py`
-- **Responsibilities**:
-  - Define Pydantic schemas for request and response validation.
+### 3. Schemas
+- **`/schemas/dispute_schema.py`**
+  - Create Pydantic schemas for:
+    - Input validation for creating/updating disputes.
+    - Output serialization for listing disputes.
 
-## UI Implementation
+### 4. Services
+- **`/services/dispute_service.py`**
+  - Implement business logic for:
+    - Creating a dispute.
+    - Retrieving all disputes.
+    - Updating a dispute's status and evidence URLs.
+  - Handle any necessary error handling and logging.
 
-### File: `/ui/components/DisputeList.jsx`
-- **Responsibilities**:
-  - Display a list of disputes with status and actions (view/update).
+### 5. Testing
+- **`/tests/test_disputes.py`**
+  - Write unit tests for:
+    - API endpoints (GET, POST, PUT).
+    - Service methods (CRUD operations).
+  - Use pytest for testing framework.
 
-### File: `/ui/components/DisputeForm.jsx`
-- **Responsibilities**:
-  - Form for creating/updating disputes, including evidence URL input.
+### 6. Main Application
+- **`/app.py`**
+  - Initialize Flask app and register API routes.
+  - Set up database connection and middleware (if necessary).
 
-### File: `/ui/components/DisputeDetail.jsx`
-- **Responsibilities**:
-  - Display detailed information about a selected dispute.
-
-### File: `/ui/pages/DisputesPage.jsx`
-- **Responsibilities**:
-  - Main page to manage disputes, integrating `DisputeList` and `DisputeForm`.
-
-### File: `/ui/hooks/useDisputes.js`
-- **Responsibilities**:
-  - Custom hook for API calls to fetch, create, and update disputes.
-
-### File: `/ui/App.js`
-- **Responsibilities**:
-  - Main application entry point, routing to `DisputesPage`.
-
-## Testing
-
-### File: `/tests/test_disputes.py`
-- **Responsibilities**:
-  - Unit tests for API endpoints and UI components.
-  - Ensure correct handling of dispute statuses and evidence URLs.
-
-## Dependencies
-
-### File: `/requirements.txt`
-- **Responsibilities**:
-  - List necessary packages (Flask, SQLAlchemy, Pydantic, React, etc.).
-
-## Timeline
-- **Week 1**: API setup and model/schema definitions.
-- **Week 2**: UI component development.
-- **Week 3**: Integration and testing.
-- **Week 4**: Final review and deployment.
+## Additional Notes
+- Ensure proper error handling and response codes for API.
+- Document API endpoints using Swagger or similar tools.
+- Consider implementing authentication if required for dispute management.
+- Follow coding standards and best practices for maintainability.
 ```
