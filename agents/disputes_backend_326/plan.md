@@ -3,110 +3,104 @@
 
 ## Project Structure
 ```
-/project-root
-│
-├── /src
-│   ├── /api
-│   │   ├── disputes.js
-│   │   └── disputes.test.js
-│   ├── /components
-│   │   ├── DisputeList.js
-│   │   ├── DisputeForm.js
-│   │   └── DisputeItem.js
-│   ├── /hooks
-│   │   └── useDisputes.js
-│   ├── /styles
-│   │   └── DisputeStyles.css
-│   └── App.js
-│
-├── /tests
-│   ├── api
-│   │   └── disputes.test.js
-│   └── components
-│       └── DisputeList.test.js
-│
-├── /config
-│   └── apiConfig.js
-│
-└── package.json
+/disputes_backend_326
+├── api
+│   ├── disputes.py
+│   ├── __init__.py
+├── ui
+│   ├── components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   ├── DisputeItem.jsx
+│   ├── pages
+│   │   ├── DisputePage.jsx
+│   ├── App.jsx
+│   ├── index.js
+├── models
+│   ├── dispute.py
+│   ├── __init__.py
+├── tests
+│   ├── test_disputes.py
+│   ├── test_ui_disputes.jsx
+├── requirements.txt
+└── README.md
 ```
 
 ## API Implementation
 
-### File: `/src/api/disputes.js`
+### File: `/api/disputes.py`
 - **Responsibilities:**
-  - Define RESTful API endpoints for disputes.
+  - Define API routes for `/api/disputes`
   - Implement CRUD operations:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
-  - Handle status updates (OPEN/REVIEW/RESOLVED).
-  - Validate and process `evidence_urls` array.
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Handle evidence_urls array and status (OPEN/REVIEW/RESOLVED)
+  - Validate input data and return appropriate responses
 
-### File: `/src/api/disputes.test.js`
+### File: `/models/dispute.py`
 - **Responsibilities:**
-  - Write unit tests for API endpoints.
-  - Test all CRUD operations and status transitions.
-  - Ensure proper error handling and response formats.
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for database interactions (CRUD)
 
 ## UI Implementation
 
-### File: `/src/components/DisputeList.js`
+### File: `/ui/components/DisputeList.jsx`
 - **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Render `DisputeItem` for each dispute.
-  - Provide filtering options based on status.
+  - Fetch and display a list of disputes
+  - Render `DisputeItem` for each dispute
 
-### File: `/src/components/DisputeForm.js`
+### File: `/ui/components/DisputeForm.jsx`
 - **Responsibilities:**
-  - Create a form for submitting new disputes.
-  - Include fields for evidence URLs and status selection.
-  - Handle form submission and validation.
+  - Provide a form for creating/updating disputes
+  - Handle input for evidence_urls and status
+  - Submit form data to the API
 
-### File: `/src/components/DisputeItem.js`
+### File: `/ui/components/DisputeItem.jsx`
 - **Responsibilities:**
-  - Display individual dispute details.
-  - Provide buttons for updating status and viewing evidence.
-  - Trigger update actions via props.
+  - Display individual dispute details
+  - Include buttons for updating and deleting disputes
 
-### File: `/src/hooks/useDisputes.js`
+### File: `/ui/pages/DisputePage.jsx`
 - **Responsibilities:**
-  - Custom hook for managing dispute state.
-  - Fetch disputes from the API and handle loading/error states.
-  - Provide functions for creating and updating disputes.
+  - Combine `DisputeList` and `DisputeForm`
+  - Manage state for disputes and handle API calls
 
-### File: `/src/styles/DisputeStyles.css`
+### File: `/ui/App.jsx`
 - **Responsibilities:**
-  - Define styles for dispute components.
-  - Ensure responsive design and accessibility.
+  - Set up routing for the application
+  - Render `DisputePage`
 
-### File: `/src/App.js`
+### File: `/ui/index.js`
 - **Responsibilities:**
-  - Integrate all components.
-  - Set up routing for the disputes feature.
-  - Manage global state if necessary.
+  - Entry point for the React application
+  - Render the main App component
 
 ## Testing
 
-### File: `/tests/api/disputes.test.js`
+### File: `/tests/test_disputes.py`
 - **Responsibilities:**
-  - Test API endpoints using a testing framework (e.g., Jest).
-  - Validate responses for all CRUD operations.
+  - Write unit tests for API endpoints
+  - Validate response formats and status codes
 
-### File: `/tests/components/DisputeList.test.js`
+### File: `/tests/test_ui_disputes.jsx`
 - **Responsibilities:**
-  - Test rendering and functionality of `DisputeList`.
-  - Mock API calls to ensure component behavior.
+  - Write unit tests for UI components
+  - Ensure components render correctly and handle state
 
-## Configuration
+## Dependencies
+- Add necessary libraries to `requirements.txt`:
+  - Flask (for API)
+  - SQLAlchemy (for ORM)
+  - React (for UI)
+  - Jest/React Testing Library (for testing)
 
-### File: `/config/apiConfig.js`
-- **Responsibilities:**
-  - Centralize API configuration (base URL, headers).
-  - Export configuration for use in API files.
-
-## Notes
-- Ensure proper error handling and user feedback in the UI.
-- Follow best practices for API security and data validation.
-- Document API endpoints and UI components for future reference.
+## Documentation
+- Update `README.md` with:
+  - Overview of the feature
+  - API endpoints description
+  - Instructions for running the application and tests
 ```
