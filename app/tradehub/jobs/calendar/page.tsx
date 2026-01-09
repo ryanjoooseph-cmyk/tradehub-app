@@ -1,6 +1,6 @@
 'use client';
 
-import Scheduler from '../../../components/Scheduler';
+import Scheduler from '../../../../components/Scheduler';
 
 export default function Page() {
   return <Scheduler />;
