@@ -3,70 +3,101 @@
 
 ## Project Structure
 ```
-/project-root
+/disputes_backend_326
 │
-├── /src
-│   ├── /api
-│   │   ├── disputes.js               # API route handling for disputes
-│   │   └── index.js                  # Main API index file
+├── /api
 │   ├── /controllers
-│   │   └── disputesController.js      # Business logic for disputes
+│   │   └── disputesController.js
 │   ├── /models
-│   │   └── disputeModel.js            # Mongoose model for disputes
+│   │   └── disputeModel.js
 │   ├── /routes
-│   │   └── disputesRoutes.js          # Express routes for disputes
-│   ├── /middlewares
-│   │   └── authMiddleware.js          # Authentication middleware
-│   ├── /utils
-│   │   └── responseFormatter.js        # Utility for formatting API responses
-│   └── /tests
-│       ├── disputes.test.js           # Unit tests for disputes API
-│       └── disputesController.test.js  # Unit tests for disputes controller
+│   │   └── disputesRoutes.js
+│   └── /middlewares
+│       └── validateDispute.js
 │
 ├── /client
 │   ├── /components
-│   │   ├── DisputeList.js             # Component to list disputes
-│   │   ├── DisputeForm.js             # Component to create/update disputes
-│   │   └── DisputeDetail.js            # Component to view dispute details
+│   │   └── DisputeForm.jsx
+│   │   └── DisputeList.jsx
 │   ├── /services
-│   │   └── disputeService.js           # Service for API calls related to disputes
-│   ├── /hooks
-│   │   └── useDisputes.js              # Custom hook for managing disputes state
-│   ├── /styles
-│   │   └── disputes.css                # CSS styles for disputes components
-│   └── /tests
-│       ├── DisputeList.test.js         # Unit tests for DisputeList component
-│       └── DisputeForm.test.js         # Unit tests for DisputeForm component
+│   │   └── disputeService.js
+│   └── /pages
+│       └── DisputePage.jsx
 │
-└── /config
-    └── db.js                           # Database connection configuration
+├── /config
+│   └── db.js
+│
+└── server.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **disputes.js**: Define API endpoints for GET (list), POST (create), and PUT (update) disputes.
-- **disputesController.js**: Implement logic for handling disputes, including validation and response formatting.
-- **disputeModel.js**: Create Mongoose schema for disputes with fields: `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED).
-- **disputesRoutes.js**: Set up Express routes for `/api/disputes` and link to controller methods.
-- **authMiddleware.js**: Implement authentication checks for API routes.
+### 1. **Model Definition**
+- **File:** `/api/models/disputeModel.js`
+- **Responsibilities:**
+  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED).
+  - Implement Mongoose model for MongoDB.
 
-### Frontend Implementation
-- **DisputeList.js**: Create UI for listing all disputes with status and evidence URLs.
-- **DisputeForm.js**: Build form for creating and updating disputes, including input for evidence URLs and status.
-- **DisputeDetail.js**: Develop a detailed view for individual disputes.
-- **disputeService.js**: Implement API service functions for fetching, creating, and updating disputes.
-- **useDisputes.js**: Create a custom hook to manage disputes state and API interactions.
+### 2. **Controller Logic**
+- **File:** `/api/controllers/disputesController.js`
+- **Responsibilities:**
+  - Implement functions to:
+    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
+    - `getDisputes(req, res)`: Handle GET requests to list all disputes.
+    - `updateDispute(req, res)`: Handle PUT requests to update a dispute's status or evidence URLs.
 
-### Testing
-- **disputes.test.js**: Write unit tests for API endpoints.
-- **disputesController.test.js**: Test controller logic for disputes.
-- **DisputeList.test.js**: Test rendering and functionality of the dispute list component.
-- **DisputeForm.test.js**: Test form validation and submission logic.
+### 3. **Route Definitions**
+- **File:** `/api/routes/disputesRoutes.js`
+- **Responsibilities:**
+  - Define routes for:
+    - `POST /api/disputes`: Create a dispute.
+    - `GET /api/disputes`: List all disputes.
+    - `PUT /api/disputes/:id`: Update a specific dispute.
 
-## Timeline
-- **Week 1**: Set up API routes and models.
-- **Week 2**: Implement controller logic and frontend components.
-- **Week 3**: Write tests and finalize UI.
-- **Week 4**: Review, refactor, and deploy.
+### 4. **Middleware for Validation**
+- **File:** `/api/middlewares/validateDispute.js`
+- **Responsibilities:**
+  - Validate incoming requests for creating and updating disputes.
+  - Ensure `evidence_urls` is an array and `status` is one of the allowed values.
+
+## Client Implementation
+
+### 5. **Service Layer**
+- **File:** `/client/services/disputeService.js`
+- **Responsibilities:**
+  - Implement API calls to:
+    - `createDispute(data)`: POST request to create a dispute.
+    - `fetchDisputes()`: GET request to retrieve disputes.
+    - `updateDispute(id, data)`: PUT request to update a dispute.
+
+### 6. **UI Components**
+- **File:** `/client/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Create a form for users to submit new disputes with evidence URLs and status.
+
+- **File:** `/client/components/DisputeList.jsx`
+- **Responsibilities:**
+  - Display a list of disputes with their statuses and allow updates.
+
+### 7. **Page Integration**
+- **File:** `/client/pages/DisputePage.jsx`
+- **Responsibilities:**
+  - Integrate `DisputeForm` and `DisputeList` components.
+  - Manage state and handle API calls to display and update disputes.
+
+## Database Configuration
+- **File:** `/config/db.js`
+- **Responsibilities:**
+  - Set up MongoDB connection for storing disputes.
+
+## Server Setup
+- **File:** `server.js`
+- **Responsibilities:**
+  - Initialize Express server.
+  - Use routes defined in `disputesRoutes.js`.
+  - Connect to the database using `db.js`.
+
+## Testing
+- Implement unit tests for API endpoints and UI components.
+- Ensure coverage for all CRUD operations and validation logic.
 ```
