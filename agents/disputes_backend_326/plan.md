@@ -1,110 +1,86 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+## Directory Structure
+```
+/disputes_backend_326
+│
+├── /api
+│   ├── disputes.py               # API routes for disputes
+│   ├── __init__.py               # Initialize API module
+│
+├── /models
+│   ├── dispute.py                # Dispute model definition
+│   ├── __init__.py               # Initialize models module
+│
+├── /schemas
+│   ├── dispute_schema.py         # Pydantic schemas for dispute validation
+│   ├── __init__.py               # Initialize schemas module
+│
+├── /services
+│   ├── dispute_service.py        # Business logic for disputes
+│   ├── __init__.py               # Initialize services module
+│
+├── /tests
+│   ├── test_disputes.py          # Unit tests for disputes API
+│   ├── __init__.py               # Initialize tests module
+│
+├── /migrations                    # Database migrations
+│   └── 001_initial.py             # Initial migration for disputes table
+│
+└── app.py                        # Main application entry point
+```
 
-## File Structure
+## Responsibilities
 
-### API Implementation
+### API Layer
+- **File:** `/api/disputes.py`
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/{id}`: Update an existing dispute
+  - Handle request validation and response formatting.
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**:
-      - Define API routes for `/api/disputes`.
-      - Implement CRUD operations for disputes.
-      - Validate request data (e.g., status, evidence_urls).
-      - Handle error responses.
+### Model Layer
+- **File:** `/models/dispute.py`
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement database interactions (CRUD operations).
 
-  - `src/models/Dispute.js`
-    - **Responsibilities**:
-      - Define the Dispute model/schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-      - Implement methods for database interactions.
+### Schema Layer
+- **File:** `/schemas/dispute_schema.py`
+  - Create Pydantic schemas for:
+    - Dispute creation and update validation
+    - Response models for listing disputes
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**:
-      - Implement controller functions for handling API requests.
-      - Functions: `createDispute`, `getDisputes`, `updateDispute`.
+### Service Layer
+- **File:** `/services/dispute_service.py`
+  - Implement business logic for:
+    - Creating, listing, and updating disputes
+    - Validating status transitions
 
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**:
-      - Set up Express routes for dispute operations.
-      - Connect routes to controller functions.
+### Testing
+- **File:** `/tests/test_disputes.py`
+  - Write unit tests for:
+    - API endpoints
+    - Service methods
+    - Model validations
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities**:
-      - Middleware for validating incoming dispute data.
-      - Check for required fields and valid status values.
+### Database Migrations
+- **File:** `/migrations/001_initial.py`
+  - Create initial migration for the disputes table.
 
-### UI Implementation
-
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**:
-      - Display a list of disputes.
-      - Include filtering options based on status.
-
-  - `src/components/DisputeForm.js`
-    - **Responsibilities**:
-      - Form for creating and updating disputes.
-      - Handle input for `evidence_urls` and status selection.
-
-  - `src/pages/DisputePage.js`
-    - **Responsibilities**:
-      - Main page for dispute management.
-      - Integrate `DisputeList` and `DisputeForm`.
-
-  - `src/services/disputeService.js`
-    - **Responsibilities**:
-      - API calls to `/api/disputes` for CRUD operations.
-      - Handle responses and errors.
-
-  - `src/styles/disputeStyles.css`
-    - **Responsibilities**:
-      - Define styles for dispute components.
-      - Ensure responsive design.
-
-## Testing
-
-- **File Paths**
-  - `src/tests/api/dispute.test.js`
-    - **Responsibilities**:
-      - Unit tests for API endpoints.
-      - Test CRUD operations and validation.
-
-  - `src/tests/ui/DisputeForm.test.js`
-    - **Responsibilities**:
-      - Unit tests for the DisputeForm component.
-      - Validate form submission and error handling.
-
-  - `src/tests/ui/DisputeList.test.js`
-    - **Responsibilities**:
-      - Unit tests for the DisputeList component.
-      - Validate rendering of disputes and filtering.
-
-## Deployment
-
-- **File Paths**
-  - `deploy/scripts/deployDisputes.sh`
-    - **Responsibilities**:
-      - Script for deploying the API and UI changes.
-      - Ensure environment variables are set for production.
-
-## Documentation
-
-- **File Paths**
-  - `docs/api/disputes_api.md`
-    - **Responsibilities**:
-      - Document API endpoints, request/response formats, and error codes.
-
-  - `docs/ui/disputes_ui.md`
-    - **Responsibilities**:
-      - Document UI components and their usage.
+### Main Application
+- **File:** `app.py`
+  - Set up FastAPI or Flask application.
+  - Include API routes and middleware.
 
 ## Timeline
-- **Week 1**: API implementation (models, controllers, routes).
-- **Week 2**: UI implementation (components, services).
-- **Week 3**: Testing and documentation.
-- **Week 4**: Deployment and final review.
+- **Week 1:** Set up project structure and initial files.
+- **Week 2:** Implement API routes and models.
+- **Week 3:** Develop service logic and schemas.
+- **Week 4:** Write tests and perform integration testing.
+- **Week 5:** Final review and deployment preparations.
 ```
