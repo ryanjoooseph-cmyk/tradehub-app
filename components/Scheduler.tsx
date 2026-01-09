@@ -1,52 +1,47 @@
 'use client';
 
 import { useState } from 'react';
-import dynamic from 'next/dynamic';
-import interactionPlugin from '@fullcalendar/interaction';
+import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { EventInput, DateSelectArg, EventClickArg } from '@fullcalendar/core';
-
-const FullCalendar = dynamic(() => import('@fullcalendar/react'), { ssr: false });
+import interactionPlugin from '@fullcalendar/interaction';
+import type { EventInput } from '@fullcalendar/core';
 
 export default function Scheduler() {
-  const [events, setEvents] = useState<EventInput[]>([
-    { id: 'seed', title: 'Example job', start: new Date().toISOString() }
-  ]);
-
-  function onSelect(s: DateSelectArg) {
-    const id = String(Date.now());
-    setEvents(prev => prev.concat({ id, title: 'New job', start: s.start, end: s.end, allDay: s.allDay }));
-  }
-
-  function onMove(info: any) {
-    const e = info.event;
-    setEvents(prev =>
-      prev.map(ev => (ev.id === e.id ? { ...ev, start: e.start!, end: e.end ?? undefined } : ev))
-    );
-  }
-
-  function onClick(c: EventClickArg) {
-    setEvents(prev => prev.filter(ev => ev.id !== c.event.id));
-  }
+  const [events, setEvents] = useState<EventInput[]>([]);
 
   return (
-    <div className="bg-[var(--card)] rounded-lg p-2">
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
-        initialView="timeGridWeek"
-        editable
-        selectable
-        selectMirror
-        dayMaxEvents
-        events={events}
-        select={onSelect}
-        eventDrop={onMove}
-        eventResize={onMove}
-        eventClick={onClick}
-        height="auto"
-      />
-    </div>
+    <FullCalendar
+      plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+      initialView="timeGridWeek"
+      headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
+      selectable
+      selectMirror
+      editable
+      eventStartEditable
+      eventDurationEditable
+      events={events}
+      select={(info) => {
+        setEvents((prev) => [
+          ...prev,
+          { id: String(Date.now()), title: 'New Job', start: info.startStr, end: info.endStr },
+        ]);
+      }}
+      eventDrop={(info) => {
+        setEvents((prev) =>
+          prev.map((e) =>
+            e.id === info.event.id ? { ...e, start: info.event.startStr, end: info.event.endStr } : e
+          )
+        );
+      }}
+      eventResize={(info) => {
+        setEvents((prev) =>
+          prev.map((e) =>
+            e.id === info.event.id ? { ...e, start: info.event.startStr, end: info.event.endStr } : e
+          )
+        );
+      }}
+      height="auto"
+    />
   );
 }
