@@ -1,0 +1,13 @@
+allow-deps:
+  - 'package.json'
+  - 'package-lock.json'
+  - 'pnpm-lock.yaml'
+  - 'yarn.lock'
+allow-config:
+  - '.github/**'
+  - 'next.config.*'
+  - 'vite.config.*'
+  - 'tsconfig*.json'
+  - 'render.*'
+  - 'Dockerfile'
+  - 'docker/**'
