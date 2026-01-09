@@ -1,2 +1,3 @@
-import { redirect } from 'next/navigation';
-export default function Page() { redirect('/tradehub/jobs/calendar'); }
+'use client'
+import Scheduler from '../../../components/Scheduler'
+export default function Page() { return <Scheduler /> }
