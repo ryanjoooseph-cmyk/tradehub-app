@@ -1,71 +1,34 @@
-'use client';
+'use client'
+import { useState } from 'react'
+import FullCalendar from '@fullcalendar/react'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
 
-import { useState } from 'react';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
-
-type CalEvent = {
-  id: string;
-  title: string;
-  start: string;
-  end?: string;
-  allDay?: boolean;
-};
-
+type Ev = { id: string; title: string; start: string; end?: string; allDay?: boolean }
 export default function Scheduler() {
-  const [events, setEvents] = useState<CalEvent[]>([
-    { id: '1', title: 'New Job', start: new Date().toISOString() }
-  ]);
-
+  const [events, setEvents] = useState<Ev[]>([{ id: '1', title: 'Sample', start: new Date().toISOString() }])
+  const onSelect = (sel: any) => {
+    const title = prompt('Event title')
+    sel.view.calendar.unselect()
+    if (title) setEvents(prev => [...prev, { id: String(Date.now()), title, start: sel.startStr, end: sel.endStr, allDay: sel.allDay }])
+  }
+  const onMove = (arg: any) => {
+    setEvents(prev => prev.map(e => e.id === arg.event.id ? { ...e, start: arg.event.startStr, end: arg.event.endStr } : e))
+  }
   return (
-    <div>
+    <div style={{ padding: 16 }}>
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+        headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
         initialView="timeGridWeek"
-        editable
         selectable
-        droppable
+        editable
         events={events}
-        dateClick={(info) => {
-          const id = String(Date.now());
-          setEvents((prev) => [
-            ...prev,
-            { id, title: 'New Job', start: info.date.toISOString(), allDay: info.allDay }
-          ]);
-        }}
-        eventDrop={(info) => {
-          const e = info.event;
-          setEvents((prev) =>
-            prev.map((x) =>
-              x.id === e.id
-                ? {
-                    ...x,
-                    start: e.start ? e.start.toISOString() : '',
-                    end: e.end ? e.end.toISOString() : undefined,
-                    allDay: e.allDay
-                  }
-                : x
-            )
-          );
-        }}
-        eventResize={(info) => {
-          const e = info.event;
-          setEvents((prev) =>
-            prev.map((x) =>
-              x.id === e.id
-                ? {
-                    ...x,
-                    start: e.start ? e.start.toISOString() : '',
-                    end: e.end ? e.end.toISOString() : undefined
-                  }
-                : x
-            )
-          );
-        }}
-        height="auto"
+        select={onSelect}
+        eventDrop={onMove}
+        eventResize={onMove}
       />
     </div>
-  );
+  )
 }
