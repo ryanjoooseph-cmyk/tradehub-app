@@ -1,94 +1,114 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
-/disputes_backend_326
+/project-root
 │
 ├── /api
-│   ├── disputes.js                # API route for handling disputes
-│   └── index.js                   # Main API entry point
-│
-├── /controllers
-│   ├── disputesController.js       # Business logic for disputes
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesRoutes.js
+│   │   └── disputesService.js
+│   └── /middleware
+│       └── authMiddleware.js
 │
 ├── /models
-│   ├── disputeModel.js             # Mongoose model for disputes
+│   └── disputeModel.js
 │
-├── /routes
-│   ├── disputesRoutes.js           # Route definitions for disputes
-│
-├── /middlewares
-│   ├── validateDispute.js          # Middleware for validating dispute data
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeDetail.jsx
+│   │   └── DisputeForm.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   ├── /pages
+│   │   └── DisputesPage.jsx
+│   └── /styles
+│       └── disputes.css
 │
 ├── /tests
-│   ├── disputes.test.js            # Unit tests for disputes API
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /ui
+│       └── DisputesPage.test.jsx
 │
-├── /config
-│   ├── db.js                       # Database connection setup
-│
-└── /utils
-    ├── responseHandler.js           # Utility for standardizing API responses
+└── server.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### 1. **API Implementation**
-- **File:** `/api/disputes.js`
-  - Define routes for:
-    - `POST /api/disputes` - Create a new dispute
+### 1. Disputes Controller (`/api/disputes/disputesController.js`)
+- **Responsibilities**:
+  - Handle requests for listing, creating, and updating disputes.
+  - Validate input data and manage response formats.
+
+### 2. Disputes Routes (`/api/disputes/disputesRoutes.js`)
+- **Responsibilities**:
+  - Define API endpoints:
     - `GET /api/disputes` - List all disputes
-    - `PUT /api/disputes/:id` - Update a specific dispute
-  - Integrate with `disputesController.js` for business logic.
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
+  - Integrate with the controller.
 
-### 2. **Controller Logic**
-- **File:** `/controllers/disputesController.js`
-  - Implement functions for:
-    - `createDispute(req, res)` - Handle dispute creation.
-    - `listDisputes(req, res)` - Retrieve all disputes.
-    - `updateDispute(req, res)` - Update dispute status and evidence URLs.
-  - Ensure proper error handling and response formatting.
+### 3. Disputes Service (`/api/disputes/disputesService.js`)
+- **Responsibilities**:
+  - Business logic for dispute management.
+  - Interact with the database to perform CRUD operations.
 
-### 3. **Database Model**
-- **File:** `/models/disputeModel.js`
-  - Define Mongoose schema for disputes:
-    - Fields: `status` (enum: OPEN/REVIEW/RESOLVED), `evidence_urls` (array of strings).
-  - Implement methods for CRUD operations.
+### 4. Auth Middleware (`/api/middleware/authMiddleware.js`)
+- **Responsibilities**:
+  - Protect API routes by verifying user authentication.
 
-### 4. **Route Definitions**
-- **File:** `/routes/disputesRoutes.js`
-  - Set up Express routes and link them to controller methods.
-  - Ensure middleware for validation is applied.
+### 5. Dispute Model (`/models/disputeModel.js`)
+- **Responsibilities**:
+  - Define the dispute schema with fields:
+    - `evidence_urls` (array)
+    - `status` (enum: OPEN, REVIEW, RESOLVED)
 
-### 5. **Validation Middleware**
-- **File:** `/middlewares/validateDispute.js`
-  - Validate incoming request data for creating/updating disputes.
-  - Check for required fields and correct data types.
+## UI Implementation
 
-### 6. **Testing**
-- **File:** `/tests/disputes.test.js`
-  - Write unit tests for:
-    - API endpoints (create, list, update).
-    - Validation logic.
-  - Use a testing framework (e.g., Jest or Mocha).
+### 1. Dispute List Component (`/ui/components/DisputeList.jsx`)
+- **Responsibilities**:
+  - Display a list of disputes.
+  - Allow navigation to dispute details.
 
-### 7. **Database Configuration**
-- **File:** `/config/db.js`
-  - Set up MongoDB connection.
-  - Handle connection errors and ensure proper connection lifecycle.
+### 2. Dispute Detail Component (`/ui/components/DisputeDetail.jsx`)
+- **Responsibilities**:
+  - Show detailed information for a selected dispute.
+  - Provide options to update the dispute status.
 
-### 8. **Response Handling Utility**
-- **File:** `/utils/responseHandler.js`
-  - Create utility functions for standardizing API responses (success/error).
+### 3. Dispute Form Component (`/ui/components/DisputeForm.jsx`)
+- **Responsibilities**:
+  - Form for creating and updating disputes.
+  - Handle input for `evidence_urls` and `status`.
 
-## Timeline
-- **Week 1:** API and controller setup.
-- **Week 2:** Model and middleware implementation.
-- **Week 3:** Testing and validation.
-- **Week 4:** Final review and deployment.
+### 4. Custom Hook (`/ui/hooks/useDisputes.js`)
+- **Responsibilities**:
+  - Fetch disputes from the API.
+  - Manage state and side effects for disputes.
 
-## Notes
-- Ensure to follow RESTful conventions.
-- Use proper status codes for API responses.
-- Document API endpoints for future reference.
+### 5. Disputes Page (`/ui/pages/DisputesPage.jsx`)
+- **Responsibilities**:
+  - Main page to display the dispute list and form.
+  - Integrate components and manage layout.
+
+### 6. Styles (`/ui/styles/disputes.css`)
+- **Responsibilities**:
+  - Define styles for dispute-related components.
+
+## Testing
+
+### 1. API Tests (`/tests/api/disputes.test.js`)
+- **Responsibilities**:
+  - Test API endpoints for correct functionality and response formats.
+
+### 2. UI Tests (`/tests/ui/DisputesPage.test.jsx`)
+- **Responsibilities**:
+  - Test UI components for rendering and interaction.
+
+## Deployment
+- Ensure all components are integrated and tested.
+- Prepare for deployment with CI/CD pipeline adjustments.
 ```
