@@ -3,106 +3,122 @@
 
 ## Project Structure
 ```
-/api
-    ├── disputes
-    │   ├── disputes.controller.js
-    │   ├── disputes.service.js
-    │   ├── disputes.model.js
-    │   ├── disputes.routes.js
-    │   └── disputes.validation.js
-/ui
-    ├── components
-    │   ├── DisputeList.jsx
-    │   ├── DisputeDetail.jsx
-    │   └── DisputeForm.jsx
-    ├── pages
-    │   └── DisputesPage.jsx
-    ├── services
-    │   └── disputeApi.js
-    └── App.jsx
+/project-root
+│
+├── /api
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesService.js
+│   │   ├── disputesModel.js
+│   │   └── disputesRoutes.js
+│   └── index.js
+│
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   ├── /pages
+│   │   └── DisputePage.jsx
+│   └── App.jsx
+│
+├── /tests
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /ui
+│       └── DisputePage.test.jsx
+│
+└── server.js
 ```
 
 ## API Implementation
 
-### 1. Model Definition
-- **File:** `/api/disputes/disputes.model.js`
+### 1. **Disputes API Routes**
+- **File:** `/api/disputes/disputesRoutes.js`
 - **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  - Implement Mongoose model for MongoDB.
+  - Define routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
+  - Link to controller methods.
 
-### 2. Controller Logic
-- **File:** `/api/disputes/disputes.controller.js`
+### 2. **Disputes Controller**
+- **File:** `/api/disputes/disputesController.js`
 - **Responsibilities:**
-  - Implement functions to handle:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
-  - Validate input and manage responses.
+  - Handle incoming requests and responses.
+  - Implement logic for:
+    - Listing disputes
+    - Creating a dispute with `evidence_urls` and `status`
+    - Updating dispute status (OPEN/REVIEW/RESOLVED)
 
-### 3. Service Layer
-- **File:** `/api/disputes/disputes.service.js`
+### 3. **Disputes Service**
+- **File:** `/api/disputes/disputesService.js`
 - **Responsibilities:**
-  - Implement business logic for disputes.
-  - Interact with the database using the model.
-  - Handle status updates and evidence URL management.
+  - Business logic for disputes.
+  - Interact with the database model.
+  - Validate input data.
 
-### 4. Routing
-- **File:** `/api/disputes/disputes.routes.js`
+### 4. **Disputes Model**
+- **File:** `/api/disputes/disputesModel.js`
 - **Responsibilities:**
-  - Define API routes for disputes.
-  - Connect routes to the appropriate controller functions.
+  - Define the data schema for disputes.
+  - Include fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
 
-### 5. Validation
-- **File:** `/api/disputes/disputes.validation.js`
+### 5. **API Entry Point**
+- **File:** `/api/index.js`
 - **Responsibilities:**
-  - Validate request bodies for creating and updating disputes.
-  - Ensure status is one of OPEN/REVIEW/RESOLVED.
+  - Initialize Express app.
+  - Import and use disputes routes.
 
 ## UI Implementation
 
-### 1. Dispute List Component
+### 1. **Dispute List Component**
 - **File:** `/ui/components/DisputeList.jsx`
 - **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide links to view details of each dispute.
+  - Display a list of disputes.
+  - Fetch disputes from the API.
 
-### 2. Dispute Detail Component
-- **File:** `/ui/components/DisputeDetail.jsx`
-- **Responsibilities:**
-  - Display detailed information about a selected dispute.
-  - Allow users to update the dispute status and add evidence URLs.
-
-### 3. Dispute Form Component
+### 2. **Dispute Form Component**
 - **File:** `/ui/components/DisputeForm.jsx`
 - **Responsibilities:**
-  - Provide a form for creating new disputes.
-  - Validate input and submit to the API.
+  - Form for creating/updating disputes.
+  - Handle input for `evidence_urls` and `status`.
 
-### 4. Disputes Page
-- **File:** `/ui/pages/DisputesPage.jsx`
+### 3. **Dispute Detail Component**
+- **File:** `/ui/components/DisputeDetail.jsx`
 - **Responsibilities:**
-  - Combine DisputeList and DisputeForm components.
-  - Manage state for disputes and handle API interactions.
+  - Show details of a selected dispute.
+  - Allow status updates.
 
-### 5. API Service
-- **File:** `/ui/services/disputeApi.js`
+### 4. **Custom Hook for Disputes**
+- **File:** `/ui/hooks/useDisputes.js`
 - **Responsibilities:**
-  - Implement functions to call the API endpoints for disputes.
-  - Handle API responses and errors.
+  - Fetch and manage disputes state.
+  - Provide functions to create and update disputes.
 
-### 6. Main Application
+### 5. **Dispute Page**
+- **File:** `/ui/pages/DisputePage.jsx`
+- **Responsibilities:**
+  - Combine components to display the dispute list and form.
+  - Handle routing and state management.
+
+### 6. **Main App Component**
 - **File:** `/ui/App.jsx`
 - **Responsibilities:**
   - Set up routing for the application.
-  - Integrate DisputesPage into the main application layout.
+  - Integrate the DisputePage.
 
 ## Testing
-- **Files:** `/api/tests/disputes.test.js`, `/ui/tests/DisputeList.test.jsx`, `/ui/tests/DisputeForm.test.jsx`
-- **Responsibilities:**
-  - Write unit tests for API endpoints and UI components.
-  - Ensure all functionalities are covered and working as expected.
 
-## Deployment
-- Ensure API is deployed to the server and UI is built for production.
-- Update documentation with API endpoints and usage examples.
+### 1. **API Tests**
+- **File:** `/tests/api/disputes.test.js`
+- **Responsibilities:**
+  - Test API endpoints for listing, creating, and updating disputes.
+
+### 2. **UI Tests**
+- **File:** `/tests/ui/DisputePage.test.jsx`
+- **Responsibilities:**
+  - Test rendering and functionality of the DisputePage and its components.
 ```
