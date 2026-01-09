@@ -1,105 +1,85 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
-```
-/api
-  └── disputes.js
-/src
-  ├── components
-  │   └── DisputeList.jsx
-  │   └── DisputeForm.jsx
-  ├── hooks
-  │   └── useDisputes.js
-  ├── pages
-  │   └── DisputePage.jsx
-  ├── services
-  │   └── disputeService.js
-  ├── styles
-  │   └── DisputeStyles.css
-  └── App.js
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
 
-## API Implementation
+## File Structure
 
-### File: `/api/disputes.js`
-- **Responsibilities:**
-  - Define Express routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
-  - Handle request validation and error handling.
-  - Implement logic to manage dispute statuses (OPEN, REVIEW, RESOLVED).
-  - Manage `evidence_urls` array in dispute objects.
+### API Implementation
 
-### Example Route Implementation
-```javascript
-// GET /api/disputes
-app.get('/api/disputes', async (req, res) => {
-  // Logic to fetch and return all disputes
-});
+- **File Paths**
+  - `src/api/disputes.js`
+    - **Responsibilities**: Define API endpoints for disputes (GET, POST, PUT).
+  - `src/models/Dispute.js`
+    - **Responsibilities**: Define the Dispute model/schema (Mongoose/Sequelize).
+  - `src/controllers/disputeController.js`
+    - **Responsibilities**: Implement logic for handling disputes (CRUD operations).
+  - `src/routes/disputeRoutes.js`
+    - **Responsibilities**: Set up Express routes for disputes API.
 
-// POST /api/disputes
-app.post('/api/disputes', async (req, res) => {
-  // Logic to create a new dispute
-});
+### UI Implementation
 
-// PUT /api/disputes/:id
-app.put('/api/disputes/:id', async (req, res) => {
-  // Logic to update a dispute by ID
-});
-```
+- **File Paths**
+  - `src/components/DisputeList.js`
+    - **Responsibilities**: Display a list of disputes with status and evidence URLs.
+  - `src/components/DisputeForm.js`
+    - **Responsibilities**: Form for creating and updating disputes.
+  - `src/pages/DisputePage.js`
+    - **Responsibilities**: Main page for managing disputes (list and form).
+  - `src/services/disputeService.js`
+    - **Responsibilities**: API calls for disputes (GET, POST, PUT).
 
-## UI Implementation
+### State Management
 
-### File: `/src/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Display a list of disputes.
-  - Allow filtering by status.
-  - Trigger updates and deletions.
+- **File Paths**
+  - `src/store/disputeSlice.js`
+    - **Responsibilities**: Redux slice for managing dispute state (actions, reducers).
+  - `src/store/store.js`
+    - **Responsibilities**: Configure Redux store.
 
-### File: `/src/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Provide a form to create/update disputes.
-  - Handle input for `evidence_urls` array.
-  - Validate inputs before submission.
+### Testing
 
-### File: `/src/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Custom hook to manage API calls for disputes.
-  - Handle state management for disputes data.
+- **File Paths**
+  - `src/tests/api/disputes.test.js`
+    - **Responsibilities**: Unit tests for API endpoints.
+  - `src/tests/components/DisputeList.test.js`
+    - **Responsibilities**: Unit tests for DisputeList component.
+  - `src/tests/components/DisputeForm.test.js`
+    - **Responsibilities**: Unit tests for DisputeForm component.
 
-### File: `/src/pages/DisputePage.jsx`
-- **Responsibilities:**
-  - Combine `DisputeList` and `DisputeForm`.
-  - Manage overall state and API interactions.
+## Implementation Steps
 
-### File: `/src/services/disputeService.js`
-- **Responsibilities:**
-  - Define functions for API calls:
-    - `fetchDisputes()`
-    - `createDispute(data)`
-    - `updateDispute(id, data)`
+1. **API Development**
+   - Create the Dispute model in `src/models/Dispute.js`.
+   - Implement CRUD operations in `src/controllers/disputeController.js`.
+   - Set up routes in `src/routes/disputeRoutes.js` for:
+     - `GET /api/disputes` - List all disputes.
+     - `POST /api/disputes` - Create a new dispute.
+     - `PUT /api/disputes/:id` - Update an existing dispute.
+   - Ensure status handling (OPEN, REVIEW, RESOLVED) and evidence URLs.
 
-### File: `/src/styles/DisputeStyles.css`
-- **Responsibilities:**
-  - Define styles for dispute components.
+2. **UI Development**
+   - Build the DisputeList component to fetch and display disputes.
+   - Create the DisputeForm component for dispute creation and updates.
+   - Integrate components in `src/pages/DisputePage.js`.
+   - Implement API calls in `src/services/disputeService.js`.
 
-### File: `/src/App.js`
-- **Responsibilities:**
-  - Set up routing to `DisputePage`.
-  - Provide context if needed for state management.
+3. **State Management**
+   - Create a Redux slice in `src/store/disputeSlice.js` for managing dispute state.
+   - Configure the Redux store in `src/store/store.js`.
 
-## Testing
-- Implement unit tests for API endpoints in `/api/tests`.
-- Implement component tests for UI components in `/src/tests`.
+4. **Testing**
+   - Write unit tests for API endpoints in `src/tests/api/disputes.test.js`.
+   - Write unit tests for UI components in `src/tests/components/DisputeList.test.js` and `src/tests/components/DisputeForm.test.js`.
 
-## Documentation
-- Update API documentation to include new endpoints.
-- Document UI components and their usage in `/docs`.
+5. **Documentation**
+   - Update API documentation to include new endpoints.
+   - Document UI components and their usage.
 
 ## Timeline
-- **Week 1:** API setup and basic routes.
-- **Week 2:** UI components and integration.
-- **Week 3:** Testing and documentation.
+- **Week 1**: API Development
+- **Week 2**: UI Development
+- **Week 3**: State Management and Testing
+- **Week 4**: Documentation and Final Review
 ```
