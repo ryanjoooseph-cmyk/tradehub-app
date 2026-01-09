@@ -1,9 +1,9 @@
 import Scheduler from '@/components/Scheduler';
 
-export default function CalendarPage() {
+export default function Page() {
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <h1 className="text-xl font-semibold mb-4">Jobs Calendar</h1>
+    <div style={{ padding: '1rem' }}>
+      <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Jobs Calendar</h1>
       <Scheduler />
     </div>
   );
