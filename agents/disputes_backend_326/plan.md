@@ -1,108 +1,111 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, with an array for evidence URLs and statuses of OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Directory Structure
 ```
-/src
-  ├── api
-  │   ├── disputes
-  │   │   ├── disputesController.js
-  │   │   ├── disputesModel.js
-  │   │   ├── disputesRoutes.js
-  │   │   └── disputesService.js
-  ├── components
-  │   ├── DisputeList.jsx
-  │   ├── DisputeForm.jsx
-  │   └── DisputeDetail.jsx
-  ├── pages
-  │   └── DisputesPage.jsx
-  ├── styles
-  │   └── disputes.css
-  └── utils
-      └── api.js
+/disputes_backend_326
+├── api
+│   ├── disputes.py
+│   ├── __init__.py
+├── ui
+│   ├── components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── pages
+│   │   └── DisputesPage.jsx
+│   ├── App.jsx
+│   ├── index.js
+├── models
+│   ├── disputeModel.js
+├── services
+│   ├── disputeService.js
+├── tests
+│   ├── api
+│   │   └── disputes.test.js
+│   ├── ui
+│   │   └── DisputesPage.test.jsx
+└── README.md
 ```
 
 ## API Implementation
 
-### 1. Model Definition
-- **File:** `/src/api/disputes/disputesModel.js`
+### File: `/api/disputes.py`
 - **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, and timestamps.
-  - Implement Mongoose or Sequelize model for database interaction.
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Handle request validation and response formatting.
+  - Implement status management (OPEN/REVIEW/RESOLVED).
+  - Manage `evidence_urls` array in dispute records.
 
-### 2. Service Layer
-- **File:** `/src/api/disputes/disputesService.js`
+### File: `/api/__init__.py`
 - **Responsibilities:**
-  - Implement functions for:
-    - `createDispute(data)`: Create a new dispute.
-    - `getAllDisputes()`: Retrieve all disputes.
-    - `updateDispute(id, data)`: Update an existing dispute by ID.
-
-### 3. Controller
-- **File:** `/src/api/disputes/disputesController.js`
-- **Responsibilities:**
-  - Handle incoming requests and responses.
-  - Map requests to service functions:
-    - `createDispute(req, res)`: Handle POST requests.
-    - `getDisputes(req, res)`: Handle GET requests.
-    - `updateDispute(req, res)`: Handle PUT requests.
-
-### 4. Routes
-- **File:** `/src/api/disputes/disputesRoutes.js`
-- **Responsibilities:**
-  - Define API routes for:
-    - `POST /api/disputes`: Create a dispute.
-    - `GET /api/disputes`: List all disputes.
-    - `PUT /api/disputes/:id`: Update a dispute by ID.
+  - Initialize Flask app and register API routes.
 
 ## UI Implementation
 
-### 1. Dispute List Component
-- **File:** `/src/components/DisputeList.jsx`
+### File: `/ui/components/DisputeList.jsx`
 - **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide links to view/update each dispute.
+  - Display a list of disputes.
+  - Provide options to view, edit, or delete disputes.
 
-### 2. Dispute Form Component
-- **File:** `/src/components/DisputeForm.jsx`
+### File: `/ui/components/DisputeForm.jsx`
 - **Responsibilities:**
-  - Form for creating/updating disputes.
-  - Handle input for status and evidence URLs.
+  - Form for creating and updating disputes.
+  - Handle input for `evidence_urls` array and status selection.
 
-### 3. Dispute Detail Component
-- **File:** `/src/components/DisputeDetail.jsx`
+### File: `/ui/components/DisputeDetail.jsx`
 - **Responsibilities:**
-  - Display detailed information about a selected dispute.
-  - Allow updates to the dispute status and evidence URLs.
+  - Show detailed view of a selected dispute.
+  - Allow status updates and evidence management.
 
-### 4. Main Page
-- **File:** `/src/pages/DisputesPage.jsx`
+### File: `/ui/pages/DisputesPage.jsx`
 - **Responsibilities:**
-  - Combine `DisputeList` and `DisputeForm` components.
-  - Manage state for creating and updating disputes.
+  - Main page for disputes.
+  - Integrate `DisputeList` and `DisputeForm` components.
 
-## Styling
-- **File:** `/src/styles/disputes.css`
+### File: `/ui/App.jsx`
 - **Responsibilities:**
-  - Define styles for dispute components to ensure a cohesive UI.
+  - Main application component.
+  - Set up routing for the disputes page.
 
-## Utility Functions
-- **File:** `/src/utils/api.js`
+### File: `/ui/index.js`
 - **Responsibilities:**
-  - Implement API call functions to interact with the backend.
-  - Handle error responses and loading states.
+  - Render the React application.
+  - Set up global state management if needed.
+
+## Model Implementation
+
+### File: `/models/disputeModel.js`
+- **Responsibilities:**
+  - Define the dispute schema.
+  - Implement methods for CRUD operations.
+
+## Service Implementation
+
+### File: `/services/disputeService.js`
+- **Responsibilities:**
+  - API calls for disputes (GET, POST, PUT).
+  - Handle data transformation and error management.
 
 ## Testing
-- **Files:** `/tests/api/disputes.test.js`, `/tests/components/DisputeList.test.jsx`, `/tests/components/DisputeForm.test.jsx`
-- **Responsibilities:**
-  - Write unit tests for API endpoints and UI components.
-  - Ensure coverage for all functionalities.
 
-## Deployment
-- Ensure the API is deployed on the server and accessible at `/api/disputes`.
-- Deploy the frontend application to the appropriate hosting service.
+### File: `/tests/api/disputes.test.js`
+- **Responsibilities:**
+  - Unit tests for API endpoints.
+  - Validate response structure and status codes.
+
+### File: `/tests/ui/DisputesPage.test.jsx`
+- **Responsibilities:**
+  - Unit tests for UI components.
+  - Ensure correct rendering and interaction.
+
+## Documentation
+
+### File: `/README.md`
+- **Responsibilities:**
+  - Provide an overview of the feature.
+  - Instructions for setup and usage.
 ```
