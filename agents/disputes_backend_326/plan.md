@@ -1,88 +1,124 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
-/disputes_backend
+/disputes_backend_326
+│
 ├── /api
-│   ├── disputes.js
-│   ├── disputes.test.js
-│   └── validation.js
-├── /models
-│   ├── disputeModel.js
-│   └── disputeModel.test.js
-├── /controllers
-│   ├── disputeController.js
-│   └── disputeController.test.js
-├── /routes
-│   └── disputeRoutes.js
-├── /middleware
-│   └── authMiddleware.js
-├── /config
-│   └── db.js
-└── /utils
-    └── responseFormatter.js
+│   ├── /controllers
+│   │   └── disputesController.js
+│   ├── /routes
+│   │   └── disputesRoutes.js
+│   ├── /models
+│   │   └── disputeModel.js
+│   ├── /middlewares
+│   │   └── authMiddleware.js
+│   └── /validators
+│       └── disputeValidator.js
+│
+├── /client
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   ├── /pages
+│   │   └── DisputesPage.jsx
+│   └── /styles
+│       └── disputes.css
+│
+├── /tests
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /client
+│       └── DisputeList.test.jsx
+│
+└── server.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### 1. **API Implementation**
-- **File:** `/api/disputes.js`
-  - Define API endpoints for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
-  - Handle request and response formatting.
+### 1. **Model Definition**
+- **File:** `/api/models/disputeModel.js`
+- **Responsibilities:**
+  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - Implement methods for CRUD operations.
 
-- **File:** `/api/validation.js`
-  - Implement validation logic for incoming requests (e.g., required fields, status values).
+### 2. **Controller Logic**
+- **File:** `/api/controllers/disputesController.js`
+- **Responsibilities:**
+  - Implement functions to handle:
+    - `GET /api/disputes`: List all disputes.
+    - `POST /api/disputes`: Create a new dispute.
+    - `PUT /api/disputes/:id`: Update an existing dispute.
+  - Validate input and manage response formats.
 
-### 2. **Model Definition**
-- **File:** `/models/disputeModel.js`
-  - Define the Dispute schema with fields:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement database interactions (CRUD operations).
+### 3. **Routing**
+- **File:** `/api/routes/disputesRoutes.js`
+- **Responsibilities:**
+  - Set up routes for disputes.
+  - Link routes to respective controller functions.
+  - Apply authentication middleware.
 
-- **File:** `/models/disputeModel.test.js`
-  - Write unit tests for the dispute model.
+### 4. **Input Validation**
+- **File:** `/api/validators/disputeValidator.js`
+- **Responsibilities:**
+  - Validate incoming request data for creating and updating disputes.
+  - Ensure `evidence_urls` is an array and `status` is one of the allowed values.
 
-### 3. **Controller Logic**
-- **File:** `/controllers/disputeController.js`
-  - Implement controller functions for:
-    - `listDisputes`: Fetch all disputes.
-    - `createDispute`: Create a new dispute.
-    - `updateDispute`: Update dispute status or evidence URLs.
+### 5. **Authentication Middleware**
+- **File:** `/api/middlewares/authMiddleware.js`
+- **Responsibilities:**
+  - Implement authentication checks for protected routes.
 
-- **File:** `/controllers/disputeController.test.js`
-  - Write unit tests for controller functions.
+## Client Implementation
 
-### 4. **Routing Setup**
-- **File:** `/routes/disputeRoutes.js`
-  - Set up routes for the API endpoints defined in `disputes.js`.
-  - Integrate middleware for authentication (if required).
+### 6. **Dispute List Component**
+- **File:** `/client/components/DisputeList.jsx`
+- **Responsibilities:**
+  - Fetch and display a list of disputes.
+  - Provide options to view details and update status.
 
-### 5. **Middleware**
-- **File:** `/middleware/authMiddleware.js`
-  - Implement authentication middleware to protect routes.
+### 7. **Dispute Form Component**
+- **File:** `/client/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Handle creation and updating of disputes.
+  - Manage form state and validation.
 
-### 6. **Database Configuration**
-- **File:** `/config/db.js`
-  - Set up database connection (MongoDB, PostgreSQL, etc.).
+### 8. **Dispute Detail Component**
+- **File:** `/client/components/DisputeDetail.jsx`
+- **Responsibilities:**
+  - Display detailed information about a selected dispute.
+  - Allow users to update status and add evidence URLs.
 
-### 7. **Utility Functions**
-- **File:** `/utils/responseFormatter.js`
-  - Create utility functions for consistent API response formatting.
+### 9. **Custom Hook for API Calls**
+- **File:** `/client/hooks/useDisputes.js`
+- **Responsibilities:**
+  - Abstract API calls for disputes (fetch, create, update).
+  - Manage loading and error states.
 
-### 8. **Testing**
-- Ensure all tests are written and pass for:
-  - Model, controller, and API routes.
-- Use a testing framework (e.g., Jest, Mocha).
+### 10. **Main Page Integration**
+- **File:** `/client/pages/DisputesPage.jsx`
+- **Responsibilities:**
+  - Integrate all components to create a cohesive disputes management page.
 
-### 9. **Documentation**
-- Update API documentation to include new endpoints and usage examples.
+## Testing
 
-### 10. **Deployment**
-- Prepare deployment scripts/configuration for the API service.
+### 11. **API Tests**
+- **File:** `/tests/api/disputes.test.js`
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Validate responses and error handling.
+
+### 12. **Client Tests**
+- **File:** `/tests/client/DisputeList.test.jsx`
+- **Responsibilities:**
+  - Write tests for the DisputeList component.
+  - Ensure correct rendering and functionality.
+
+## Deployment
+- Ensure all changes are committed and pushed.
+- Update documentation and run tests before deployment.
 ```
