@@ -1,96 +1,96 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
-```
-/disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API route handling for disputes
-│   ├── __init__.py                # API package initialization
-│
-├── /models
-│   ├── dispute.py                 # Dispute model definition
-│   ├── __init__.py                # Models package initialization
-│
-├── /schemas
-│   ├── dispute_schema.py          # Pydantic schema for dispute validation
-│   ├── __init__.py                # Schemas package initialization
-│
-├── /services
-│   ├── dispute_service.py         # Business logic for dispute operations
-│   ├── __init__.py                # Services package initialization
-│
-├── /tests
-│   ├── test_disputes.py           # Unit tests for disputes API
-│   ├── __init__.py                # Tests package initialization
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeForm.jsx        # UI component for creating/updating disputes
-│   │   ├── DisputeList.jsx        # UI component for listing disputes
-│   │   ├── DisputeDetail.jsx      # UI component for viewing dispute details
-│   │
-│   ├── /hooks
-│   │   ├── useDisputes.js         # Custom hook for fetching and managing disputes
-│   │
-│   ├── App.jsx                    # Main application component
-│   ├── index.js                   # Entry point for the UI
-│
-└── requirements.txt               # Project dependencies
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, along with handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
 
-## Responsibilities
+## File Structure
 
-### API Development
-- **disputes.py**
-  - Define routes for:
-    - `GET /api/disputes` - List all disputes
-    - `POST /api/disputes` - Create a new dispute
-    - `PUT /api/disputes/{id}` - Update an existing dispute
-  - Implement request validation and response formatting.
+### API Implementation
 
-- **dispute.py**
-  - Create a Dispute model with fields:
-    - `id`
-    - `evidence_urls` (array)
-    - `status` (enum: OPEN, REVIEW, RESOLVED)
+#### 1. API Routes
+- **File:** `src/routes/api/disputes.js`
+  - **Responsibilities:**
+    - Define routes for GET, POST, and PUT requests.
+    - Handle request validation and response formatting.
 
-- **dispute_schema.py**
-  - Define Pydantic schemas for request and response validation.
+#### 2. Controller
+- **File:** `src/controllers/disputeController.js`
+  - **Responsibilities:**
+    - Implement logic for creating, retrieving, and updating disputes.
+    - Validate input data (evidence_urls, status).
+    - Interact with the database model.
 
-- **dispute_service.py**
-  - Implement business logic for:
-    - Creating a dispute
-    - Listing disputes
-    - Updating dispute status
+#### 3. Model
+- **File:** `src/models/disputeModel.js`
+  - **Responsibilities:**
+    - Define the Dispute schema (fields: id, evidence_urls, status).
+    - Implement database operations (CRUD).
 
-### UI Development
-- **DisputeForm.jsx**
-  - Create a form for submitting new disputes and updating existing ones.
-  - Handle file uploads for evidence URLs.
+#### 4. Middleware
+- **File:** `src/middleware/validateDispute.js`
+  - **Responsibilities:**
+    - Validate incoming data for disputes (evidence_urls format, status values).
+    - Handle errors and send appropriate responses.
 
-- **DisputeList.jsx**
-  - Display a list of disputes with status indicators.
-  - Include options to view details and update status.
+### UI Implementation
 
-- **DisputeDetail.jsx**
-  - Show detailed view of a selected dispute, including evidence URLs.
+#### 5. UI Components
+- **File:** `src/components/DisputeList.js`
+  - **Responsibilities:**
+    - Display a list of disputes.
+    - Allow users to filter by status.
 
-- **useDisputes.js**
-  - Implement logic for fetching, creating, and updating disputes using the API.
+- **File:** `src/components/DisputeForm.js`
+  - **Responsibilities:**
+    - Provide a form for creating and updating disputes.
+    - Include fields for evidence URLs and status selection.
+
+#### 6. API Service
+- **File:** `src/services/disputeService.js`
+  - **Responsibilities:**
+    - Implement functions to call API endpoints (GET, POST, PUT).
+    - Handle API responses and errors.
+
+#### 7. State Management
+- **File:** `src/store/disputeSlice.js`
+  - **Responsibilities:**
+    - Manage dispute state using Redux (or context API).
+    - Handle actions for fetching, adding, and updating disputes.
 
 ### Testing
-- **test_disputes.py**
-  - Write unit tests for API endpoints and service logic.
-  - Ensure coverage for all CRUD operations and validation.
+
+#### 8. API Tests
+- **File:** `tests/api/dispute.test.js`
+  - **Responsibilities:**
+    - Write unit tests for API endpoints.
+    - Test validation and error handling.
+
+#### 9. UI Tests
+- **File:** `tests/ui/DisputeForm.test.js`
+  - **Responsibilities:**
+    - Write tests for the DisputeForm component.
+    - Ensure form validation and submission work as expected.
 
 ### Documentation
-- Update README.md with setup instructions and API usage examples.
-- Document UI components and their props.
+
+#### 10. API Documentation
+- **File:** `docs/api/disputes.md`
+  - **Responsibilities:**
+    - Document API endpoints, request/response formats, and error codes.
+
+#### 11. UI Documentation
+- **File:** `docs/ui/disputes.md`
+  - **Responsibilities:**
+    - Document UI components and their usage.
 
 ## Timeline
-- **Week 1**: API development (routes, models, services)
-- **Week 2**: UI development (components, hooks)
-- **Week 3**: Testing and documentation
+- **Week 1:** Set up API routes and models.
+- **Week 2:** Implement controllers and middleware.
+- **Week 3:** Develop UI components and state management.
+- **Week 4:** Testing and documentation.
+
+## Notes
+- Ensure proper error handling and user feedback in the UI.
+- Follow best practices for API security and data validation.
 ```
