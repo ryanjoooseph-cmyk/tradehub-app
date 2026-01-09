@@ -1,90 +1,123 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
-/disputes_backend
+/project-root
 │
 ├── /api
-│   ├── disputes.py                # API routes for disputes
-│   ├── __init__.py                # Initialize API module
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesRoutes.js
+│   │   └── disputesService.js
+│   └── /middleware
+│       └── authMiddleware.js
 │
 ├── /models
-│   ├── dispute.py                 # Dispute model definition
-│   ├── __init__.py                # Initialize models module
+│   └── disputeModel.js
 │
-├── /services
-│   ├── dispute_service.py          # Business logic for disputes
-│   ├── __init__.py                # Initialize services module
-│
-├── /schemas
-│   ├── dispute_schema.py           # Pydantic schemas for validation
-│   ├── __init__.py                # Initialize schemas module
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   └── /pages
+│       └── DisputesPage.jsx
 │
 ├── /tests
-│   ├── test_disputes.py            # Unit tests for disputes API
-│   ├── __init__.py                # Initialize tests module
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /ui
+│       └── DisputesPage.test.jsx
 │
-├── /config
-│   ├── config.py                   # Configuration settings
-│   ├── __init__.py                # Initialize config module
-│
-└── app.py                          # Main application entry point
+└── server.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **File:** `/api/disputes.py`
-  - Define routes for:
-    - `GET /api/disputes` - List all disputes
-    - `POST /api/disputes` - Create a new dispute
-    - `PUT /api/disputes/{id}` - Update an existing dispute
-  - Handle request validation and response formatting.
+### 1. **Model Definition**
+- **File:** `/models/disputeModel.js`
+- **Responsibilities:**
+  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - Implement Mongoose model for MongoDB.
 
-### Model Definition
-- **File:** `/models/dispute.py`
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - Implement database interactions (CRUD operations).
+### 2. **Controller Logic**
+- **File:** `/api/disputes/disputesController.js`
+- **Responsibilities:**
+  - Implement functions to handle:
+    - `GET /api/disputes`: List all disputes.
+    - `POST /api/disputes`: Create a new dispute.
+    - `PUT /api/disputes/:id`: Update an existing dispute.
+  - Validate request data and handle errors.
 
-### Business Logic
-- **File:** `/services/dispute_service.py`
-  - Implement functions for:
-    - Fetching all disputes
-    - Creating a new dispute
-    - Updating a dispute's status or evidence_urls
-  - Ensure proper error handling and business rules.
+### 3. **Routing**
+- **File:** `/api/disputes/disputesRoutes.js`
+- **Responsibilities:**
+  - Define routes for disputes API.
+  - Integrate controller functions with respective routes.
+  - Apply authentication middleware.
 
-### Data Validation
-- **File:** `/schemas/dispute_schema.py`
-  - Define Pydantic schemas for:
-    - Dispute creation and update requests
-    - Validate incoming data against defined models.
+### 4. **Service Layer**
+- **File:** `/api/disputes/disputesService.js`
+- **Responsibilities:**
+  - Implement business logic for dispute operations.
+  - Interact with the database using the dispute model.
 
-### Testing
-- **File:** `/tests/test_disputes.py`
-  - Write unit tests for:
-    - API endpoints (GET, POST, PUT)
-    - Service layer functions
-    - Schema validation
-  - Use a testing framework (e.g., pytest).
+### 5. **Middleware**
+- **File:** `/api/middleware/authMiddleware.js`
+- **Responsibilities:**
+  - Implement authentication checks for API routes.
 
-### Configuration
-- **File:** `/config/config.py`
-  - Define application configuration settings (e.g., database connection, environment variables).
+## UI Implementation
 
-### Main Application
-- **File:** `/app.py`
-  - Set up the FastAPI application.
-  - Include API routes and middleware.
-  - Configure CORS and error handling.
+### 6. **Dispute List Component**
+- **File:** `/ui/components/DisputeList.jsx`
+- **Responsibilities:**
+  - Fetch and display a list of disputes.
+  - Provide options to view or update each dispute.
 
-## Timeline
-- **Week 1:** Set up project structure, implement models and schemas.
-- **Week 2:** Develop API endpoints and business logic.
-- **Week 3:** Write tests and perform integration testing.
-- **Week 4:** Finalize documentation and prepare for deployment.
+### 7. **Dispute Form Component**
+- **File:** `/ui/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Handle creation and updating of disputes.
+  - Manage form state and validation.
+
+### 8. **Dispute Detail Component**
+- **File:** `/ui/components/DisputeDetail.jsx`
+- **Responsibilities:**
+  - Display detailed information for a selected dispute.
+  - Allow users to update status and add evidence URLs.
+
+### 9. **Custom Hook**
+- **File:** `/ui/hooks/useDisputes.js`
+- **Responsibilities:**
+  - Manage API calls related to disputes.
+  - Provide state management for disputes data.
+
+### 10. **Main Page**
+- **File:** `/ui/pages/DisputesPage.jsx`
+- **Responsibilities:**
+  - Integrate all components to create a cohesive disputes interface.
+  - Handle routing and state management.
+
+## Testing
+
+### 11. **API Tests**
+- **File:** `/tests/api/disputes.test.js`
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Validate response structure and status codes.
+
+### 12. **UI Tests**
+- **File:** `/tests/ui/DisputesPage.test.jsx`
+- **Responsibilities:**
+  - Write tests for UI components.
+  - Ensure proper rendering and interaction.
+
+## Deployment
+- Ensure all changes are committed and pushed to the repository.
+- Deploy the application to the staging environment for testing.
+- Monitor logs and performance metrics post-deployment.
 ```
