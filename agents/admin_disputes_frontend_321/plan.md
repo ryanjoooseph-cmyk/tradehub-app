@@ -1,97 +1,103 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Project Structure
 
 ```
 /src
-  ├── components
+  ├── /components
   │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
+  │   ├── FilterBar.jsx
+  │   └── StatusUpdateModal.jsx
+  ├── /pages
   │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+  ├── /api
+  │   └── disputes.js
+  ├── /hooks
+  │   └── useDisputes.js
+  ├── /styles
+  │   └── AdminDisputes.css
+  └── /utils
+      └── apiUtils.js
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
-
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
-
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
-
-### 4. **AdminDisputesPage.jsx**
+### 1. **AdminDisputesPage.jsx**
    - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+   - **Responsibility:** 
+     - Set up the main layout for the disputes page.
+     - Integrate `AdminDisputesTable` and `FilterBar`.
+     - Handle routing for `/admin/disputes/321`.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+### 2. **AdminDisputesTable.jsx**
+   - **Path:** `/src/components/AdminDisputesTable.jsx`
+   - **Responsibility:** 
+     - Display a table of disputes with pagination.
+     - Implement sorting and filtering functionality.
+     - Trigger `StatusUpdateModal` for status updates.
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
+### 3. **FilterBar.jsx**
+   - **Path:** `/src/components/FilterBar.jsx`
+   - **Responsibility:** 
+     - Provide input fields for filtering disputes (e.g., by status, date).
+     - Handle filter state and pass it to `AdminDisputesTable`.
+
+### 4. **StatusUpdateModal.jsx**
+   - **Path:** `/src/components/StatusUpdateModal.jsx`
+   - **Responsibility:** 
+     - Display a modal for updating the status of a selected dispute.
+     - Call the API to update dispute status upon confirmation.
+
+### 5. **disputes.js (API)**
+   - **Path:** `/src/api/disputes.js`
+   - **Responsibility:** 
+     - Define API calls for fetching disputes and updating status.
+     - Implement error handling for API responses.
+
+### 6. **useDisputes.js (Custom Hook)**
+   - **Path:** `/src/hooks/useDisputes.js`
+   - **Responsibility:** 
+     - Manage state for disputes, including fetching and updating.
+     - Provide a clean interface for components to interact with disputes data.
+
+### 7. **AdminDisputes.css**
+   - **Path:** `/src/styles/AdminDisputes.css`
+   - **Responsibility:** 
+     - Style the disputes page, table, and modal.
      - Ensure responsive design for various screen sizes.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
-
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+### 8. **apiUtils.js**
+   - **Path:** `/src/utils/apiUtils.js`
+   - **Responsibility:** 
+     - Create utility functions for API calls (e.g., GET, POST).
+     - Handle common error scenarios and responses.
 
 ## Development Steps
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+1. **Set up Routing**
+   - Implement routing for `/admin/disputes/321` in the main app file.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+2. **Create Components**
+   - Develop `AdminDisputesPage`, `AdminDisputesTable`, `FilterBar`, and `StatusUpdateModal`.
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+3. **Implement API Calls**
+   - Create functions in `disputes.js` for fetching and updating disputes.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+4. **State Management**
+   - Use `useDisputes.js` to manage disputes state and integrate with components.
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
+5. **Styling**
+   - Apply styles in `AdminDisputes.css` for a polished UI.
 
 6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
+   - Write unit tests for components and API functions.
+   - Perform integration testing for the complete flow.
 
 7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+   - Prepare the feature for deployment and ensure it meets all requirements.
+
+## Timeline
+- **Week 1:** Set up routing and create components.
+- **Week 2:** Implement API calls and state management.
+- **Week 3:** Styling and testing.
+- **Week 4:** Final review and deployment.
