@@ -2,98 +2,90 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+This implementation plan outlines the structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature includes functionalities to open, list, and update disputes, manage an array of evidence URLs, and handle dispute statuses (OPEN, REVIEW, RESOLVED).
 
 ## File Structure
 
 ```
 /disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+├── api
+│   ├── controllers
+│   │   └── disputesController.js
+│   ├── models
+│   │   └── disputeModel.js
+│   ├── routes
+│   │   └── disputesRoutes.js
+│   ├── middleware
+│   │   └── authMiddleware.js
+│   └── index.js
+├── client
+│   ├── src
+│   │   ├── components
+│   │   │   ├── DisputeList.js
+│   │   │   ├── DisputeForm.js
+│   │   │   └── DisputeDetail.js
+│   │   ├── services
+│   │   │   └── disputeService.js
+│   │   ├── App.js
+│   │   └── index.js
+│   └── public
+│       └── index.html
+└── README.md
 ```
 
 ## Responsibilities
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
+### API
+
+- **`/api/disputes`**
+  - **GET**: List all disputes
+    - **File**: `api/controllers/disputesController.js`
+    - **Responsibility**: Fetch and return all disputes from the database.
   
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+  - **POST**: Open a new dispute
+    - **File**: `api/controllers/disputesController.js`
+    - **Responsibility**: Create a new dispute entry with evidence URLs and status OPEN.
+  
+  - **PUT**: Update an existing dispute
+    - **File**: `api/controllers/disputesController.js`
+    - **Responsibility**: Update the status or evidence URLs of a specific dispute.
+  
+- **Model**
+  - **File**: `api/models/disputeModel.js`
+  - **Responsibility**: Define the dispute schema including fields for evidence URLs and status.
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+- **Routes**
+  - **File**: `api/routes/disputesRoutes.js`
+  - **Responsibility**: Set up the API routes and link them to the controller methods.
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+- **Middleware**
+  - **File**: `api/middleware/authMiddleware.js`
+  - **Responsibility**: Handle authentication and authorization for API requests.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### Client UI
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+- **Components**
+  - **DisputeList.js**
+    - **Responsibility**: Display a list of all disputes with options to view details or update status.
+  
+  - **DisputeForm.js**
+    - **Responsibility**: Provide a form to create a new dispute or update an existing one.
+  
+  - **DisputeDetail.js**
+    - **Responsibility**: Show detailed information about a specific dispute, including evidence URLs.
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+- **Services**
+  - **disputeService.js**
+    - **Responsibility**: Handle API calls to the backend for listing, creating, and updating disputes.
 
-## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+- **App.js**
+  - **Responsibility**: Set up routing for the application and integrate components.
 
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- **index.js**
+  - **Responsibility**: Render the main application component.
+
+## Documentation
+
+- **README.md**
+  - **Responsibility**: Provide an overview of the feature, setup instructions, and API usage examples.
 ```
