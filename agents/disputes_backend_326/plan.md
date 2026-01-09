@@ -1,111 +1,100 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
 /disputes_backend_326
-├── api
-│   ├── disputes.py
-│   ├── __init__.py
-├── ui
-│   ├── components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   ├── DisputeItem.jsx
-│   ├── pages
-│   │   ├── DisputePage.jsx
-│   ├── App.jsx
-│   ├── index.js
-├── models
-│   ├── disputeModel.js
-├── services
-│   ├── disputeService.js
-├── tests
-│   ├── api
-│   │   ├── disputes.test.js
-│   ├── ui
-│   │   ├── DisputePage.test.jsx
-├── .env
-├── package.json
-└── README.md
+│
+├── /api
+│   ├── /controllers
+│   │   └── disputesController.js       # Handle API logic for disputes
+│   ├── /models
+│   │   └── disputeModel.js              # Define dispute schema and model
+│   ├── /routes
+│   │   └── disputesRoutes.js             # Define API routes for disputes
+│   ├── /middlewares
+│   │   └── authMiddleware.js             # Authentication middleware
+│   └── /validators
+│       └── disputeValidator.js           # Validate incoming requests
+│
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.jsx               # Component to list disputes
+│   │   ├── DisputeForm.jsx               # Component to create/update disputes
+│   │   └── DisputeDetail.jsx             # Component to view dispute details
+│   ├── /hooks
+│   │   └── useDisputes.js                # Custom hook for dispute API calls
+│   ├── /pages
+│   │   └── DisputesPage.jsx              # Main page for disputes
+│   ├── /styles
+│   │   └── disputes.css                   # Styles for disputes UI
+│   └── /utils
+│       └── api.js                        # API utility functions
+│
+└── /tests
+    ├── /api
+    │   └── disputesController.test.js     # Unit tests for disputes controller
+    ├── /ui
+    │   └── DisputeForm.test.jsx           # Unit tests for dispute form component
+    └── /integration
+        └── disputesApi.test.js            # Integration tests for disputes API
 ```
 
-## API Implementation
+## Responsibilities
 
-### File: `/api/disputes.py`
-- **Responsibilities:**
-  - Define routes for `/api/disputes`.
-  - Implement CRUD operations:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
-  - Handle status updates (OPEN/REVIEW/RESOLVED).
-  - Validate and manage `evidence_urls` array.
+### API Layer
+- **disputesController.js**
+  - Implement functions to handle CRUD operations for disputes.
+  - Functions: `createDispute`, `getDisputes`, `updateDispute`, `getDisputeById`.
 
-### File: `/models/disputeModel.js`
-- **Responsibilities:**
-  - Define the Dispute schema/model.
-  - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+- **disputeModel.js**
+  - Define the schema for disputes with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
+  - Implement methods for database interactions.
 
-### File: `/services/disputeService.js`
-- **Responsibilities:**
-  - Implement business logic for dispute operations.
-  - Interact with the database to perform CRUD operations.
+- **disputesRoutes.js**
+  - Set up Express routes for `/api/disputes`:
+    - `POST /` for creating a dispute.
+    - `GET /` for listing disputes.
+    - `GET /:id` for fetching a specific dispute.
+    - `PUT /:id` for updating a dispute.
 
-## UI Implementation
+- **authMiddleware.js**
+  - Implement middleware to authenticate requests.
 
-### File: `/ui/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Display a list of disputes.
-  - Handle loading states and error messages.
+- **disputeValidator.js**
+  - Validate incoming request data for creating/updating disputes.
 
-### File: `/ui/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Provide a form to create/update disputes.
-  - Include fields for status and evidence URLs.
+### UI Layer
+- **DisputeList.jsx**
+  - Fetch and display a list of disputes.
+  - Provide links to view/update each dispute.
 
-### File: `/ui/components/DisputeItem.jsx`
-- **Responsibilities:**
-  - Render individual dispute details.
-  - Include buttons for updating status and deleting disputes.
+- **DisputeForm.jsx**
+  - Form for creating and updating disputes.
+  - Handle input for `evidence_urls` and `status`.
 
-### File: `/ui/pages/DisputePage.jsx`
-- **Responsibilities:**
-  - Integrate `DisputeList` and `DisputeForm`.
-  - Manage state for disputes and handle API calls.
+- **DisputeDetail.jsx**
+  - Display detailed information about a selected dispute.
 
-### File: `/ui/App.jsx`
-- **Responsibilities:**
-  - Set up routing for the application.
-  - Include the `DisputePage` component.
+- **useDisputes.js**
+  - Custom hook to manage API calls related to disputes.
 
-### File: `/ui/index.js`
-- **Responsibilities:**
-  - Render the main application.
-  - Set up any necessary providers (e.g., Redux, Context API).
+- **DisputesPage.jsx**
+  - Main page that integrates `DisputeList` and `DisputeForm`.
 
-## Testing
+### Testing
+- **disputesController.test.js**
+  - Write unit tests for each controller function.
 
-### File: `/tests/api/disputes.test.js`
-- **Responsibilities:**
-  - Write unit tests for API endpoints.
-  - Test all CRUD operations and status updates.
+- **DisputeForm.test.jsx**
+  - Write unit tests for the dispute form component.
 
-### File: `/tests/ui/DisputePage.test.jsx`
-- **Responsibilities:**
-  - Write tests for the `DisputePage` component.
-  - Ensure UI behaves correctly with various states.
+- **disputesApi.test.js**
+  - Write integration tests for the API endpoints.
 
-## Environment Setup
-
-### File: `/.env`
-- **Responsibilities:**
-  - Store environment variables (e.g., database connection strings).
-
-## Documentation
-
-### File: `/README.md`
-- **Responsibilities:**
-  - Provide an overview of the feature.
-  - Include setup instructions and API documentation.
+## Timeline
+- **Week 1**: Set up project structure and implement API layer.
+- **Week 2**: Develop UI components and integrate with API.
+- **Week 3**: Write tests and conduct code reviews.
+- **Week 4**: Finalize documentation and deploy.
 ```
