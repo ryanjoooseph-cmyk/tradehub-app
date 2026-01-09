@@ -1,85 +1,99 @@
-```markdown
-# Implementation Plan for Feature 'admin_disputes_frontend_321'
-
-## Overview
-Develop a UI for the admin disputes management system, targeting the route `/admin/disputes/321`. The UI will include an admin table with filters and actions to update dispute statuses. It will interact with the API endpoint `/api/disputes`.
+# Implementation Plan for Feature `admin_disputes_frontend_321`
 
 ## Directory Structure
+
 ```
 /src
   ├── components
   │   ├── AdminDisputesTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateButton.jsx
+  │   ├── FilterBar.jsx
+  │   └── StatusUpdateModal.jsx
   ├── pages
   │   └── AdminDisputesPage.jsx
   ├── api
-  │   └── disputesApi.js
+  │   └── disputes.js
   ├── styles
   │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
   └── utils
-      └── constants.js
+      └── helpers.js
 ```
 
 ## File Responsibilities
 
-### 1. Components
-- **`/src/components/AdminDisputesTable.jsx`**
-  - Render the table of disputes.
-  - Include columns for dispute details and status.
-  - Integrate filtering functionality.
+### 1. **AdminDisputesTable.jsx**
+   - **Location:** `/src/components/AdminDisputesTable.jsx`
+   - **Responsibilities:**
+     - Render the admin disputes table.
+     - Display dispute data with pagination.
+     - Integrate filtering options from `FilterBar`.
+     - Handle row actions to trigger status updates.
 
-- **`/src/components/DisputeFilter.jsx`**
-  - Provide UI elements for filtering disputes (e.g., by status, date).
-  - Handle filter state and pass it to the `AdminDisputesTable`.
+### 2. **FilterBar.jsx**
+   - **Location:** `/src/components/FilterBar.jsx`
+   - **Responsibilities:**
+     - Provide UI for filtering disputes (e.g., by status, date).
+     - Emit filter changes to the parent component (`AdminDisputesPage`).
 
-- **`/src/components/StatusUpdateButton.jsx`**
-  - Button component to update the status of a selected dispute.
-  - Trigger API call to update the dispute status.
+### 3. **StatusUpdateModal.jsx**
+   - **Location:** `/src/components/StatusUpdateModal.jsx`
+   - **Responsibilities:**
+     - Display a modal for updating dispute status.
+     - Handle user input and confirm status changes.
+     - Call the API to update the dispute status.
 
-### 2. Pages
-- **`/src/pages/AdminDisputesPage.jsx`**
-  - Main page component for `/admin/disputes/321`.
-  - Combine `AdminDisputesTable` and `DisputeFilter`.
-  - Manage state for disputes and filters.
-  - Handle API calls using `useDisputes` hook.
+### 4. **AdminDisputesPage.jsx**
+   - **Location:** `/src/pages/AdminDisputesPage.jsx`
+   - **Responsibilities:**
+     - Main page component for `/admin/disputes/321`.
+     - Fetch dispute data from the API on mount.
+     - Manage state for disputes and filters.
+     - Render `AdminDisputesTable` and `FilterBar`.
 
-### 3. API
-- **`/src/api/disputesApi.js`**
-  - Define API functions to fetch disputes and update dispute status.
-  - Implement error handling for API responses.
+### 5. **disputes.js**
+   - **Location:** `/src/api/disputes.js`
+   - **Responsibilities:**
+     - Define API calls to `/api/disputes`.
+     - Implement functions for fetching disputes and updating status.
+     - Handle error responses and data formatting.
 
-### 4. Styles
-- **`/src/styles/AdminDisputesPage.css`**
-  - Style the admin disputes page and components.
-  - Ensure responsive design for the table and filters.
+### 6. **AdminDisputesPage.css**
+   - **Location:** `/src/styles/AdminDisputesPage.css`
+   - **Responsibilities:**
+     - Style the `AdminDisputesPage` and its components.
+     - Ensure responsive design for various screen sizes.
 
-### 5. Hooks
-- **`/src/hooks/useDisputes.js`**
-  - Custom hook to manage disputes state and API calls.
-  - Fetch disputes on component mount and handle updates.
-
-### 6. Utilities
-- **`/src/utils/constants.js`**
-  - Define constants for dispute statuses and any other reusable values.
+### 7. **helpers.js**
+   - **Location:** `/src/utils/helpers.js`
+   - **Responsibilities:**
+     - Provide utility functions for data manipulation (e.g., date formatting).
+     - Include functions for validating filter inputs.
 
 ## Development Steps
-1. **Set up project structure** according to the directory layout.
-2. **Implement API functions** in `disputesApi.js`.
-3. **Create UI components** for the table, filters, and status updates.
-4. **Develop the main page** to integrate components and manage state.
-5. **Style the components** using CSS for a cohesive look.
-6. **Test the functionality** of the UI and API interactions.
-7. **Deploy the feature** to the staging environment for review.
 
-## Testing
-- Unit tests for API functions in `disputesApi.js`.
-- Integration tests for the `AdminDisputesPage` and its components.
-- Manual testing of the UI for usability and responsiveness.
+1. **Setup Routing**
+   - Configure routing to point `/admin/disputes/321` to `AdminDisputesPage`.
 
-## Documentation
-- Update README with instructions on how to access the admin disputes page.
-- Document API endpoints and expected responses in API documentation.
-```
+2. **Build Components**
+   - Implement `AdminDisputesTable`, `FilterBar`, and `StatusUpdateModal`.
+   - Ensure components are reusable and maintainable.
+
+3. **API Integration**
+   - Implement API calls in `disputes.js`.
+   - Connect API calls to the `AdminDisputesPage` for data fetching.
+
+4. **State Management**
+   - Use React state/hooks to manage disputes and filters in `AdminDisputesPage`.
+
+5. **Styling**
+   - Apply styles in `AdminDisputesPage.css` for a polished UI.
+
+6. **Testing**
+   - Write unit tests for components and API functions.
+   - Conduct integration tests for the full flow from UI to API.
+
+7. **Deployment**
+   - Prepare for deployment and ensure all routes are functioning correctly.
+   - Monitor for any issues post-deployment.
+
+## Conclusion
+This plan outlines the necessary components and responsibilities for implementing the admin disputes feature, ensuring a structured approach to development and integration.
