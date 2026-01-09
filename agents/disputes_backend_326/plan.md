@@ -4,90 +4,92 @@
 ## Directory Structure
 ```
 /disputes_backend_326
-│
 ├── /api
-│   ├── disputes.py                # API routes for disputes
-│   ├── __init__.py                # Initialize API module
-│
+│   ├── disputes.py
+│   ├── __init__.py
 ├── /models
-│   ├── dispute.py                 # Dispute model definition
-│   ├── __init__.py                # Initialize models module
-│
+│   ├── dispute.py
+│   ├── __init__.py
 ├── /schemas
-│   ├── dispute_schema.py          # Pydantic schemas for validation
-│   ├── __init__.py                # Initialize schemas module
-│
+│   ├── dispute_schema.py
+│   ├── __init__.py
 ├── /services
-│   ├── dispute_service.py         # Business logic for disputes
-│   ├── __init__.py                # Initialize services module
-│
+│   ├── dispute_service.py
+│   ├── __init__.py
 ├── /tests
-│   ├── test_disputes.py           # Unit tests for disputes API
-│   ├── __init__.py                # Initialize tests module
-│
-├── /static
-│   ├── /css
-│   │   ├── disputes.css            # Styles for disputes UI
-│   ├── /js
-│   │   ├── disputes.js             # JavaScript for disputes UI
-│
-└── /templates
-    ├── disputes.html               # HTML template for disputes UI
+│   ├── test_disputes.py
+│   ├── __init__.py
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   ├── /pages
+│   │   ├── DisputePage.jsx
+│   ├── /styles
+│   │   ├── disputes.css
+├── app.py
+├── requirements.txt
 ```
 
 ## Responsibilities
 
 ### API Implementation
 - **`/api/disputes.py`**
-  - Define routes for:
+  - Implement RESTful routes for:
     - `GET /api/disputes`: List all disputes
     - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Handle status management (OPEN/REVIEW/RESOLVED)
+  - Validate input and output using schemas
 
 - **`/models/dispute.py`**
-  - Create a Dispute model with fields:
-    - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Define the Dispute model with fields:
+    - `id`
+    - `evidence_urls` (array)
+    - `status` (enum: OPEN/REVIEW/RESOLVED)
+  - Implement database interactions (CRUD operations)
 
 - **`/schemas/dispute_schema.py`**
-  - Define Pydantic schemas for:
-    - Creating a dispute
-    - Updating a dispute
-    - Listing disputes
+  - Define Pydantic schemas for request and response validation
+  - Include validation for `evidence_urls` and `status`
 
 - **`/services/dispute_service.py`**
-  - Implement business logic for:
-    - Creating, retrieving, and updating disputes
-    - Validating status transitions
+  - Implement business logic for dispute handling
+  - Create functions for creating, listing, and updating disputes
 
 ### UI Implementation
-- **`/templates/disputes.html`**
-  - Create a user interface for:
-    - Displaying a list of disputes
-    - Form for creating/updating disputes
-    - Status indicators for each dispute
+- **`/ui/components/DisputeList.jsx`**
+  - Create a component to display a list of disputes
+  - Implement sorting and filtering options
 
-- **`/static/css/disputes.css`**
-  - Style the disputes UI for better user experience.
+- **`/ui/components/DisputeForm.jsx`**
+  - Create a form for submitting new disputes or updating existing ones
+  - Include fields for `evidence_urls` and `status`
 
-- **`/static/js/disputes.js`**
-  - Implement JavaScript functions for:
-    - Fetching disputes from the API
-    - Submitting forms for creating/updating disputes
-    - Handling UI updates based on API responses
+- **`/ui/pages/DisputePage.jsx`**
+  - Create a page that integrates `DisputeList` and `DisputeForm`
+  - Handle state management for disputes using React hooks
+
+- **`/ui/styles/disputes.css`**
+  - Define styles for dispute components and pages
 
 ### Testing
 - **`/tests/test_disputes.py`**
-  - Write unit tests for:
-    - API endpoints
-    - Service logic
-    - Schema validation
+  - Write unit tests for API endpoints
+  - Write integration tests for UI components
+  - Ensure coverage for all CRUD operations and status updates
 
-## Milestones
-1. **API Development**: Complete by [Date]
-2. **UI Development**: Complete by [Date]
-3. **Testing**: Complete by [Date]
-4. **Deployment**: Complete by [Date]
+### Setup
+- **`app.py`**
+  - Initialize the Flask/FastAPI application
+  - Register API routes and UI components
+
+- **`requirements.txt`**
+  - List dependencies for the project (Flask/FastAPI, SQLAlchemy, React, etc.)
+
+## Timeline
+- **Week 1**: API implementation (models, schemas, services)
+- **Week 2**: UI implementation (components, pages, styles)
+- **Week 3**: Testing and integration
+- **Week 4**: Review and deployment
 ```
