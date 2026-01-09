@@ -1,0 +1,14 @@
+allow-deps:
+  - 'package.json'
+  - 'pnpm-lock.yaml'
+  - 'yarn.lock'
+  - 'package-lock.json'
+
+allow-config:
+  - '.github/workflows/**'
+
+ui-only:
+  - 'app/**'
+  - 'app/components/**'
+  - 'app/tradehub/**'
+  - 'app/styles/**'
