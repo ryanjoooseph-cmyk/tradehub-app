@@ -1,62 +1,47 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
 import dynamic from "next/dynamic";
-const FullCalendar = dynamic(() => import("@fullcalendar/react"), { ssr: false });
-import interactionPlugin from "@fullcalendar/interaction";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
+import { useState } from "react";
+import type { DateSelectArg, EventDropArg, EventInput } from "@fullcalendar/core";
 import { calendarEvents as seed } from "../lib/sampleData";
-import type { EventInput } from "@fullcalendar/core";
-import type { DateSelectArg, EventDropArg } from "@fullcalendar/core";
+
+const FullCalendar = dynamic(() => import("@fullcalendar/react"), { ssr: false });
+import timeGridPlugin from "@fullcalendar/timegrid";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+
+import "@fullcalendar/core/index.css";
+import "@fullcalendar/daygrid/index.css";
+import "@fullcalendar/timegrid/index.css";
 
 export default function Scheduler() {
-  const [events, setEvents] = useState<EventInput[]>(seed);
+  const [events, setEvents] = useState<EventInput[]>(seed as EventInput[]);
 
   function handleDateSelect(arg: DateSelectArg) {
-    const title = window.prompt("Job title?");
-    if (title) {
-      setEvents((prev) =>
-        prev.concat({
-          id: `job-${Date.now()}`,
-          title,
-          start: arg.startStr,
-          end: arg.endStr ?? undefined,
-          allDay: arg.allDay,
-        })
-      );
-    }
+    setEvents(prev => prev.concat({
+      id: `new-${Date.now()}`,
+      title: "New Job",
+      start: arg.start,
+      end: arg.end
+    }));
   }
 
-  function handleEventDrop(info: EventDropArg) {
-    const { event } = info;
-    setEvents((prev) =>
-      prev.map((e) =>
-        e.id === event.id
-          ? { ...e, start: event.start ?? undefined, end: event.end ?? undefined }
-          : e
-      )
-    );
+  function handleEventDrop(arg: EventDropArg) {
+    setEvents(prev => prev.map(e => e.id === arg.event.id ? { ...e, start: arg.event.start, end: arg.event.end } : e));
   }
 
   return (
-    <div className="border rounded-md bg-white p-4 dark:bg-neutral-900">
+    <div className="p-4">
       <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+        plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
-        height="auto"
-        headerToolbar={{
-          left: "prev,next today",
-          center: "title",
-          right: "dayGridMonth,timeGridWeek,timeGridDay",
-        }}
-        weekends
-        editable
+        headerToolbar={{ left: "prev,next today", center: "title", right: "dayGridMonth,timeGridWeek,timeGridDay" }}
         selectable
-        selectMirror
+        editable
         events={events}
         select={handleDateSelect}
         eventDrop={handleEventDrop}
+        height="auto"
       />
     </div>
   );
