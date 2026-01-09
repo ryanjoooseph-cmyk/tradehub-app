@@ -1,14 +1,40 @@
 name: labeler
 on:
   pull_request_target:
-    types: [opened, reopened, synchronize, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review]
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 jobs:
   label:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/labeler@v5
+      - uses: dorny/paths-filter@v3
+        id: f
         with:
-          sync-labels: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filters: |
+            deps:
+              - 'package.json'
+              - '**/package.json'
+              - 'pnpm-lock.yaml'
+              - 'yarn.lock'
+              - 'package-lock.json'
+            config:
+              - '.github/**'
+            ui:
+              - 'app/**'
+              - 'components/**'
+              - '!app/**/api/**'
+      - uses: actions-ecosystem/action-add-labels@v1
+        if: ${{ steps.f.outputs.deps == 'true' }}
+        with:
+          labels: allow-deps,automerge
+      - uses: actions-ecosystem/action-add-labels@v1
+        if: ${{ steps.f.outputs.config == 'true' }}
+        with:
+          labels: allow-config,automerge
+      - uses: actions-ecosystem/action-add-labels@v1
+        if: ${{ steps.f.outputs.ui == 'true' }}
+        with:
+          labels: automerge
