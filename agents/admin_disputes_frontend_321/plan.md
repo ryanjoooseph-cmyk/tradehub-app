@@ -2,89 +2,88 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, interacting with the `/api/disputes` endpoint.
+This plan outlines the file structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, interacting with the `/api/disputes` endpoint.
 
 ## File Structure
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
-```
+### Frontend
 
-## Responsibilities
+#### 1. Components
+- **File:** `src/components/AdminDisputesTable.jsx`
+  - **Responsibilities:** Render the admin disputes table with filters, display dispute details, and provide action buttons for status updates.
 
-### 1. Components
+- **File:** `src/components/DisputeFilter.jsx`
+  - **Responsibilities:** Provide filter options for disputes (e.g., status, date range) and handle filter state.
 
-- **`/src/components/AdminDisputesTable.jsx`**
-  - Render a table displaying disputes.
-  - Include pagination and sorting features.
-  - Integrate with filters from `DisputeFilter`.
+- **File:** `src/components/StatusUpdateButton.jsx`
+  - **Responsibilities:** Button component to trigger status updates for selected disputes.
 
-- **`/src/components/DisputeFilter.jsx`**
-  - Provide UI elements for filtering disputes (e.g., by status, date).
-  - Handle filter state and pass selected filters to the table.
+#### 2. Pages
+- **File:** `src/pages/AdminDisputesPage.jsx`
+  - **Responsibilities:** Main page component for `/admin/disputes/321`, integrating the `AdminDisputesTable` and `DisputeFilter`.
 
-- **`/src/components/StatusUpdateButton.jsx`**
-  - Button component to update the status of a selected dispute.
-  - Trigger API call to update status on click.
+#### 3. Styles
+- **File:** `src/styles/AdminDisputes.css`
+  - **Responsibilities:** Styles for the admin disputes page and components.
 
-### 2. Pages
+#### 4. API Service
+- **File:** `src/services/disputeService.js`
+  - **Responsibilities:** Functions to call the `/api/disputes` endpoint for fetching disputes and updating statuses.
 
-- **`/src/pages/AdminDisputesPage.jsx`**
-  - Main page component for `/admin/disputes/321`.
-  - Combine `AdminDisputesTable` and `DisputeFilter`.
-  - Manage state for filters and selected disputes.
+### Backend
 
-### 3. Services
+#### 1. API Routes
+- **File:** `src/routes/disputes.js`
+  - **Responsibilities:** Define the API routes for fetching disputes and updating their statuses.
 
-- **`/src/services/disputesService.js`**
-  - Define functions to interact with `/api/disputes`.
-  - Include methods for fetching disputes, updating status, and handling errors.
+#### 2. Controllers
+- **File:** `src/controllers/disputeController.js`
+  - **Responsibilities:** Handle business logic for fetching disputes and updating their statuses.
 
-### 4. Styles
+#### 3. Models
+- **File:** `src/models/Dispute.js`
+  - **Responsibilities:** Define the Dispute model schema for database interactions.
 
-- **`/src/styles/AdminDisputesPage.css`**
-  - Style the admin disputes page and components.
-  - Ensure responsive design for various screen sizes.
+#### 4. Middleware
+- **File:** `src/middleware/authMiddleware.js`
+  - **Responsibilities:** Middleware to ensure only authorized admin users can access the disputes API.
 
-### 5. Utilities
+### Testing
 
-- **`/src/utils/api.js`**
-  - Centralized API call functions.
-  - Handle GET and POST requests to `/api/disputes`.
+#### 1. Frontend Tests
+- **File:** `src/__tests__/AdminDisputesTable.test.js`
+  - **Responsibilities:** Unit tests for the `AdminDisputesTable` component.
 
-### 6. Main Application
+- **File:** `src/__tests__/DisputeFilter.test.js`
+  - **Responsibilities:** Unit tests for the `DisputeFilter` component.
 
-- **`/src/App.js`**
-  - Set up routing for the application.
-  - Include route for `/admin/disputes/321` pointing to `AdminDisputesPage`.
+#### 2. Backend Tests
+- **File:** `src/__tests__/disputeController.test.js`
+  - **Responsibilities:** Unit tests for the dispute controller functions.
 
-## API Integration
+## Development Steps
+1. **Setup Frontend Components**
+   - Create `AdminDisputesTable`, `DisputeFilter`, and `StatusUpdateButton` components.
+   - Implement the `AdminDisputesPage` to integrate components.
 
-- Ensure all API calls are properly handled with error management.
-- Use async/await for API requests in `disputesService.js`.
-- Implement loading states in the UI for better user experience.
+2. **Implement API Service**
+   - Develop functions in `disputeService.js` to interact with the `/api/disputes` endpoint.
 
-## Testing
+3. **Setup Backend API**
+   - Create routes in `disputes.js` and implement logic in `disputeController.js`.
 
-- Write unit tests for components using Jest and React Testing Library.
-- Test API service functions for correct data handling and error responses.
+4. **Add Middleware**
+   - Implement authentication middleware to protect API routes.
 
-## Deployment
+5. **Style the Components**
+   - Add styles in `AdminDisputes.css` for a polished UI.
 
-- Prepare for deployment by ensuring all components are optimized.
-- Update documentation for the new feature and API endpoints.
+6. **Testing**
+   - Write and run tests for both frontend and backend components.
 
+7. **Deployment**
+   - Prepare the application for deployment, ensuring all routes and components are functional.
+
+## Conclusion
+This implementation plan provides a structured approach to developing the admin disputes feature, ensuring clear responsibilities and a well-organized file structure.
 ```
