@@ -1,99 +1,108 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Project Structure
 ```
-/disputes_backend_326
+/project-root
 │
 ├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesService.js
+│   │   ├── disputesModel.js
+│   │   └── disputesRoutes.js
+│   └── index.js
 │
 ├── /ui
 │   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
 │   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
+│   │   └── DisputesPage.jsx
+│   └── App.jsx
 │
 ├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /ui
+│       └── DisputesPage.test.jsx
 │
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+├── /config
+│   └── db.js
+│
+└── server.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+### 1. **Disputes Model (`/api/disputes/disputesModel.js`)**
+   - Define Mongoose schema for disputes.
+   - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN, REVIEW, RESOLVED).
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+### 2. **Disputes Service (`/api/disputes/disputesService.js`)**
+   - Implement business logic for:
+     - Creating a dispute.
+     - Listing all disputes.
+     - Updating a dispute status.
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+### 3. **Disputes Controller (`/api/disputes/disputesController.js`)**
+   - Handle incoming requests:
+     - `POST /api/disputes` - Create a new dispute.
+     - `GET /api/disputes` - Retrieve all disputes.
+     - `PUT /api/disputes/:id` - Update a dispute's status.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### 4. **Disputes Routes (`/api/disputes/disputesRoutes.js`)**
+   - Define Express routes for disputes.
+   - Link routes to controller methods.
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+### 5. **API Entry Point (`/api/index.js`)**
+   - Import and use disputes routes.
+   - Set up middleware (e.g., body-parser).
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+## UI Implementation
 
-## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+### 6. **Disputes Page (`/ui/pages/DisputesPage.jsx`)**
+   - Create main page to display disputes.
+   - Use `DisputeList` and `DisputeForm` components.
 
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+### 7. **Dispute List Component (`/ui/components/DisputeList.jsx`)**
+   - Fetch and display list of disputes.
+   - Allow users to click on a dispute to view details.
+
+### 8. **Dispute Form Component (`/ui/components/DisputeForm.jsx`)**
+   - Form to create a new dispute.
+   - Include fields for evidence URLs and status.
+
+### 9. **Dispute Detail Component (`/ui/components/DisputeDetail.jsx`)**
+   - Display detailed view of a selected dispute.
+   - Include option to update status.
+
+### 10. **Custom Hook (`/ui/hooks/useDisputes.js`)**
+   - Fetch disputes from the API.
+   - Handle state management for disputes.
+
+## Testing
+
+### 11. **API Tests (`/tests/api/disputes.test.js`)**
+   - Write tests for all API endpoints.
+   - Validate responses and error handling.
+
+### 12. **UI Tests (`/tests/ui/DisputesPage.test.jsx`)**
+   - Write tests for rendering and functionality of UI components.
+
+## Configuration
+
+### 13. **Database Configuration (`/config/db.js`)**
+   - Set up MongoDB connection.
+
+## Server Entry Point (`/server.js`)
+   - Initialize Express server.
+   - Connect to the database.
+   - Use API routes.
+
+```
+This plan outlines the necessary files and responsibilities for implementing the disputes feature, ensuring a clear path from API development to UI integration and testing.
 ```
