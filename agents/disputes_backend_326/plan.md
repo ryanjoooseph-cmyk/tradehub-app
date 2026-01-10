@@ -1,99 +1,98 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Directory Structure
 ```
 /disputes_backend_326
 │
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
+├── api
+│   ├── __init__.py
+│   ├── routes.py
+│   ├── models.py
+│   ├── schemas.py
+│   └── utils.py
 │
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
+├── ui
+│   ├── src
+│   │   ├── components
+│   │   │   ├── DisputeList.jsx
+│   │   │   ├── DisputeDetail.jsx
+│   │   │   └── DisputeForm.jsx
+│   │   ├── pages
+│   │   │   └── DisputePage.jsx
+│   │   ├── services
+│   │   │   └── disputeService.js
+│   │   ├── App.jsx
+│   │   └── index.js
+│   └── public
+│       └── index.html
 │
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+└── tests
+    ├── api
+    │   ├── test_routes.py
+    │   └── test_models.py
+    └── ui
+        ├── DisputeList.test.jsx
+        └── DisputeForm.test.jsx
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+### 1. **Define Models** (`/api/models.py`)
+- Create `Dispute` model with fields:
+  - `id`: UUID
+  - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - `evidence_urls`: Array of strings
+  - `created_at`: Timestamp
+  - `updated_at`: Timestamp
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+### 2. **Create Schemas** (`/api/schemas.py`)
+- Define Pydantic schemas for:
+  - `DisputeCreate`: for creating disputes
+  - `DisputeUpdate`: for updating disputes
+  - `DisputeResponse`: for returning dispute data
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+### 3. **Implement Routes** (`/api/routes.py`)
+- **GET** `/api/disputes`: List all disputes
+- **POST** `/api/disputes`: Create a new dispute
+- **PUT** `/api/disputes/{id}`: Update an existing dispute
+- Implement logic to handle status updates and evidence URLs.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### 4. **Utility Functions** (`/api/utils.py`)
+- Create helper functions for:
+  - Validating dispute status
+  - Managing evidence URLs
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+### 5. **Testing API** (`/tests/api/test_routes.py`)
+- Write tests for all endpoints to ensure correct functionality.
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+## UI Implementation
 
-## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+### 1. **Dispute Components** (`/ui/src/components`)
+- **DisputeList.jsx**: Display list of disputes with status and actions.
+- **DisputeDetail.jsx**: Show details of a selected dispute.
+- **DisputeForm.jsx**: Form for creating/updating disputes.
 
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+### 2. **Dispute Page** (`/ui/src/pages/DisputePage.jsx`)
+- Integrate components to manage dispute lifecycle (list, create, update).
+
+### 3. **Service Layer** (`/ui/src/services/disputeService.js`)
+- Implement API calls for:
+  - Fetching disputes
+  - Creating a dispute
+  - Updating a dispute
+
+### 4. **Main Application** (`/ui/src/App.jsx`)
+- Set up routing and state management for disputes.
+
+### 5. **Testing UI** (`/tests/ui`)
+- Write tests for components and service functions to ensure UI behaves as expected.
+
+## Deployment
+- Ensure API is containerized (Docker) and UI is built for production.
+- Set up CI/CD pipeline for automated testing and deployment.
+
+## Documentation
+- Update API documentation with endpoints and usage examples.
+- Create user documentation for UI components and functionalities.
 ```
