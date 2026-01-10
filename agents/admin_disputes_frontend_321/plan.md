@@ -3,95 +3,94 @@
 ## Directory Structure
 
 ```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+/admin_disputes_frontend_321
+│
+├── /src
+│   ├── /components
+│   │   ├── DisputeTable.jsx          # Component for displaying disputes in a table format with filters
+│   │   ├── DisputeActions.jsx        # Component for actions to update dispute status
+│   │   └── FilterBar.jsx             # Component for filtering disputes
+│   │
+│   ├── /hooks
+│   │   └── useDisputes.js             # Custom hook for fetching and managing disputes data
+│   │
+│   ├── /pages
+│   │   └── AdminDisputesPage.jsx      # Main page component for /admin/disputes/321 route
+│   │
+│   ├── /services
+│   │   └── disputeService.js           # API service for calling /api/disputes
+│   │
+│   ├── /styles
+│   │   └── AdminDisputes.css           # CSS styles for the admin disputes page
+│   │
+│   └── App.js                          # Main application file with routing setup
+│
+├── /tests
+│   ├── DisputeTable.test.js            # Unit tests for DisputeTable component
+│   ├── DisputeActions.test.js          # Unit tests for DisputeActions component
+│   └── AdminDisputesPage.test.js       # Integration tests for AdminDisputesPage
+│
+└── index.js                            # Entry point for the application
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### Components
+- **DisputeTable.jsx**
+  - Render a table of disputes with pagination and sorting.
+  - Integrate filtering options from FilterBar component.
+  
+- **DisputeActions.jsx**
+  - Provide buttons for updating the status of selected disputes.
+  - Handle confirmation dialogs for status updates.
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+- **FilterBar.jsx**
+  - Allow users to filter disputes by status, date, and other criteria.
+  - Pass filter criteria to DisputeTable.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+### Hooks
+- **useDisputes.js**
+  - Fetch disputes data from the API using disputeService.
+  - Handle loading and error states.
+  - Provide functions to update dispute status.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+### Pages
+- **AdminDisputesPage.jsx**
+  - Set up the layout for the disputes page.
+  - Integrate DisputeTable, DisputeActions, and FilterBar components.
+  - Manage state and effects for fetching disputes.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+### Services
+- **disputeService.js**
+  - Implement API calls to `/api/disputes`.
+  - Create functions for fetching disputes and updating dispute status.
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+### Styles
+- **AdminDisputes.css**
+  - Style the components for a cohesive admin interface.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+### Tests
+- **DisputeTable.test.js**
+  - Test rendering and functionality of the DisputeTable component.
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+- **DisputeActions.test.js**
+  - Test the functionality of the DisputeActions component.
 
-## Development Steps
+- **AdminDisputesPage.test.js**
+  - Test integration of components and API calls in the AdminDisputesPage.
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+### Main Application
+- **App.js**
+  - Set up routing for `/admin/disputes/321`.
+  - Ensure proper rendering of AdminDisputesPage.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+### Entry Point
+- **index.js**
+  - Render the main application to the DOM.
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
-
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
-
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
-
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
-
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+## Timeline
+- **Week 1**: Set up project structure and initial components.
+- **Week 2**: Implement API service and hooks.
+- **Week 3**: Complete components and integrate them.
+- **Week 4**: Write tests and finalize styles.
+- **Week 5**: Review, test, and deploy feature.
