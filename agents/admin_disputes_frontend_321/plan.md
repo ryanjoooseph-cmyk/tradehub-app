@@ -4,94 +4,107 @@
 
 ```
 /src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+  /components
+    /AdminDisputes
+      - AdminDisputes.jsx
+      - AdminDisputes.css
+      - DisputeFilter.jsx
+      - DisputeTable.jsx
+      - StatusUpdateModal.jsx
+  /api
+    - disputesApi.js
+  /hooks
+    - useDisputes.js
+  /pages
+    - AdminDisputesPage.jsx
+  /utils
+    - constants.js
+  /context
+    - DisputeContext.js
+  - App.js
+  - index.js
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### Components
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+- **AdminDisputes.jsx**
+  - Main component that renders filters, table, and handles state management for disputes.
+  
+- **AdminDisputes.css**
+  - Styles for the Admin Disputes page.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+- **DisputeFilter.jsx**
+  - Component for filtering disputes based on status, date, etc.
+  - Responsible for managing filter state and passing it to the parent component.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+- **DisputeTable.jsx**
+  - Displays the list of disputes in a table format.
+  - Receives filtered data from the parent and renders rows with dispute details.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+- **StatusUpdateModal.jsx**
+  - Modal component for updating the status of a selected dispute.
+  - Handles form submission and communicates with the API.
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+### API
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+- **disputesApi.js**
+  - Contains functions to call the `/api/disputes` endpoint.
+  - Functions include:
+    - `fetchDisputes(filters)`: Fetch disputes based on applied filters.
+    - `updateDisputeStatus(disputeId, newStatus)`: Update the status of a specific dispute.
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+### Hooks
+
+- **useDisputes.js**
+  - Custom hook to manage fetching and updating disputes.
+  - Handles loading state and error management.
+
+### Pages
+
+- **AdminDisputesPage.jsx**
+  - Main page component for the route `/admin/disputes/321`.
+  - Integrates all components and manages overall layout.
+
+### Utilities
+
+- **constants.js**
+  - Contains constant values for dispute statuses and other reusable strings.
+
+### Context
+
+- **DisputeContext.js**
+  - Context provider for managing global state related to disputes.
+  - Provides state and functions to components.
+
+### Main Application Files
+
+- **App.js**
+  - Main application component that includes routing for `/admin/disputes/321`.
+
+- **index.js**
+  - Entry point for the application, rendering the App component.
 
 ## Development Steps
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+1. **Set up routing in App.js** to include the new AdminDisputesPage.
+2. **Create components** for AdminDisputes, DisputeFilter, DisputeTable, and StatusUpdateModal.
+3. **Implement API calls** in disputesApi.js for fetching and updating disputes.
+4. **Create custom hook** useDisputes.js to manage data fetching and state.
+5. **Implement context** in DisputeContext.js for managing dispute-related state.
+6. **Style components** using AdminDisputes.css for a cohesive UI.
+7. **Test functionality** for filtering, displaying, and updating disputes.
+8. **Conduct code review** and ensure adherence to coding standards.
+9. **Deploy changes** to staging for further testing before production release.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+## Testing
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+- Unit tests for API functions in disputesApi.js.
+- Component tests for AdminDisputes, DisputeFilter, and DisputeTable.
+- Integration tests for the complete flow from fetching to updating disputes.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+## Documentation
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
-
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
-
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+- Update README.md with instructions on how to run the application and any dependencies.
+- Document API endpoints in a separate API documentation file.
