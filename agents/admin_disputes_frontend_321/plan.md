@@ -1,97 +1,111 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Overview
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+
+## File Structure
 
 ```
 /src
   ├── components
   │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
+  │   ├── DisputeFilter.jsx
   │   └── StatusUpdateButton.jsx
   ├── pages
   │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
+  ├── hooks
+  │   └── useDisputes.js
+  ├── api
+  │   └── disputesApi.js
   ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+  │   └── AdminDisputes.css
+  └── utils
+      └── constants.js
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### 1. Components
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+- **`/src/components/AdminDisputesTable.jsx`**
+  - Render the table displaying disputes.
+  - Integrate filtering options.
+  - Handle row actions for updating dispute status.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+- **`/src/components/DisputeFilter.jsx`**
+  - Provide UI for filtering disputes (e.g., by status, date).
+  - Emit filter changes to the parent component.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+- **`/src/components/StatusUpdateButton.jsx`**
+  - Button component to trigger status updates.
+  - Handle confirmation dialogs for status changes.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+### 2. Pages
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+- **`/src/pages/AdminDisputesPage.jsx`**
+  - Main page component for `/admin/disputes/321`.
+  - Fetch disputes data using `useDisputes` hook.
+  - Render `AdminDisputesTable` and `DisputeFilter`.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+### 3. Hooks
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+- **`/src/hooks/useDisputes.js`**
+  - Custom hook to manage disputes data fetching and state.
+  - Handle API calls to `/api/disputes` for fetching and updating disputes.
 
-## Development Steps
+### 4. API
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+- **`/src/api/disputesApi.js`**
+  - Define API functions for:
+    - Fetching disputes: `fetchDisputes()`
+    - Updating dispute status: `updateDisputeStatus(id, status)`
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+### 5. Styles
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+- **`/src/styles/AdminDisputes.css`**
+  - Styles for the admin disputes page and components.
+  - Ensure responsive design and accessibility.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+### 6. Utilities
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
+- **`/src/utils/constants.js`**
+  - Define constants for dispute statuses and other reusable values.
 
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
+## Implementation Steps
 
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+1. **Setup Project Structure**
+   - Create the outlined file structure.
+
+2. **Develop API Layer**
+   - Implement `disputesApi.js` for fetching and updating disputes.
+
+3. **Create Custom Hook**
+   - Implement `useDisputes.js` to manage state and API interactions.
+
+4. **Build UI Components**
+   - Develop `AdminDisputesTable`, `DisputeFilter`, and `StatusUpdateButton`.
+
+5. **Integrate Components in Page**
+   - Assemble components in `AdminDisputesPage.jsx`.
+
+6. **Style the Components**
+   - Apply styles in `AdminDisputes.css`.
+
+7. **Testing**
+   - Write unit tests for components and hooks.
+   - Perform integration tests for API interactions.
+
+8. **Documentation**
+   - Document the API endpoints and component usage.
+
+9. **Deployment**
+   - Prepare for deployment and ensure all features are functional.
+
+## Timeline
+- **Week 1:** Setup and API development.
+- **Week 2:** Component development and integration.
+- **Week 3:** Testing and documentation.
+- **Week 4:** Final review and deployment.
+
+## Conclusion
+This plan provides a structured approach to implementing the admin disputes feature, ensuring clarity in responsibilities and a smooth development process.
