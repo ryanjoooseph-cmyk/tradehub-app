@@ -1,99 +1,85 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Directory Structure
 ```
 /disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+├── api
+│   ├── disputes.py
+│   ├── __init__.py
+├── models
+│   ├── dispute.py
+│   ├── __init__.py
+├── schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+├── services
+│   ├── dispute_service.py
+│   ├── __init__.py
+├── tests
+│   ├── test_disputes.py
+│   ├── __init__.py
+├── ui
+│   ├── disputes_page.html
+│   ├── disputes.js
+│   ├── styles.css
+└── app.py
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
+### 1. API Endpoints in `api/disputes.py`
+- **GET /api/disputes**: List all disputes
+  - Responsibility: Fetch and return all disputes with status and evidence URLs.
   
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+- **POST /api/disputes**: Create a new dispute
+  - Responsibility: Accept dispute data (including evidence URLs) and save to the database.
+  
+- **PUT /api/disputes/{id}**: Update an existing dispute
+  - Responsibility: Update dispute status and evidence URLs based on provided ID.
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+### 2. Data Models in `models/dispute.py`
+- **Dispute Model**: Define the Dispute class with fields:
+  - `id`: Unique identifier
+  - `status`: Enum (OPEN/REVIEW/RESOLVED)
+  - `evidence_urls`: Array of strings
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+### 3. Validation Schemas in `schemas/dispute_schema.py`
+- **Dispute Schema**: Define validation rules for creating and updating disputes.
+  - Fields: `status`, `evidence_urls`
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### 4. Business Logic in `services/dispute_service.py`
+- **Service Functions**:
+  - `list_disputes()`: Retrieve all disputes.
+  - `create_dispute(data)`: Validate and save a new dispute.
+  - `update_dispute(id, data)`: Validate and update an existing dispute.
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+## UI Implementation
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+### 5. Frontend UI in `ui/disputes_page.html`
+- **HTML Structure**: Create a page to list, create, and update disputes.
+  - Include forms for creating and updating disputes.
+  - Display list of disputes with status and evidence URLs.
 
-## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+### 6. JavaScript Logic in `ui/disputes.js`
+- **AJAX Calls**: Implement functions to handle API requests:
+  - Fetch disputes on page load.
+  - Handle form submissions for creating and updating disputes.
+  
+### 7. Styles in `ui/styles.css`
+- **Styling**: Basic styles for the disputes page, forms, and dispute list.
 
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+## Testing
+
+### 8. Unit Tests in `tests/test_disputes.py`
+- **Test Cases**:
+  - Test API endpoints for creating, listing, and updating disputes.
+  - Validate schema rules and service logic.
+
+## Main Application Entry Point
+
+### 9. Application Setup in `app.py`
+- **Flask/FastAPI Setup**: Initialize the app, register routes, and configure CORS if necessary.
 ```
+
+This plan outlines the structure and responsibilities for implementing the disputes feature, ensuring a clear path from API to UI.
