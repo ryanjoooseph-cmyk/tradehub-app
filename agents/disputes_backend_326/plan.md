@@ -7,93 +7,100 @@ This plan outlines the implementation of the UI and API for managing disputes at
 ## File Structure
 
 ```
-/disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+/src
+  ├── api
+  │   ├── disputes
+  │   │   ├── disputesController.js
+  │   │   ├── disputesModel.js
+  │   │   ├── disputesRoutes.js
+  │   │   └── disputesService.js
+  ├── components
+  │   ├── DisputeList.js
+  │   ├── DisputeForm.js
+  │   └── DisputeDetail.js
+  ├── pages
+  │   ├── DisputePage.js
+  ├── styles
+  │   └── DisputeStyles.css
+  └── utils
+      └── apiClient.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+### 1. **Disputes Model**
+- **File:** `/src/api/disputes/disputesModel.js`
+- **Responsibilities:**
+  - Define the schema for disputes including fields: `id`, `status`, `evidence_urls`, `created_at`, and `updated_at`.
+  - Implement database interactions (CRUD operations).
 
-### UI Implementation
-- **DisputeList.jsx**
+### 2. **Disputes Controller**
+- **File:** `/src/api/disputes/disputesController.js`
+- **Responsibilities:**
+  - Handle incoming requests for disputes.
+  - Implement methods for:
+    - `createDispute(req, res)`: Open a new dispute.
+    - `getDisputes(req, res)`: List all disputes.
+    - `updateDispute(req, res)`: Update an existing dispute.
+
+### 3. **Disputes Routes**
+- **File:** `/src/api/disputes/disputesRoutes.js`
+- **Responsibilities:**
+  - Define the API routes for disputes:
+    - `POST /api/disputes`: Create a new dispute.
+    - `GET /api/disputes`: List all disputes.
+    - `PUT /api/disputes/:id`: Update a dispute.
+
+### 4. **Disputes Service**
+- **File:** `/src/api/disputes/disputesService.js`
+- **Responsibilities:**
+  - Implement business logic for disputes.
+  - Validate input data and manage dispute statuses.
+
+## UI Implementation
+
+### 1. **Dispute List Component**
+- **File:** `/src/components/DisputeList.js`
+- **Responsibilities:**
   - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+  - Provide options to view details or update status.
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+### 2. **Dispute Form Component**
+- **File:** `/src/components/DisputeForm.js`
+- **Responsibilities:**
+  - Form for creating a new dispute.
+  - Include fields for evidence URLs and status selection.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### 3. **Dispute Detail Component**
+- **File:** `/src/components/DisputeDetail.js`
+- **Responsibilities:**
+  - Display detailed information about a selected dispute.
+  - Allow updates to the dispute status.
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+### 4. **Dispute Page**
+- **File:** `/src/pages/DisputePage.js`
+- **Responsibilities:**
+  - Main page to manage disputes.
+  - Integrate `DisputeList` and `DisputeForm` components.
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+## Utility Functions
 
-## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+### 1. **API Client**
+- **File:** `/src/utils/apiClient.js`
+- **Responsibilities:**
+  - Implement functions for making API requests to `/api/disputes`.
+  - Handle error responses and manage loading states.
 
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+## Styling
+- **File:** `/src/styles/DisputeStyles.css`
+- **Responsibilities:**
+  - Define styles for dispute components and pages.
+
+## Testing
+- Implement unit tests for API and UI components.
+- Ensure coverage for all CRUD operations and status updates.
+
+## Deployment
+- Prepare for deployment by configuring environment variables and database connections.
+- Ensure API documentation is updated for new endpoints.
 ```
