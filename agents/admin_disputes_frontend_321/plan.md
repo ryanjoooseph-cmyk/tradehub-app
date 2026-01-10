@@ -1,97 +1,106 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Project Structure
 
 ```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+/project-root
+│
+├── /src
+│   ├── /components
+│   │   ├── /AdminDisputes
+│   │   │   ├── AdminDisputes.jsx          # Main component for displaying disputes
+│   │   │   ├── DisputeTable.jsx            # Table component for listing disputes
+│   │   │   ├── FilterBar.jsx               # Component for filtering disputes
+│   │   │   ├── StatusUpdateModal.jsx       # Modal for updating dispute status
+│   │   │   └── DisputeRow.jsx              # Row component for individual dispute
+│   │   │
+│   ├── /hooks
+│   │   └── useDisputes.js                   # Custom hook for fetching and managing disputes
+│   │
+│   ├── /api
+│   │   └── disputes.js                       # API calls related to disputes
+│   │
+│   ├── /pages
+│   │   └── AdminDisputesPage.jsx            # Page component for the admin disputes route
+│   │
+│   ├── /styles
+│   │   └── AdminDisputes.css                # Styles for the admin disputes UI
+│   │
+│   └── App.js                                # Main application file
+│
+└── /tests
+    ├── /components
+    │   └── AdminDisputes.test.js            # Unit tests for AdminDisputes component
+    │
+    ├── /hooks
+    │   └── useDisputes.test.js               # Unit tests for useDisputes hook
+    │
+    └── /api
+        └── disputes.test.js                   # Unit tests for disputes API
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### Components
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+- **AdminDisputes.jsx**
+  - Integrate `DisputeTable`, `FilterBar`, and `StatusUpdateModal`.
+  - Manage state for disputes and filters.
+  
+- **DisputeTable.jsx**
+  - Render a table of disputes.
+  - Handle pagination and sorting.
+  
+- **FilterBar.jsx**
+  - Provide input fields for filtering disputes (e.g., by status, date).
+  - Trigger state updates in `AdminDisputes`.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+- **StatusUpdateModal.jsx**
+  - Display a modal for updating the status of a selected dispute.
+  - Call the API to update status on confirmation.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+- **DisputeRow.jsx**
+  - Render individual dispute details.
+  - Include action buttons for status updates.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+### Hooks
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+- **useDisputes.js**
+  - Fetch disputes from `/api/disputes`.
+  - Provide functions to filter and update disputes.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+### API
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+- **disputes.js**
+  - Define API calls:
+    - `fetchDisputes()`: GET request to fetch disputes.
+    - `updateDisputeStatus(id, status)`: PUT request to update dispute status.
 
-## Development Steps
+### Pages
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+- **AdminDisputesPage.jsx**
+  - Set up the route `/admin/disputes/321`.
+  - Render `AdminDisputes` component.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+### Styles
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+- **AdminDisputes.css**
+  - Style the admin disputes UI components.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+### Tests
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
+- **AdminDisputes.test.js**
+  - Test rendering and functionality of `AdminDisputes` component.
 
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
+- **useDisputes.test.js**
+  - Test the behavior of the `useDisputes` hook.
 
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+- **disputes.test.js**
+  - Test API calls for fetching and updating disputes.
+
+## Timeline
+
+- **Week 1**: Component development and initial API integration.
+- **Week 2**: Testing and refinement of UI components.
+- **Week 3**: Finalize API calls and complete testing.
+- **Week 4**: Deployment and feedback collection.
