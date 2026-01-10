@@ -1,97 +1,139 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Project Structure
 
 ```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+/project-root
+│
+├── /src
+│   ├── /components
+│   │   ├── DisputeTable.jsx
+│   │   ├── FilterBar.jsx
+│   │   └── StatusUpdateModal.jsx
+│   │
+│   ├── /pages
+│   │   └── AdminDisputesPage.jsx
+│   │
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   │
+│   ├── /api
+│   │   └── disputes.js
+│   │
+│   ├── /styles
+│   │   └── AdminDisputes.css
+│   │
+│   └── /utils
+│       └── apiClient.js
+│
+├── /tests
+│   ├── /components
+│   │   ├── DisputeTable.test.js
+│   │   ├── FilterBar.test.js
+│   │   └── StatusUpdateModal.test.js
+│   │
+│   └── /pages
+│       └── AdminDisputesPage.test.js
+│
+├── /routes
+│   └── adminRoutes.js
+│
+└── /server
+    ├── /controllers
+    │   └── disputesController.js
+    │
+    ├── /models
+    │   └── Dispute.js
+    │
+    ├── /routes
+    │   └── disputes.js
+    │
+    └── /middlewares
+        └── authMiddleware.js
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### Frontend
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+- **DisputeTable.jsx**
+  - Render a table displaying disputes with pagination.
+  - Integrate filters for status and date range.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+- **FilterBar.jsx**
+  - Provide UI for filtering disputes.
+  - Handle filter state and pass it to DisputeTable.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+- **StatusUpdateModal.jsx**
+  - Modal for updating dispute status.
+  - Call API to update status on confirmation.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+- **AdminDisputesPage.jsx**
+  - Main page component for `/admin/disputes/321`.
+  - Combine DisputeTable and FilterBar.
+  - Handle loading states and errors.
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+- **useDisputes.js**
+  - Custom hook to fetch disputes from API.
+  - Manage state for disputes, loading, and errors.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+- **AdminDisputes.css**
+  - Styles for the admin disputes page and components.
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+### API
 
-## Development Steps
+- **disputes.js (API)**
+  - Define API endpoints for fetching and updating disputes.
+  - Handle GET and POST requests.
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+- **disputesController.js**
+  - Logic for fetching disputes from the database.
+  - Logic for updating dispute status.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+- **Dispute.js (Model)**
+  - Define the Dispute model schema for the database.
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+- **authMiddleware.js**
+  - Middleware to ensure only authorized users can access admin routes.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+### Routing
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
+- **adminRoutes.js**
+  - Define route for `/admin/disputes/321`.
+  - Link to the disputes API routes.
 
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
+### Testing
 
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+- **DisputeTable.test.js**
+  - Unit tests for DisputeTable component.
+
+- **FilterBar.test.js**
+  - Unit tests for FilterBar component.
+
+- **StatusUpdateModal.test.js**
+  - Unit tests for StatusUpdateModal component.
+
+- **AdminDisputesPage.test.js**
+  - Integration tests for AdminDisputesPage.
+
+## Timeline
+
+1. **Week 1: Setup**
+   - Create project structure and install dependencies.
+   - Set up routing and basic layout.
+
+2. **Week 2: Frontend Development**
+   - Implement DisputeTable and FilterBar.
+   - Create StatusUpdateModal.
+
+3. **Week 3: API Development**
+   - Implement disputes API and controller.
+   - Set up database model.
+
+4. **Week 4: Integration and Testing**
+   - Integrate frontend with API.
+   - Write and run tests for components and API.
+
+5. **Week 5: Review and Deployment**
+   - Code review and final adjustments.
+   - Deploy to staging for QA.
