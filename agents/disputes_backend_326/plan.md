@@ -1,99 +1,97 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Project Structure
 ```
 /disputes_backend_326
-│
 ├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
+│   ├── disputes.js
+│   ├── disputesController.js
+│   ├── disputesModel.js
+│   └── disputesRoutes.js
 ├── /ui
 │   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeDetail.jsx
+│   │   └── DisputeForm.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
 │   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
+│   │   └── DisputesPage.jsx
 │   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+│   │   └── Disputes.css
+│   └── App.jsx
+└── index.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+### 1. **API Routes**
+- **File:** `/api/disputesRoutes.js`
+  - Define routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+### 2. **Controller Logic**
+- **File:** `/api/disputesController.js`
+  - Implement functions for:
+    - `listDisputes(req, res)` - Fetch all disputes
+    - `createDispute(req, res)` - Create a dispute with evidence_urls and status
+    - `updateDispute(req, res)` - Update dispute status and evidence_urls
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+### 3. **Data Model**
+- **File:** `/api/disputesModel.js`
+  - Define the Dispute schema:
+    - Fields: `id`, `evidence_urls`, `status` (OPEN/REVIEW/RESOLVED)
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+## UI Implementation
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+### 1. **Main Page**
+- **File:** `/ui/pages/DisputesPage.jsx`
+  - Fetch disputes using `useDisputes` hook
+  - Render `DisputeList` and `DisputeForm` components
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+### 2. **Dispute List Component**
+- **File:** `/ui/components/DisputeList.jsx`
+  - Display a list of disputes
+  - Allow users to click on a dispute to view details
+
+### 3. **Dispute Detail Component**
+- **File:** `/ui/components/DisputeDetail.jsx`
+  - Show detailed information about a selected dispute
+  - Include options to update status and evidence_urls
+
+### 4. **Dispute Form Component**
+- **File:** `/ui/components/DisputeForm.jsx`
+  - Form to create a new dispute or update an existing one
+  - Handle input for evidence_urls and status
+
+### 5. **Custom Hook**
+- **File:** `/ui/hooks/useDisputes.js`
+  - Fetch disputes from the API
+  - Provide functions to create and update disputes
+
+### 6. **Styling**
+- **File:** `/ui/styles/Disputes.css`
+  - Basic styles for the disputes UI components
+
+## Integration
+- **File:** `/index.js`
+  - Set up Express server to serve API
+  - Serve React app for the UI
+
+## Testing
+- Implement unit tests for API routes and controller functions.
+- Implement component tests for UI components.
+
+## Documentation
+- Update README.md with API endpoints and usage instructions.
+- Document UI components and their props.
 
 ## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
-
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- **Week 1:** API development (routes, controller, model)
+- **Week 2:** UI development (components, pages, hooks)
+- **Week 3:** Integration and testing
+- **Week 4:** Documentation and final review
 ```
