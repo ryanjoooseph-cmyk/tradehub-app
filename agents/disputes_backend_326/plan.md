@@ -1,99 +1,92 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Project Structure
 ```
-/disputes_backend_326
+/project-root
 │
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
+├── /src
+│   ├── /api
+│   │   ├── disputes.js               # API routes for disputes
+│   │   └── index.js                  # Main API entry point
+│   │
+│   ├── /controllers
+│   │   ├── disputesController.js      # Business logic for disputes
+│   │
+│   ├── /models
+│   │   ├── disputeModel.js            # Mongoose model for dispute schema
+│   │
+│   ├── /routes
+│   │   ├── disputesRoutes.js          # Express routes for disputes
+│   │
+│   ├── /middlewares
+│   │   ├── validateDispute.js         # Middleware for validating dispute data
+│   │
+│   ├── /utils
+│   │   ├── errorHandler.js             # Error handling utility
+│   │
+│   ├── /tests
+│   │   ├── disputes.test.js            # Unit tests for disputes API
+│   │
+│   └── /config
+│       ├── db.js                      # Database connection setup
+│       └── server.js                  # Server configuration
 │
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+└── package.json
 ```
 
 ## Responsibilities
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
+### 1. API Development
+- **File:** `/src/api/disputes.js`
+  - Define API endpoints: 
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
+  - Handle request and response formats.
+
+### 2. Business Logic
+- **File:** `/src/controllers/disputesController.js`
+  - Implement functions for:
+    - Fetching disputes
+    - Creating a dispute with `evidence_urls` and status
+    - Updating dispute status (OPEN/REVIEW/RESOLVED)
+
+### 3. Data Modeling
+- **File:** `/src/models/disputeModel.js`
+  - Create Mongoose schema for disputes:
+    - Fields: `evidence_urls`, `status`, `created_at`, `updated_at`
+    - Implement validation for status values.
+
+### 4. Routing
+- **File:** `/src/routes/disputesRoutes.js`
+  - Set up Express routes to link API endpoints to controller functions.
+
+### 5. Middleware
+- **File:** `/src/middlewares/validateDispute.js`
+  - Validate incoming request data for creating/updating disputes.
+  - Ensure `evidence_urls` is an array and `status` is valid.
+
+### 6. Error Handling
+- **File:** `/src/utils/errorHandler.js`
+  - Centralize error handling for API responses.
+
+### 7. Testing
+- **File:** `/src/tests/disputes.test.js`
+  - Write unit tests for all API endpoints.
+  - Test for valid and invalid data scenarios.
+
+### 8. Database Configuration
+- **File:** `/src/config/db.js`
+  - Set up MongoDB connection.
   
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
-
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
-
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
-
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
-
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
-
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+### 9. Server Configuration
+- **File:** `/src/config/server.js`
+  - Initialize Express server and middleware.
 
 ## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
-
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- **Week 1:** API Development and Business Logic
+- **Week 2:** Data Modeling and Routing
+- **Week 3:** Middleware and Error Handling
+- **Week 4:** Testing and Deployment Preparation
 ```
