@@ -2,98 +2,95 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+This plan outlines the necessary steps to build the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, with an array for evidence URLs and a status field that can be OPEN, REVIEW, or RESOLVED.
 
 ## File Structure
 
-```
-/disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
-```
+### Backend API
 
-## Responsibilities
-
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
+- **File Paths**
+  - `src/controllers/disputeController.js`
+    - Responsibilities:
+      - Handle API requests for disputes (CRUD operations).
+      - Validate input data and manage dispute statuses.
   
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+  - `src/models/disputeModel.js`
+    - Responsibilities:
+      - Define the Dispute schema (including evidence_urls and status).
+      - Interact with the database for dispute data.
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+  - `src/routes/disputeRoutes.js`
+    - Responsibilities:
+      - Define API routes for disputes (GET, POST, PUT).
+      - Link routes to the corresponding controller methods.
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+  - `src/middleware/errorHandler.js`
+    - Responsibilities:
+      - Handle errors and send appropriate responses.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+  - `src/utils/validation.js`
+    - Responsibilities:
+      - Validate incoming data for disputes (e.g., status and evidence_urls).
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+### Frontend UI
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+- **File Paths**
+  - `src/components/DisputeList.js`
+    - Responsibilities:
+      - Display a list of disputes with their statuses and evidence URLs.
+      - Provide options to open new disputes and update existing ones.
+
+  - `src/components/DisputeForm.js`
+    - Responsibilities:
+      - Form for creating and updating disputes.
+      - Handle input for status and evidence URLs.
+
+  - `src/services/disputeService.js`
+    - Responsibilities:
+      - API calls to the backend for disputes (GET, POST, PUT).
+      - Manage responses and errors from the API.
+
+  - `src/pages/DisputePage.js`
+    - Responsibilities:
+      - Main page to manage disputes.
+      - Integrate `DisputeList` and `DisputeForm` components.
+
+  - `src/styles/disputeStyles.css`
+    - Responsibilities:
+      - Styling for dispute components and pages.
+
+## Implementation Steps
+
+1. **Backend Development**
+   - [ ] Create `disputeModel.js` with schema for disputes.
+   - [ ] Implement CRUD methods in `disputeController.js`.
+   - [ ] Set up routes in `disputeRoutes.js`.
+   - [ ] Implement error handling in `errorHandler.js`.
+   - [ ] Create validation logic in `validation.js`.
+
+2. **Frontend Development**
+   - [ ] Create `DisputeList.js` to display disputes.
+   - [ ] Create `DisputeForm.js` for dispute creation/updating.
+   - [ ] Implement API calls in `disputeService.js`.
+   - [ ] Create `DisputePage.js` to integrate components.
+   - [ ] Style components in `disputeStyles.css`.
+
+3. **Testing**
+   - [ ] Write unit tests for backend controllers and models.
+   - [ ] Write integration tests for API routes.
+   - [ ] Write component tests for frontend components.
+
+4. **Deployment**
+   - [ ] Prepare backend for deployment (Docker, environment variables).
+   - [ ] Build and deploy frontend application.
+   - [ ] Monitor and log API usage and errors.
 
 ## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+- **Week 1**: Backend development.
+- **Week 2**: Frontend development.
+- **Week 3**: Testing and deployment.
 
 ## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- Ensure proper validation for status and evidence URLs.
+- Consider user authentication for dispute management.
 ```
