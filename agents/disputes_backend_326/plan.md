@@ -1,99 +1,74 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Directory Structure
 ```
 /disputes_backend_326
 │
 ├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
+│   ├── disputes.js                # API route handling for disputes
+│   ├── disputesController.js       # Controller logic for disputes operations
+│   ├── disputesModel.js            # Mongoose model for disputes schema
+│   └── disputesRoutes.js           # Express routes for disputes
 │
 ├── /ui
 │   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
+│   │   ├── DisputeList.jsx         # Component to list all disputes
+│   │   ├── DisputeForm.jsx         # Component for creating/updating a dispute
+│   │   └── DisputeDetail.jsx       # Component to view dispute details
 │   │
 │   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
+│   │   ├── DisputePage.jsx         # Main page for disputes
+│   │   └── NotFoundPage.jsx        # Page for handling 404 errors
+│   │
+│   ├── /hooks
+│   │   └── useDisputes.js          # Custom hook for API calls related to disputes
 │   │
 │   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
+│   │   └── disputes.css            # CSS styles for disputes UI
 │   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
+│   └── App.jsx                     # Main application component
 │
 ├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
+│   ├── disputesController.test.js   # Unit tests for disputes controller
+│   ├── disputesModel.test.js        # Unit tests for disputes model
+│   └── DisputePage.test.jsx         # Unit tests for DisputePage component
 │
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+├── server.js                       # Main server file to start the application
+└── package.json                    # Project dependencies and scripts
 ```
 
 ## Responsibilities
 
 ### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+- **disputes.js**: Set up Express route for `/api/disputes` to handle GET, POST, PUT requests.
+- **disputesController.js**: Implement functions to:
+  - `listDisputes`: Retrieve all disputes.
+  - `createDispute`: Create a new dispute with evidence URLs and status.
+  - `updateDispute`: Update an existing dispute's status or evidence URLs.
+- **disputesModel.js**: Define Mongoose schema for disputes with fields:
+  - `evidence_urls`: Array of strings.
+  - `status`: Enum with values OPEN, REVIEW, RESOLVED.
 
 ### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
-
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
-
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
-
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+- **DisputeList.jsx**: Display a list of disputes with status and action buttons.
+- **DisputeForm.jsx**: Form for creating/updating disputes, including fields for evidence URLs and status selection.
+- **DisputeDetail.jsx**: Show detailed view of a selected dispute.
+- **DisputePage.jsx**: Main page to integrate `DisputeList` and `DisputeForm`.
 
 ### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+- **disputesController.test.js**: Write tests for API controller functions.
+- **disputesModel.test.js**: Validate Mongoose model behavior.
+- **DisputePage.test.jsx**: Test rendering and functionality of the DisputePage component.
+
+### Server Setup
+- **server.js**: Configure Express server, connect to MongoDB, and set up middleware for JSON parsing and CORS.
+
+### Styles
+- **disputes.css**: Style the disputes UI components for better user experience.
 
 ## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
-
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- **Week 1**: Set up API routes and models.
+- **Week 2**: Develop UI components and integrate with API.
+- **Week 3**: Write tests and finalize documentation.
 ```
