@@ -1,97 +1,100 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Overview
+Build the UI and API for managing disputes in the admin panel, targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
-```
+## File Structure
 
-## Responsibilities
+### Frontend
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+- **File Paths**
+  - `src/components/AdminDisputesTable.js`
+    - **Responsibilities**: 
+      - Render the admin disputes table.
+      - Implement filtering functionality.
+      - Display dispute details and status.
+  
+  - `src/components/DisputeStatusDropdown.js`
+    - **Responsibilities**: 
+      - Provide a dropdown for updating dispute status.
+      - Handle status change events.
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+  - `src/pages/AdminDisputesPage.js`
+    - **Responsibilities**: 
+      - Main page component for `/admin/disputes/321`.
+      - Fetch disputes data from the API.
+      - Pass data to `AdminDisputesTable`.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+  - `src/hooks/useDisputes.js`
+    - **Responsibilities**: 
+      - Custom hook to manage fetching and updating disputes.
+      - Handle API calls to `/api/disputes`.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+  - `src/styles/AdminDisputes.css`
+    - **Responsibilities**: 
+      - Styling for the admin disputes table and components.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+### API
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+- **File Paths**
+  - `src/routes/api/disputes.js`
+    - **Responsibilities**: 
+      - Define API endpoints for fetching and updating disputes.
+      - Handle GET requests to retrieve disputes.
+      - Handle PUT requests to update dispute status.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+  - `src/controllers/disputeController.js`
+    - **Responsibilities**: 
+      - Logic for fetching disputes from the database.
+      - Logic for updating dispute status in the database.
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+  - `src/models/Dispute.js`
+    - **Responsibilities**: 
+      - Define the Dispute model/schema for the database.
+      - Include methods for querying and updating disputes.
+
+### Testing
+
+- **File Paths**
+  - `src/tests/AdminDisputesTable.test.js`
+    - **Responsibilities**: 
+      - Unit tests for `AdminDisputesTable` component.
+      - Test filtering and rendering logic.
+
+  - `src/tests/disputeController.test.js`
+    - **Responsibilities**: 
+      - Unit tests for dispute controller functions.
+      - Test API endpoint responses.
 
 ## Development Steps
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+1. **Setup API Endpoints**
+   - Implement GET and PUT methods in `disputes.js`.
+   - Connect to the database and implement logic in `disputeController.js`.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+2. **Create Frontend Components**
+   - Build `AdminDisputesTable` to display disputes.
+   - Implement filtering in the table.
+   - Create `DisputeStatusDropdown` for status updates.
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+3. **Integrate API with Frontend**
+   - Use `useDisputes` hook to fetch data and handle updates.
+   - Connect dropdown actions to API calls.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+4. **Styling**
+   - Apply styles in `AdminDisputes.css` to ensure a clean UI.
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
+5. **Testing**
+   - Write unit tests for components and API logic.
+   - Ensure all tests pass before deployment.
 
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
+6. **Deployment**
+   - Prepare the feature for deployment to the staging environment.
+   - Conduct user acceptance testing (UAT).
 
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+## Timeline
+- **Week 1**: API development and database integration.
+- **Week 2**: Frontend component development and integration.
+- **Week 3**: Testing and deployment preparation.
+```
