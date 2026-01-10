@@ -1,99 +1,95 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Directory Structure
 ```
 /disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+├── api
+│   ├── disputes.js
+│   └── index.js
+├── models
+│   └── disputeModel.js
+├── routes
+│   └── disputesRoutes.js
+├── controllers
+│   └── disputesController.js
+├── middlewares
+│   └── authMiddleware.js
+├── validations
+│   └── disputeValidation.js
+├── tests
+│   ├── disputes.test.js
+│   └── validation.test.js
+└── app.js
 ```
 
-## Responsibilities
+## File Responsibilities
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+### 1. `api/disputes.js`
+- Define API endpoints for disputes.
+- Implement methods for handling requests: 
+  - `GET /api/disputes` - List all disputes.
+  - `POST /api/disputes` - Create a new dispute.
+  - `PUT /api/disputes/:id` - Update an existing dispute.
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+### 2. `api/index.js`
+- Set up Express app and middleware.
+- Import and use `disputesRoutes`.
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+### 3. `models/disputeModel.js`
+- Define the Dispute schema with fields:
+  - `id`
+  - `status` (OPEN/REVIEW/RESOLVED)
+  - `evidence_urls` (array)
+  - `created_at`
+  - `updated_at`
+- Implement Mongoose model for database interactions.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### 4. `routes/disputesRoutes.js`
+- Define route handlers for disputes.
+- Link routes to controller methods.
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+### 5. `controllers/disputesController.js`
+- Implement business logic for:
+  - Listing disputes.
+  - Creating a new dispute.
+  - Updating dispute status and evidence URLs.
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+### 6. `middlewares/authMiddleware.js`
+- Implement authentication middleware to secure API routes.
+
+### 7. `validations/disputeValidation.js`
+- Define validation logic for dispute creation and updates.
+- Use Joi or similar library for schema validation.
+
+### 8. `tests/disputes.test.js`
+- Write unit tests for API endpoints.
+- Test all CRUD operations and edge cases.
+
+### 9. `tests/validation.test.js`
+- Write tests for validation logic.
+- Ensure all validation rules are covered.
+
+### 10. `app.js`
+- Initialize the application.
+- Connect to the database.
+- Start the server and listen on a specified port.
+
+## Development Steps
+1. Set up project structure and install dependencies (Express, Mongoose, Joi, etc.).
+2. Implement the model in `disputeModel.js`.
+3. Create API routes in `disputesRoutes.js`.
+4. Develop controller logic in `disputesController.js`.
+5. Implement validation in `disputeValidation.js`.
+6. Write middleware for authentication.
+7. Create tests for API and validation.
+8. Test the application thoroughly.
+9. Document API endpoints and usage.
+10. Deploy the application.
 
 ## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
-
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- **Week 1**: Set up project structure and implement models.
+- **Week 2**: Develop API routes and controllers.
+- **Week 3**: Implement validation and middleware.
+- **Week 4**: Write tests and finalize documentation.
 ```
