@@ -1,97 +1,95 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Overview
+This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
-```
+## File Structure
+
+### Frontend
+
+- **File Paths**
+  - `src/components/AdminDisputesTable.js`
+    - Responsible for rendering the disputes table with filters and actions.
+  - `src/components/DisputeRow.js`
+    - Responsible for rendering individual dispute rows with status update actions.
+  - `src/hooks/useDisputes.js`
+    - Custom hook to fetch and manage disputes data.
+  - `src/pages/AdminDisputesPage.js`
+    - Main page component for `/admin/disputes/321`.
+  - `src/services/api.js`
+    - API service for making calls to `/api/disputes`.
+  - `src/styles/AdminDisputes.css`
+    - Styles for the admin disputes page and components.
+
+### Backend
+
+- **File Paths**
+  - `src/routes/disputes.js`
+    - Express route handling for `/api/disputes`.
+  - `src/controllers/disputeController.js`
+    - Controller functions for fetching disputes and updating statuses.
+  - `src/models/Dispute.js`
+    - Mongoose model for the Dispute schema.
+  - `src/middleware/authMiddleware.js`
+    - Middleware for admin authentication and authorization.
+  - `src/utils/responseHandler.js`
+    - Utility for standardizing API responses.
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### Frontend
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+- **AdminDisputesTable.js**
+  - Implement table structure with filters for dispute status and date.
+  - Integrate with `useDisputes` hook to fetch and display data.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+- **DisputeRow.js**
+  - Create UI for each dispute, including status display and update buttons.
+  - Handle status update actions and trigger API calls.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+- **useDisputes.js**
+  - Fetch disputes from the API and manage loading and error states.
+  - Provide functions to update dispute status.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+- **AdminDisputesPage.js**
+  - Set up routing for `/admin/disputes/321`.
+  - Combine `AdminDisputesTable` and manage overall state.
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+- **api.js**
+  - Create functions for GET and POST requests to `/api/disputes`.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+### Backend
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+- **disputes.js**
+  - Define routes for fetching disputes and updating statuses.
+  - Ensure proper request validation and error handling.
 
-## Development Steps
+- **disputeController.js**
+  - Implement logic for fetching disputes from the database.
+  - Handle status updates and respond with appropriate messages.
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+- **Dispute.js**
+  - Define the schema for disputes, including fields for status and timestamps.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+- **authMiddleware.js**
+  - Ensure only authorized admin users can access dispute routes.
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+- **responseHandler.js**
+  - Standardize API responses for success and error cases.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+## Timeline
+- **Week 1**: Set up the frontend structure and basic API endpoints.
+- **Week 2**: Implement dispute fetching and table rendering.
+- **Week 3**: Add filtering functionality and status update actions.
+- **Week 4**: Testing and bug fixing.
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
+## Testing
+- Unit tests for components and hooks.
+- Integration tests for API endpoints.
+- End-to-end tests for the full admin disputes flow.
 
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
-
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+## Deployment
+- Ensure CI/CD pipeline is updated for new changes.
+- Deploy to staging for QA before production release.
+```
