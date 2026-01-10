@@ -1,97 +1,93 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
-
+## Project Structure
 ```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+/admin_disputes_frontend_321
+│
+├── /src
+│   ├── /components
+│   │   ├── DisputeTable.jsx          # Component for displaying disputes with filters
+│   │   ├── FilterBar.jsx             # Component for filtering disputes
+│   │   └── StatusUpdateModal.jsx     # Modal for updating dispute status
+│   │
+│   ├── /hooks
+│   │   └── useDisputeData.js         # Custom hook for fetching and managing dispute data
+│   │
+│   ├── /pages
+│   │   └── AdminDisputesPage.jsx     # Main page component for /admin/disputes/321
+│   │
+│   ├── /services
+│   │   └── disputeService.js          # API calls to /api/disputes
+│   │
+│   ├── /styles
+│   │   └── AdminDisputes.css          # CSS styles for the admin disputes page
+│   │
+│   └── App.js                         # Main application file
+│
+├── /api
+│   ├── /disputes
+│   │   ├── index.js                   # API endpoint for fetching and updating disputes
+│   │   └── disputeController.js        # Controller for handling dispute logic
+│   │
+│   └── /middleware
+│       └── authMiddleware.js          # Middleware for authentication checks
+│
+└── /tests
+    ├── DisputeTable.test.js           # Unit tests for DisputeTable component
+    ├── FilterBar.test.js              # Unit tests for FilterBar component
+    └── disputeService.test.js          # Unit tests for disputeService API calls
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### Frontend
+1. **DisputeTable.jsx**
+   - Render a table of disputes with pagination and sorting.
+   - Integrate filters for status and date range.
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+2. **FilterBar.jsx**
+   - Provide UI elements for filtering disputes (status dropdown, date pickers).
+   - Handle filter state and pass it to DisputeTable.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+3. **StatusUpdateModal.jsx**
+   - Display a modal for updating the status of a selected dispute.
+   - Call the update API on confirmation.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+4. **useDisputeData.js**
+   - Fetch disputes from `/api/disputes` and manage state.
+   - Handle loading and error states.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+5. **AdminDisputesPage.jsx**
+   - Combine DisputeTable and FilterBar components.
+   - Manage overall state and API calls.
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+6. **AdminDisputes.css**
+   - Style the admin disputes page for a clean UI.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+### Backend
+1. **index.js (API)**
+   - Set up routes for GET and POST requests to `/api/disputes`.
+   - Connect to the disputeController.
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+2. **disputeController.js**
+   - Implement logic for fetching disputes and updating their status.
+   - Validate user permissions for admin actions.
 
-## Development Steps
+3. **authMiddleware.js**
+   - Ensure that only authenticated users can access the admin routes.
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+### Testing
+1. **DisputeTable.test.js**
+   - Write tests for rendering and filtering functionality.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+2. **FilterBar.test.js**
+   - Test filter interactions and state management.
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+3. **disputeService.test.js**
+   - Test API call functions for fetching and updating disputes.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
-
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
-
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
-
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+## Timeline
+- **Week 1:** Set up project structure and initial components.
+- **Week 2:** Implement API endpoints and connect frontend to backend.
+- **Week 3:** Complete UI components and styling.
+- **Week 4:** Write tests and conduct user acceptance testing.
