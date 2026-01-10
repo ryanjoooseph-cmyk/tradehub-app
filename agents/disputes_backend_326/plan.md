@@ -1,99 +1,77 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Directory Structure
 ```
-/disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+/disputes_backend/
+├── api/
+│   ├── disputes/
+│   │   ├── disputesController.js
+│   │   ├── disputesRoutes.js
+│   │   └── disputesService.js
+├── models/
+│   └── disputeModel.js
+├── middleware/
+│   └── authMiddleware.js
+├── config/
+│   └── dbConfig.js
+├── tests/
+│   ├── disputesController.test.js
+│   └── disputesService.test.js
+└── app.js
 ```
 
 ## Responsibilities
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+### 1. API Layer
+- **File: `api/disputes/disputesRoutes.js`**
+  - Define routes for:
+    - `POST /api/disputes` - Create a new dispute
+    - `GET /api/disputes` - List all disputes
+    - `PUT /api/disputes/:id` - Update a specific dispute
+  - Integrate with `disputesController.js`.
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+- **File: `api/disputes/disputesController.js`**
+  - Implement controller functions:
+    - `createDispute(req, res)` - Handle dispute creation.
+    - `listDisputes(req, res)` - Fetch and return all disputes.
+    - `updateDispute(req, res)` - Update dispute status and evidence URLs.
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+- **File: `api/disputes/disputesService.js`**
+  - Business logic for disputes:
+    - `createDispute(data)` - Validate and save dispute to DB.
+    - `getAllDisputes()` - Retrieve disputes from DB.
+    - `updateDispute(id, data)` - Update dispute in DB.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### 2. Database Model
+- **File: `models/disputeModel.js`**
+  - Define Mongoose schema for disputes:
+    - Fields: `status` (enum: OPEN/REVIEW/RESOLVED), `evidence_urls` (array of strings), `created_at`, `updated_at`.
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+### 3. Middleware
+- **File: `middleware/authMiddleware.js`**
+  - Implement authentication middleware to protect routes.
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+### 4. Configuration
+- **File: `config/dbConfig.js`**
+  - Set up database connection (MongoDB or SQL).
+
+### 5. Testing
+- **File: `tests/disputesController.test.js`**
+  - Write unit tests for controller functions.
+
+- **File: `tests/disputesService.test.js`**
+  - Write unit tests for service functions.
+
+### 6. Main Application File
+- **File: `app.js`**
+  - Set up Express server.
+  - Integrate routes and middleware.
+  - Connect to the database.
 
 ## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
-
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- **Week 1:** Set up project structure and database model.
+- **Week 2:** Implement API routes and controllers.
+- **Week 3:** Develop service logic and middleware.
+- **Week 4:** Write tests and finalize documentation.
 ```
