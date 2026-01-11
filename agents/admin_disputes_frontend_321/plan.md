@@ -1,103 +1,81 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Overview
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterBar.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputes.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
-```
+## File Structure
 
-## File Responsibilities
+### Frontend
 
-### 1. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Render the main layout for the disputes page.
-     - Integrate `FilterBar` and `AdminDisputesTable` components.
-     - Handle API calls to fetch disputes data.
+#### 1. UI Components
+- **Path:** `src/components/AdminDisputesTable.js`
+  - **Responsibilities:**
+    - Render the admin disputes table.
+    - Implement filters for dispute status and date range.
+    - Display dispute details and actions.
 
-### 2. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Display the list of disputes in a table format.
-     - Include columns for dispute details and status.
-     - Implement action buttons for updating dispute status.
+- **Path:** `src/components/DisputeRow.js`
+  - **Responsibilities:**
+    - Render individual dispute rows.
+    - Include buttons for updating dispute status.
 
-### 3. **FilterBar.jsx**
-   - **Path:** `/src/components/FilterBar.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Handle filter state and pass it to the `AdminDisputesTable`.
+- **Path:** `src/components/Filters.js`
+  - **Responsibilities:**
+    - Provide filter options for the admin table.
+    - Handle filter state and pass it to the parent component.
 
-### 4. **StatusUpdateModal.jsx**
-   - **Path:** `/src/components/StatusUpdateModal.jsx`
-   - **Responsibilities:**
-     - Modal for confirming status updates on disputes.
-     - Accept user input for new status and trigger API call.
+#### 2. Pages
+- **Path:** `src/pages/AdminDisputesPage.js`
+  - **Responsibilities:**
+    - Set up the route `/admin/disputes/321`.
+    - Integrate `AdminDisputesTable` and `Filters` components.
+    - Manage state for disputes and filters.
 
-### 5. **disputes.js**
-   - **Path:** `/src/api/disputes.js`
-   - **Responsibilities:**
-     - Define API functions for fetching disputes and updating status.
-     - Handle error responses and manage API request logic.
+#### 3. Styles
+- **Path:** `src/styles/AdminDisputes.css`
+  - **Responsibilities:**
+    - Define styles for the admin disputes table and filters.
 
-### 6. **useDisputes.js**
-   - **Path:** `/src/hooks/useDisputes.js`
-   - **Responsibilities:**
-     - Custom hook to manage disputes state and API interactions.
-     - Provide methods for fetching, filtering, and updating disputes.
+### API
 
-### 7. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the Admin Disputes page layout and components.
-     - Ensure responsive design for various screen sizes.
+#### 1. API Endpoints
+- **Path:** `src/api/disputes.js`
+  - **Responsibilities:**
+    - Implement API calls to `/api/disputes`.
+    - Create functions for fetching disputes, updating status, and filtering.
 
-### 8. **constants.js**
-   - **Path:** `/src/utils/constants.js`
-   - **Responsibilities:**
-     - Define constants for dispute statuses and API endpoints.
-     - Centralize configuration for easier maintenance.
+#### 2. API Routes
+- **Path:** `src/routes/api/disputes.js`
+  - **Responsibilities:**
+    - Define Express routes for handling disputes.
+    - Implement GET for fetching disputes and PUT for updating status.
 
-## Development Steps
+### State Management
+- **Path:** `src/store/disputesSlice.js`
+  - **Responsibilities:**
+    - Create Redux slice for managing disputes state.
+    - Handle actions for fetching and updating disputes.
 
-1. **Setup Project Structure**
-   - Create the directory structure as outlined above.
+### Testing
+- **Path:** `src/tests/AdminDisputesTable.test.js`
+  - **Responsibilities:**
+    - Write unit tests for `AdminDisputesTable` component.
+    - Test filtering functionality and status updates.
 
-2. **Implement API Functions**
-   - Develop functions in `disputes.js` for fetching and updating disputes.
+- **Path:** `src/tests/api/disputes.test.js`
+  - **Responsibilities:**
+    - Write tests for API endpoints.
+    - Ensure correct responses for GET and PUT requests.
 
-3. **Create UI Components**
-   - Build `FilterBar`, `AdminDisputesTable`, and `StatusUpdateModal` components.
-
-4. **Integrate Components in Page**
-   - Combine components in `AdminDisputesPage.jsx` and manage state.
-
-5. **Style Components**
-   - Apply styles in `AdminDisputesPage.css` for a polished look.
-
-6. **Testing**
-   - Write unit tests for API functions and components.
-   - Conduct integration testing for the entire flow.
-
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+## Deployment
+- **Path:** `deploy/admin_disputes/README.md`
+  - **Responsibilities:**
+    - Document deployment steps for the new feature.
+    - Include instructions for testing in staging and production environments.
 
 ## Timeline
-- **Week 1:** Setup and API implementation.
-- **Week 2:** Component development and integration.
-- **Week 3:** Styling and testing.
-- **Week 4:** Final review and deployment.
+- **Week 1:** UI component development and initial API setup.
+- **Week 2:** Integration of components, state management, and testing.
+- **Week 3:** Final testing, bug fixes, and deployment preparation.
+```
