@@ -3,91 +3,86 @@
 
 ## Directory Structure
 ```
-/disputes_backend_326
+/disputes_backend
 │
 ├── /api
-│   ├── disputes.js              # API route handling for disputes
-│   ├── disputesController.js     # Business logic for disputes
-│   ├── disputesModel.js          # Mongoose model for disputes
-│   └── index.js                  # Main API entry point
+│   ├── disputes.py                # API endpoints for disputes
+│   └── __init__.py                # API package initialization
 │
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx       # Component to list disputes
-│   │   ├── DisputeForm.jsx       # Component to create/update disputes
-│   │   └── DisputeItem.jsx       # Component to display individual dispute
-│   │
-│   ├── /pages
-│   │   └── DisputesPage.jsx      # Main page for disputes UI
-│   │
-│   ├── /hooks
-│   │   └── useDisputes.js        # Custom hook for API calls
-│   │
-│   ├── /styles
-│   │   └── disputes.css          # CSS styles for disputes UI
-│   │
-│   └── App.js                    # Main application file
+├── /models
+│   ├── dispute.py                 # Dispute model definition
+│   └── __init__.py                # Models package initialization
+│
+├── /schemas
+│   ├── dispute_schema.py          # Pydantic schemas for validation
+│   └── __init__.py                # Schemas package initialization
+│
+├── /services
+│   ├── dispute_service.py         # Business logic for dispute handling
+│   └── __init__.py                # Services package initialization
 │
 ├── /tests
-│   ├── disputesController.test.js # Unit tests for disputes controller
-│   ├── disputesModel.test.js      # Unit tests for disputes model
-│   └── DisputesPage.test.jsx      # Unit tests for DisputesPage component
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   └── __init__.py                # Tests package initialization
 │
-└── package.json                   # Project dependencies and scripts
+├── /config
+│   ├── settings.py                # Configuration settings
+│   └── __init__.py                # Config package initialization
+│
+└── app.py                         # Main application entry point
 ```
 
 ## Responsibilities
 
-### API Implementation
-- **/api/disputes.js**
-  - Define routes for GET, POST, and PUT requests.
-  - Handle request validation and response formatting.
+### API Endpoints (`/api/disputes.py`)
+- **GET /api/disputes**: List all disputes
+  - Fetch disputes from the database
+  - Return JSON response with disputes array
+- **POST /api/disputes**: Create a new dispute
+  - Validate input using `dispute_schema.py`
+  - Save dispute to the database
+  - Return created dispute with status 201
+- **PUT /api/disputes/{id}**: Update an existing dispute
+  - Validate input and check if dispute exists
+  - Update dispute status and evidence_urls
+  - Return updated dispute
 
-- **/api/disputesController.js**
-  - Implement functions to:
-    - List disputes (GET)
-    - Create a new dispute (POST)
-    - Update an existing dispute (PUT)
-  - Manage dispute statuses: OPEN, REVIEW, RESOLVED.
-  - Handle evidence_urls array.
+### Models (`/models/dispute.py`)
+- Define `Dispute` class with fields:
+  - `id`: Unique identifier
+  - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - `evidence_urls`: Array of strings
+  - `created_at`: Timestamp
 
-- **/api/disputesModel.js**
-  - Define Mongoose schema for disputes.
-  - Include fields for status and evidence_urls.
+### Schemas (`/schemas/dispute_schema.py`)
+- Create Pydantic models for:
+  - `DisputeCreate`: For creating disputes
+  - `DisputeUpdate`: For updating disputes
+  - `DisputeResponse`: For returning dispute data
 
-### UI Implementation
-- **/ui/components/DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include filtering options based on status.
+### Services (`/services/dispute_service.py`)
+- Implement functions for:
+  - `list_disputes()`: Retrieve all disputes
+  - `create_dispute(data)`: Handle creation logic
+  - `update_dispute(id, data)`: Handle update logic
 
-- **/ui/components/DisputeForm.jsx**
-  - Create a form for adding/updating disputes.
-  - Include fields for status and evidence URLs.
+### Tests (`/tests/test_disputes.py`)
+- Write unit tests for:
+  - Listing disputes
+  - Creating disputes with valid/invalid data
+  - Updating disputes and checking status changes
 
-- **/ui/components/DisputeItem.jsx**
-  - Display individual dispute details.
-  - Provide options to update or delete the dispute.
+### Configuration (`/config/settings.py`)
+- Define environment variables and settings for database connection and API configurations.
 
-- **/ui/pages/DisputesPage.jsx**
-  - Combine components to create the main disputes page.
-  - Manage state and handle API calls using `useDisputes` hook.
+### Main Application (`app.py`)
+- Set up FastAPI application
+- Include API routes from `disputes.py`
+- Configure middleware and CORS if necessary
 
-- **/ui/hooks/useDisputes.js**
-  - Implement API calls for fetching, creating, and updating disputes.
-  - Manage loading and error states.
-
-### Testing
-- **/tests/disputesController.test.js**
-  - Write unit tests for each controller function.
-
-- **/tests/disputesModel.test.js**
-  - Write unit tests for the Mongoose model.
-
-- **/tests/DisputesPage.test.jsx**
-  - Write tests for rendering and functionality of the DisputesPage component.
-
-### Additional Notes
-- Ensure proper error handling and validation in both API and UI.
-- Follow best practices for code organization and documentation.
-- Use environment variables for configuration (e.g., database connection).
+## Timeline
+- **Week 1**: API design and model/schema creation
+- **Week 2**: Implement API endpoints and service logic
+- **Week 3**: Write tests and perform integration testing
+- **Week 4**: Final review and deployment preparation
 ```
