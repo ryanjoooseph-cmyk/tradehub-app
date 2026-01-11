@@ -1,1 +1,9 @@
-<<required-check yml above>>
+name: required-check
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  required:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok

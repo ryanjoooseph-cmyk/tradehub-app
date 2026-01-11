@@ -1,1 +1,15 @@
-<<automerge yml above>>
+name: automerge
+on:
+  pull_request_target:
+    types: [labeled, opened, reopened, synchronize]
+permissions:
+  pull-requests: write
+jobs:
+  enable:
+    if: contains(github.event.pull_request.labels.*.name, 'automerge')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GH_PAT }}
+          merge-method: squash
