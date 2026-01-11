@@ -10,12 +10,13 @@
   ├── pages
   │   └── AdminDisputesPage.jsx
   ├── api
-  │   └── disputes.js
+  │   └── disputesApi.js
+  ├── hooks
+  │   └── useDisputes.js
   ├── styles
   │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── filters.js
-  └── App.js
+  └── utils
+      └── constants.js
 ```
 
 ## File Responsibilities
@@ -25,73 +26,63 @@
 - **Responsibilities:**
   - Render the admin disputes table.
   - Display dispute data with pagination.
-  - Integrate filter options from `FilterComponent`.
+  - Integrate filtering options using props.
 
 ### 2. **FilterComponent.jsx**
 - **Path:** `/src/components/FilterComponent.jsx`
 - **Responsibilities:**
   - Provide UI for filtering disputes (e.g., by status, date).
-  - Handle filter state and pass selected filters to `AdminDisputesTable`.
+  - Handle filter state and pass it to the parent component.
 
 ### 3. **StatusUpdateButton.jsx**
 - **Path:** `/src/components/StatusUpdateButton.jsx`
 - **Responsibilities:**
   - Render a button to update the status of a dispute.
-  - Trigger API call to update status when clicked.
+  - Trigger API call to update status on click.
 
 ### 4. **AdminDisputesPage.jsx**
 - **Path:** `/src/pages/AdminDisputesPage.jsx`
 - **Responsibilities:**
   - Main page component for `/admin/disputes/321`.
   - Integrate `AdminDisputesTable` and `FilterComponent`.
-  - Manage overall state and API calls.
+  - Manage state for disputes and filters.
 
-### 5. **disputes.js**
-- **Path:** `/src/api/disputes.js`
+### 5. **disputesApi.js**
+- **Path:** `/src/api/disputesApi.js`
 - **Responsibilities:**
-  - Define API calls for fetching disputes and updating status.
-  - Handle error responses and return data to components.
+  - Define API calls to `/api/disputes`.
+  - Implement functions for fetching disputes and updating status.
 
-### 6. **AdminDisputesPage.css**
+### 6. **useDisputes.js**
+- **Path:** `/src/hooks/useDisputes.js`
+- **Responsibilities:**
+  - Custom hook to manage disputes state and API interactions.
+  - Handle loading and error states.
+
+### 7. **AdminDisputesPage.css**
 - **Path:** `/src/styles/AdminDisputesPage.css`
 - **Responsibilities:**
-  - Style the admin disputes page and components.
-  - Ensure responsive design for various screen sizes.
+  - Style the Admin Disputes page and its components.
+  - Ensure responsive design for table and filters.
 
-### 7. **filters.js**
-- **Path:** `/src/utils/filters.js`
+### 8. **constants.js**
+- **Path:** `/src/utils/constants.js`
 - **Responsibilities:**
-  - Utility functions for filtering logic.
-  - Export filter functions to be used in `FilterComponent`.
-
-### 8. **App.js**
-- **Path:** `/src/App.js`
-- **Responsibilities:**
-  - Set up routing for the application.
-  - Define route for `/admin/disputes/321` to render `AdminDisputesPage`.
+  - Define constants for dispute statuses and filter options.
+  - Centralize configuration for easier updates.
 
 ## Development Steps
-1. **Set Up Routing:**
-   - Implement route in `App.js` for `/admin/disputes/321`.
+1. **Set up routing** for `/admin/disputes/321` in the main application.
+2. **Implement API calls** in `disputesApi.js` for fetching and updating disputes.
+3. **Create components**: `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+4. **Develop the main page**: Integrate components in `AdminDisputesPage.jsx`.
+5. **Style the components** using `AdminDisputesPage.css`.
+6. **Test functionality**: Ensure filters and status updates work as expected.
+7. **Review and optimize** code for performance and maintainability.
 
-2. **Create Components:**
-   - Develop `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
-
-3. **Implement API Calls:**
-   - Write functions in `disputes.js` for fetching and updating disputes.
-
-4. **Integrate Components:**
-   - Combine components in `AdminDisputesPage` and manage state.
-
-5. **Style Components:**
-   - Apply styles in `AdminDisputesPage.css`.
-
-6. **Testing:**
-   - Test UI and API interactions.
-   - Ensure filters and status updates work as expected.
-
-7. **Deployment:**
-   - Prepare for deployment and ensure all routes are functional.
-
-## Conclusion
-This plan outlines the necessary components and responsibilities for implementing the admin disputes feature, ensuring a clear path from development to deployment.
+## Timeline
+- **Day 1-2:** Set up routing and API integration.
+- **Day 3-4:** Develop UI components.
+- **Day 5:** Integrate components and style the page.
+- **Day 6:** Testing and optimization.
+- **Day 7:** Final review and deployment preparation.
