@@ -1,103 +1,102 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
-
-## File Structure
-
+## Project Structure
 ```
-/src
-  ├── api
-  │   ├── disputes.js
-  │   └── index.js
-  ├── components
-  │   ├── DisputeList.jsx
-  │   ├── DisputeForm.jsx
-  │   └── DisputeItem.jsx
-  ├── hooks
-  │   └── useDisputes.js
-  ├── pages
-  │   └── DisputePage.jsx
-  ├── services
-  │   └── disputeService.js
-  ├── styles
-  │   └── DisputeStyles.css
-  └── utils
-      └── apiUtils.js
+/project-root
+│
+├── /src
+│   ├── /api
+│   │   ├── disputes.js                # API route for disputes
+│   │   └── disputesController.js      # Controller for dispute logic
+│   │
+│   ├── /models
+│   │   └── disputeModel.js            # Mongoose model for disputes
+│   │
+│   ├── /routes
+│   │   └── disputesRoutes.js          # Express routes for disputes
+│   │
+│   ├── /middlewares
+│   │   └── validateDispute.js         # Middleware for dispute validation
+│   │
+│   ├── /utils
+│   │   └── responseFormatter.js        # Utility for standardizing API responses
+│   │
+│   └── /tests
+│       ├── disputes.test.js           # Unit tests for disputes API
+│       └── disputesController.test.js  # Unit tests for disputes controller
+│
+└── /client
+    ├── /components
+    │   ├── DisputeList.js             # Component to list disputes
+    │   ├── DisputeForm.js             # Component to create/update disputes
+    │   └── DisputeDetail.js            # Component to view dispute details
+    │
+    ├── /services
+    │   └── disputeService.js           # Service for API calls related to disputes
+    │
+    └── /styles
+        └── disputes.css                # Styles for dispute components
 ```
 
-## API Implementation
+## Responsibilities
 
-### File: `/src/api/disputes.js`
-- **Responsibilities:**
-  - Define API routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
-  - Handle request validation and response formatting.
+### API Implementation
+1. **disputes.js**: 
+   - Define the `/api/disputes` route.
+   - Connect to the controller methods for handling requests.
 
-### File: `/src/api/index.js`
-- **Responsibilities:**
-  - Export all API endpoints for easy access.
+2. **disputesController.js**: 
+   - Implement functions for:
+     - `listDisputes`: Fetch all disputes.
+     - `createDispute`: Create a new dispute with evidence URLs.
+     - `updateDispute`: Update existing dispute status and evidence URLs.
 
-## UI Implementation
+3. **disputeModel.js**: 
+   - Define the Mongoose schema for disputes:
+     - Fields: `status`, `evidence_urls`, `created_at`, `updated_at`.
 
-### File: `/src/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Render `DisputeItem` for each dispute.
+4. **disputesRoutes.js**: 
+   - Set up Express routes for GET, POST, and PUT methods.
 
-### File: `/src/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Provide a form to open a new dispute.
-  - Include fields for evidence URLs and status selection.
+5. **validateDispute.js**: 
+   - Middleware to validate incoming requests for creating/updating disputes.
 
-### File: `/src/components/DisputeItem.jsx`
-- **Responsibilities:**
-  - Display individual dispute details.
-  - Include buttons for updating status and viewing evidence.
+6. **responseFormatter.js**: 
+   - Utility function to standardize API responses (success/error).
 
-### File: `/src/pages/DisputePage.jsx`
-- **Responsibilities:**
-  - Main page to render `DisputeList` and `DisputeForm`.
-  - Handle state management for disputes.
+### UI Implementation
+1. **DisputeList.js**: 
+   - Fetch and display a list of disputes.
+   - Include buttons for viewing and updating disputes.
 
-## Hooks
+2. **DisputeForm.js**: 
+   - Form for creating and updating disputes.
+   - Handle input for status and evidence URLs.
 
-### File: `/src/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Custom hook to manage fetching, adding, and updating disputes.
-  - Handle API calls and state management.
+3. **DisputeDetail.js**: 
+   - Display details of a selected dispute.
+   - Allow for status updates.
 
-## Services
+4. **disputeService.js**: 
+   - Implement API calls for:
+     - Fetching disputes.
+     - Creating a new dispute.
+     - Updating an existing dispute.
 
-### File: `/src/services/disputeService.js`
-- **Responsibilities:**
-  - Define functions for API interactions:
-    - `fetchDisputes()`
-    - `createDispute(data)`
-    - `updateDispute(id, data)`
+5. **disputes.css**: 
+   - Style the dispute components for better UX.
 
-## Styles
+### Testing
+1. **disputes.test.js**: 
+   - Write unit tests for API endpoints.
 
-### File: `/src/styles/DisputeStyles.css`
-- **Responsibilities:**
-  - Define styles for dispute components.
+2. **disputesController.test.js**: 
+   - Write unit tests for controller logic.
 
-## Utilities
-
-### File: `/src/utils/apiUtils.js`
-- **Responsibilities:**
-  - Helper functions for API requests (e.g., error handling, response parsing).
-
-## Testing
-
-- Implement unit tests for API endpoints in `/tests/api/disputes.test.js`.
-- Implement component tests for UI components in `/tests/components/Dispute*.test.js`.
-
-## Deployment
-
-- Ensure API is integrated with the backend service.
-- Deploy UI changes to the staging environment for testing.
+## Timeline
+- **Week 1**: API setup and model definition.
+- **Week 2**: Implement API routes and controllers.
+- **Week 3**: Develop UI components and integrate with API.
+- **Week 4**: Testing and bug fixing.
 ```
