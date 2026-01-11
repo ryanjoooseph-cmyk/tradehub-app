@@ -1,21 +1,16 @@
-name: agent-automerge
+name: automerge
 on:
   pull_request_target:
-    types: [labeled, synchronize, reopened]
+    types: [labeled, synchronize, reopened, ready_for_review]
 permissions:
-  contents: write
   pull-requests: write
+  contents: write
 jobs:
-  merge:
+  enable:
     if: contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
     steps:
       - uses: peter-evans/enable-pull-request-automerge@v3
         with:
-          pull-request-number: ${{ github.event.pull_request.number }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           merge-method: squash
-      - uses: peter-evans/auto-merge@v3
-        with:
-          pull-request-number: ${{ github.event.pull_request.number }}
-          merge-method: squash
-          commit-message: pull-request-title
