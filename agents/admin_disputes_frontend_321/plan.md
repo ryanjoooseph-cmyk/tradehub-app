@@ -1,97 +1,98 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
+
+## Overview
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
 
 ## Directory Structure
 
 ```
 /src
   ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
+  │   ├── AdminDisputesTable
+  │   │   ├── AdminDisputesTable.jsx         # Component for displaying disputes
+  │   │   ├── AdminDisputeRow.jsx             # Component for each dispute row
+  │   │   └── Filters.jsx                      # Component for filtering disputes
   ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
+  │   └── AdminDisputesPage.jsx                # Main page component for /admin/disputes/321
+  ├── api
+  │   └── disputes.js                          # API calls related to disputes
+  ├── hooks
+  │   └── useDisputes.js                       # Custom hook for fetching and managing disputes
   ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+  │   └── AdminDisputes.css                    # CSS styles for the admin disputes page
+  └── utils
+      └── statusUtils.js                       # Utility functions for status updates
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### Components
+- **AdminDisputesTable.jsx**
+  - Render the table of disputes.
+  - Integrate filtering options from `Filters.jsx`.
+  - Handle actions to update dispute status.
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+- **AdminDisputeRow.jsx**
+  - Display individual dispute details.
+  - Include buttons for status updates.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+- **Filters.jsx**
+  - Provide filtering options (e.g., by status, date).
+  - Emit filter changes to the parent component.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+### Pages
+- **AdminDisputesPage.jsx**
+  - Set up the main layout for the disputes page.
+  - Fetch disputes using `useDisputes` hook.
+  - Pass data to `AdminDisputesTable`.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+### API
+- **disputes.js**
+  - Implement API calls to `/api/disputes` for:
+    - Fetching all disputes.
+    - Updating dispute status.
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+### Hooks
+- **useDisputes.js**
+  - Manage state for disputes.
+  - Handle fetching and updating disputes with error handling.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+### Styles
+- **AdminDisputes.css**
+  - Style the admin disputes table and filters for a clean UI.
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+### Utils
+- **statusUtils.js**
+  - Provide utility functions for status updates (e.g., mapping status codes to labels).
 
 ## Development Steps
-
 1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+   - Configure routing for `/admin/disputes/321` in the main app.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+2. **Build API Integration**
+   - Implement API calls in `disputes.js`.
+   - Test API endpoints with Postman or similar tool.
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+3. **Develop UI Components**
+   - Create `AdminDisputesTable`, `AdminDisputeRow`, and `Filters` components.
+   - Ensure components are responsive and accessible.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+4. **Implement State Management**
+   - Use `useDisputes` to manage fetching and updating disputes.
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
+5. **Styling**
+   - Apply styles in `AdminDisputes.css` to ensure a consistent look.
 
 6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
+   - Write unit tests for components and API functions.
+   - Perform integration testing for the entire flow.
 
 7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+   - Prepare the feature for deployment and ensure it passes QA.
+
+## Timeline
+- **Week 1:** Set up routing and API integration.
+- **Week 2:** Develop UI components and implement state management.
+- **Week 3:** Finalize styling, testing, and prepare for deployment.
+```
