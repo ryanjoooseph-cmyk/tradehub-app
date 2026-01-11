@@ -22,7 +22,7 @@ This plan outlines the implementation of the UI and API for managing disputes in
       └── apiHelpers.js
 ```
 
-## Responsibilities
+### API Implementation
 
 ### 1. Components
 - **`/src/components/AdminDisputesTable.jsx`**
