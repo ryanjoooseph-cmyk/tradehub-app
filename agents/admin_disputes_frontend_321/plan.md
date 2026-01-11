@@ -47,7 +47,7 @@ This plan outlines the file structure and responsibilities for building the UI a
   - **api/disputes.test.js**  
     - Integration tests for the API endpoints.
 
-## Responsibilities
+### API Implementation
 
 ### Frontend Development
 - **AdminDisputesTable.js**  
