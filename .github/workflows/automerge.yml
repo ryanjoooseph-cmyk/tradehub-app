@@ -1,7 +1,7 @@
 name: agent-automerge
 on:
-  pull_request:
-    types: [labeled, opened, reopened, synchronize]
+  pull_request_target:
+    types: [labeled, synchronize, reopened]
 permissions:
   contents: write
   pull-requests: write
@@ -10,16 +10,12 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
     steps:
-      - uses: pascalgn/automerge-action@v0.16.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MERGE_METHOD: squash
-          MERGE_DELETE_BRANCH: "true"
-          AUTOMERGE: "true"
-          LABELS: automerge
-          BLOCK_LABELS: do-not-merge
-          MIN_APPROVALS: "0"
-          REQUIRE_ALL_STATUS_CHECKS: "false"
-          REQUIRE_BRANCH_UP_TO_DATE: "false"
-          MERGE_RETRIES: "40"
-          MERGE_RETRY_SLEEP: "30s"
+      - uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
+      - uses: peter-evans/auto-merge@v3
+        with:
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
+          commit-message: pull-request-title
