@@ -1,25 +1,20 @@
 name: agents-automerge
 on:
-  pull_request_target:
-    types: [opened, reopened, synchronize, labeled]
-
-permissions:
-  contents: write
-  pull-requests: write
-
+  pull_request:
+    types: [opened, synchronize, labeled]
 jobs:
-  label-and-merge:
-    if: startsWith(github.event.pull_request.head.ref, 'agent-') || startsWith(github.event.pull_request.head.ref, 'admin_disputes_frontend_') || startsWith(github.event.pull_request.head.ref, 'disputes_backend_')
+  label_and_merge:
+    if: startsWith(github.event.pull_request.head.ref, 'agent-') || startsWith(github.event.pull_request.head.ref, 'agent-pr/') || startsWith(github.event.pull_request.head.ref, 'admin_disputes_frontend_') || startsWith(github.event.pull_request.head.ref, 'disputes_backend_')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-      - name: add-label
-        run: gh pr edit "$PR" --add-label automerge
+      - run: gh pr edit "$PR" --add-label automerge
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR: ${{ github.event.pull_request.number }}
-
-      - name: merge
-        run: gh pr merge "$PR" --squash --admin --delete-branch || gh pr close "$PR" --comment "Auto-closed"
+      - run: gh pr merge "$PR" --squash --auto --delete-branch
         env:
           GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
           PR: ${{ github.event.pull_request.number }}
