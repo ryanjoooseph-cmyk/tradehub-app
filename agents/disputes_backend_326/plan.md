@@ -1,99 +1,92 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Project Structure
 ```
-/disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+/api
+    └── disputes
+        ├── disputesController.js
+        ├── disputesService.js
+        ├── disputesModel.js
+        └── disputesRoutes.js
+/ui
+    ├── DisputeList.js
+    ├── DisputeDetail.js
+    ├── DisputeForm.js
+    └── api.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
+### 1. **Model**
+- **File:** `/api/disputes/disputesModel.js`
+  - Define the Dispute schema with fields:
     - `id`: Unique identifier
     - `status`: Enum (OPEN, REVIEW, RESOLVED)
     - `evidence_urls`: Array of strings
     - `created_at`: Timestamp
     - `updated_at`: Timestamp
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+### 2. **Controller**
+- **File:** `/api/disputes/disputesController.js`
+  - **Responsibilities:**
+    - `getAllDisputes(req, res)`: Fetch all disputes.
+    - `getDisputeById(req, res)`: Fetch a specific dispute by ID.
+    - `createDispute(req, res)`: Create a new dispute.
+    - `updateDispute(req, res)`: Update an existing dispute's status or evidence_urls.
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+### 3. **Service**
+- **File:** `/api/disputes/disputesService.js`
+  - **Responsibilities:**
+    - Interact with the database to perform CRUD operations.
+    - Validate input data for disputes.
+    - Handle business logic for dispute status transitions.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### 4. **Routes**
+- **File:** `/api/disputes/disputesRoutes.js`
+  - **Responsibilities:**
+    - Define routes:
+      - `GET /api/disputes`: List all disputes.
+      - `GET /api/disputes/:id`: Get a specific dispute.
+      - `POST /api/disputes`: Create a new dispute.
+      - `PUT /api/disputes/:id`: Update an existing dispute.
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+## UI Implementation
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+### 1. **API Integration**
+- **File:** `/ui/api.js`
+  - **Responsibilities:**
+    - Define functions to call the API endpoints:
+      - `fetchDisputes()`: Fetch all disputes.
+      - `fetchDispute(id)`: Fetch a specific dispute.
+      - `createDispute(data)`: Create a new dispute.
+      - `updateDispute(id, data)`: Update an existing dispute.
 
-## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+### 2. **Dispute List Component**
+- **File:** `/ui/DisputeList.js`
+  - **Responsibilities:**
+    - Display a list of disputes.
+    - Provide links to view details of each dispute.
 
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+### 3. **Dispute Detail Component**
+- **File:** `/ui/DisputeDetail.js`
+  - **Responsibilities:**
+    - Display details of a selected dispute.
+    - Show evidence URLs and current status.
+    - Provide an option to update the dispute.
+
+### 4. **Dispute Form Component**
+- **File:** `/ui/DisputeForm.js`
+  - **Responsibilities:**
+    - Provide a form to create or update a dispute.
+    - Validate input fields (status and evidence URLs).
+
+## Testing
+- **File:** `/api/disputes/disputes.test.js`
+  - Write unit tests for the controller and service.
+  - Write integration tests for the API routes.
+
+## Documentation
+- **File:** `/docs/api_disputes.md`
+  - Document API endpoints, request/response formats, and usage examples.
 ```
