@@ -2,80 +2,87 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters and actions to update dispute statuses, along with API calls to `/api/disputes`.
+This plan outlines the development of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
 
 ## File Structure
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable
-  │   │   ├── AdminDisputesTable.jsx         # Table component for displaying disputes
-  │   │   ├── AdminDisputeRow.jsx             # Row component for individual dispute
-  │   │   └── Filters.jsx                     # Filter component for table
-  │   └── StatusUpdateModal
-  │       └── StatusUpdateModal.jsx           # Modal for updating dispute status
-  ├── pages
-  │   └── AdminDisputesPage.jsx                # Main page component for /admin/disputes/321
-  ├── api
-  │   └── disputes.js                          # API calls for disputes
-  ├── hooks
-  │   └── useDisputes.js                      # Custom hook for fetching and managing disputes
-  ├── styles
-  │   └── AdminDisputes.css                   # CSS styles for admin disputes UI
-  └── utils
-      └── constants.js                        # Constants for status types and API endpoints
-```
+### Frontend
 
-## Responsibilities
+- **Directory:** `src/components/AdminDisputes/`
+  - **File:** `AdminDisputesTable.jsx`
+    - **Responsibility:** Render the admin table with dispute data, including filters and actions for updating status.
+  
+  - **File:** `DisputeRow.jsx`
+    - **Responsibility:** Render individual dispute rows with status and action buttons.
 
-### Components
-- **AdminDisputesTable.jsx**
-  - Render the table of disputes.
-  - Integrate filters from `Filters.jsx`.
-  - Handle row actions for updating status.
+  - **File:** `Filters.jsx`
+    - **Responsibility:** Provide filtering options for the disputes table (e.g., by status, date).
 
-- **AdminDisputeRow.jsx**
-  - Display individual dispute details.
-  - Trigger `StatusUpdateModal` for status updates.
+  - **File:** `StatusUpdateModal.jsx`
+    - **Responsibility:** Modal for updating the status of a selected dispute.
 
-- **Filters.jsx**
-  - Provide filter options (e.g., status, date).
-  - Manage filter state and pass to `AdminDisputesTable`.
+- **Directory:** `src/pages/AdminDisputes/`
+  - **File:** `AdminDisputesPage.jsx`
+    - **Responsibility:** Main page component that integrates `AdminDisputesTable` and handles routing.
 
-- **StatusUpdateModal.jsx**
-  - Display modal for updating dispute status.
-  - Handle form submission to update status via API.
+- **Directory:** `src/hooks/`
+  - **File:** `useDisputes.js`
+    - **Responsibility:** Custom hook for fetching disputes data from the API and managing state.
 
-### Pages
-- **AdminDisputesPage.jsx**
-  - Set up the main layout for the `/admin/disputes/321` route.
-  - Fetch disputes using `useDisputes` hook.
-  - Render `AdminDisputesTable` with fetched data.
+- **Directory:** `src/api/`
+  - **File:** `disputesApi.js`
+    - **Responsibility:** API calls to `/api/disputes` for fetching and updating dispute data.
 
-### API
-- **disputes.js**
-  - Implement API calls to `/api/disputes` for fetching and updating disputes.
-  - Handle error responses and return data in a usable format.
+### Backend
 
-### Hooks
-- **useDisputes.js**
-  - Manage state for disputes (loading, error, data).
-  - Provide functions to fetch disputes and update status.
+- **Directory:** `app/controllers/`
+  - **File:** `DisputesController.js`
+    - **Responsibility:** Handle API requests related to disputes, including fetching and updating statuses.
 
-### Styles
-- **AdminDisputes.css**
-  - Style the components for a clean and functional UI.
-  - Ensure responsive design for different screen sizes.
+- **Directory:** `app/models/`
+  - **File:** `Dispute.js`
+    - **Responsibility:** Define the Dispute model and schema for database interactions.
 
-### Utils
-- **constants.js**
-  - Define constants for dispute status types.
-  - Store API endpoint URLs for easy reference.
+- **Directory:** `app/routes/`
+  - **File:** `disputesRoutes.js`
+    - **Responsibility:** Define routes for `/api/disputes` for GET and PUT requests.
+
+- **Directory:** `app/services/`
+  - **File:** `DisputeService.js`
+    - **Responsibility:** Business logic for fetching and updating disputes.
+
+## Development Tasks
+
+1. **Frontend Development**
+   - Implement `AdminDisputesTable` to display disputes with filters.
+   - Create `DisputeRow` for rendering individual dispute details.
+   - Develop `Filters` component for filtering disputes.
+   - Build `StatusUpdateModal` for updating dispute statuses.
+   - Integrate API calls in `useDisputes` to fetch and update data.
+
+2. **Backend Development**
+   - Create `DisputesController` for handling API requests.
+   - Define `Dispute` model for database schema.
+   - Set up `disputesRoutes` for API endpoints.
+   - Implement business logic in `DisputeService`.
+
+3. **Testing**
+   - Write unit tests for frontend components.
+   - Write integration tests for API endpoints.
+   - Ensure end-to-end testing for the complete flow.
+
+4. **Documentation**
+   - Update API documentation for new endpoints.
+   - Document frontend components and usage.
 
 ## Timeline
-- **Week 1**: Set up file structure and create basic components.
-- **Week 2**: Implement API calls and integrate with components.
-- **Week 3**: Finalize UI design and conduct testing.
-- **Week 4**: Deploy and gather feedback for improvements.
+- **Week 1:** Frontend component development.
+- **Week 2:** Backend API development.
+- **Week 3:** Testing and documentation.
+- **Week 4:** Review and deployment.
+
+## Notes
+- Ensure responsiveness and accessibility in the UI.
+- Follow coding standards and best practices.
+- Collaborate with QA for testing and feedback.
 ```
