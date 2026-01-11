@@ -1,88 +1,101 @@
-```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
+## Project Structure
+```
+/src
+  ├── components
+  │   ├── AdminDisputesTable.jsx
+  │   ├── FilterBar.jsx
+  │   └── StatusUpdateModal.jsx
+  ├── pages
+  │   └── AdminDisputesPage.jsx
+  ├── services
+  │   └── disputesService.js
+  ├── styles
+  │   └── AdminDisputes.css
+  ├── utils
+  │   └── api.js
+  └── App.js
+```
 
-## File Structure
+## File Responsibilities
 
-### Frontend
+### 1. **AdminDisputesTable.jsx**
+- **Path:** `/src/components/AdminDisputesTable.jsx`
+- **Responsibilities:**
+  - Render a table displaying disputes.
+  - Implement pagination and sorting.
+  - Integrate filters from `FilterBar`.
 
-- **File Paths**
-  - `src/components/AdminDisputesTable.js`
-    - Responsible for rendering the disputes table with filters and actions.
-  - `src/components/DisputeFilter.js`
-    - Responsible for filtering disputes based on criteria (e.g., status, date).
-  - `src/hooks/useDisputes.js`
-    - Custom hook for fetching and managing disputes data.
-  - `src/pages/AdminDisputesPage.js`
-    - Main page component for `/admin/disputes/321`.
-  - `src/api/disputesApi.js`
-    - API calls related to disputes (GET, PUT).
-  - `src/styles/AdminDisputes.css`
-    - Styles for the admin disputes page and table.
+### 2. **FilterBar.jsx**
+- **Path:** `/src/components/FilterBar.jsx`
+- **Responsibilities:**
+  - Provide UI for filtering disputes (e.g., by status, date).
+  - Handle filter state and pass it to `AdminDisputesTable`.
 
-### Backend
+### 3. **StatusUpdateModal.jsx**
+- **Path:** `/src/components/StatusUpdateModal.jsx`
+- **Responsibilities:**
+  - Display a modal for updating dispute status.
+  - Handle user input and confirm actions.
+  - Call the API to update the dispute status.
 
-- **File Paths**
-  - `src/routes/adminDisputes.js`
-    - Express route handling for `/api/disputes`.
-  - `src/controllers/disputeController.js`
-    - Controller functions for fetching and updating dispute statuses.
-  - `src/models/Dispute.js`
-    - Mongoose model for the Dispute schema.
-  - `src/middleware/authMiddleware.js`
-    - Middleware for admin authentication and authorization.
-  - `src/utils/errorHandler.js`
-    - Utility for handling errors in API responses.
+### 4. **AdminDisputesPage.jsx**
+- **Path:** `/src/pages/AdminDisputesPage.jsx`
+- **Responsibilities:**
+  - Main page component for `/admin/disputes/321`.
+  - Integrate `AdminDisputesTable` and `FilterBar`.
+  - Manage state for disputes and loading status.
 
-## Responsibilities
+### 5. **disputesService.js**
+- **Path:** `/src/services/disputesService.js`
+- **Responsibilities:**
+  - Define API calls to `/api/disputes`.
+  - Implement functions for fetching disputes and updating status.
 
-### Frontend Responsibilities
-1. **AdminDisputesTable.js**
-   - Render a table displaying disputes with pagination.
-   - Include buttons for updating dispute status.
+### 6. **AdminDisputes.css**
+- **Path:** `/src/styles/AdminDisputes.css`
+- **Responsibilities:**
+  - Style the components for the admin disputes page.
+  - Ensure responsive design for the table and filters.
 
-2. **DisputeFilter.js**
-   - Provide UI elements for filtering disputes (e.g., dropdowns, date pickers).
-   - Trigger data fetch on filter change.
+### 7. **api.js**
+- **Path:** `/src/utils/api.js`
+- **Responsibilities:**
+  - Set up Axios or Fetch for API requests.
+  - Handle error responses and loading states.
 
-3. **useDisputes.js**
-   - Fetch disputes from the API.
-   - Manage local state for disputes and loading/error states.
+### 8. **App.js**
+- **Path:** `/src/App.js`
+- **Responsibilities:**
+  - Define routes including `/admin/disputes/321`.
+  - Integrate the `AdminDisputesPage` component.
 
-4. **AdminDisputesPage.js**
-   - Combine `AdminDisputesTable` and `DisputeFilter`.
-   - Handle page-level state and effects.
+## Development Steps
+1. **Set Up Routing**
+   - Implement route for `/admin/disputes/321` in `App.js`.
 
-5. **disputesApi.js**
-   - Implement API calls to fetch disputes and update statuses.
+2. **Build Components**
+   - Create `AdminDisputesTable`, `FilterBar`, and `StatusUpdateModal`.
 
-### Backend Responsibilities
-1. **adminDisputes.js**
-   - Define routes for GET and PUT requests for disputes.
+3. **Implement API Calls**
+   - Develop functions in `disputesService.js` for fetching and updating disputes.
 
-2. **disputeController.js**
-   - Implement logic for fetching disputes and updating their statuses.
-   - Validate incoming requests and handle errors.
+4. **Connect Components**
+   - Integrate `FilterBar` with `AdminDisputesTable` for filtering functionality.
+   - Connect `StatusUpdateModal` to handle status updates.
 
-3. **Dispute.js**
-   - Define the schema for disputes, including fields like status, date, and user info.
+5. **Style Components**
+   - Apply styles in `AdminDisputes.css` for a polished UI.
 
-4. **authMiddleware.js**
-   - Ensure only authenticated admins can access the disputes API.
+6. **Testing**
+   - Write unit tests for components and service functions.
+   - Perform integration testing for the complete flow.
 
-5. **errorHandler.js**
-   - Standardize error responses for API calls.
+7. **Deployment**
+   - Prepare the feature for deployment and ensure all routes are functional.
 
 ## Timeline
-- **Week 1**: Setup project structure and initial API endpoints.
-- **Week 2**: Develop frontend components and integrate with API.
-- **Week 3**: Testing and bug fixes.
-- **Week 4**: Final review and deployment.
-
-## Notes
-- Ensure responsive design for the admin table.
-- Implement error handling for API calls.
-- Consider accessibility best practices in UI components.
-```
+- **Week 1:** Component development and routing.
+- **Week 2:** API integration and testing.
+- **Week 3:** Styling and final adjustments.
