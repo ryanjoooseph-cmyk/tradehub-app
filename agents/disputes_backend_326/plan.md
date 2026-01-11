@@ -10,83 +10,85 @@ This plan outlines the implementation of the UI and API for managing disputes at
 
 - **File Paths**
   - `src/api/disputes.js`
-    - **Responsibilities**: 
-      - Define API endpoints for disputes.
+    - Responsibilities:
+      - Define API routes for disputes.
       - Implement CRUD operations for disputes.
       - Validate request data and handle errors.
   
   - `src/models/Dispute.js`
-    - **Responsibilities**: 
-      - Define the Dispute model schema.
+    - Responsibilities:
+      - Define the Dispute model/schema.
       - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
+
   - `src/controllers/disputeController.js`
-    - **Responsibilities**: 
+    - Responsibilities:
       - Handle business logic for disputes.
-      - Implement functions for create, list, and update operations.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**: 
-      - Define routes for API endpoints.
-      - Connect routes to the appropriate controller functions.
+      - Implement functions for create, list, and update disputes.
+
+  - `src/middleware/validateDispute.js`
+    - Responsibilities:
+      - Validate incoming requests for creating and updating disputes.
+      - Ensure `evidence_urls` is an array and status is valid.
 
 ### UI Implementation
 
 - **File Paths**
   - `src/components/DisputeList.jsx`
-    - **Responsibilities**: 
+    - Responsibilities:
       - Display a list of disputes.
-      - Include filters for status (OPEN, REVIEW, RESOLVED).
-  
+      - Include filters for status and search functionality.
+
   - `src/components/DisputeForm.jsx`
-    - **Responsibilities**: 
+    - Responsibilities:
       - Provide a form for creating and updating disputes.
-      - Handle input for `evidence_urls` array.
-  
+      - Handle input for `evidence_urls` and status selection.
+
   - `src/pages/DisputePage.jsx`
-    - **Responsibilities**: 
+    - Responsibilities:
       - Combine `DisputeList` and `DisputeForm`.
       - Manage state for disputes and handle API calls.
-  
-  - `src/services/disputeService.js`
-    - **Responsibilities**: 
-      - Define functions for API calls (GET, POST, PUT).
-      - Handle responses and errors from the API.
+
+  - `src/hooks/useDisputes.js`
+    - Responsibilities:
+      - Custom hook for fetching and managing disputes state.
+      - Handle API requests for creating, listing, and updating disputes.
 
 ### Testing
 
 - **File Paths**
   - `src/tests/api/disputes.test.js`
-    - **Responsibilities**: 
+    - Responsibilities:
       - Unit tests for API endpoints.
-      - Validate response structure and status codes.
-  
+      - Test CRUD operations and validation logic.
+
+  - `src/tests/components/DisputeList.test.jsx`
+    - Responsibilities:
+      - Test rendering and functionality of the dispute list component.
+
   - `src/tests/components/DisputeForm.test.jsx`
-    - **Responsibilities**: 
-      - Unit tests for the DisputeForm component.
-      - Validate form submission and input handling.
-  
-  - `src/tests/pages/DisputePage.test.jsx`
-    - **Responsibilities**: 
-      - Integration tests for DisputePage.
-      - Validate interaction between components and API.
+    - Responsibilities:
+      - Test form submission and validation for creating/updating disputes.
 
 ## Timeline
 
-- **Week 1**: 
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-  
-- **Week 2**: 
-  - Develop UI components for listing and creating disputes.
-  - Connect UI to API endpoints.
-  
-- **Week 3**: 
-  - Implement testing for API and UI components.
-  - Conduct code reviews and finalize feature.
+1. **Week 1**
+   - Set up API routes and models.
+   - Implement basic CRUD operations.
+
+2. **Week 2**
+   - Develop UI components for listing and managing disputes.
+   - Integrate API with UI.
+
+3. **Week 3**
+   - Implement validation middleware.
+   - Write tests for API and UI components.
+
+4. **Week 4**
+   - Conduct code reviews and finalize documentation.
+   - Deploy and monitor for issues.
 
 ## Notes
-- Ensure proper error handling and validation throughout the API and UI.
-- Consider user experience for managing evidence URLs in the form.
-- Follow best practices for state management in the UI.
+- Ensure proper error handling and user feedback in the UI.
+- Follow RESTful conventions for API design.
+- Maintain clear and concise documentation for future reference.
 ```
