@@ -21,7 +21,15 @@
 
 ## File Responsibilities
 
-### 1. Components
+### API Layer
+- **`/src/api/disputes.js`**
+  - Implement CRUD operations for disputes.
+  - Define functions to fetch disputes, update status, and handle errors.
+
+- **`/src/api/index.js`**
+  - Export dispute-related API functions for easy access.
+
+### UI Layer
 - **`/src/components/AdminDisputesTable.jsx`**
   - Render the table of disputes.
   - Accept props for disputes data and filter criteria.
@@ -35,7 +43,6 @@
   - Render a button to update the status of a dispute.
   - Call the API to update the status when clicked.
 
-### 2. Pages
 - **`/src/pages/AdminDisputesPage.jsx`**
   - Main page component for `/admin/disputes/321`.
   - Fetch disputes data using the custom hook.
@@ -49,7 +56,7 @@
     - `fetchDisputes(filters)`
     - `updateDisputeStatus(disputeId, newStatus)`
 
-### 4. Styles
+### Styles
 - **`/src/styles/AdminDisputesPage.css`**
   - Define styles for the Admin Disputes page and components.
   - Ensure responsive design and accessibility.
