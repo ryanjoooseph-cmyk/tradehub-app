@@ -11,3 +11,12 @@ jobs:
         with:
           token: ${{ secrets.GH_PAT }}
           merge-method: squash
+  merge:
+    if: contains(toJson(github.event.pull_request.labels), 'automerge')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peter-evans/auto-merge@v3
+        with:
+          token: ${{ secrets.GH_PAT }}
+          merge_method: squash
+          delete_branch: true
