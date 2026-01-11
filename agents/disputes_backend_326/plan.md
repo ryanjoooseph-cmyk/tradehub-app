@@ -2,91 +2,96 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support creating, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an `evidence_urls` array and a status field with values OPEN, REVIEW, and RESOLVED.
 
 ## File Structure
 
-### API Implementation
+```
+/src
+  ├── api
+  │   ├── disputes
+  │   │   ├── disputesController.js
+  │   │   ├── disputesModel.js
+  │   │   ├── disputesRoutes.js
+  │   │   └── disputesService.js
+  ├── components
+  │   ├── DisputeList.jsx
+  │   ├── DisputeForm.jsx
+  │   └── DisputeDetail.jsx
+  ├── hooks
+  │   └── useDisputes.js
+  ├── pages
+  │   └── DisputesPage.jsx
+  ├── styles
+  │   └── Disputes.css
+  └── utils
+      └── api.js
+```
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**: 
-      - Define API endpoints for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate request data and handle errors.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities**: 
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**: 
-      - Handle business logic for disputes.
-      - Implement functions for create, list, and update operations.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**: 
-      - Define routes for API endpoints.
-      - Connect routes to the appropriate controller functions.
+## API Implementation
 
-### UI Implementation
+### 1. `disputesModel.js`
+- **Responsibilities**: Define the dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+- **Database**: Use MongoDB or PostgreSQL for persistence.
 
-- **File Paths**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities**: 
-      - Display a list of disputes.
-      - Include filters for status (OPEN, REVIEW, RESOLVED).
-  
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities**: 
-      - Provide a form for creating and updating disputes.
-      - Handle input for `evidence_urls` array.
-  
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities**: 
-      - Combine `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
-  
-  - `src/services/disputeService.js`
-    - **Responsibilities**: 
-      - Define functions for API calls (GET, POST, PUT).
-      - Handle responses and errors from the API.
+### 2. `disputesService.js`
+- **Responsibilities**: Implement business logic for:
+  - Opening a dispute
+  - Listing all disputes
+  - Updating a dispute status
+- **Methods**:
+  - `createDispute(data)`
+  - `getAllDisputes()`
+  - `updateDispute(id, data)`
 
-### Testing
+### 3. `disputesController.js`
+- **Responsibilities**: Handle incoming requests and responses.
+- **Endpoints**:
+  - `POST /api/disputes` - Create a new dispute
+  - `GET /api/disputes` - List all disputes
+  - `PUT /api/disputes/:id` - Update a specific dispute
 
-- **File Paths**
-  - `src/tests/api/disputes.test.js`
-    - **Responsibilities**: 
-      - Unit tests for API endpoints.
-      - Validate response structure and status codes.
-  
-  - `src/tests/components/DisputeForm.test.jsx`
-    - **Responsibilities**: 
-      - Unit tests for the DisputeForm component.
-      - Validate form submission and input handling.
-  
-  - `src/tests/pages/DisputePage.test.jsx`
-    - **Responsibilities**: 
-      - Integration tests for DisputePage.
-      - Validate interaction between components and API.
+### 4. `disputesRoutes.js`
+- **Responsibilities**: Define API routes and link them to the controller methods.
+
+## UI Implementation
+
+### 1. `DisputesPage.jsx`
+- **Responsibilities**: Main page to display the list of disputes and provide access to the dispute form.
+
+### 2. `DisputeList.jsx`
+- **Responsibilities**: Render a list of disputes with their status and evidence URLs.
+
+### 3. `DisputeForm.jsx`
+- **Responsibilities**: Form to create or update a dispute, including fields for `evidence_urls` and `status`.
+
+### 4. `DisputeDetail.jsx`
+- **Responsibilities**: Display detailed information about a selected dispute, including options to update status.
+
+### 5. `useDisputes.js`
+- **Responsibilities**: Custom hook to manage API calls for disputes, handling loading and error states.
+
+## Styles
+
+### 1. `Disputes.css`
+- **Responsibilities**: Basic styling for dispute components, ensuring a user-friendly interface.
+
+## Testing
+
+### 1. API Tests
+- **File**: `/tests/api/disputes.test.js`
+- **Responsibilities**: Unit tests for API endpoints using Jest and Supertest.
+
+### 2. UI Tests
+- **File**: `/tests/ui/DisputesPage.test.jsx`
+- **Responsibilities**: Component tests for rendering and interaction using React Testing Library.
+
+## Deployment
+- **Environment**: Ensure the API is deployed on the server with appropriate database configurations.
+- **CI/CD**: Integrate with CI/CD pipeline for automated testing and deployment.
 
 ## Timeline
-
-- **Week 1**: 
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-  
-- **Week 2**: 
-  - Develop UI components for listing and creating disputes.
-  - Connect UI to API endpoints.
-  
-- **Week 3**: 
-  - Implement testing for API and UI components.
-  - Conduct code reviews and finalize feature.
-
-## Notes
-- Ensure proper error handling and validation throughout the API and UI.
-- Consider user experience for managing evidence URLs in the form.
-- Follow best practices for state management in the UI.
+- **Week 1**: API development (Model, Service, Controller, Routes)
+- **Week 2**: UI development (Components, Pages, Hooks)
+- **Week 3**: Testing and Deployment
 ```
