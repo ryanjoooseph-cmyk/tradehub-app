@@ -1,97 +1,113 @@
-# Implementation Plan for Feature 'admin_disputes_frontend_321'
+# Implementation Plan for Feature `admin_disputes_frontend_321`
 
 ## Directory Structure
 
 ```
 /src
-  ├── components
+  ├── /components
   │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
+  │   ├── FilterBar.jsx
+  │   └── StatusUpdateModal.jsx
+  ├── /pages
   │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+  ├── /hooks
+  │   └── useDisputes.js
+  ├── /api
+  │   └── disputes.js
+  ├── /styles
+  │   └── AdminDisputes.css
+  └── /utils
+      └── apiHelper.js
 ```
 
-## Responsibilities
+## File Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### Components
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+- **`/src/components/AdminDisputesTable.jsx`**
+  - Render the table displaying disputes.
+  - Integrate filtering options.
+  - Handle actions for updating dispute status.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+- **`/src/components/FilterBar.jsx`**
+  - Provide UI for filtering disputes (e.g., by status, date).
+  - Emit filter changes to parent component.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+- **`/src/components/StatusUpdateModal.jsx`**
+  - Modal for confirming status updates.
+  - Handle user input for new status.
+  - Call API to update status upon confirmation.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+### Pages
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+- **`/src/pages/AdminDisputesPage.jsx`**
+  - Main page component for `/admin/disputes/321`.
+  - Integrate `AdminDisputesTable` and `FilterBar`.
+  - Manage state for disputes and filters.
+  - Use `useDisputes` hook to fetch data.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+### Hooks
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+- **`/src/hooks/useDisputes.js`**
+  - Custom hook to fetch disputes from `/api/disputes`.
+  - Handle loading and error states.
+  - Return disputes data and update function.
 
-## Development Steps
+### API
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+- **`/src/api/disputes.js`**
+  - Define API calls for fetching disputes and updating status.
+  - Implement GET and PUT requests.
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+### Styles
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+- **`/src/styles/AdminDisputes.css`**
+  - Styles for the Admin Disputes UI components.
+  - Ensure responsive design and accessibility.
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+### Utilities
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
+- **`/src/utils/apiHelper.js`**
+  - Helper functions for API requests (e.g., fetch, error handling).
+  - Centralize API response handling.
+
+## Implementation Steps
+
+1. **Set Up Routes**
+   - Configure routing for `/admin/disputes/321` in the main app.
+
+2. **Create Components**
+   - Implement `AdminDisputesTable`, `FilterBar`, and `StatusUpdateModal`.
+   - Ensure components are reusable and maintainable.
+
+3. **Develop API Integration**
+   - Implement API calls in `disputes.js`.
+   - Test API endpoints using Postman or similar tools.
+
+4. **Implement State Management**
+   - Use `useDisputes` hook in `AdminDisputesPage` to manage data fetching.
+   - Handle loading and error states gracefully.
+
+5. **Connect Components**
+   - Integrate `FilterBar` and `AdminDisputesTable` in `AdminDisputesPage`.
+   - Pass filter criteria and disputes data as props.
 
 6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
+   - Write unit tests for components and hooks.
+   - Perform integration testing for API calls.
 
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+7. **Styling**
+   - Apply styles from `AdminDisputes.css` to ensure a polished UI.
+
+8. **Documentation**
+   - Document components, hooks, and API functions for future reference.
+
+9. **Deployment**
+   - Prepare the feature for deployment and monitor for issues post-launch.
+
+## Timeline
+
+- **Week 1:** Component creation and API setup.
+- **Week 2:** Integration and testing.
+- **Week 3:** Styling and documentation.
+- **Week 4:** Deployment and monitoring.
