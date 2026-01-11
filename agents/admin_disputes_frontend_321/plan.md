@@ -1,97 +1,87 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Overview
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
+
+## File Structure
 
 ```
 /src
   ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
+  │   ├── AdminDisputesTable
+  │   │   ├── AdminDisputesTable.jsx        # Table component to display disputes
+  │   │   ├── AdminDisputeRow.jsx            # Row component for individual dispute
+  │   │   ├── FilterComponent.jsx             # Component for filtering disputes
+  │   │   └── StatusUpdateModal.jsx           # Modal for updating dispute status
   ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
+  │   └── AdminDisputesPage.jsx               # Main page component for /admin/disputes/321
+  ├── api
+  │   └── disputesApi.js                       # API calls related to disputes
+  ├── hooks
+  │   └── useDisputes.js                       # Custom hook for fetching and managing disputes
   ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+  │   └── AdminDisputes.css                   # Styles for the admin disputes page
+  └── utils
+      └── constants.js                         # Constants for status options
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### Components
+- **AdminDisputesTable.jsx**
+  - Render the table of disputes.
+  - Integrate filtering and sorting functionality.
+  
+- **AdminDisputeRow.jsx**
+  - Display individual dispute details.
+  - Include buttons for status updates.
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+- **FilterComponent.jsx**
+  - Provide UI for filtering disputes by status, date, etc.
+  - Handle filter state and pass it to the table.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+- **StatusUpdateModal.jsx**
+  - Modal for confirming status updates.
+  - Call the API to update the dispute status upon confirmation.
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+### Pages
+- **AdminDisputesPage.jsx**
+  - Main entry point for the `/admin/disputes/321` route.
+  - Fetch disputes using `useDisputes` hook.
+  - Render `AdminDisputesTable` and `FilterComponent`.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+### API
+- **disputesApi.js**
+  - Define API functions for:
+    - Fetching disputes: `getDisputes()`
+    - Updating dispute status: `updateDisputeStatus(id, status)`
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+### Hooks
+- **useDisputes.js**
+  - Manage state for disputes.
+  - Handle fetching and updating disputes using the API.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+### Styles
+- **AdminDisputes.css**
+  - Style the admin disputes page and components for a clean UI.
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+### Utilities
+- **constants.js**
+  - Define constants for dispute statuses (e.g., Pending, Resolved, etc.).
 
 ## Development Steps
+1. **Set up the route** in the main application to point to `AdminDisputesPage`.
+2. **Implement API functions** in `disputesApi.js`.
+3. **Create the UI components** and ensure they communicate effectively.
+4. **Implement filtering logic** in `FilterComponent`.
+5. **Integrate status update functionality** in `StatusUpdateModal`.
+6. **Style the components** using `AdminDisputes.css`.
+7. **Test the entire flow** from fetching disputes to updating statuses.
+8. **Deploy and monitor** for any issues post-launch.
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
-
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
-
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
-
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
-
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
-
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
-
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+## Timeline
+- **Week 1**: Set up API and basic UI components.
+- **Week 2**: Implement filtering and status update features.
+- **Week 3**: Testing and final adjustments.
+```
