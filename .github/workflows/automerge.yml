@@ -1,9 +1,8 @@
 name: automerge
 on:
   pull_request_target:
-    types: [labeled, synchronize, reopened, ready_for_review]
+    types: [labeled, opened, reopened, synchronize]
 permissions:
-  contents: write
   pull-requests: write
 jobs:
   enable:
@@ -12,5 +11,5 @@ jobs:
     steps:
       - uses: peter-evans/enable-pull-request-automerge@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
           merge-method: squash
