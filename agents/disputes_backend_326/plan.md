@@ -2,102 +2,110 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes with an `evidence_urls` array and a status that can be OPEN, REVIEW, or RESOLVED.
 
 ## File Structure
 
-```
-/src
-  ├── api
-  │   ├── disputes.js
-  │   └── index.js
-  ├── components
-  │   ├── DisputeList.jsx
-  │   ├── DisputeForm.jsx
-  │   └── DisputeItem.jsx
-  ├── hooks
-  │   └── useDisputes.js
-  ├── pages
-  │   └── DisputePage.jsx
-  ├── services
-  │   └── disputeService.js
-  ├── styles
-  │   └── DisputeStyles.css
-  └── utils
-      └── apiUtils.js
-```
+### API Implementation
 
-## API Implementation
+- **File Paths**
+  - `src/api/disputes.js`
+  - `src/models/Dispute.js`
+  - `src/controllers/disputeController.js`
+  - `src/routes/disputeRoutes.js`
+  - `src/middleware/authMiddleware.js`
+  
+- **Responsibilities**
+  - `src/api/disputes.js`
+    - Set up Express router for `/api/disputes`.
+    - Import and use dispute routes.
+  
+  - `src/models/Dispute.js`
+    - Define Mongoose schema for Dispute.
+    - Include fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
+  
+  - `src/controllers/disputeController.js`
+    - Implement functions:
+      - `createDispute(req, res)`: Handle POST requests to create a new dispute.
+      - `listDisputes(req, res)`: Handle GET requests to list all disputes.
+      - `updateDispute(req, res)`: Handle PUT requests to update a specific dispute.
+  
+  - `src/routes/disputeRoutes.js`
+    - Define routes:
+      - `POST /api/disputes`: Create a new dispute.
+      - `GET /api/disputes`: List all disputes.
+      - `PUT /api/disputes/:id`: Update a specific dispute.
+  
+  - `src/middleware/authMiddleware.js`
+    - Implement authentication middleware to protect routes.
 
-### File: `/src/api/disputes.js`
-- **Responsibilities:**
-  - Define API routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
-  - Handle request validation and response formatting.
+### UI Implementation
 
-### File: `/src/api/index.js`
-- **Responsibilities:**
-  - Export all API endpoints for easy access.
-
-## UI Implementation
-
-### File: `/src/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Render `DisputeItem` for each dispute.
-
-### File: `/src/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Provide a form to open a new dispute.
-  - Include fields for evidence URLs and status selection.
-
-### File: `/src/components/DisputeItem.jsx`
-- **Responsibilities:**
-  - Display individual dispute details.
-  - Include buttons for updating status and viewing evidence.
-
-### File: `/src/pages/DisputePage.jsx`
-- **Responsibilities:**
-  - Main page to render `DisputeList` and `DisputeForm`.
-  - Handle state management for disputes.
-
-## Hooks
-
-### File: `/src/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Custom hook to manage fetching, adding, and updating disputes.
-  - Handle API calls and state management.
-
-## Services
-
-### File: `/src/services/disputeService.js`
-- **Responsibilities:**
-  - Define functions for API interactions:
-    - `fetchDisputes()`
-    - `createDispute(data)`
-    - `updateDispute(id, data)`
-
-## Styles
-
-### File: `/src/styles/DisputeStyles.css`
-- **Responsibilities:**
-  - Define styles for dispute components.
-
-## Utilities
-
-### File: `/src/utils/apiUtils.js`
-- **Responsibilities:**
-  - Helper functions for API requests (e.g., error handling, response parsing).
+- **File Paths**
+  - `src/components/DisputeList.js`
+  - `src/components/DisputeForm.js`
+  - `src/pages/DisputePage.js`
+  - `src/services/disputeService.js`
+  - `src/styles/disputeStyles.css`
+  
+- **Responsibilities**
+  - `src/components/DisputeList.js`
+    - Fetch and display a list of disputes.
+    - Include functionality to filter by status.
+  
+  - `src/components/DisputeForm.js`
+    - Create a form for submitting new disputes and updating existing ones.
+    - Handle input for `evidence_urls` and `status`.
+  
+  - `src/pages/DisputePage.js`
+    - Combine `DisputeList` and `DisputeForm`.
+    - Manage state for displaying success/error messages.
+  
+  - `src/services/disputeService.js`
+    - Implement API calls:
+      - `createDispute(data)`: POST request to create a dispute.
+      - `getDisputes()`: GET request to retrieve disputes.
+      - `updateDispute(id, data)`: PUT request to update a dispute.
+  
+  - `src/styles/disputeStyles.css`
+    - Style components for the dispute UI.
 
 ## Testing
 
-- Implement unit tests for API endpoints in `/tests/api/disputes.test.js`.
-- Implement component tests for UI components in `/tests/components/Dispute*.test.js`.
+- **File Paths**
+  - `tests/api/dispute.test.js`
+  - `tests/ui/DisputePage.test.js`
+  
+- **Responsibilities**
+  - `tests/api/dispute.test.js`
+    - Write unit tests for API endpoints.
+  
+  - `tests/ui/DisputePage.test.js`
+    - Write integration tests for UI components.
 
 ## Deployment
 
-- Ensure API is integrated with the backend service.
-- Deploy UI changes to the staging environment for testing.
+- **File Paths**
+  - `docker-compose.yml`
+  - `Dockerfile`
+  
+- **Responsibilities**
+  - `docker-compose.yml`
+    - Define services for API and database.
+  
+  - `Dockerfile`
+    - Set up the environment for the application.
+
+## Documentation
+
+- **File Paths**
+  - `docs/api/disputes.md`
+  - `docs/ui/disputes.md`
+  
+- **Responsibilities**
+  - `docs/api/disputes.md`
+    - Document API endpoints and request/response formats.
+  
+  - `docs/ui/disputes.md`
+    - Document UI components and their usage.
 ```
