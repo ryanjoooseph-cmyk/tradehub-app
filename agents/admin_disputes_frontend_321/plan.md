@@ -2,96 +2,80 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
+This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters and actions to update dispute statuses, along with API calls to `/api/disputes`.
 
 ## File Structure
 
-### Frontend
-
-- **src/**
-  - **components/**
-    - **DisputeTable.jsx**  
-      - Responsible for rendering the table of disputes with filters and actions.
-    - **DisputeFilter.jsx**  
-      - Responsible for rendering filter options for the disputes.
-    - **DisputeStatusUpdateButton.jsx**  
-      - Responsible for rendering buttons to update the status of disputes.
-  - **pages/**
-    - **AdminDisputesPage.jsx**  
-      - Main page component for `/admin/disputes/321`, integrating the table and filters.
-  - **hooks/**
-    - **useDisputes.js**  
-      - Custom hook to fetch disputes and manage state.
-  - **api/**
-    - **disputeApi.js**  
-      - API service for making calls to `/api/disputes`.
-
-### Backend
-
-- **routes/**
-  - **disputeRoutes.js**  
-    - Define the API endpoints for fetching and updating disputes.
-- **controllers/**
-  - **disputeController.js**  
-    - Handle business logic for fetching disputes and updating their statuses.
-- **models/**
-  - **Dispute.js**  
-    - Define the Dispute model/schema for database interactions.
-- **middleware/**
-  - **authMiddleware.js**  
-    - Ensure only authenticated admin users can access the dispute routes.
+```
+/src
+  ├── components
+  │   ├── AdminDisputesTable
+  │   │   ├── AdminDisputesTable.jsx         # Table component for displaying disputes
+  │   │   ├── AdminDisputeRow.jsx             # Row component for individual dispute
+  │   │   └── Filters.jsx                     # Filter component for table
+  │   └── StatusUpdateModal
+  │       └── StatusUpdateModal.jsx           # Modal for updating dispute status
+  ├── pages
+  │   └── AdminDisputesPage.jsx                # Main page component for /admin/disputes/321
+  ├── api
+  │   └── disputes.js                          # API calls for disputes
+  ├── hooks
+  │   └── useDisputes.js                      # Custom hook for fetching and managing disputes
+  ├── styles
+  │   └── AdminDisputes.css                   # CSS styles for admin disputes UI
+  └── utils
+      └── constants.js                        # Constants for status types and API endpoints
+```
 
 ## Responsibilities
 
-### Frontend
+### Components
+- **AdminDisputesTable.jsx**
+  - Render the table of disputes.
+  - Integrate filters from `Filters.jsx`.
+  - Handle row actions for updating status.
 
-1. **DisputeTable.jsx**
-   - Render a table displaying disputes.
-   - Integrate filtering options from `DisputeFilter.jsx`.
-   - Handle status update actions via `DisputeStatusUpdateButton.jsx`.
+- **AdminDisputeRow.jsx**
+  - Display individual dispute details.
+  - Trigger `StatusUpdateModal` for status updates.
 
-2. **DisputeFilter.jsx**
-   - Provide filter options (e.g., status, date).
-   - Trigger data fetching based on selected filters.
+- **Filters.jsx**
+  - Provide filter options (e.g., status, date).
+  - Manage filter state and pass to `AdminDisputesTable`.
 
-3. **DisputeStatusUpdateButton.jsx**
-   - Render buttons for each dispute to update its status.
-   - Handle click events to call the update API.
+- **StatusUpdateModal.jsx**
+  - Display modal for updating dispute status.
+  - Handle form submission to update status via API.
 
-4. **AdminDisputesPage.jsx**
-   - Combine `DisputeTable` and `DisputeFilter`.
-   - Manage overall state and data fetching using `useDisputes`.
+### Pages
+- **AdminDisputesPage.jsx**
+  - Set up the main layout for the `/admin/disputes/321` route.
+  - Fetch disputes using `useDisputes` hook.
+  - Render `AdminDisputesTable` with fetched data.
 
-5. **useDisputes.js**
-   - Fetch disputes from the API.
-   - Manage loading and error states.
+### API
+- **disputes.js**
+  - Implement API calls to `/api/disputes` for fetching and updating disputes.
+  - Handle error responses and return data in a usable format.
 
-6. **disputeApi.js**
-   - Create functions to call `/api/disputes` for fetching and updating disputes.
+### Hooks
+- **useDisputes.js**
+  - Manage state for disputes (loading, error, data).
+  - Provide functions to fetch disputes and update status.
 
-### Backend
+### Styles
+- **AdminDisputes.css**
+  - Style the components for a clean and functional UI.
+  - Ensure responsive design for different screen sizes.
 
-1. **disputeRoutes.js**
-   - Define GET `/api/disputes` for fetching disputes.
-   - Define PUT `/api/disputes/:id` for updating dispute status.
-
-2. **disputeController.js**
-   - Implement logic to retrieve disputes from the database.
-   - Implement logic to update dispute status based on request.
-
-3. **Dispute.js**
-   - Define the schema for disputes including fields like id, status, and timestamps.
-
-4. **authMiddleware.js**
-   - Protect routes to ensure only admins can access dispute-related endpoints.
+### Utils
+- **constants.js**
+  - Define constants for dispute status types.
+  - Store API endpoint URLs for easy reference.
 
 ## Timeline
-- **Week 1:** Setup project structure and implement backend routes and controllers.
-- **Week 2:** Develop frontend components and integrate API calls.
-- **Week 3:** Testing and bug fixing.
-- **Week 4:** Final review and deployment.
-
-## Notes
-- Ensure proper error handling in both frontend and backend.
-- Consider implementing pagination for the dispute table if the dataset is large.
+- **Week 1**: Set up file structure and create basic components.
+- **Week 2**: Implement API calls and integrate with components.
+- **Week 3**: Finalize UI design and conduct testing.
+- **Week 4**: Deploy and gather feedback for improvements.
 ```
