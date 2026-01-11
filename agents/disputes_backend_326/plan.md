@@ -2,91 +2,119 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support creating, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes with an array of evidence URLs and a status field.
 
 ## File Structure
 
-### API Implementation
+```
+/src
+  ├── api
+  │   ├── disputes.js
+  ├── components
+  │   ├── DisputeList.js
+  │   ├── DisputeForm.js
+  ├── pages
+  │   ├── DisputesPage.js
+  ├── styles
+  │   ├── Disputes.css
+  ├── utils
+  │   ├── apiClient.js
+  └── App.js
+```
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**: 
-      - Define API endpoints for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate request data and handle errors.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities**: 
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**: 
-      - Handle business logic for disputes.
-      - Implement functions for create, list, and update operations.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**: 
-      - Define routes for API endpoints.
-      - Connect routes to the appropriate controller functions.
+## API Implementation
 
-### UI Implementation
+### 1. API Endpoint: `/api/disputes`
 
-- **File Paths**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities**: 
-      - Display a list of disputes.
-      - Include filters for status (OPEN, REVIEW, RESOLVED).
-  
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities**: 
-      - Provide a form for creating and updating disputes.
-      - Handle input for `evidence_urls` array.
-  
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities**: 
-      - Combine `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
-  
-  - `src/services/disputeService.js`
-    - **Responsibilities**: 
-      - Define functions for API calls (GET, POST, PUT).
-      - Handle responses and errors from the API.
+- **File**: `/src/api/disputes.js`
+- **Responsibilities**:
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Open a new dispute
+    - `PUT /api/disputes/:id`: Update an existing dispute
+  - Handle request validation and response formatting.
+  - Implement status management (OPEN/REVIEW/RESOLVED).
+  - Manage evidence URLs as an array.
 
-### Testing
+### 2. API Client
 
-- **File Paths**
-  - `src/tests/api/disputes.test.js`
-    - **Responsibilities**: 
-      - Unit tests for API endpoints.
-      - Validate response structure and status codes.
-  
-  - `src/tests/components/DisputeForm.test.jsx`
-    - **Responsibilities**: 
-      - Unit tests for the DisputeForm component.
-      - Validate form submission and input handling.
-  
-  - `src/tests/pages/DisputePage.test.jsx`
-    - **Responsibilities**: 
-      - Integration tests for DisputePage.
-      - Validate interaction between components and API.
+- **File**: `/src/utils/apiClient.js`
+- **Responsibilities**:
+  - Create functions to interact with the API:
+    - `fetchDisputes()`: Fetch all disputes.
+    - `createDispute(data)`: Create a new dispute.
+    - `updateDispute(id, data)`: Update a dispute by ID.
 
-## Timeline
+## UI Implementation
 
-- **Week 1**: 
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-  
-- **Week 2**: 
-  - Develop UI components for listing and creating disputes.
-  - Connect UI to API endpoints.
-  
-- **Week 3**: 
-  - Implement testing for API and UI components.
-  - Conduct code reviews and finalize feature.
+### 3. Dispute List Component
 
-## Notes
-- Ensure proper error handling and validation throughout the API and UI.
-- Consider user experience for managing evidence URLs in the form.
-- Follow best practices for state management in the UI.
+- **File**: `/src/components/DisputeList.js`
+- **Responsibilities**:
+  - Fetch and display a list of disputes.
+  - Show status and evidence URLs for each dispute.
+  - Provide a button to open a new dispute.
+
+### 4. Dispute Form Component
+
+- **File**: `/src/components/DisputeForm.js`
+- **Responsibilities**:
+  - Form for creating/updating disputes.
+  - Fields for status and evidence URLs.
+  - Handle form submission and validation.
+
+### 5. Disputes Page
+
+- **File**: `/src/pages/DisputesPage.js`
+- **Responsibilities**:
+  - Combine `DisputeList` and `DisputeForm`.
+  - Manage state for displaying success/error messages.
+  - Handle form submission and list refresh after updates.
+
+### 6. Styling
+
+- **File**: `/src/styles/Disputes.css`
+- **Responsibilities**:
+  - Style the dispute list and form for a user-friendly interface.
+  - Ensure responsive design for various screen sizes.
+
+## Testing
+
+### 7. API Tests
+
+- **File**: `/tests/api/disputes.test.js`
+- **Responsibilities**:
+  - Write unit tests for API endpoints.
+  - Validate response formats and status codes.
+
+### 8. UI Tests
+
+- **File**: `/tests/components/DisputeList.test.js`
+- **File**: `/tests/components/DisputeForm.test.js`
+- **Responsibilities**:
+  - Write tests for rendering components and handling user interactions.
+
+## Deployment
+
+### 9. Deployment Configuration
+
+- **File**: `/config/deployment.js`
+- **Responsibilities**:
+  - Configure environment variables for API endpoints.
+  - Set up CI/CD pipeline for deployment.
+
+## Documentation
+
+### 10. API Documentation
+
+- **File**: `/docs/api/disputes.md`
+- **Responsibilities**:
+  - Document API endpoints, request/response formats, and usage examples.
+
+### 11. User Documentation
+
+- **File**: `/docs/user/disputes.md`
+- **Responsibilities**:
+  - Provide user guidance on how to use the disputes feature.
+
 ```
