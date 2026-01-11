@@ -1,103 +1,103 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
-
-## File Structure
-
+## Directory Structure
 ```
-/src
-  ├── api
-  │   ├── disputes.js
-  │   └── index.js
-  ├── components
-  │   ├── DisputeList.jsx
-  │   ├── DisputeForm.jsx
-  │   └── DisputeItem.jsx
-  ├── hooks
-  │   └── useDisputes.js
-  ├── pages
-  │   └── DisputePage.jsx
-  ├── services
-  │   └── disputeService.js
-  ├── styles
-  │   └── DisputeStyles.css
-  └── utils
-      └── apiUtils.js
+/disputes_backend_326
+│
+├── api
+│   ├── __init__.py
+│   ├── app.py
+│   ├── routes
+│   │   ├── __init__.py
+│   │   └── disputes.py
+│   └── models
+│       ├── __init__.py
+│       └── dispute.py
+│
+├── ui
+│   ├── index.html
+│   ├── css
+│   │   └── styles.css
+│   └── js
+│       ├── app.js
+│       └── api.js
+│
+├── tests
+│   ├── __init__.py
+│   ├── test_routes.py
+│   └── test_models.py
+│
+└── requirements.txt
 ```
 
 ## API Implementation
 
-### File: `/src/api/disputes.js`
+### File: `api/routes/disputes.py`
 - **Responsibilities:**
-  - Define API routes for:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
+  - Define API endpoints for:
+    - `GET /api/disputes`: List all disputes.
+    - `POST /api/disputes`: Create a new dispute.
+    - `PUT /api/disputes/{id}`: Update an existing dispute.
   - Handle request validation and response formatting.
+  - Manage dispute statuses (OPEN, REVIEW, RESOLVED).
+  - Handle `evidence_urls` array for each dispute.
 
-### File: `/src/api/index.js`
+### File: `api/models/dispute.py`
 - **Responsibilities:**
-  - Export all API endpoints for easy access.
+  - Define the Dispute model with attributes:
+    - `id`: Unique identifier.
+    - `status`: Enum (OPEN, REVIEW, RESOLVED).
+    - `evidence_urls`: Array of URLs.
+  - Implement methods for CRUD operations on disputes.
+
+### File: `api/app.py`
+- **Responsibilities:**
+  - Initialize Flask app and configure routes.
+  - Set up database connection (e.g., SQLAlchemy).
+  - Handle error responses and middleware.
 
 ## UI Implementation
 
-### File: `/src/components/DisputeList.jsx`
+### File: `ui/index.html`
 - **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Render `DisputeItem` for each dispute.
+  - Create the main HTML structure.
+  - Include links to CSS and JS files.
+  - Set up sections for listing disputes and forms for creating/updating disputes.
 
-### File: `/src/components/DisputeForm.jsx`
+### File: `ui/css/styles.css`
 - **Responsibilities:**
-  - Provide a form to open a new dispute.
-  - Include fields for evidence URLs and status selection.
+  - Style the UI components (forms, lists, buttons).
+  - Ensure responsive design for usability.
 
-### File: `/src/components/DisputeItem.jsx`
+### File: `ui/js/app.js`
 - **Responsibilities:**
-  - Display individual dispute details.
-  - Include buttons for updating status and viewing evidence.
+  - Handle UI interactions (form submissions, button clicks).
+  - Update the UI dynamically based on API responses.
 
-### File: `/src/pages/DisputePage.jsx`
+### File: `ui/js/api.js`
 - **Responsibilities:**
-  - Main page to render `DisputeList` and `DisputeForm`.
-  - Handle state management for disputes.
-
-## Hooks
-
-### File: `/src/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Custom hook to manage fetching, adding, and updating disputes.
-  - Handle API calls and state management.
-
-## Services
-
-### File: `/src/services/disputeService.js`
-- **Responsibilities:**
-  - Define functions for API interactions:
-    - `fetchDisputes()`
-    - `createDispute(data)`
-    - `updateDispute(id, data)`
-
-## Styles
-
-### File: `/src/styles/DisputeStyles.css`
-- **Responsibilities:**
-  - Define styles for dispute components.
-
-## Utilities
-
-### File: `/src/utils/apiUtils.js`
-- **Responsibilities:**
-  - Helper functions for API requests (e.g., error handling, response parsing).
+  - Implement API calls to:
+    - Fetch disputes.
+    - Create a new dispute.
+    - Update an existing dispute.
+  - Handle API response errors and display messages to the user.
 
 ## Testing
 
-- Implement unit tests for API endpoints in `/tests/api/disputes.test.js`.
-- Implement component tests for UI components in `/tests/components/Dispute*.test.js`.
+### File: `tests/test_routes.py`
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Test all CRUD operations and status updates.
 
-## Deployment
+### File: `tests/test_models.py`
+- **Responsibilities:**
+  - Write unit tests for the Dispute model.
+  - Validate model methods and data integrity.
 
-- Ensure API is integrated with the backend service.
-- Deploy UI changes to the staging environment for testing.
+## Dependencies
+
+### File: `requirements.txt`
+- **Responsibilities:**
+  - List required packages (Flask, SQLAlchemy, etc.).
 ```
