@@ -3,6 +3,9 @@
 ## Project Structure
 ```
 /src
+  ├── api
+  │   ├── disputes.js               # API endpoints for disputes
+  │   └── index.js                  # Centralized API exports
   ├── components
   │   ├── AdminDisputesTable.jsx
   │   ├── DisputeFilter.jsx
