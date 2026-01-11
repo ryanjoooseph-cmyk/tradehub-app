@@ -1,99 +1,81 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Project Structure
 ```
-/disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
-├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+/api
+    └── disputes
+        ├── disputes_controller.py
+        ├── disputes_service.py
+        ├── disputes_model.py
+        ├── disputes_routes.py
+        └── disputes_schema.py
+/ui
+    ├── DisputeList.js
+    ├── DisputeForm.js
+    ├── DisputeDetail.js
+    └── api.js
+/tests
+    ├── test_disputes_controller.py
+    ├── test_disputes_service.py
+    └── test_disputes_routes.py
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
+### 1. `disputes_model.py`
+- **Responsibilities**: Define the Dispute model with fields: `id`, `status`, `evidence_urls`, `created_at`, and `updated_at`.
   
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+### 2. `disputes_schema.py`
+- **Responsibilities**: Create a schema for validating input/output data for disputes using a library like Marshmallow.
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+### 3. `disputes_service.py`
+- **Responsibilities**: Implement business logic for:
+  - Creating a new dispute
+  - Listing all disputes
+  - Updating a dispute's status
+  - Validating evidence URLs
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+### 4. `disputes_controller.py`
+- **Responsibilities**: Handle HTTP requests and responses:
+  - `create_dispute`: POST `/api/disputes`
+  - `list_disputes`: GET `/api/disputes`
+  - `update_dispute`: PUT `/api/disputes/<id>`
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### 5. `disputes_routes.py`
+- **Responsibilities**: Define API routes and link them to the controller methods.
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+## UI Implementation
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+### 1. `api.js`
+- **Responsibilities**: Create functions to interact with the API:
+  - `fetchDisputes()`: GET `/api/disputes`
+  - `createDispute(data)`: POST `/api/disputes`
+  - `updateDispute(id, data)`: PUT `/api/disputes/<id>`
+
+### 2. `DisputeList.js`
+- **Responsibilities**: Display a list of disputes, allowing users to view details and update status.
+
+### 3. `DisputeForm.js`
+- **Responsibilities**: Provide a form to create or update a dispute, including fields for evidence URLs and status.
+
+### 4. `DisputeDetail.js`
+- **Responsibilities**: Show detailed information about a selected dispute, including evidence URLs and status.
+
+## Testing Implementation
+
+### 1. `test_disputes_controller.py`
+- **Responsibilities**: Write unit tests for the controller methods to ensure correct handling of requests and responses.
+
+### 2. `test_disputes_service.py`
+- **Responsibilities**: Write unit tests for the service methods to validate business logic.
+
+### 3. `test_disputes_routes.py`
+- **Responsibilities**: Write integration tests for the API routes to ensure they respond correctly to requests.
 
 ## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
-
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- **Week 1**: Set up models, schemas, and services.
+- **Week 2**: Implement controllers and routes.
+- **Week 3**: Develop UI components.
+- **Week 4**: Write tests and conduct integration testing.
 ```
