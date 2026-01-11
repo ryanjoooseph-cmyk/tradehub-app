@@ -1,99 +1,99 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Directory Structure
 ```
 /disputes_backend_326
 │
 ├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
+│   ├── disputes.js                # API routes for disputes
+│   ├── disputesController.js       # Controller for handling dispute logic
+│   ├── disputesService.js          # Service for business logic related to disputes
+│   └── disputesModel.js            # Database model for disputes
 │
 ├── /ui
 │   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
+│   │   ├── DisputeList.jsx         # Component to list all disputes
+│   │   ├── DisputeForm.jsx         # Component for creating/updating disputes
+│   │   └── DisputeDetail.jsx       # Component for viewing dispute details
 │   │
 │   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
+│   │   ├── DisputePage.jsx         # Main page for disputes
+│   │   └── NotFoundPage.jsx        # Page for handling not found errors
+│   │
+│   ├── /hooks
+│   │   └── useDisputes.js          # Custom hook for managing disputes state
 │   │
 │   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
+│   │   └── disputes.css            # Styles for dispute components
 │   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
+│   └── App.jsx                     # Main application component
 │
 ├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
+│   ├── disputesController.test.js   # Unit tests for disputes controller
+│   ├── disputesService.test.js      # Unit tests for disputes service
+│   └── DisputePage.test.jsx         # Unit tests for DisputePage component
 │
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+└── server.js                       # Entry point for the server
 ```
 
 ## Responsibilities
 
 ### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+- **/api/disputes.js**
+  - Define routes for GET, POST, PUT requests.
+  - Handle incoming requests and responses.
+
+- **/api/disputesController.js**
+  - Implement functions for:
+    - `getAllDisputes`: Fetch all disputes.
+    - `createDispute`: Create a new dispute.
+    - `updateDispute`: Update an existing dispute.
+  - Validate input data and manage status transitions.
+
+- **/api/disputesService.js**
+  - Business logic for disputes:
+    - Fetching disputes from the database.
+    - Creating and updating disputes.
+    - Handling status changes (OPEN, REVIEW, RESOLVED).
+
+- **/api/disputesModel.js**
+  - Define the database schema for disputes:
+    - Fields: id, evidence_urls (array), status (enum: OPEN/REVIEW/RESOLVED).
 
 ### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+- **/ui/components/DisputeList.jsx**
+  - Display a list of disputes with status and actions.
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+- **/ui/components/DisputeForm.jsx**
+  - Form for creating/updating disputes.
+  - Include fields for evidence URLs and status.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+- **/ui/components/DisputeDetail.jsx**
+  - Detailed view of a selected dispute.
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
+- **/ui/pages/DisputePage.jsx**
+  - Main page to render the dispute list and form.
   - Handle routing and state management.
 
+- **/ui/hooks/useDisputes.js**
+  - Manage state and API calls for disputes.
+  - Provide functions to fetch, create, and update disputes.
+
+- **/ui/styles/disputes.css**
+  - Style the dispute components for a cohesive UI.
+
 ### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+- **/tests/disputesController.test.js**
+  - Test API controller functions for expected behavior.
 
-## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+- **/tests/disputesService.test.js**
+  - Test service logic for disputes.
 
-## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- **/tests/DisputePage.test.jsx**
+  - Test rendering and functionality of the DisputePage component.
+
+### Deployment
+- Ensure all routes are properly documented.
+- Set up CI/CD pipeline for automated testing and deployment.
 ```
