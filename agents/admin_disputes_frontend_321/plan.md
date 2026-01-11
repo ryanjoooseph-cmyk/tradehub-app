@@ -35,8 +35,13 @@
   - Render a button to update the status of a dispute.
   - Call the API to update the status when clicked.
 
-### 2. Pages
-- **`/src/pages/AdminDisputesPage.jsx`**
+- **StatusUpdateButton.jsx**
+  - Render a button for updating dispute status.
+  - Trigger API call to update status on click.
+
+### Pages
+
+- **AdminDisputesPage.jsx**
   - Main page component for `/admin/disputes/321`.
   - Fetch disputes data using the custom hook.
   - Render `DisputeFilter` and `AdminDisputesTable` components.
