@@ -1,92 +1,110 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support creating, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+## Project Structure
+```
+/project-root
+│
+├── /api
+│   ├── /controllers
+│   │   └── disputesController.js
+│   ├── /routes
+│   │   └── disputes.js
+│   ├── /models
+│   │   └── disputeModel.js
+│   └── /middlewares
+│       └── validateDispute.js
+│
+├── /client
+│   ├── /components
+│   │   └── DisputeList.jsx
+│   │   └── DisputeForm.jsx
+│   ├── /pages
+│   │   └── DisputePage.jsx
+│   └── /services
+│       └── disputeService.js
+│
+└── /tests
+    ├── /api
+    │   └── disputes.test.js
+    └── /client
+        └── DisputePage.test.jsx
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### 1. Define Dispute Model
+- **File:** `/api/models/disputeModel.js`
+- **Responsibilities:**
+  - Create Mongoose schema for disputes.
+  - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN, REVIEW, RESOLVED).
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**: 
-      - Define API endpoints for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate request data and handle errors.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities**: 
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**: 
-      - Handle business logic for disputes.
-      - Implement functions for create, list, and update operations.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**: 
-      - Define routes for API endpoints.
-      - Connect routes to the appropriate controller functions.
+### 2. Create Disputes Controller
+- **File:** `/api/controllers/disputesController.js`
+- **Responsibilities:**
+  - Implement functions:
+    - `listDisputes(req, res)`: Retrieve all disputes.
+    - `createDispute(req, res)`: Create a new dispute.
+    - `updateDispute(req, res)`: Update an existing dispute by ID.
 
-### UI Implementation
+### 3. Set Up Routes
+- **File:** `/api/routes/disputes.js`
+- **Responsibilities:**
+  - Define routes for:
+    - `GET /api/disputes`: List disputes.
+    - `POST /api/disputes`: Create a dispute.
+    - `PUT /api/disputes/:id`: Update a dispute.
 
-- **File Paths**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities**: 
-      - Display a list of disputes.
-      - Include filters for status (OPEN, REVIEW, RESOLVED).
-  
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities**: 
-      - Provide a form for creating and updating disputes.
-      - Handle input for `evidence_urls` array.
-  
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities**: 
-      - Combine `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
-  
-  - `src/services/disputeService.js`
-    - **Responsibilities**: 
-      - Define functions for API calls (GET, POST, PUT).
-      - Handle responses and errors from the API.
+### 4. Middleware for Validation
+- **File:** `/api/middlewares/validateDispute.js`
+- **Responsibilities:**
+  - Validate request body for creating/updating disputes.
+  - Ensure `evidence_urls` is an array and `status` is valid.
 
-### Testing
+## Client Implementation
 
-- **File Paths**
-  - `src/tests/api/disputes.test.js`
-    - **Responsibilities**: 
-      - Unit tests for API endpoints.
-      - Validate response structure and status codes.
-  
-  - `src/tests/components/DisputeForm.test.jsx`
-    - **Responsibilities**: 
-      - Unit tests for the DisputeForm component.
-      - Validate form submission and input handling.
-  
-  - `src/tests/pages/DisputePage.test.jsx`
-    - **Responsibilities**: 
-      - Integration tests for DisputePage.
-      - Validate interaction between components and API.
+### 5. Create Dispute Form Component
+- **File:** `/client/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Build form for creating/updating disputes.
+  - Handle input for `evidence_urls` and `status`.
 
-## Timeline
+### 6. Create Dispute List Component
+- **File:** `/client/components/DisputeList.jsx`
+- **Responsibilities:**
+  - Display list of disputes.
+  - Include options to update status.
 
-- **Week 1**: 
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-  
-- **Week 2**: 
-  - Develop UI components for listing and creating disputes.
-  - Connect UI to API endpoints.
-  
-- **Week 3**: 
-  - Implement testing for API and UI components.
-  - Conduct code reviews and finalize feature.
+### 7. Dispute Page
+- **File:** `/client/pages/DisputePage.jsx`
+- **Responsibilities:**
+  - Integrate `DisputeForm` and `DisputeList`.
+  - Manage state and API calls using `disputeService`.
 
-## Notes
-- Ensure proper error handling and validation throughout the API and UI.
-- Consider user experience for managing evidence URLs in the form.
-- Follow best practices for state management in the UI.
+### 8. API Service
+- **File:** `/client/services/disputeService.js`
+- **Responsibilities:**
+  - Implement API calls:
+    - `fetchDisputes()`: GET request to list disputes.
+    - `createDispute(data)`: POST request to create a dispute.
+    - `updateDispute(id, data)`: PUT request to update a dispute.
+
+## Testing
+
+### 9. API Tests
+- **File:** `/tests/api/disputes.test.js`
+- **Responsibilities:**
+  - Write tests for API endpoints.
+  - Validate responses for listing, creating, and updating disputes.
+
+### 10. Client Tests
+- **File:** `/tests/client/DisputePage.test.jsx`
+- **Responsibilities:**
+  - Write tests for `DisputePage` component.
+  - Ensure correct rendering and API interactions.
+
+## Deployment
+- Ensure all changes are committed.
+- Run tests to validate functionality.
+- Deploy to staging environment for further testing.
 ```
