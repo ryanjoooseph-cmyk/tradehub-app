@@ -1,97 +1,92 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Project Structure
+## Overview
+Build the UI and API for managing disputes in the admin panel, targeting the route `/admin/disputes/321`. The UI will include an admin table with filters and actions to update dispute statuses. The API will handle requests to `/api/disputes`.
+
+## File Structure
+
+### Frontend
+
+- **src/**
+  - **components/**
+    - **DisputeTable.jsx**  
+      - Responsible for rendering the admin table with dispute data.
+      - Includes filtering options for disputes.
+  
+    - **DisputeRow.jsx**  
+      - Responsible for rendering each row of the dispute table.
+      - Includes buttons for updating dispute status.
+
+    - **FilterComponent.jsx**  
+      - Responsible for rendering filter inputs (e.g., status, date).
+      - Handles filter state and updates the table.
+
+  - **pages/**
+    - **AdminDisputesPage.jsx**  
+      - Main page component for `/admin/disputes/321`.
+      - Integrates `DisputeTable` and `FilterComponent`.
+
+  - **hooks/**
+    - **useDisputes.js**  
+      - Custom hook for fetching disputes from the API.
+      - Handles loading state and error management.
+
+  - **api/**
+    - **disputeApi.js**  
+      - Contains functions to call `/api/disputes` for fetching and updating disputes.
+
+- **styles/**
+  - **AdminDisputes.css**  
+    - Styles for the admin disputes page and components.
+
+### Backend
+
+- **routes/**
+  - **disputes.js**  
+    - Defines the API routes for `/api/disputes`.
+    - Handles GET requests to fetch disputes and POST/PUT requests to update dispute statuses.
+
+- **controllers/**
+  - **disputeController.js**  
+    - Contains logic for fetching disputes from the database.
+    - Contains logic for updating dispute statuses.
+
+- **models/**
+  - **Dispute.js**  
+    - Mongoose model for the dispute schema.
+    - Defines fields such as status, date, and relevant dispute details.
+
+- **middleware/**
+  - **authMiddleware.js**  
+    - Middleware for authenticating admin users.
+
+## Responsibilities
+
+### Frontend
+- **DisputeTable.jsx**: Render disputes in a table format with filtering options.
+- **DisputeRow.jsx**: Render individual dispute details and update buttons.
+- **FilterComponent.jsx**: Manage filter inputs and state.
+- **AdminDisputesPage.jsx**: Main page layout and integration of components.
+- **useDisputes.js**: Fetch disputes and manage loading/error states.
+- **disputeApi.js**: API calls for fetching/updating disputes.
+
+### Backend
+- **disputes.js**: Define API endpoints for disputes.
+- **disputeController.js**: Implement logic for fetching and updating disputes.
+- **Dispute.js**: Define the dispute data model.
+- **authMiddleware.js**: Ensure only authenticated admins can access the routes.
+
+## Testing
+- **Frontend**
+  - Unit tests for components and hooks.
+  - Integration tests for API calls.
+
+- **Backend**
+  - Unit tests for controllers and models.
+  - Integration tests for API endpoints.
+
+## Deployment
+- Ensure the feature is included in the next deployment cycle.
+- Monitor for any issues post-deployment.
 ```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputes.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── filters.js
-  └── App.js
-```
-
-## File Responsibilities
-
-### 1. **AdminDisputesTable.jsx**
-- **Path:** `/src/components/AdminDisputesTable.jsx`
-- **Responsibilities:**
-  - Render the admin disputes table.
-  - Display dispute data with pagination.
-  - Integrate filter options from `FilterComponent`.
-
-### 2. **FilterComponent.jsx**
-- **Path:** `/src/components/FilterComponent.jsx`
-- **Responsibilities:**
-  - Provide UI for filtering disputes (e.g., by status, date).
-  - Handle filter state and pass selected filters to `AdminDisputesTable`.
-
-### 3. **StatusUpdateButton.jsx**
-- **Path:** `/src/components/StatusUpdateButton.jsx`
-- **Responsibilities:**
-  - Render a button to update the status of a dispute.
-  - Trigger API call to update status when clicked.
-
-### 4. **AdminDisputesPage.jsx**
-- **Path:** `/src/pages/AdminDisputesPage.jsx`
-- **Responsibilities:**
-  - Main page component for `/admin/disputes/321`.
-  - Integrate `AdminDisputesTable` and `FilterComponent`.
-  - Manage overall state and API calls.
-
-### 5. **disputes.js**
-- **Path:** `/src/api/disputes.js`
-- **Responsibilities:**
-  - Define API calls for fetching disputes and updating status.
-  - Handle error responses and return data to components.
-
-### 6. **AdminDisputesPage.css**
-- **Path:** `/src/styles/AdminDisputesPage.css`
-- **Responsibilities:**
-  - Style the admin disputes page and components.
-  - Ensure responsive design for various screen sizes.
-
-### 7. **filters.js**
-- **Path:** `/src/utils/filters.js`
-- **Responsibilities:**
-  - Utility functions for filtering logic.
-  - Export filter functions to be used in `FilterComponent`.
-
-### 8. **App.js**
-- **Path:** `/src/App.js`
-- **Responsibilities:**
-  - Set up routing for the application.
-  - Define route for `/admin/disputes/321` to render `AdminDisputesPage`.
-
-## Development Steps
-1. **Set Up Routing:**
-   - Implement route in `App.js` for `/admin/disputes/321`.
-
-2. **Create Components:**
-   - Develop `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
-
-3. **Implement API Calls:**
-   - Write functions in `disputes.js` for fetching and updating disputes.
-
-4. **Integrate Components:**
-   - Combine components in `AdminDisputesPage` and manage state.
-
-5. **Style Components:**
-   - Apply styles in `AdminDisputesPage.css`.
-
-6. **Testing:**
-   - Test UI and API interactions.
-   - Ensure filters and status updates work as expected.
-
-7. **Deployment:**
-   - Prepare for deployment and ensure all routes are functional.
-
-## Conclusion
-This plan outlines the necessary components and responsibilities for implementing the admin disputes feature, ensuring a clear path from development to deployment.
