@@ -4,7 +4,7 @@
 ## Overview
 This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
 
-## File Structure
+## File Responsibilities
 
 ```
 /src
@@ -22,7 +22,9 @@ This plan outlines the implementation of the UI and API for managing disputes in
       └── apiHelpers.js
 ```
 
-## Responsibilities
+### Utilities
+- **api.js**
+  - Set up Axios or Fetch API for making HTTP requests to `/api/disputes`.
 
 ### 1. Components
 - **`/src/components/AdminDisputesTable.jsx`**
