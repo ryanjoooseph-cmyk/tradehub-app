@@ -1,12 +1,10 @@
 name: automerge
 on:
   pull_request_target:
-    types: [labeled, opened, reopened, synchronize]
-permissions:
-  pull-requests: write
+    types: [opened, reopened, synchronize, labeled]
 jobs:
   enable:
-    if: contains(github.event.pull_request.labels.*.name, 'automerge')
+    if: contains(toJson(github.event.pull_request.labels), 'automerge')
     runs-on: ubuntu-latest
     steps:
       - uses: peter-evans/enable-pull-request-automerge@v3
