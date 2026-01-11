@@ -1,97 +1,89 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Overview
+This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The UI will include an admin table with filters and actions to update dispute statuses. The API will handle data retrieval and updates.
+
+## File Structure
 
 ```
 /src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+├── api
+│   ├── disputes.js               # API endpoints for disputes
+│   └── index.js                  # Centralized API exports
+├── components
+│   ├── AdminDisputeTable.jsx     # Table component for displaying disputes
+│   ├── FilterBar.jsx             # Filter component for disputes
+│   └── StatusUpdateModal.jsx      # Modal for updating dispute status
+├── pages
+│   └── admin
+│       └── disputes
+│           └── [id].jsx          # Main page for displaying dispute details
+├── hooks
+│   └── useDisputeData.js         # Custom hook for fetching dispute data
+├── styles
+│   └── AdminDisputeTable.css     # Styles for the dispute table
+└── utils
+    └── apiClient.js              # Utility for making API calls
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
+### API Layer
 
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
+- **`/src/api/disputes.js`**
+  - Implement GET `/api/disputes/:id` to fetch dispute details.
+  - Implement PATCH `/api/disputes/:id/status` to update dispute status.
+  - Ensure proper error handling and response formatting.
 
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
+### UI Layer
 
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
+- **`/src/components/AdminDisputeTable.jsx`**
+  - Create a table to display disputes with columns for ID, status, and actions.
+  - Integrate filtering options for status and date.
+  - Handle row actions for updating dispute status.
 
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
+- **`/src/components/FilterBar.jsx`**
+  - Implement filter inputs for status and date range.
+  - Pass filter values to the dispute table component.
 
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
+- **`/src/components/StatusUpdateModal.jsx`**
+  - Create a modal for confirming status updates.
+  - Include dropdown for selecting new status and a confirm button.
+  - Handle API call to update status on confirmation.
 
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
+- **`/src/pages/admin/disputes/[id].jsx`**
+  - Fetch dispute data using `useDisputeData` hook.
+  - Render `AdminDisputeTable` and `FilterBar`.
+  - Handle loading and error states.
 
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
+### Hooks
 
-## Development Steps
+- **`/src/hooks/useDisputeData.js`**
+  - Create a custom hook to fetch dispute data from the API.
+  - Manage loading and error states.
+  - Return dispute data and a function to refresh data.
 
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
+### Styles
 
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
+- **`/src/styles/AdminDisputeTable.css`**
+  - Style the dispute table for clarity and usability.
+  - Ensure responsive design for different screen sizes.
 
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
+### Utilities
 
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
+- **`/src/utils/apiClient.js`**
+  - Implement a utility function for making API calls.
+  - Handle authentication and error responses.
 
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
+## Testing
 
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
+- Write unit tests for API endpoints in `/src/api/disputes.js`.
+- Write component tests for `AdminDisputeTable`, `FilterBar`, and `StatusUpdateModal`.
+- Ensure end-to-end tests cover the full flow from fetching disputes to updating status.
 
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+## Deployment
+
+- Ensure the feature is integrated into the main branch.
+- Deploy to staging for QA testing before production release.
+```
