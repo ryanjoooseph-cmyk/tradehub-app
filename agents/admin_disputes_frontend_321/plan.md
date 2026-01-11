@@ -1,97 +1,77 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Overview
+Build the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update the dispute status.
 
+## File Structure
+
+### Frontend
+
+- **Path:** `src/components/AdminDisputes/`
+  - **File:** `AdminDisputesTable.js`
+    - **Responsibility:** Render the admin table with dispute data, including filters for searching and sorting.
+  
+  - **File:** `DisputeRow.js`
+    - **Responsibility:** Render individual dispute rows and provide buttons for updating status.
+
+  - **File:** `DisputeFilters.js`
+    - **Responsibility:** Provide filter options for the admin table (e.g., status, date range).
+
+  - **File:** `UpdateStatusModal.js`
+    - **Responsibility:** Modal component for confirming status updates on disputes.
+
+- **Path:** `src/pages/AdminDisputesPage.js`
+  - **Responsibility:** Main page component that integrates the `AdminDisputesTable`, `DisputeFilters`, and handles routing.
+
+- **Path:** `src/hooks/useDisputes.js`
+  - **Responsibility:** Custom hook for fetching disputes from the API and managing state.
+
+- **Path:** `src/services/api.js`
+  - **Responsibility:** API service for making calls to `/api/disputes` for fetching and updating dispute data.
+
+### API
+
+- **Path:** `src/routes/api/disputes.js`
+  - **Responsibility:** Define API endpoints for fetching disputes and updating their status.
+
+- **Path:** `src/controllers/disputeController.js`
+  - **Responsibility:** Handle business logic for fetching disputes and updating their status.
+
+- **Path:** `src/models/Dispute.js`
+  - **Responsibility:** Define the Dispute model/schema for database interactions.
+
+- **Path:** `src/middleware/authMiddleware.js`
+  - **Responsibility:** Middleware for authenticating admin requests.
+
+## Tasks
+
+1. **Frontend Development**
+   - Implement `AdminDisputesTable` to display disputes with pagination.
+   - Create `DisputeRow` for rendering each dispute with action buttons.
+   - Develop `DisputeFilters` for filtering disputes based on criteria.
+   - Build `UpdateStatusModal` for confirming status updates.
+   - Integrate components in `AdminDisputesPage`.
+
+2. **API Development**
+   - Set up `/api/disputes` endpoint for GET and PUT requests.
+   - Implement logic in `disputeController` to handle fetching and updating disputes.
+   - Ensure proper validation and error handling in the API.
+
+3. **Testing**
+   - Write unit tests for components in `AdminDisputes`.
+   - Create integration tests for API endpoints in `disputes.js`.
+
+4. **Documentation**
+   - Document API endpoints in `README.md`.
+   - Provide usage instructions for the frontend components.
+
+## Timeline
+- **Week 1:** Frontend component development.
+- **Week 2:** API development and integration.
+- **Week 3:** Testing and documentation.
+
+## Notes
+- Ensure the UI is responsive and accessible.
+- Follow coding standards and best practices.
 ```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
-```
-
-## Responsibilities
-
-### 1. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Render a table displaying disputes.
-     - Integrate filtering options from `FilterComponent`.
-     - Handle status updates via `StatusUpdateButton`.
-
-### 2. **FilterComponent.jsx**
-   - **Path:** `/src/components/FilterComponent.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Emit filter changes to `AdminDisputesTable`.
-
-### 3. **StatusUpdateButton.jsx**
-   - **Path:** `/src/components/StatusUpdateButton.jsx`
-   - **Responsibilities:**
-     - Render a button to update the status of a dispute.
-     - Call the API to update the dispute status when clicked.
-
-### 4. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Set up the layout for the admin disputes page.
-     - Integrate `AdminDisputesTable` and `FilterComponent`.
-     - Manage state for disputes and filters.
-
-### 5. **disputesService.js**
-   - **Path:** `/src/services/disputesService.js`
-   - **Responsibilities:**
-     - Define functions to call the `/api/disputes` endpoint.
-     - Handle GET requests for fetching disputes.
-     - Handle POST requests for updating dispute status.
-
-### 6. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the admin disputes page and its components.
-     - Ensure responsive design for various screen sizes.
-
-### 7. **api.js**
-   - **Path:** `/src/utils/api.js`
-   - **Responsibilities:**
-     - Set up Axios or Fetch for API calls.
-     - Handle common API configurations (base URL, headers).
-
-### 8. **App.js**
-   - **Path:** `/src/App.js`
-   - **Responsibilities:**
-     - Define routing for the application.
-     - Ensure the `/admin/disputes/321` route renders `AdminDisputesPage`.
-
-## Development Steps
-
-1. **Set Up Routing**
-   - Implement routing in `App.js` for `/admin/disputes/321`.
-
-2. **Build UI Components**
-   - Create `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
-
-3. **Implement API Service**
-   - Develop `disputesService.js` to handle API interactions.
-
-4. **Integrate Components**
-   - Combine components in `AdminDisputesPage` and manage state.
-
-5. **Style the Page**
-   - Apply styles in `AdminDisputesPage.css`.
-
-6. **Testing**
-   - Write unit tests for components and service functions.
-   - Conduct integration tests for the full flow.
-
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
