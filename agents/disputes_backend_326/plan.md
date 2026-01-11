@@ -2,7 +2,7 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support creating, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+This plan outlines the implementation of the UI and API for managing disputes, targeting the route `/api/disputes`. The feature will support opening, listing, and updating disputes with an array of evidence URLs and statuses (OPEN, REVIEW, RESOLVED).
 
 ## File Structure
 
@@ -10,83 +10,82 @@ This plan outlines the implementation of the UI and API for managing disputes at
 
 - **File Paths**
   - `src/api/disputes.js`
-    - **Responsibilities**: 
-      - Define API endpoints for disputes.
-      - Implement CRUD operations for disputes.
-      - Validate request data and handle errors.
-  
+    - Responsible for defining API routes and handling requests for disputes.
+  - `src/controllers/disputesController.js`
+    - Responsible for business logic related to disputes (CRUD operations).
   - `src/models/Dispute.js`
-    - **Responsibilities**: 
-      - Define the Dispute model schema.
-      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**: 
-      - Handle business logic for disputes.
-      - Implement functions for create, list, and update operations.
-  
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**: 
-      - Define routes for API endpoints.
-      - Connect routes to the appropriate controller functions.
+    - Responsible for defining the Dispute model/schema.
+  - `src/routes/disputesRoutes.js`
+    - Responsible for routing API requests to the appropriate controller methods.
+  - `src/middleware/authMiddleware.js`
+    - Responsible for authentication and authorization checks.
 
 ### UI Implementation
 
 - **File Paths**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities**: 
-      - Display a list of disputes.
-      - Include filters for status (OPEN, REVIEW, RESOLVED).
-  
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities**: 
-      - Provide a form for creating and updating disputes.
-      - Handle input for `evidence_urls` array.
-  
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities**: 
-      - Combine `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
-  
+  - `src/components/DisputeList.js`
+    - Responsible for displaying a list of disputes.
+  - `src/components/DisputeForm.js`
+    - Responsible for creating and updating disputes.
   - `src/services/disputeService.js`
-    - **Responsibilities**: 
-      - Define functions for API calls (GET, POST, PUT).
-      - Handle responses and errors from the API.
+    - Responsible for API calls related to disputes.
+  - `src/pages/DisputePage.js`
+    - Responsible for rendering the dispute management page.
+  - `src/styles/disputeStyles.css`
+    - Responsible for styling the dispute components.
 
-### Testing
+## Responsibilities
+
+### API Responsibilities
+
+1. **`src/models/Dispute.js`**
+   - Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
+
+2. **`src/controllers/disputesController.js`**
+   - Implement methods:
+     - `createDispute(req, res)`: Handle creating a new dispute.
+     - `getDisputes(req, res)`: Handle listing all disputes.
+     - `updateDispute(req, res)`: Handle updating an existing dispute.
+
+3. **`src/routes/disputesRoutes.js`**
+   - Define routes:
+     - `POST /api/disputes`: Create a dispute.
+     - `GET /api/disputes`: List all disputes.
+     - `PUT /api/disputes/:id`: Update a dispute.
+
+4. **`src/middleware/authMiddleware.js`**
+   - Implement middleware to verify user authentication for dispute operations.
+
+### UI Responsibilities
+
+1. **`src/components/DisputeList.js`**
+   - Fetch and display the list of disputes using `disputeService`.
+
+2. **`src/components/DisputeForm.js`**
+   - Create a form for users to input dispute details, including evidence URLs and status.
+
+3. **`src/services/disputeService.js`**
+   - Implement API calls:
+     - `createDispute(data)`: Call to create a new dispute.
+     - `getDisputes()`: Call to fetch all disputes.
+     - `updateDispute(id, data)`: Call to update a specific dispute.
+
+4. **`src/pages/DisputePage.js`**
+   - Combine `DisputeList` and `DisputeForm` components for the main dispute management interface.
+
+5. **`src/styles/disputeStyles.css`**
+   - Style the dispute components for a user-friendly interface.
+
+## Testing
 
 - **File Paths**
-  - `src/tests/api/disputes.test.js`
-    - **Responsibilities**: 
-      - Unit tests for API endpoints.
-      - Validate response structure and status codes.
-  
-  - `src/tests/components/DisputeForm.test.jsx`
-    - **Responsibilities**: 
-      - Unit tests for the DisputeForm component.
-      - Validate form submission and input handling.
-  
-  - `src/tests/pages/DisputePage.test.jsx`
-    - **Responsibilities**: 
-      - Integration tests for DisputePage.
-      - Validate interaction between components and API.
+  - `tests/api/disputes.test.js`
+    - Responsible for testing API endpoints.
+  - `tests/ui/DisputePage.test.js`
+    - Responsible for testing UI components.
 
-## Timeline
+## Deployment
 
-- **Week 1**: 
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-  
-- **Week 2**: 
-  - Develop UI components for listing and creating disputes.
-  - Connect UI to API endpoints.
-  
-- **Week 3**: 
-  - Implement testing for API and UI components.
-  - Conduct code reviews and finalize feature.
-
-## Notes
-- Ensure proper error handling and validation throughout the API and UI.
-- Consider user experience for managing evidence URLs in the form.
-- Follow best practices for state management in the UI.
+- Ensure all changes are merged into the main branch.
+- Deploy to staging for QA testing before production release.
 ```
