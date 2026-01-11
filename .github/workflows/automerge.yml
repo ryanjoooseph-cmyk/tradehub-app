@@ -1,18 +1,25 @@
-name: automerge
+name: agent-automerge
 on:
-  pull_request_target:
-    types: [opened, labeled, synchronize, reopened, ready_for_review]
+  pull_request:
+    types: [labeled, opened, reopened, synchronize]
 permissions:
   contents: write
   pull-requests: write
 jobs:
   merge:
+    if: contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
-    if: contains(join(github.event.pull_request.labels.*.name, ','), 'automerge') && github.event.pull_request.draft == false
     steps:
-      - run: gh pr review "${{ github.event.pull_request.number }}" --approve
+      - uses: pascalgn/automerge-action@v0.16.4
         env:
-          GH_TOKEN: ${{ secrets.PAT_AUTOMERGE }}
-      - run: gh pr merge "${{ github.event.pull_request.number }}" --squash --delete-branch
-        env:
-          GH_TOKEN: ${{ secrets.PAT_AUTOMERGE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_METHOD: squash
+          MERGE_DELETE_BRANCH: "true"
+          AUTOMERGE: "true"
+          LABELS: automerge
+          BLOCK_LABELS: do-not-merge
+          MIN_APPROVALS: "0"
+          REQUIRE_ALL_STATUS_CHECKS: "false"
+          REQUIRE_BRANCH_UP_TO_DATE: "false"
+          MERGE_RETRIES: "40"
+          MERGE_RETRY_SLEEP: "30s"
