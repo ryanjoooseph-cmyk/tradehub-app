@@ -1,99 +1,88 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
-
-## File Structure
-
+## Directory Structure
 ```
-/disputes_backend_326
-│
+/disputes_backend
 ├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # API package initialization
-│   └── models.py                  # Database models for disputes
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx        # Component to list disputes
-│   │   ├── DisputeForm.jsx        # Component to open/update disputes
-│   │   └── EvidenceUploader.jsx    # Component to upload evidence URLs
-│   │
-│   ├── /pages
-│   │   ├── DisputePage.jsx        # Main page for disputes
-│   │   └── NotFoundPage.jsx       # 404 page for unmatched routes
-│   │
-│   ├── /styles
-│   │   ├── disputes.css           # Styles for disputes UI
-│   │   └── common.css             # Common styles across the app
-│   │
-│   ├── App.jsx                    # Main application component
-│   └── index.js                   # Entry point for React app
-│
+│   ├── disputes.js
+│   └── index.js
+├── /controllers
+│   └── disputesController.js
+├── /models
+│   └── disputeModel.js
+├── /routes
+│   └── disputesRoutes.js
+├── /middlewares
+│   └── validateDispute.js
 ├── /tests
-│   ├── api
-│   │   ├── test_disputes.py       # Unit tests for API endpoints
-│   │   └── test_models.py         # Unit tests for models
-│   │
-│   └── ui
-│       ├── DisputeList.test.jsx   # Tests for DisputeList component
-│       ├── DisputeForm.test.jsx   # Tests for DisputeForm component
-│       └── EvidenceUploader.test.jsx # Tests for EvidenceUploader component
-│
-├── requirements.txt               # Python dependencies
-├── package.json                    # JavaScript dependencies
-└── README.md                      # Project documentation
+│   ├── disputes.test.js
+│   └── api.test.js
+└── server.js
 ```
 
-## Responsibilities
+## File Responsibilities
 
-### API Implementation
-- **disputes.py**
-  - Define endpoints:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Open a new dispute
-    - `PUT /api/disputes/{id}`: Update an existing dispute
-  - Handle request validation and response formatting.
-  
-- **models.py**
-  - Create a `Dispute` model with fields:
-    - `id`: Unique identifier
-    - `status`: Enum (OPEN, REVIEW, RESOLVED)
-    - `evidence_urls`: Array of strings
-    - `created_at`: Timestamp
-    - `updated_at`: Timestamp
+### 1. **API Layer**
+- **`/api/disputes.js`**  
+  - Define API endpoints for disputes: 
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
+  - Handle request and response formatting.
 
-### UI Implementation
-- **DisputeList.jsx**
-  - Fetch and display a list of disputes.
-  - Include status indicators and action buttons (view/update).
+- **`/api/index.js`**  
+  - Import and use `disputesRoutes`.
+  - Set up middleware for JSON parsing and error handling.
 
-- **DisputeForm.jsx**
-  - Form to create/update disputes.
-  - Include fields for status and evidence URLs.
+### 2. **Controller Layer**
+- **`/controllers/disputesController.js`**  
+  - Implement logic for:
+    - Fetching all disputes.
+    - Creating a new dispute (validate input, save to DB).
+    - Updating a dispute (validate input, update DB).
+  - Ensure status handling (OPEN/REVIEW/RESOLVED) and evidence_urls array management.
 
-- **EvidenceUploader.jsx**
-  - Component for uploading evidence URLs.
-  - Validate and display uploaded URLs.
+### 3. **Model Layer**
+- **`/models/disputeModel.js`**  
+  - Define the dispute schema with fields:
+    - `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - Implement database interaction methods (CRUD).
 
-- **DisputePage.jsx**
-  - Main page that integrates `DisputeList` and `DisputeForm`.
-  - Handle routing and state management.
+### 4. **Route Layer**
+- **`/routes/disputesRoutes.js`**  
+  - Define routes and link them to controller methods.
+  - Use middleware for validation and error handling.
 
-### Testing
-- **Unit Tests**
-  - Ensure API endpoints return correct responses and handle errors.
-  - Validate UI components render correctly and handle user interactions.
+### 5. **Middleware Layer**
+- **`/middlewares/validateDispute.js`**  
+  - Validate incoming request data for creating/updating disputes.
+  - Ensure required fields are present and correct.
+
+### 6. **Testing Layer**
+- **`/tests/disputes.test.js`**  
+  - Write unit tests for controller methods.
+  - Test various scenarios (valid/invalid input, status updates).
+
+- **`/tests/api.test.js`**  
+  - Write integration tests for API endpoints.
+  - Ensure endpoints return correct status codes and data.
+
+### 7. **Server Setup**
+- **`/server.js`**  
+  - Set up Express server.
+  - Connect to the database.
+  - Use routes and middleware.
+  - Start server on specified port.
 
 ## Timeline
-- **Week 1**: API development and initial testing.
-- **Week 2**: UI development and integration.
-- **Week 3**: Testing and bug fixing.
-- **Week 4**: Final review and deployment.
+- **Week 1:** Set up project structure and implement models.
+- **Week 2:** Develop API endpoints and controllers.
+- **Week 3:** Implement validation middleware and testing.
+- **Week 4:** Finalize testing, documentation, and deployment.
 
 ## Notes
-- Ensure proper error handling and logging in both API and UI.
-- Follow best practices for state management in the UI.
-- Use responsive design principles for the UI components.
+- Ensure proper error handling and logging throughout the implementation.
+- Follow RESTful API conventions for clarity and consistency.
+- Maintain clear documentation for each endpoint and functionality.
 ```
