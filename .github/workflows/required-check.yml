@@ -2,23 +2,22 @@ name: required-check
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
-
+  workflow_dispatch:
 permissions:
   contents: read
   statuses: write
-
 jobs:
   gate:
     runs-on: ubuntu-latest
     steps:
-      - name: publish status on head sha
+      - name: publish status
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          SHA:  ${{ github.sha }}
         run: |
           curl -s \
             -H "authorization: Bearer $TOKEN" \
             -H "Accept: application/vnd.github+json" \
-            -X POST "https://api.github.com/repos/$REPO/statuses/$HEAD_SHA" \
+            -X POST "https://api.github.com/repos/$REPO/statuses/$SHA" \
             -d '{"state":"success","context":"required-check","description":"ok"}'
