@@ -2,9 +2,10 @@ name: required-check
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
 permissions: {}
 jobs:
-  required:
+  ok:
     runs-on: ubuntu-latest
     steps:
       - run: echo ok
