@@ -1,7 +1,7 @@
 name: required-check
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, reopened, labeled, unlabeled, ready_for_review]
   workflow_dispatch:
 permissions:
   contents: read
@@ -13,10 +13,11 @@ jobs:
       - name: publish status
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          SHA:  ${{ github.sha }}
+          REPO:  ${{ github.repository }}
+          # Use PR head SHA when available; fall back to the current SHA for manual runs
+          SHA:   ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          curl -s \
+          curl -sS \
             -H "authorization: Bearer $TOKEN" \
             -H "Accept: application/vnd.github+json" \
             -X POST "https://api.github.com/repos/$REPO/statuses/$SHA" \
