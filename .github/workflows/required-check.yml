@@ -2,10 +2,18 @@ name: required-check
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
 permissions:
   contents: read
+  statuses: write
 jobs:
   ok:
     runs-on: ubuntu-latest
     steps:
-      - run: echo ok
+      - name: publish status
+        run: |
+          curl -s \
+            -H "authorization: Bearer ${{ github.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            -X POST https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+            -d '{"state":"success","context":"required-check","description":"ok"}'
