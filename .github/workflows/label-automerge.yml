@@ -1,6 +1,6 @@
 name: label automerge on agent PRs
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, reopened, synchronize]
 permissions:
   pull-requests: write
@@ -8,6 +8,16 @@ jobs:
   label:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions-ecosystem/action-add-labels@v1
+      - uses: actions/github-script@v7
         with:
-          labels: automerge
+          script: |
+            const pr = context.payload.pull_request
+            const labels = (pr.labels || []).map(l=>l.name)
+            if (!labels.includes('automerge')) {
+              await github.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['automerge']
+              })
+            }
