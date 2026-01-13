@@ -1,4 +1,4 @@
-name: label automerge on agent PRs
+name: label-automerge
 on:
   pull_request_target:
     types: [opened, reopened, synchronize]
@@ -8,16 +8,13 @@ jobs:
   label:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v7
-        with:
-          script: |
-            const pr = context.payload.pull_request
-            const labels = (pr.labels || []).map(l=>l.name)
-            if (!labels.includes('automerge')) {
-              await github.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                labels: ['automerge']
-              })
-            }
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUM: ${{ github.event.pull_request.number }}
+        run: |
+          curl -sS -H "Authorization: Bearer $GH_TOKEN" \
+               -H "Accept: application/vnd.github+json" \
+               -X POST \
+               -d "{\"labels\":[\"automerge\"]}" \
+               "https://api.github.com/repos/$REPO/issues/$NUM/labels"
