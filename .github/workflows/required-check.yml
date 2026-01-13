@@ -5,8 +5,7 @@ on:
 jobs:
   gate:
     runs-on: ubuntu-latest
-    permissions:
-      statuses: write
+    permissions: { statuses: write }
     steps:
       - name: Publish required-check status
         uses: actions/github-script@v7
