@@ -1,0 +1,14 @@
+name: enable-auto-merge
+on:
+  pull_request_target:
+    types: [labeled, opened, reopened, synchronize, ready_for_review]
+permissions:
+  pull-requests: write
+  contents: read
+jobs:
+  enable:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh pr merge ${{ github.event.pull_request.number }} --squash --auto --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
