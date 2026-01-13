@@ -1,20 +1,19 @@
 name: agents-automerge
 on:
-  pull_request:
-    types: [opened, synchronize, labeled]
+  pull_request_target:
+    types: [opened, reopened, labeled, ready_for_review, synchronize]
 jobs:
-  label_and_merge:
-    if: startsWith(github.event.pull_request.head.ref, 'agent-') || startsWith(github.event.pull_request.head.ref, 'agent-pr/') || startsWith(github.event.pull_request.head.ref, 'admin_disputes_frontend_') || startsWith(github.event.pull_request.head.ref, 'disputes_backend_')
+  enable-native-automerge:
+    # only proceed if the PR has the automerge label
+    if: contains(join(fromJSON(toJSON(github.event.pull_request.labels.*.name))), 'automerge')
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     steps:
-      - run: gh pr edit "$PR" --add-label automerge
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ github.event.pull_request.number }}
-      - run: gh pr merge "$PR" --squash --auto --delete-branch
+      - name: Queue native auto-merge (squash)
         env:
           GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
           PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr merge "$PR" --squash --auto
