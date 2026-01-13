@@ -1,19 +1,23 @@
 name: required-check
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened, labeled]
 permissions:
-  contents: read
   statuses: write
+  contents: read
 jobs:
   gate:
     runs-on: ubuntu-latest
     steps:
-      - name: Publish pass status for branch protection
-        run: |
-          gh api repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
-            -f state=success \
-            -f context='required-check' \
-            -f description='gate passed'
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.payload.pull_request.head.sha
+            await github.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha,
+              state: 'success',
+              context: 'required-check',
+              description: 'gate passed'
+            })
