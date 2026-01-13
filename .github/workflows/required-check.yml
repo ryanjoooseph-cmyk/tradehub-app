@@ -9,11 +9,7 @@ jobs:
   gate:
     runs-on: ubuntu-latest
     steps:
-      - name: Publish pass status for branch protection
-        run: |
-          gh api repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
-            -f state=success \
-            -f context='required-check' \
-            -f description='gate passed'
+      - name: publish legacy status
+        run: gh api repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} -f state=success -f context='required-check' -f description='gate passed'
         env:
           GH_TOKEN: ${{ github.token }}

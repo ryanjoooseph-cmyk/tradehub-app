@@ -1,0 +1,25 @@
+name: queue native automerge
+on:
+  pull_request:
+    types: [labeled]
+permissions:
+  pull-requests: write
+  contents: read
+jobs:
+  queue:
+    if: contains(github.event.pull_request.labels.*.name, 'automerge')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            await github.graphql(`
+              mutation($pullRequestId:ID!) {
+                enablePullRequestAutoMerge(input:{
+                  pullRequestId:$pullRequestId,
+                  mergeMethod:SQUASH
+                }) { clientMutationId }
+              }`,
+              { pullRequestId: pr.node_id }
+            );
