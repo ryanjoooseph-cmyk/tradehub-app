@@ -1,24 +1,16 @@
 name: automerge
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, labeled, synchronize, reopened]
 permissions:
   contents: write
   pull-requests: write
 jobs:
-  label-and-enable:
-    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+  merge:
+    if: contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v7
+      - uses: cli/gh-action@v2
         with:
-          script: |
-            await github.rest.issues.addLabels({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              labels: ['automerge']
-            })
-      - uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          merge-method: squash
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - run: gh pr merge ${{ github.event.pull_request.number }} --squash --auto || gh pr merge ${{ github.event.pull_request.number }} --squash --admin
