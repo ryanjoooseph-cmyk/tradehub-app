@@ -1,9 +1,8 @@
 name: pr-ok
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, labeled]
-permissions:
-  contents: read
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+permissions: {}
 jobs:
   ok:
     runs-on: ubuntu-latest
