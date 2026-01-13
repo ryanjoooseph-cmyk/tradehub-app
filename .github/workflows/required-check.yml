@@ -1,12 +1,11 @@
 name: required-check
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review]
 permissions:
   contents: read
 jobs:
-  gate:
+  required-check:
     runs-on: ubuntu-latest
     steps:
-      - name: succeed fast
-        run: echo ok
+      - run: echo ok

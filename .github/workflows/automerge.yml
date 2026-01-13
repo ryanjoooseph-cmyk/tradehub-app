@@ -1,0 +1,48 @@
+name: automerge
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, ready_for_review]
+  check_suite:
+    types: [completed]
+  status: {}
+permissions:
+  contents: write
+  pull-requests: write
+  statuses: write
+jobs:
+  approve-update-merge:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const n = context.payload.pull_request.number
+            const labels = (await github.rest.issues.listLabelsOnIssue({owner: context.repo.owner, repo: context.repo.repo, issue_number: n})).data.map(l=>l.name)
+            if (!labels.includes('automerge')) {
+              await github.rest.issues.addLabels({owner: context.repo.owner, repo: context.repo.repo, issue_number: n, labels: ['automerge']})
+            }
+      - uses: peter-evans/approve-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          review-message: ok
+      - uses: peter-evans/update-branch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request: ${{ github.event.pull_request.number }}
+          target: auto
+          update-strategy: merge
+      - uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
+      - uses: peter-evans/auto-merge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
+          required-labels: automerge
+          delete-branch: true
