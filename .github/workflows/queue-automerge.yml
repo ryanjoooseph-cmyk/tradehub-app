@@ -1,0 +1,18 @@
+name: queue-automerge
+on:
+  pull_request_target:
+    types: [opened, labeled, synchronize, reopened]
+permissions:
+  pull-requests: write
+  contents: read
+jobs:
+  queue:
+    if: contains(github.event.pull_request.labels.*.name, 'automerge')
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          ID: ${{ github.event.pull_request.node_id }}
+        run: |
+          jq -nc --arg id "$ID" '{query:"mutation($id:ID!){enablePullRequestAutoMerge(input:{pullRequestId:$id,mergeMethod:SQUASH}){clientMutationId}}",variables:{id:$id}}' \
+          | curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -X POST https://api.github.com/graphql -d @-
