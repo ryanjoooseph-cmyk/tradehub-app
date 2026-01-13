@@ -1,12 +1,11 @@
 name: required-check
 on:
   pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened, labeled]
-permissions:
-  contents: read
+  workflow_dispatch:
 jobs:
   required-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
     steps:
-      - run: echo "ok"
+      - run: echo ok
