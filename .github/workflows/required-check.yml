@@ -1,9 +1,7 @@
 name: required-check
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-permissions:
-  contents: read
+    types: [opened, synchronize, reopened, labeled]
 jobs:
   required-check:
     runs-on: ubuntu-latest
