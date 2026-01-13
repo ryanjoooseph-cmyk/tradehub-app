@@ -1,0 +1,10 @@
+name: required-check
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+permissions: {}
+jobs:
+  required-check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
