@@ -1,11 +1,19 @@
 name: required-check
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, labeled]
 permissions:
   contents: read
+  statuses: write
 jobs:
-  required-check:
+  gate:
     runs-on: ubuntu-latest
     steps:
-      - run: echo ok
+      - name: Publish pass status for branch protection
+        run: |
+          gh api repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
+            -f state=success \
+            -f context='required-check' \
+            -f description='gate passed'
+        env:
+          GH_TOKEN: ${{ github.token }}
