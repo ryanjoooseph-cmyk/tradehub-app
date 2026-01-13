@@ -1,0 +1,13 @@
+name: auto-label
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+permissions:
+  pull-requests: write
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - run: gh issue edit ${{ github.event.pull_request.number }} --add-label automerge --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
