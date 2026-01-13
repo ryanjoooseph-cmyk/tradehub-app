@@ -1,0 +1,11 @@
+name: pr-ok
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
+permissions:
+  contents: read
+jobs:
+  ok:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
