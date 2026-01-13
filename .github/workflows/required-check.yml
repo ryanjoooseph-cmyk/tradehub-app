@@ -9,14 +9,11 @@ jobs:
   gate:
     runs-on: ubuntu-latest
     steps:
-      - name: publish status
-        env:
+      - env:
           GH_TOKEN: ${{ github.token }}
           SHA: ${{ github.event.pull_request.head.sha }}
           REPO: ${{ github.repository }}
         run: |
-          curl -sS -H "Authorization: Bearer $GH_TOKEN" \
-               -H "Accept: application/vnd.github+json" \
-               -X POST \
-               -d "{\"state\":\"success\",\"context\":\"required-check\",\"description\":\"gate passed\"}" \
-               "https://api.github.com/repos/$REPO/statuses/$SHA"
+          curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -X POST \
+            -d "{\"state\":\"success\",\"context\":\"required-check\",\"description\":\"gate passed\"}" \
+            "https://api.github.com/repos/$REPO/statuses/$SHA"
