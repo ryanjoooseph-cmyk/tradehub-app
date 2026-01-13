@@ -4,15 +4,19 @@ on:
     types: [opened, synchronize, reopened, labeled]
 permissions:
   statuses: write
+  contents: read
 jobs:
   gate:
     runs-on: ubuntu-latest
     steps:
       - name: publish status
-        run: |
-          gh api repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
-            -f state=success \
-            -f context='required-check' \
-            -f description='gate passed'
         env:
           GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          curl -sS -H "Authorization: Bearer $GH_TOKEN" \
+               -H "Accept: application/vnd.github+json" \
+               -X POST \
+               -d "{\"state\":\"success\",\"context\":\"required-check\",\"description\":\"gate passed\"}" \
+               "https://api.github.com/repos/$REPO/statuses/$SHA"
