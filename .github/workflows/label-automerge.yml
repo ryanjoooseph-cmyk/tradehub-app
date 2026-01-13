@@ -1,20 +1,16 @@
 name: label-automerge
 on:
   pull_request_target:
-    types: [opened, reopened, synchronize]
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
 permissions:
+  contents: write
   pull-requests: write
 jobs:
-  label:
+  enable:
+    if: contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
     steps:
       - env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          NUM: ${{ github.event.pull_request.number }}
-        run: |
-          curl -sS -H "Authorization: Bearer $GH_TOKEN" \
-               -H "Accept: application/vnd.github+json" \
-               -X POST \
-               -d "{\"labels\":[\"automerge\"]}" \
-               "https://api.github.com/repos/$REPO/issues/$NUM/labels"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+        run: gh pr merge "$PR" --squash --auto
