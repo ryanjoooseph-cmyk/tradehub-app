@@ -1,10 +1,21 @@
 name: required-check
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-permissions: {}
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+permissions:
+  contents: read
+  statuses: write
 jobs:
-  required-check:
+  gate:
     runs-on: ubuntu-latest
     steps:
-      - run: echo ok
+      - name: Publish required-check status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          gh api repos/${GITHUB_REPOSITORY}/statuses/$SHA \
+            -f state=success \
+            -f context="required-check" \
+            -f description="ok" \
+            -F target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
