@@ -1,22 +1,20 @@
 name: automerge
 on:
-  pull_request:
-    types: [labeled, opened, reopened, synchronize, ready_for_review]
-  check_suite:
-    types: [completed]
-  status: {}
+  pull_request_target:
+    types: [opened, labeled, synchronize, ready_for_review, reopened]
 permissions:
   contents: write
   pull-requests: write
 jobs:
-  merge:
-    if: contains(github.event.pull_request.labels.*.name, 'automerge')
+  label-and-merge:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
-      - uses: pascalgn/automerge-action@v0.16.3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MERGE_LABELS: automerge
-          MERGE_METHOD: squash
-          MERGE_DELETE_BRANCH: "true"
-          UPDATE_METHOD: rebase
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: automerge
+      - uses: peter-evans/auto-merge@v3
+        with:
+          merge-method: squash
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          required-labels: automerge
