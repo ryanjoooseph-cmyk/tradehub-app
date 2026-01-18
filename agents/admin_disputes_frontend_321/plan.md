@@ -1,95 +1,104 @@
 ```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterBar.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputesApi.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
+
+## File Structure
+
+### Frontend
+
+- **src/**
+  - **components/**
+    - **AdminDisputeTable.jsx**  
+      - Responsible for rendering the table of disputes with filtering options.
+    - **DisputeStatusDropdown.jsx**  
+      - Responsible for rendering a dropdown to update the status of a dispute.
+    - **FilterComponent.jsx**  
+      - Responsible for rendering filter inputs for the disputes table.
+  - **pages/**
+    - **AdminDisputesPage.jsx**  
+      - Responsible for the main page layout and integrating the AdminDisputeTable and FilterComponent.
+  - **hooks/**
+    - **useDisputes.js**  
+      - Custom hook for fetching disputes from the API and managing state.
+  - **styles/**
+    - **AdminDisputes.css**  
+      - Styles specific to the admin disputes page and components.
+
+### API
+
+- **src/api/**
+  - **disputes.js**  
+    - Responsible for defining API calls related to disputes, including fetching, updating status, and filtering.
+  
+- **src/routes/**
+  - **disputesRoutes.js**  
+    - Responsible for defining the Express routes for handling disputes API requests.
+
+### Backend
+
+- **src/controllers/**
+  - **disputeController.js**  
+    - Responsible for handling business logic for disputes, including fetching and updating dispute statuses.
+  
+- **src/models/**
+  - **Dispute.js**  
+    - Mongoose model for the Dispute schema, defining the structure of dispute documents in the database.
+
+- **src/middleware/**
+  - **authMiddleware.js**  
+    - Responsible for authenticating admin users before allowing access to dispute management routes.
 
 ## Responsibilities
 
-### Components
-- **AdminDisputesTable.jsx**
-  - Display a table of disputes with pagination and sorting.
-  - Integrate filters from FilterBar component.
-  - Handle status update actions via StatusUpdateModal.
+### Frontend
 
-- **FilterBar.jsx**
-  - Provide UI for filtering disputes (e.g., by date, status).
-  - Emit filter changes to AdminDisputesTable.
+- **AdminDisputeTable.jsx**
+  - Fetch and display disputes using `useDisputes` hook.
+  - Implement filtering logic based on user input.
 
-- **StatusUpdateModal.jsx**
-  - Modal for updating the status of a selected dispute.
-  - Call API to update status and refresh the table.
+- **DisputeStatusDropdown.jsx**
+  - Handle status updates and trigger API calls to update the dispute status.
 
-### Pages
+- **FilterComponent.jsx**
+  - Provide input fields for filtering disputes by various criteria (e.g., status, date).
+
 - **AdminDisputesPage.jsx**
-  - Main entry point for the admin disputes route.
-  - Render AdminDisputesTable and FilterBar.
-  - Manage state for disputes and filters.
+  - Integrate all components and manage overall page layout.
+
+- **useDisputes.js**
+  - Fetch disputes from `/api/disputes` and manage loading and error states.
 
 ### API
-- **disputesApi.js**
-  - Define API calls to `/api/disputes`.
-  - Implement functions for fetching disputes, updating status, and handling errors.
 
-### Styles
-- **AdminDisputesPage.css**
-  - Style the AdminDisputesPage and its components for a clean UI.
+- **disputes.js**
+  - Implement API endpoints for fetching disputes and updating their statuses.
 
-### Hooks
-- **useDisputes.js**
-  - Custom hook to manage fetching and updating disputes.
-  - Handle loading states and errors.
+- **disputesRoutes.js**
+  - Define routes for GET and POST requests related to disputes.
 
-### Utilities
-- **constants.js**
-  - Define constants for dispute statuses and API endpoints.
+### Backend
 
-## Development Steps
-1. **Setup Route**
-   - Configure route in the main application file (e.g., `App.js`).
-   - Ensure route `/admin/disputes/321` is accessible only to admin users.
+- **disputeController.js**
+  - Implement logic for retrieving disputes from the database and updating their statuses.
 
-2. **Build Components**
-   - Implement AdminDisputesTable, FilterBar, and StatusUpdateModal.
-   - Ensure components communicate effectively.
+- **Dispute.js**
+  - Define the schema for disputes, including fields for status, date, and other relevant information.
 
-3. **Implement API Calls**
-   - Create functions in disputesApi.js for fetching and updating disputes.
-   - Handle API responses and errors.
+- **authMiddleware.js**
+  - Ensure that only authenticated admin users can access dispute management routes.
 
-4. **Integrate State Management**
-   - Use useDisputes hook in AdminDisputesPage to manage data flow.
-   - Connect filters and status updates to the state.
+## Testing
 
-5. **Style the UI**
-   - Apply styles from AdminDisputesPage.css to ensure a cohesive look.
+- **src/tests/**
+  - **AdminDisputeTable.test.js**  
+    - Unit tests for the AdminDisputeTable component.
+  - **disputeController.test.js**  
+    - Integration tests for dispute controller functions.
 
-6. **Testing**
-   - Write unit tests for components and API functions.
-   - Conduct integration tests for the complete flow.
+## Deployment
 
-7. **Deployment**
-   - Prepare for deployment by ensuring all features are functional.
-   - Update documentation for the new route and features.
-
-## Timeline
-- **Week 1:** Component development and API integration.
-- **Week 2:** Testing and styling.
-- **Week 3:** Final review and deployment.
+- Ensure all changes are merged into the main branch.
+- Deploy to staging for QA testing before moving to production.
 ```
