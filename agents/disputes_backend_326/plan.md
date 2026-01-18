@@ -2,7 +2,7 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+This plan outlines the development of the UI and API for managing disputes at the route `/api/disputes`. The feature will allow users to open, list, and update disputes, with an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
 
 ## File Structure
 
@@ -10,92 +10,88 @@ This plan outlines the implementation of the UI and API for managing disputes at
 
 - **File Paths:**
   - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
-  
+    - Responsible for defining the API endpoints for disputes.
+    - Implement CRUD operations: create, read, update.
+
+- **File Paths:**
   - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
+    - Define the Dispute model/schema.
+    - Include fields: `id`, `evidence_urls`, `status`.
 
+- **File Paths:**
   - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
+    - Handle business logic for disputes.
+    - Functions: `createDispute`, `getDisputes`, `updateDispute`.
 
+- **File Paths:**
   - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
+    - Define the routes for the disputes API.
+    - Connect routes to controller functions.
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+- **File Paths:**
+  - `src/middleware/errorHandler.js`
+    - Handle errors and send appropriate responses.
 
 ### UI Implementation
 
 - **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+  - `src/components/DisputeList.js`
+    - Display a list of disputes.
+    - Fetch disputes from the API and render them.
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Handle input for evidence URLs and status selection.
+- **File Paths:**
+  - `src/components/DisputeForm.js`
+    - Form for creating and updating disputes.
+    - Handle input for `evidence_urls` and `status`.
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
+- **File Paths:**
+  - `src/pages/DisputePage.js`
+    - Main page for disputes.
+    - Integrate `DisputeList` and `DisputeForm`.
 
-  - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
-      - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
-
-  - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
+- **File Paths:**
+  - `src/services/disputeService.js`
+    - API service for making requests to `/api/disputes`.
+    - Functions: `createDispute`, `fetchDisputes`, `updateDispute`.
 
 ### Testing
 
 - **File Paths:**
   - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
+    - Unit tests for API endpoints.
+    - Test cases for create, list, and update functionalities.
 
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
+- **File Paths:**
+  - `tests/components/DisputeForm.test.js`
+    - Unit tests for the DisputeForm component.
+    - Validate form submission and input handling.
 
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
+- **File Paths:**
+  - `tests/components/DisputeList.test.js`
+    - Unit tests for the DisputeList component.
+    - Ensure correct rendering of disputes.
+
+### Documentation
+
+- **File Paths:**
+  - `docs/api/disputes.md`
+    - API documentation for `/api/disputes`.
+    - Include endpoint descriptions, request/response formats.
+
+- **File Paths:**
+  - `docs/ui/disputes.md`
+    - UI documentation for dispute management.
+    - Describe component structure and usage.
 
 ## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
+- **Week 1:** Set up API endpoints and model.
+- **Week 2:** Implement UI components and integrate with API.
+- **Week 3:** Write tests and documentation.
+- **Week 4:** Review, refine, and deploy.
 
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
-
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
-
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
+## Responsibilities
+- **Backend Developer:** Implement API and model.
+- **Frontend Developer:** Build UI components and integrate with API.
+- **QA Engineer:** Write and execute tests.
+- **Technical Writer:** Document API and UI features.
 ```
