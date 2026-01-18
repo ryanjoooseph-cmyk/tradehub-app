@@ -1,101 +1,99 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+## Directory Structure
+```
+/disputes_backend
+├── /api
+│   ├── disputes.py
+│   ├── __init__.py
+├── /models
+│   ├── dispute.py
+│   ├── __init__.py
+├── /schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+├── /services
+│   ├── dispute_service.py
+│   ├── __init__.py
+├── /tests
+│   ├── test_disputes.py
+│   ├── __init__.py
+├── /ui
+│   ├── /components
+│   │   ├── DisputeForm.js
+│   │   ├── DisputeList.js
+│   ├── /pages
+│   │   ├── DisputePage.js
+│   ├── App.js
+│   ├── index.js
+└── requirements.txt
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
-
-- **File Paths:**
-  - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
+### 1. **API Endpoints** - `/api/disputes.py`
+- **GET /api/disputes**: List all disputes
+  - Responsibility: Fetch disputes from the database and return as JSON.
   
-  - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
+- **POST /api/disputes**: Create a new dispute
+  - Responsibility: Validate input, create a new dispute record, and return the created dispute.
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
+- **PUT /api/disputes/{id}**: Update an existing dispute
+  - Responsibility: Validate input, update the dispute status or evidence_urls, and return the updated dispute.
 
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
+### 2. **Data Models** - `/models/dispute.py`
+- Define the Dispute model with fields:
+  - `id`: Unique identifier
+  - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - `evidence_urls`: Array of strings
+  - `created_at`: Timestamp
+  - `updated_at`: Timestamp
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+### 3. **Schemas** - `/schemas/dispute_schema.py`
+- Create Pydantic schemas for:
+  - `DisputeCreate`: For creating disputes
+  - `DisputeUpdate`: For updating disputes
+  - `DisputeResponse`: For returning dispute data
 
-### UI Implementation
+### 4. **Service Layer** - `/services/dispute_service.py`
+- Implement business logic for:
+  - Fetching all disputes
+  - Creating a dispute
+  - Updating a dispute
 
-- **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+## UI Implementation
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Handle input for evidence URLs and status selection.
+### 1. **Components** - `/ui/components`
+- **DisputeForm.js**: 
+  - Responsibility: Form for creating/updating disputes, including fields for status and evidence URLs.
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
+- **DisputeList.js**: 
+  - Responsibility: Display a list of disputes with options to update status.
 
-  - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
-      - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
+### 2. **Pages** - `/ui/pages/DisputePage.js`
+- Responsibility: Main page to manage disputes, integrating `DisputeForm` and `DisputeList`.
 
-  - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
+### 3. **App Entry Point** - `/ui/App.js`
+- Set up routing for the application and integrate the `DisputePage`.
 
-### Testing
+### 4. **Index File** - `/ui/index.js`
+- Render the main application.
 
-- **File Paths:**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
+## Testing
 
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
+### 1. **Unit Tests** - `/tests/test_disputes.py`
+- Write tests for:
+  - API endpoints
+  - Service layer functions
+  - UI components
 
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
+## Dependencies
+- Update `requirements.txt` with necessary libraries (Flask/FastAPI, SQLAlchemy, Pydantic, React, etc.).
 
 ## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
-
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
-
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
+- **Week 1**: API endpoints and models
+- **Week 2**: Service layer and schemas
+- **Week 3**: UI components and integration
+- **Week 4**: Testing and deployment
 ```
