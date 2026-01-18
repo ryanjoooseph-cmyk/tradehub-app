@@ -6,7 +6,7 @@
 /src
   ├── components
   │   ├── AdminDisputesTable.jsx
-  │   ├── FilterBar.jsx
+  │   ├── FilterComponent.jsx
   │   └── StatusUpdateModal.jsx
   ├── pages
   │   └── AdminDisputesPage.jsx
@@ -14,33 +14,31 @@
   │   └── disputesApi.js
   ├── styles
   │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
   └── utils
       └── constants.js
 ```
 
-## Responsibilities
+## File Responsibilities
 
 ### Components
 - **AdminDisputesTable.jsx**
-  - Display a table of disputes with pagination and sorting.
-  - Integrate filters from FilterBar component.
-  - Handle status update actions via StatusUpdateModal.
+  - Render the admin disputes table.
+  - Handle displaying disputes with pagination and sorting.
+  - Integrate with filters and status update actions.
 
-- **FilterBar.jsx**
-  - Provide UI for filtering disputes (e.g., by date, status).
-  - Emit filter changes to AdminDisputesTable.
+- **FilterComponent.jsx**
+  - Provide UI for filtering disputes (e.g., by status, date).
+  - Emit filter changes to the parent component.
 
 - **StatusUpdateModal.jsx**
   - Modal for updating the status of a selected dispute.
-  - Call API to update status and refresh the table.
+  - Handle form submission and validation.
 
 ### Pages
 - **AdminDisputesPage.jsx**
-  - Main entry point for the admin disputes route.
-  - Render AdminDisputesTable and FilterBar.
-  - Manage state for disputes and filters.
+  - Main page component for the route `/admin/disputes/321`.
+  - Integrate `AdminDisputesTable` and `FilterComponent`.
+  - Manage state for disputes, filters, and selected dispute for status updates.
 
 ### API
 - **disputesApi.js**
@@ -49,47 +47,45 @@
 
 ### Styles
 - **AdminDisputesPage.css**
-  - Style the AdminDisputesPage and its components for a clean UI.
-
-### Hooks
-- **useDisputes.js**
-  - Custom hook to manage fetching and updating disputes.
-  - Handle loading states and errors.
+  - Styles for the Admin Disputes page and components.
+  - Ensure responsive design and accessibility.
 
 ### Utilities
 - **constants.js**
-  - Define constants for dispute statuses and API endpoints.
+  - Define constants for dispute statuses and filter options.
+  - Centralize configuration for easy updates.
 
 ## Development Steps
-1. **Setup Route**
-   - Configure route in the main application file (e.g., `App.js`).
-   - Ensure route `/admin/disputes/321` is accessible only to admin users.
+1. **Set Up Routing**
+   - Configure routing for `/admin/disputes/321` in the main application router.
 
-2. **Build Components**
-   - Implement AdminDisputesTable, FilterBar, and StatusUpdateModal.
-   - Ensure components communicate effectively.
+2. **Build API Integration**
+   - Implement API calls in `disputesApi.js`.
+   - Test API endpoints for fetching and updating disputes.
 
-3. **Implement API Calls**
-   - Create functions in disputesApi.js for fetching and updating disputes.
-   - Handle API responses and errors.
+3. **Create UI Components**
+   - Develop `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateModal`.
+   - Ensure components are reusable and maintainable.
 
-4. **Integrate State Management**
-   - Use useDisputes hook in AdminDisputesPage to manage data flow.
-   - Connect filters and status updates to the state.
+4. **Implement State Management**
+   - Use React state or context to manage disputes, filters, and selected dispute.
+   - Handle loading states and error messages.
 
-5. **Style the UI**
-   - Apply styles from AdminDisputesPage.css to ensure a cohesive look.
+5. **Style the Components**
+   - Apply styles from `AdminDisputesPage.css` to ensure a cohesive look.
+   - Test for responsiveness across devices.
 
 6. **Testing**
    - Write unit tests for components and API functions.
-   - Conduct integration tests for the complete flow.
+   - Conduct integration tests for the full flow from fetching disputes to updating status.
 
 7. **Deployment**
-   - Prepare for deployment by ensuring all features are functional.
-   - Update documentation for the new route and features.
+   - Prepare the feature for deployment.
+   - Ensure all changes are documented and reviewed.
 
 ## Timeline
-- **Week 1:** Component development and API integration.
-- **Week 2:** Testing and styling.
-- **Week 3:** Final review and deployment.
+- **Week 1:** Set up routing and API integration.
+- **Week 2:** Develop UI components and implement state management.
+- **Week 3:** Style components and conduct testing.
+- **Week 4:** Finalize deployment and documentation.
 ```
