@@ -1,0 +1,21 @@
+{
+  "sprint": "UI Sprint 1",
+  "goals": [
+    "Implement dashboard shell (header, sidebar, content area) with clean, readable typography.",
+    "Add /calendar route with drag-and-drop day/week/month views.",
+    "Wire mock data provider so calendar renders sample jobs immediately.",
+    "Ship mobile-friendly layout (collapsible sidebar, sticky header)."
+  ],
+  "acceptance_criteria": [
+    "Visiting /dashboard shows shell with placeholder widgets that load instantly.",
+    "Visiting /calendar shows events and supports drag between time slots.",
+    "No auth wall blocks dashboard or calendar in preview; login stays on /login only.",
+    "CI green and PRs auto-merge with label automerge."
+  ],
+  "routes": [
+    { "path": "/dashboard", "status": "must-exist" },
+    { "path": "/calendar", "status": "must-exist" }
+  ],
+  "labels_for_prs": ["automerge"],
+  "branch_naming": "agent-ui-{{timestamp}}"
+}
