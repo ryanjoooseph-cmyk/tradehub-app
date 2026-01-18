@@ -1,95 +1,110 @@
 ```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterBar.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputesApi.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
-```
+## Overview
+Build the UI and API for managing disputes in the admin panel, targeting the route `/admin/disputes/321`. The UI will include an admin table with filters and actions to update dispute statuses. The API will handle data retrieval and updates.
 
-## Responsibilities
+## File Structure
 
-### Components
-- **AdminDisputesTable.jsx**
-  - Display a table of disputes with pagination and sorting.
-  - Integrate filters from FilterBar component.
-  - Handle status update actions via StatusUpdateModal.
+### Frontend
 
-- **FilterBar.jsx**
-  - Provide UI for filtering disputes (e.g., by date, status).
-  - Emit filter changes to AdminDisputesTable.
+- **src/**
+  - **components/**
+    - **AdminDisputesTable.jsx**  
+      - Responsibility: Render the table of disputes with filters and actions.
+  
+    - **DisputeRow.jsx**  
+      - Responsibility: Render individual dispute rows with status update options.
 
-- **StatusUpdateModal.jsx**
-  - Modal for updating the status of a selected dispute.
-  - Call API to update status and refresh the table.
+    - **FilterComponent.jsx**  
+      - Responsibility: Provide filtering options for the disputes table.
 
-### Pages
-- **AdminDisputesPage.jsx**
-  - Main entry point for the admin disputes route.
-  - Render AdminDisputesTable and FilterBar.
-  - Manage state for disputes and filters.
+  - **pages/**
+    - **AdminDisputesPage.jsx**  
+      - Responsibility: Main page component for `/admin/disputes/321`, integrates table and filters.
 
-### API
-- **disputesApi.js**
-  - Define API calls to `/api/disputes`.
-  - Implement functions for fetching disputes, updating status, and handling errors.
+  - **hooks/**
+    - **useDisputes.js**  
+      - Responsibility: Custom hook to fetch disputes data from the API and manage state.
 
-### Styles
-- **AdminDisputesPage.css**
-  - Style the AdminDisputesPage and its components for a clean UI.
+  - **services/**
+    - **disputeService.js**  
+      - Responsibility: API calls to `/api/disputes` for fetching and updating dispute statuses.
 
-### Hooks
-- **useDisputes.js**
-  - Custom hook to manage fetching and updating disputes.
-  - Handle loading states and errors.
+  - **styles/**
+    - **AdminDisputes.css**  
+      - Responsibility: Styles for the admin disputes page and components.
 
-### Utilities
-- **constants.js**
-  - Define constants for dispute statuses and API endpoints.
+### Backend
 
-## Development Steps
-1. **Setup Route**
-   - Configure route in the main application file (e.g., `App.js`).
-   - Ensure route `/admin/disputes/321` is accessible only to admin users.
+- **src/**
+  - **controllers/**
+    - **disputeController.js**  
+      - Responsibility: Handle API requests for fetching and updating disputes.
 
-2. **Build Components**
-   - Implement AdminDisputesTable, FilterBar, and StatusUpdateModal.
-   - Ensure components communicate effectively.
+  - **models/**
+    - **Dispute.js**  
+      - Responsibility: Define the dispute model/schema for database interactions.
 
-3. **Implement API Calls**
-   - Create functions in disputesApi.js for fetching and updating disputes.
-   - Handle API responses and errors.
+  - **routes/**
+    - **disputeRoutes.js**  
+      - Responsibility: Define API routes for `/api/disputes` including GET and PUT methods.
 
-4. **Integrate State Management**
-   - Use useDisputes hook in AdminDisputesPage to manage data flow.
-   - Connect filters and status updates to the state.
+  - **middlewares/**
+    - **authMiddleware.js**  
+      - Responsibility: Ensure that only authorized admin users can access dispute routes.
 
-5. **Style the UI**
-   - Apply styles from AdminDisputesPage.css to ensure a cohesive look.
+  - **services/**
+    - **disputeService.js**  
+      - Responsibility: Business logic for fetching and updating disputes in the database.
 
-6. **Testing**
-   - Write unit tests for components and API functions.
-   - Conduct integration tests for the complete flow.
+## Tasks
 
-7. **Deployment**
-   - Prepare for deployment by ensuring all features are functional.
-   - Update documentation for the new route and features.
+### Frontend Tasks
+1. **Create AdminDisputesPage Component**  
+   - Integrate `AdminDisputesTable` and `FilterComponent`.
+   - Set up routing for `/admin/disputes/321`.
 
-## Timeline
-- **Week 1:** Component development and API integration.
-- **Week 2:** Testing and styling.
-- **Week 3:** Final review and deployment.
+2. **Implement AdminDisputesTable Component**  
+   - Fetch disputes using `useDisputes` hook.
+   - Render `DisputeRow` for each dispute.
+
+3. **Build FilterComponent**  
+   - Implement filtering logic and UI.
+
+4. **Develop DisputeRow Component**  
+   - Include buttons for updating dispute status.
+
+5. **Style Components**  
+   - Apply styles from `AdminDisputes.css`.
+
+### Backend Tasks
+1. **Set up Dispute Model**  
+   - Define schema for disputes in `Dispute.js`.
+
+2. **Implement Dispute Controller**  
+   - Create functions for fetching and updating disputes.
+
+3. **Define API Routes**  
+   - Set up routes in `disputeRoutes.js` for GET and PUT requests.
+
+4. **Create Middleware for Authentication**  
+   - Ensure only admins can access the dispute API.
+
+5. **Test API Endpoints**  
+   - Verify functionality of `/api/disputes` endpoints.
+
+## Testing
+- **Unit Tests**  
+  - Write tests for components and API endpoints.
+
+- **Integration Tests**  
+  - Ensure frontend and backend communicate correctly.
+
+## Deployment
+- Prepare for deployment on staging and production environments.
+- Ensure environment variables are set for API URLs.
+
+## Documentation
+- Update README with setup instructions and API documentation.
 ```
