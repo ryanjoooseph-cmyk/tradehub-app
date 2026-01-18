@@ -1,8 +1,7 @@
 name: pr-ok
 on:
+  pull_request:
   pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review, labeled]
-permissions: {}
 jobs:
   ok:
     runs-on: ubuntu-latest

@@ -1,18 +1,24 @@
-name: enable automerge
+name: enable-auto-merge
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, labeled, ready_for_review]
+  pull_request_target:
+    types: [opened, labeled, synchronize, ready_for_review, reopened]
 permissions:
   contents: write
   pull-requests: write
 jobs:
-  queue:
-    # only run if the PR already has the 'automerge' label
-    if: contains(github.event.pull_request.labels.*.name, 'automerge')
+  add-label:
     runs-on: ubuntu-latest
     steps:
-      - name: Queue auto-merge (squash + delete branch)
-        env:
-          GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
-          PR_URL:  ${{ github.event.pull_request.html_url }}
-        run: gh pr merge "$PR_URL" --squash --auto --delete-branch
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: automerge
+  enable:
+    needs: add-label
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
