@@ -1,101 +1,102 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+## Directory Structure
+```
+/disputes_backend_326
+├── api
+│   ├── disputes.py
+│   ├── __init__.py
+├── models
+│   ├── dispute.py
+│   ├── __init__.py
+├── schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+├── services
+│   ├── dispute_service.py
+│   ├── __init__.py
+├── tests
+│   ├── test_disputes.py
+│   ├── __init__.py
+└── ui
+    ├── DisputeList.js
+    ├── DisputeDetail.js
+    ├── DisputeForm.js
+    └── index.js
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### 1. **API Routes** (`/api/disputes`)
+- **File:** `api/disputes.py`
+  - **Responsibilities:**
+    - Define routes for:
+      - `GET /api/disputes` - List all disputes
+      - `POST /api/disputes` - Create a new dispute
+      - `PUT /api/disputes/{id}` - Update an existing dispute
+    - Handle request validation and response formatting.
 
-- **File Paths:**
-  - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
+### 2. **Data Models**
+- **File:** `models/dispute.py`
+  - **Responsibilities:**
+    - Define the Dispute model with fields:
+      - `id`
+      - `evidence_urls` (array)
+      - `status` (enum: OPEN, REVIEW, RESOLVED)
+    - Implement methods for CRUD operations.
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
+### 3. **Schemas**
+- **File:** `schemas/dispute_schema.py`
+  - **Responsibilities:**
+    - Create Pydantic schemas for request/response validation:
+      - `DisputeCreate`
+      - `DisputeUpdate`
+      - `DisputeResponse`
 
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
+### 4. **Service Layer**
+- **File:** `services/dispute_service.py`
+  - **Responsibilities:**
+    - Implement business logic for:
+      - Listing disputes
+      - Creating a dispute
+      - Updating a dispute
+    - Interact with the data model.
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+## UI Implementation
 
-### UI Implementation
+### 5. **UI Components**
+- **File:** `ui/DisputeList.js`
+  - **Responsibilities:**
+    - Fetch and display a list of disputes.
+    - Provide links to dispute details.
 
-- **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+- **File:** `ui/DisputeDetail.js`
+  - **Responsibilities:**
+    - Display details of a selected dispute.
+    - Show evidence URLs and current status.
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Handle input for evidence URLs and status selection.
+- **File:** `ui/DisputeForm.js`
+  - **Responsibilities:**
+    - Form for creating/updating disputes.
+    - Handle input for evidence URLs and status.
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
+- **File:** `ui/index.js`
+  - **Responsibilities:**
+    - Set up routing for the UI.
+    - Integrate components for listing, creating, and updating disputes.
 
-  - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
-      - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
+## Testing
+### 6. **Unit Tests**
+- **File:** `tests/test_disputes.py`
+  - **Responsibilities:**
+    - Write tests for API endpoints.
+    - Validate service layer logic.
+    - Ensure UI components render correctly.
 
-  - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
-
-### Testing
-
-- **File Paths:**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
-
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
-
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
-
-## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
-
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
-
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
+## Deployment
+- **Responsibilities:**
+  - Ensure API is documented (Swagger/OpenAPI).
+  - Prepare UI for deployment (build process).
+  - Set up CI/CD pipeline for automated testing and deployment.
 ```
