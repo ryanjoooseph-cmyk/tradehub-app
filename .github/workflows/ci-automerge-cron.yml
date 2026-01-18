@@ -1,20 +1,21 @@
 name: ci automerge cron
 on:
+  workflow_dispatch:
   schedule:
     - cron: "*/30 * * * *"
-  workflow_dispatch:
 permissions:
   contents: write
   pull-requests: write
-concurrency:
-  group: automerge-cron
-  cancel-in-progress: false
+env:
+  GH_TOKEN: ${{ secrets.GH_CRON_TOKEN }}
 jobs:
   smoke:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Create branch
+        with:
+          fetch-depth: 1
+      - name: create branch
         run: |
           BR=ci-smoketest-$(date -u +%Y%m%d%H%M%S)
           echo "$BR" > .ci_smoketest_branch
@@ -25,9 +26,9 @@ jobs:
           git add .agent-smoketest
           git commit -m "ci: agent smoketest"
           git push -u origin "$BR"
-      - name: Open PR with automerge label
-        env:
-          GH_TOKEN: ${{ secrets.GH_CRON_TOKEN }}
+      - name: open pr
+        id: pr
         run: |
-          BR=$(cat .ci_smoketest_branch)
-          gh pr create --base main --head "$BR" --title "ci: automerge smoketest" --body "automerge validation" --label automerge
+          echo "number=$(gh pr create --base main --head "$(cat .ci_smoketest_branch)" --title "ci: automerge smoketest" --body "automerge validation" --label automerge --json number --jq .number)" >> "$GITHUB_OUTPUT"
+      - name: enable auto-merge
+        run: gh pr merge ${{ steps.pr.outputs.number }} --squash --auto
