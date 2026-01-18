@@ -1,95 +1,111 @@
-```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Directory Structure
+
 ```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterBar.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputesApi.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
+/admin_disputes_frontend_321
+│
+├── /src
+│   ├── /components
+│   │   ├── DisputeTable.jsx          # Component for displaying disputes in a table format with filters
+│   │   ├── DisputeFilters.jsx        # Component for filtering disputes based on status, date, etc.
+│   │   └── StatusUpdateButton.jsx    # Button component for updating dispute status
+│   │
+│   ├── /hooks
+│   │   └── useDisputeData.js         # Custom hook for fetching and managing dispute data
+│   │
+│   ├── /pages
+│   │   └── AdminDisputesPage.jsx     # Main page component for the admin disputes route
+│   │
+│   ├── /services
+│   │   └── disputeService.js          # Service for API calls to /api/disputes
+│   │
+│   ├── /styles
+│   │   └── AdminDisputes.css          # CSS styles for the admin disputes page
+│   │
+│   └── App.js                         # Main application file with routing setup
+│
+├── /api
+│   ├── /controllers
+│   │   └── disputeController.js       # Controller for handling API requests related to disputes
+│   │
+│   ├── /models
+│   │   └── Dispute.js                 # Mongoose model for the Dispute entity
+│   │
+│   ├── /routes
+│   │   └── disputeRoutes.js           # Express routes for /api/disputes
+│   │
+│   └── /middleware
+│       └── authMiddleware.js          # Middleware for authentication and authorization
+│
+└── /tests
+    ├── /components
+    │   └── DisputeTable.test.js       # Unit tests for DisputeTable component
+    │
+    ├── /hooks
+    │   └── useDisputeData.test.js     # Unit tests for useDisputeData hook
+    │
+    └── /api
+        └── disputeController.test.js   # Unit tests for disputeController
 ```
 
 ## Responsibilities
 
-### Components
-- **AdminDisputesTable.jsx**
+### Frontend
+
+- **DisputeTable.jsx**: 
   - Display a table of disputes with pagination and sorting.
-  - Integrate filters from FilterBar component.
-  - Handle status update actions via StatusUpdateModal.
+  - Integrate filters for status and date.
 
-- **FilterBar.jsx**
-  - Provide UI for filtering disputes (e.g., by date, status).
-  - Emit filter changes to AdminDisputesTable.
+- **DisputeFilters.jsx**: 
+  - Provide UI elements for filtering disputes.
+  - Handle filter state and trigger data fetching.
 
-- **StatusUpdateModal.jsx**
-  - Modal for updating the status of a selected dispute.
-  - Call API to update status and refresh the table.
+- **StatusUpdateButton.jsx**: 
+  - Button to update the status of a selected dispute.
+  - Call the update function from the dispute service.
 
-### Pages
-- **AdminDisputesPage.jsx**
-  - Main entry point for the admin disputes route.
-  - Render AdminDisputesTable and FilterBar.
-  - Manage state for disputes and filters.
+- **useDisputeData.js**: 
+  - Fetch disputes from the API.
+  - Manage loading and error states.
 
-### API
-- **disputesApi.js**
-  - Define API calls to `/api/disputes`.
-  - Implement functions for fetching disputes, updating status, and handling errors.
+- **AdminDisputesPage.jsx**: 
+  - Combine components to render the admin disputes interface.
+  - Handle routing and state management.
 
-### Styles
-- **AdminDisputesPage.css**
-  - Style the AdminDisputesPage and its components for a clean UI.
+- **disputeService.js**: 
+  - Implement API calls to `/api/disputes` for fetching and updating disputes.
 
-### Hooks
-- **useDisputes.js**
-  - Custom hook to manage fetching and updating disputes.
-  - Handle loading states and errors.
+### Backend
 
-### Utilities
-- **constants.js**
-  - Define constants for dispute statuses and API endpoints.
+- **disputeController.js**: 
+  - Handle GET and POST requests for disputes.
+  - Implement logic for filtering and updating dispute status.
 
-## Development Steps
-1. **Setup Route**
-   - Configure route in the main application file (e.g., `App.js`).
-   - Ensure route `/admin/disputes/321` is accessible only to admin users.
+- **Dispute.js**: 
+  - Define the Mongoose schema for disputes.
 
-2. **Build Components**
-   - Implement AdminDisputesTable, FilterBar, and StatusUpdateModal.
-   - Ensure components communicate effectively.
+- **disputeRoutes.js**: 
+  - Set up routes for `/api/disputes`.
+  - Link routes to the appropriate controller methods.
 
-3. **Implement API Calls**
-   - Create functions in disputesApi.js for fetching and updating disputes.
-   - Handle API responses and errors.
+- **authMiddleware.js**: 
+  - Ensure only authorized users can access the disputes API.
 
-4. **Integrate State Management**
-   - Use useDisputes hook in AdminDisputesPage to manage data flow.
-   - Connect filters and status updates to the state.
+### Testing
 
-5. **Style the UI**
-   - Apply styles from AdminDisputesPage.css to ensure a cohesive look.
+- **DisputeTable.test.js**: 
+  - Test rendering and functionality of the DisputeTable component.
 
-6. **Testing**
-   - Write unit tests for components and API functions.
-   - Conduct integration tests for the complete flow.
+- **useDisputeData.test.js**: 
+  - Test the custom hook for fetching dispute data.
 
-7. **Deployment**
-   - Prepare for deployment by ensuring all features are functional.
-   - Update documentation for the new route and features.
+- **disputeController.test.js**: 
+  - Test API endpoints for disputes, including filtering and status updates.
 
 ## Timeline
-- **Week 1:** Component development and API integration.
-- **Week 2:** Testing and styling.
-- **Week 3:** Final review and deployment.
-```
+
+- **Week 1**: Setup project structure and initial components.
+- **Week 2**: Implement API endpoints and connect frontend with backend.
+- **Week 3**: Complete UI components and integrate filters.
+- **Week 4**: Testing and bug fixing. Prepare for deployment.
