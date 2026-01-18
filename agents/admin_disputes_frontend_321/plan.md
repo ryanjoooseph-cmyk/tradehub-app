@@ -1,103 +1,88 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Overview
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update the dispute status.
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterBar.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputes.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
-```
+## File Structure
 
-## File Responsibilities
+### Frontend
 
-### 1. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Render the main layout for the disputes page.
-     - Integrate `FilterBar` and `AdminDisputesTable` components.
-     - Handle API calls to fetch disputes data.
+#### 1. UI Components
+- **File:** `src/components/AdminDisputesTable.jsx`
+  - **Responsibilities:** 
+    - Render the admin disputes table.
+    - Implement filters for dispute status and date.
+    - Display dispute details and actions.
 
-### 2. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Display the list of disputes in a table format.
-     - Include columns for dispute details and status.
-     - Implement action buttons for updating dispute status.
+- **File:** `src/components/DisputeRow.jsx`
+  - **Responsibilities:**
+    - Render individual dispute rows.
+    - Include buttons for updating dispute status.
 
-### 3. **FilterBar.jsx**
-   - **Path:** `/src/components/FilterBar.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Handle filter state and pass it to the `AdminDisputesTable`.
+- **File:** `src/components/Filters.jsx`
+  - **Responsibilities:**
+    - Provide filter options for the admin table.
+    - Handle filter state and updates.
 
-### 4. **StatusUpdateModal.jsx**
-   - **Path:** `/src/components/StatusUpdateModal.jsx`
-   - **Responsibilities:**
-     - Modal for confirming status updates on disputes.
-     - Accept user input for new status and trigger API call.
+#### 2. Pages
+- **File:** `src/pages/AdminDisputesPage.jsx`
+  - **Responsibilities:**
+    - Main page component for `/admin/disputes/321`.
+    - Integrate `AdminDisputesTable` and `Filters`.
 
-### 5. **disputes.js**
-   - **Path:** `/src/api/disputes.js`
-   - **Responsibilities:**
-     - Define API functions for fetching disputes and updating status.
-     - Handle error responses and manage API request logic.
+#### 3. Styles
+- **File:** `src/styles/AdminDisputes.css`
+  - **Responsibilities:**
+    - Define styles for the admin disputes table and filters.
 
-### 6. **useDisputes.js**
-   - **Path:** `/src/hooks/useDisputes.js`
-   - **Responsibilities:**
-     - Custom hook to manage disputes state and API interactions.
-     - Provide methods for fetching, filtering, and updating disputes.
+### API
 
-### 7. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the Admin Disputes page layout and components.
-     - Ensure responsive design for various screen sizes.
+#### 1. API Endpoints
+- **File:** `src/api/disputes.js`
+  - **Responsibilities:**
+    - Define API calls to `/api/disputes`.
+    - Implement functions for fetching disputes and updating status.
 
-### 8. **constants.js**
-   - **Path:** `/src/utils/constants.js`
-   - **Responsibilities:**
-     - Define constants for dispute statuses and API endpoints.
-     - Centralize configuration for easier maintenance.
+#### 2. Controllers
+- **File:** `src/controllers/disputeController.js`
+  - **Responsibilities:**
+    - Handle business logic for disputes.
+    - Implement methods for fetching disputes and updating their status.
 
-## Development Steps
+#### 3. Routes
+- **File:** `src/routes/disputeRoutes.js`
+  - **Responsibilities:**
+    - Define Express routes for `/api/disputes`.
+    - Connect routes to the appropriate controller methods.
 
-1. **Setup Project Structure**
-   - Create the directory structure as outlined above.
+### State Management
+- **File:** `src/store/disputeSlice.js`
+  - **Responsibilities:**
+    - Manage state related to disputes using Redux.
+    - Handle actions for fetching and updating disputes.
 
-2. **Implement API Functions**
-   - Develop functions in `disputes.js` for fetching and updating disputes.
+### Testing
+- **File:** `src/tests/AdminDisputesTable.test.js`
+  - **Responsibilities:**
+    - Write unit tests for `AdminDisputesTable` component.
 
-3. **Create UI Components**
-   - Build `FilterBar`, `AdminDisputesTable`, and `StatusUpdateModal` components.
+- **File:** `src/tests/disputeAPI.test.js`
+  - **Responsibilities:**
+    - Write tests for API calls in `disputes.js`.
 
-4. **Integrate Components in Page**
-   - Combine components in `AdminDisputesPage.jsx` and manage state.
+## Deployment
+- **File:** `src/deploy/admin_disputes_deploy.sh`
+  - **Responsibilities:**
+    - Script for deploying the new feature to the production environment.
 
-5. **Style Components**
-   - Apply styles in `AdminDisputesPage.css` for a polished look.
-
-6. **Testing**
-   - Write unit tests for API functions and components.
-   - Conduct integration testing for the entire flow.
-
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+## Documentation
+- **File:** `docs/admin_disputes_feature.md`
+  - **Responsibilities:**
+    - Document the feature, including setup instructions and usage.
 
 ## Timeline
-- **Week 1:** Setup and API implementation.
-- **Week 2:** Component development and integration.
-- **Week 3:** Styling and testing.
-- **Week 4:** Final review and deployment.
+- **Week 1:** UI Components and API Endpoints
+- **Week 2:** Integration and Testing
+- **Week 3:** Deployment and Documentation
+```
