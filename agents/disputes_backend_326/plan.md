@@ -1,101 +1,99 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+## Project Structure
+```
+/disputes_backend_326
+├── /api
+│   ├── disputes.py
+│   ├── __init__.py
+├── /models
+│   ├── dispute.py
+│   ├── __init__.py
+├── /schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+├── /services
+│   ├── dispute_service.py
+│   ├── __init__.py
+├── /tests
+│   ├── test_disputes.py
+│   ├── __init__.py
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.vue
+│   │   ├── DisputeForm.vue
+│   ├── /views
+│   │   ├── DisputeView.vue
+│   ├── App.vue
+│   ├── main.js
+├── requirements.txt
+└── README.md
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### File: `/api/disputes.py`
+- **Responsibilities:**
+  - Define Flask routes for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/<id>` - Update an existing dispute
+  - Handle request validation and response formatting.
 
-- **File Paths:**
-  - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
+### File: `/models/dispute.py`
+- **Responsibilities:**
+  - Define the Dispute model with fields:
+    - `id`
+    - `evidence_urls` (array)
+    - `status` (enum: OPEN, REVIEW, RESOLVED)
+  - Implement database interactions (CRUD operations).
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
+### File: `/schemas/dispute_schema.py`
+- **Responsibilities:**
+  - Define Pydantic schemas for request and response validation.
+  - Include fields for `evidence_urls` and `status`.
 
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
+### File: `/services/dispute_service.py`
+- **Responsibilities:**
+  - Implement business logic for disputes.
+  - Functions for creating, listing, and updating disputes.
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+### File: `/tests/test_disputes.py`
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Test model methods and service functions.
 
-### UI Implementation
+## UI Implementation
 
-- **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+### File: `/ui/components/DisputeList.vue`
+- **Responsibilities:**
+  - Display a list of disputes.
+  - Include functionality to filter by status.
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Handle input for evidence URLs and status selection.
+### File: `/ui/components/DisputeForm.vue`
+- **Responsibilities:**
+  - Form for creating/updating disputes.
+  - Input fields for `evidence_urls` and `status`.
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
+### File: `/ui/views/DisputeView.vue`
+- **Responsibilities:**
+  - Main view for disputes.
+  - Integrate `DisputeList` and `DisputeForm`.
 
-  - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
-      - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
+### File: `/ui/App.vue`
+- **Responsibilities:**
+  - Main application layout.
+  - Include routing for dispute views.
 
-  - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
+### File: `/ui/main.js`
+- **Responsibilities:**
+  - Initialize Vue application.
+  - Set up Vue Router and state management.
 
-### Testing
-
-- **File Paths:**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
-
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
-
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
-
-## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
-
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
-
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
+## Additional Notes
+- Ensure proper error handling and validation in both API and UI.
+- Follow RESTful conventions for API design.
+- Use Vuex for state management if needed.
+- Document API endpoints in README.md.
 ```
