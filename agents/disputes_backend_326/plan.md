@@ -8,94 +8,97 @@ This plan outlines the implementation of the UI and API for managing disputes at
 
 ### API Implementation
 
-- **File Paths:**
-  - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
+#### 1. API Routes
+- **File:** `src/routes/api/disputes.js`
+  - **Responsibilities:**
+    - Define routes for GET, POST, and PUT requests.
+    - Handle request validation and error responses.
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
+#### 2. Controller
+- **File:** `src/controllers/disputeController.js`
+  - **Responsibilities:**
+    - Implement logic for creating, retrieving, and updating disputes.
+    - Manage status updates and evidence URLs.
 
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
+#### 3. Model
+- **File:** `src/models/Dispute.js`
+  - **Responsibilities:**
+    - Define the Dispute schema (fields: id, status, evidence_urls, created_at, updated_at).
+    - Implement database interactions (CRUD operations).
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+#### 4. Middleware
+- **File:** `src/middleware/validateDispute.js`
+  - **Responsibilities:**
+    - Validate incoming data for creating and updating disputes.
+    - Ensure status is one of OPEN, REVIEW, RESOLVED.
 
 ### UI Implementation
 
-- **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+#### 5. UI Components
+- **File:** `src/components/DisputeList.js`
+  - **Responsibilities:**
+    - Display a list of disputes with their statuses and evidence URLs.
+    - Implement pagination and filtering options.
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Handle input for evidence URLs and status selection.
+- **File:** `src/components/DisputeForm.js`
+  - **Responsibilities:**
+    - Provide a form for creating and updating disputes.
+    - Include fields for status and evidence URLs.
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
+#### 6. API Service
+- **File:** `src/services/disputeService.js`
+  - **Responsibilities:**
+    - Implement functions to call the API (GET, POST, PUT).
+    - Handle API responses and errors.
 
-  - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
-      - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
-
-  - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
+#### 7. State Management
+- **File:** `src/store/disputeSlice.js`
+  - **Responsibilities:**
+    - Manage dispute state using Redux or Context API.
+    - Handle actions for fetching, creating, and updating disputes.
 
 ### Testing
 
-- **File Paths:**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
+#### 8. API Tests
+- **File:** `tests/api/disputes.test.js`
+  - **Responsibilities:**
+    - Write unit tests for API endpoints.
+    - Test validation and error handling.
 
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
+#### 9. UI Tests
+- **File:** `tests/ui/DisputeList.test.js`
+  - **Responsibilities:**
+    - Write tests for the DisputeList component.
+    - Ensure correct rendering and interaction.
 
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
+- **File:** `tests/ui/DisputeForm.test.js`
+  - **Responsibilities:**
+    - Write tests for the DisputeForm component.
+    - Validate form submission and error handling.
+
+## Deployment
+
+### 10. Deployment Configuration
+- **File:** `config/deployment.yml`
+  - **Responsibilities:**
+    - Define deployment steps for the API and UI.
+    - Include environment variables for database connections and API keys.
+
+## Documentation
+
+### 11. API Documentation
+- **File:** `docs/api/disputes.md`
+  - **Responsibilities:**
+    - Document API endpoints, request/response formats, and error codes.
+
+### 12. User Documentation
+- **File:** `docs/user/disputes.md`
+  - **Responsibilities:**
+    - Provide user guides for interacting with the disputes feature.
 
 ## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
-
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
-
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
+- **Week 1:** API routes, controller, and model implementation.
+- **Week 2:** UI components and state management setup.
+- **Week 3:** Testing and documentation.
+- **Week 4:** Deployment and final review.
 ```
