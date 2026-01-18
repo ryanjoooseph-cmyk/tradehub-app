@@ -2,100 +2,89 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will allow users to open, list, and update disputes, with an array for evidence URLs and a status field that can be OPEN, REVIEW, or RESOLVED.
 
 ## File Structure
 
 ### API Implementation
 
-- **File Paths:**
+- **File Paths**
   - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
+    - **Responsibilities**: Define API endpoints for disputes.
+      - `GET /api/disputes`: List all disputes.
+      - `POST /api/disputes`: Open a new dispute.
+      - `PUT /api/disputes/:id`: Update an existing dispute.
   
   - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
+    - **Responsibilities**: Define the Dispute model/schema.
+      - Fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
 
   - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
+    - **Responsibilities**: Handle business logic for disputes.
+      - Functions: `listDisputes`, `openDispute`, `updateDispute`.
 
   - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
+    - **Responsibilities**: Define routes and link to controller functions.
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+  - `src/middleware/errorHandler.js`
+    - **Responsibilities**: Handle API errors and send appropriate responses.
 
 ### UI Implementation
 
-- **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+- **File Paths**
+  - `src/components/DisputeList.js`
+    - **Responsibilities**: Display a list of disputes.
+      - Fetch disputes from API and render them.
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Handle input for evidence URLs and status selection.
+  - `src/components/DisputeForm.js`
+    - **Responsibilities**: Form for opening and updating disputes.
+      - Handle form submission for creating/updating disputes.
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
+  - `src/pages/DisputePage.js`
+    - **Responsibilities**: Main page for disputes.
       - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
 
   - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
-      - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
+    - **Responsibilities**: Custom hook for managing dispute data.
+      - Fetch, create, and update disputes via API.
 
-  - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
+  - `src/styles/disputeStyles.css`
+    - **Responsibilities**: Styles for dispute components.
 
 ### Testing
 
-- **File Paths:**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
+- **File Paths**
+  - `src/tests/api/dispute.test.js`
+    - **Responsibilities**: Unit tests for API endpoints.
 
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
+  - `src/tests/components/DisputeList.test.js`
+    - **Responsibilities**: Unit tests for dispute list component.
 
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
+  - `src/tests/components/DisputeForm.test.js`
+    - **Responsibilities**: Unit tests for dispute form component.
 
-## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
+## Development Steps
 
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
+1. **Set Up API**
+   - Implement model and controller for disputes.
+   - Define routes and middleware for error handling.
 
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
+2. **Implement UI Components**
+   - Create `DisputeList` and `DisputeForm` components.
+   - Integrate components in `DisputePage`.
 
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
+3. **Connect API with UI**
+   - Use `useDisputes` hook to manage API calls in UI.
+
+4. **Testing**
+   - Write unit tests for API and UI components.
+   - Ensure all tests pass before deployment.
+
+5. **Documentation**
+   - Update API documentation for new endpoints.
+   - Document UI components and usage.
+
+## Deployment
+- Ensure all code is reviewed and merged into the main branch.
+- Deploy to staging for final testing before production release.
 ```
