@@ -27,7 +27,7 @@ jobs:
           git push -u origin "$BR"
       - name: Open PR with automerge label
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GH_CRON_TOKEN }}
         run: |
           BR=$(cat .ci_smoketest_branch)
           gh pr create --base main --head "$BR" --title "ci: automerge smoketest" --body "automerge validation" --label automerge
