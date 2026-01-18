@@ -6,96 +6,104 @@ This plan outlines the implementation of the UI and API for managing disputes at
 
 ## File Structure
 
-### API Implementation
+### Backend (API)
 
-- **File Paths:**
-  - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
-
+- **File Paths**
   - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
+    - Responsibilities:
+      - Handle API requests for disputes (create, list, update).
+      - Validate input data and manage dispute statuses.
+  
+  - `src/models/disputeModel.js`
+    - Responsibilities:
+      - Define the Dispute schema (including evidence_urls and status).
+      - Interact with the database for CRUD operations.
 
   - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
+    - Responsibilities:
+      - Define API routes for disputes.
+      - Connect routes to the corresponding controller methods.
 
   - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+    - Responsibilities:
+      - Middleware to validate incoming requests for creating/updating disputes.
+      - Ensure evidence_urls is an array and status is one of the allowed values.
 
-### UI Implementation
+  - `src/services/disputeService.js`
+    - Responsibilities:
+      - Business logic for dispute operations.
+      - Handle interactions between controller and model.
 
-- **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
+  - `src/config/db.js`
+    - Responsibilities:
+      - Database connection setup.
+      - Ensure proper configuration for the database.
+
+### Frontend (UI)
+
+- **File Paths**
+  - `src/components/DisputeList.js`
+    - Responsibilities:
       - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+      - Allow users to view details and statuses of each dispute.
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
+  - `src/components/DisputeForm.js`
+    - Responsibilities:
+      - Form for creating and updating disputes.
       - Handle input for evidence URLs and status selection.
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
+  - `src/pages/DisputePage.js`
+    - Responsibilities:
+      - Main page for disputes.
+      - Integrate `DisputeList` and `DisputeForm` components.
 
   - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
+    - Responsibilities:
       - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
+      - Handle API calls to `/api/disputes`.
 
   - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
+    - Responsibilities:
+      - Centralized API call functions for disputes.
+      - Handle GET, POST, and PUT requests.
 
-### Testing
+  - `src/styles/disputeStyles.css`
+    - Responsibilities:
+      - Styling for dispute components.
+      - Ensure responsive design for dispute UI.
 
-- **File Paths:**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
+## Implementation Steps
 
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
+1. **Backend Development**
+   - Set up the database schema in `disputeModel.js`.
+   - Implement CRUD operations in `disputeService.js`.
+   - Create API endpoints in `disputeRoutes.js`.
+   - Add request validation in `validateDispute.js`.
+   - Implement controller logic in `disputeController.js`.
 
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
+2. **Frontend Development**
+   - Create the `DisputeList` component to display disputes.
+   - Develop the `DisputeForm` for creating/updating disputes.
+   - Integrate components in `DisputePage`.
+   - Implement API calls in `useDisputes.js`.
+   - Style components using `disputeStyles.css`.
+
+3. **Testing**
+   - Write unit tests for backend controllers and services.
+   - Create integration tests for API endpoints.
+   - Test frontend components using a testing library (e.g., Jest, React Testing Library).
+
+4. **Deployment**
+   - Prepare the application for deployment.
+   - Ensure environment variables are set for production.
+   - Deploy to the chosen hosting service (e.g., Heroku, AWS).
+
+5. **Documentation**
+   - Document API endpoints and usage in a README file.
+   - Update frontend component documentation as necessary.
 
 ## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
-
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
-
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
+- **Week 1-2:** Backend development and testing.
+- **Week 3:** Frontend development and integration.
+- **Week 4:** Final testing, deployment, and documentation.
 ```
