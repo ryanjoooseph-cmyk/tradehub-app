@@ -1,101 +1,104 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+## Directory Structure
+```
+/disputes_backend_326
+│
+├── api
+│   ├── __init__.py
+│   ├── routes.py
+│   ├── models.py
+│   ├── schemas.py
+│   └── utils.py
+│
+├── ui
+│   ├── src
+│   │   ├── components
+│   │   │   ├── DisputeList.jsx
+│   │   │   ├── DisputeForm.jsx
+│   │   │   └── DisputeDetail.jsx
+│   │   ├── pages
+│   │   │   └── DisputePage.jsx
+│   │   ├── services
+│   │   │   └── disputeService.js
+│   │   ├── App.js
+│   │   └── index.js
+│   └── public
+│       └── index.html
+│
+├── tests
+│   ├── api
+│   │   └── test_routes.py
+│   └── ui
+│       └── DisputePage.test.js
+│
+└── README.md
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### File: `api/routes.py`
+- **Responsibilities**:
+  - Define routes for `/api/disputes`
+  - Implement GET, POST, PUT methods for listing, creating, and updating disputes
 
-- **File Paths:**
-  - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
+### File: `api/models.py`
+- **Responsibilities**:
+  - Define the Dispute model with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`
+  - Implement database interactions
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
+### File: `api/schemas.py`
+- **Responsibilities**:
+  - Define request and response schemas for disputes using a validation library (e.g., Marshmallow)
 
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
+### File: `api/utils.py`
+- **Responsibilities**:
+  - Implement utility functions for status management (e.g., validate status transitions)
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+## UI Implementation
 
-### UI Implementation
+### File: `ui/src/components/DisputeList.jsx`
+- **Responsibilities**:
+  - Display a list of disputes with status and actions (view, edit)
 
-- **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+### File: `ui/src/components/DisputeForm.jsx`
+- **Responsibilities**:
+  - Form for creating/updating a dispute, including fields for status and evidence URLs
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Handle input for evidence URLs and status selection.
+### File: `ui/src/components/DisputeDetail.jsx`
+- **Responsibilities**:
+  - Display detailed information about a selected dispute
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
+### File: `ui/src/pages/DisputePage.jsx`
+- **Responsibilities**:
+  - Main page component to manage dispute listing and routing to details/forms
 
-  - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
-      - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
+### File: `ui/src/services/disputeService.js`
+- **Responsibilities**:
+  - Implement API calls for GET, POST, PUT requests to `/api/disputes`
 
-  - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
+### File: `ui/src/App.js`
+- **Responsibilities**:
+  - Set up routing and main application structure
 
-### Testing
+### File: `ui/src/index.js`
+- **Responsibilities**:
+  - Render the application and set up any necessary providers (e.g., Redux, Context API)
 
-- **File Paths:**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
+## Testing
 
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
+### File: `tests/api/test_routes.py`
+- **Responsibilities**:
+  - Write unit tests for API endpoints to ensure correct functionality
 
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
+### File: `tests/ui/DisputePage.test.js`
+- **Responsibilities**:
+  - Write unit tests for UI components and integration tests for dispute management
 
-## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
+## Documentation
 
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
-
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
-
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
+### File: `README.md`
+- **Responsibilities**:
+  - Provide an overview of the feature, setup instructions, and usage examples
 ```
