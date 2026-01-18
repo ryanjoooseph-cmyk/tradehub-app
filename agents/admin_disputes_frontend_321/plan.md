@@ -1,103 +1,99 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
+## Overview
+Build the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses.
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterBar.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputes.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
-```
+## File Structure
 
-## File Responsibilities
+### Frontend
 
-### 1. **AdminDisputesPage.jsx**
-   - **Path:** `/src/pages/AdminDisputesPage.jsx`
-   - **Responsibilities:**
-     - Render the main layout for the disputes page.
-     - Integrate `FilterBar` and `AdminDisputesTable` components.
-     - Handle API calls to fetch disputes data.
+- **File Paths**
+  - `src/components/AdminDisputesTable.js`
+    - **Responsibility**: Create a table component to display disputes with filtering options.
+  
+  - `src/components/DisputeStatusDropdown.js`
+    - **Responsibility**: Create a dropdown component for selecting dispute status updates.
 
-### 2. **AdminDisputesTable.jsx**
-   - **Path:** `/src/components/AdminDisputesTable.jsx`
-   - **Responsibilities:**
-     - Display the list of disputes in a table format.
-     - Include columns for dispute details and status.
-     - Implement action buttons for updating dispute status.
+  - `src/pages/AdminDisputesPage.js`
+    - **Responsibility**: Main page component that integrates the `AdminDisputesTable` and handles routing.
 
-### 3. **FilterBar.jsx**
-   - **Path:** `/src/components/FilterBar.jsx`
-   - **Responsibilities:**
-     - Provide UI elements for filtering disputes (e.g., by status, date).
-     - Handle filter state and pass it to the `AdminDisputesTable`.
+  - `src/hooks/useDisputes.js`
+    - **Responsibility**: Custom hook to fetch disputes data from the API and manage state.
 
-### 4. **StatusUpdateModal.jsx**
-   - **Path:** `/src/components/StatusUpdateModal.jsx`
-   - **Responsibilities:**
-     - Modal for confirming status updates on disputes.
-     - Accept user input for new status and trigger API call.
+  - `src/styles/AdminDisputes.css`
+    - **Responsibility**: Styles for the admin disputes page and components.
 
-### 5. **disputes.js**
-   - **Path:** `/src/api/disputes.js`
-   - **Responsibilities:**
-     - Define API functions for fetching disputes and updating status.
-     - Handle error responses and manage API request logic.
+- **API Calls**
+  - `src/api/disputes.js`
+    - **Responsibility**: Define API calls to `/api/disputes` for fetching and updating dispute data.
 
-### 6. **useDisputes.js**
-   - **Path:** `/src/hooks/useDisputes.js`
-   - **Responsibilities:**
-     - Custom hook to manage disputes state and API interactions.
-     - Provide methods for fetching, filtering, and updating disputes.
+### Backend
 
-### 7. **AdminDisputesPage.css**
-   - **Path:** `/src/styles/AdminDisputesPage.css`
-   - **Responsibilities:**
-     - Style the Admin Disputes page layout and components.
-     - Ensure responsive design for various screen sizes.
+- **File Paths**
+  - `src/routes/adminDisputes.js`
+    - **Responsibility**: Define the Express route for handling requests to `/api/disputes`.
 
-### 8. **constants.js**
-   - **Path:** `/src/utils/constants.js`
-   - **Responsibilities:**
-     - Define constants for dispute statuses and API endpoints.
-     - Centralize configuration for easier maintenance.
+  - `src/controllers/disputeController.js`
+    - **Responsibility**: Implement logic for fetching disputes and updating their statuses.
 
-## Development Steps
+  - `src/models/Dispute.js`
+    - **Responsibility**: Define the Dispute model schema for database interactions.
 
-1. **Setup Project Structure**
-   - Create the directory structure as outlined above.
+  - `src/middleware/authMiddleware.js`
+    - **Responsibility**: Middleware to ensure only authorized admin users can access the disputes API.
 
-2. **Implement API Functions**
-   - Develop functions in `disputes.js` for fetching and updating disputes.
+  - `src/utils/filters.js`
+    - **Responsibility**: Utility functions for filtering disputes based on criteria.
 
-3. **Create UI Components**
-   - Build `FilterBar`, `AdminDisputesTable`, and `StatusUpdateModal` components.
+## Tasks
 
-4. **Integrate Components in Page**
-   - Combine components in `AdminDisputesPage.jsx` and manage state.
+### Frontend Tasks
+1. **Create AdminDisputesTable Component**
+   - Implement table structure.
+   - Integrate filtering functionality.
+
+2. **Create DisputeStatusDropdown Component**
+   - Implement dropdown for status updates.
+   - Connect to update functionality.
+
+3. **Build AdminDisputesPage**
+   - Integrate components.
+   - Set up routing for `/admin/disputes/321`.
+
+4. **Implement useDisputes Hook**
+   - Fetch disputes from the API.
+   - Manage loading and error states.
 
 5. **Style Components**
-   - Apply styles in `AdminDisputesPage.css` for a polished look.
+   - Apply styles from `AdminDisputes.css`.
 
-6. **Testing**
-   - Write unit tests for API functions and components.
-   - Conduct integration testing for the entire flow.
+### Backend Tasks
+1. **Define API Routes**
+   - Set up GET and POST methods in `adminDisputes.js`.
 
-7. **Deployment**
-   - Prepare the feature for deployment and ensure it meets quality standards.
+2. **Implement Controller Logic**
+   - Fetch disputes and handle status updates in `disputeController.js`.
 
-## Timeline
-- **Week 1:** Setup and API implementation.
-- **Week 2:** Component development and integration.
-- **Week 3:** Styling and testing.
-- **Week 4:** Final review and deployment.
+3. **Create Dispute Model**
+   - Define schema and methods in `Dispute.js`.
+
+4. **Set Up Middleware**
+   - Implement authentication checks in `authMiddleware.js`.
+
+5. **Develop Filtering Utilities**
+   - Create functions for filtering disputes in `filters.js`.
+
+## Testing
+- **Frontend**
+  - Write unit tests for components and hooks.
+  - Conduct integration tests for API calls.
+
+- **Backend**
+  - Write unit tests for controllers and middleware.
+  - Conduct integration tests for API routes.
+
+## Deployment
+- Ensure all changes are merged into the main branch.
+- Deploy to staging for QA testing before production release.
+```
