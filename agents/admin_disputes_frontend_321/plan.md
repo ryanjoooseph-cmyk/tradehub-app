@@ -1,95 +1,98 @@
 ```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterBar.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputesApi.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
 
-## Responsibilities
+## File Structure
 
-### Components
-- **AdminDisputesTable.jsx**
-  - Display a table of disputes with pagination and sorting.
-  - Integrate filters from FilterBar component.
-  - Handle status update actions via StatusUpdateModal.
+### Frontend
 
-- **FilterBar.jsx**
-  - Provide UI for filtering disputes (e.g., by date, status).
-  - Emit filter changes to AdminDisputesTable.
+- **File Paths**
+  - `src/pages/admin/DisputeDetails.js`
+    - Responsibility: Main component to display dispute details and status updates.
+  
+  - `src/components/AdminDisputeTable.js`
+    - Responsibility: Table component to list disputes with filtering options.
+  
+  - `src/components/DisputeFilter.js`
+    - Responsibility: Filter component to allow admin to filter disputes by status, date, etc.
+  
+  - `src/services/api.js`
+    - Responsibility: API service to handle calls to `/api/disputes`.
 
-- **StatusUpdateModal.jsx**
-  - Modal for updating the status of a selected dispute.
-  - Call API to update status and refresh the table.
+  - `src/styles/AdminDispute.css`
+    - Responsibility: Styles for the admin dispute page and components.
 
-### Pages
-- **AdminDisputesPage.jsx**
-  - Main entry point for the admin disputes route.
-  - Render AdminDisputesTable and FilterBar.
-  - Manage state for disputes and filters.
+### Backend
 
-### API
-- **disputesApi.js**
-  - Define API calls to `/api/disputes`.
-  - Implement functions for fetching disputes, updating status, and handling errors.
+- **File Paths**
+  - `src/routes/api/disputes.js`
+    - Responsibility: API route to handle requests related to disputes (GET, POST, PUT).
 
-### Styles
-- **AdminDisputesPage.css**
-  - Style the AdminDisputesPage and its components for a clean UI.
+  - `src/controllers/disputeController.js`
+    - Responsibility: Controller to manage dispute logic (fetching, updating status).
 
-### Hooks
-- **useDisputes.js**
-  - Custom hook to manage fetching and updating disputes.
-  - Handle loading states and errors.
+  - `src/models/Dispute.js`
+    - Responsibility: Mongoose model/schema for disputes.
 
-### Utilities
-- **constants.js**
-  - Define constants for dispute statuses and API endpoints.
+  - `src/middleware/authMiddleware.js`
+    - Responsibility: Middleware to ensure only authorized admins can access the dispute routes.
 
-## Development Steps
-1. **Setup Route**
-   - Configure route in the main application file (e.g., `App.js`).
-   - Ensure route `/admin/disputes/321` is accessible only to admin users.
+## Implementation Steps
 
-2. **Build Components**
-   - Implement AdminDisputesTable, FilterBar, and StatusUpdateModal.
-   - Ensure components communicate effectively.
+### Frontend Development
 
-3. **Implement API Calls**
-   - Create functions in disputesApi.js for fetching and updating disputes.
-   - Handle API responses and errors.
+1. **Create DisputeDetails Component**
+   - Fetch dispute data using the API.
+   - Display dispute details and current status.
+   - Implement status update functionality.
 
-4. **Integrate State Management**
-   - Use useDisputes hook in AdminDisputesPage to manage data flow.
-   - Connect filters and status updates to the state.
+2. **Build AdminDisputeTable Component**
+   - Create a table layout to display a list of disputes.
+   - Integrate filtering options using DisputeFilter component.
 
-5. **Style the UI**
-   - Apply styles from AdminDisputesPage.css to ensure a cohesive look.
+3. **Implement DisputeFilter Component**
+   - Create filter inputs for status and date range.
+   - Connect filters to the AdminDisputeTable to update displayed disputes.
 
-6. **Testing**
-   - Write unit tests for components and API functions.
-   - Conduct integration tests for the complete flow.
+4. **Setup API Service**
+   - Implement functions in `api.js` to handle GET and PUT requests for disputes.
 
-7. **Deployment**
-   - Prepare for deployment by ensuring all features are functional.
-   - Update documentation for the new route and features.
+5. **Styling**
+   - Write CSS for the components to ensure a clean and responsive design.
 
-## Timeline
-- **Week 1:** Component development and API integration.
-- **Week 2:** Testing and styling.
-- **Week 3:** Final review and deployment.
+### Backend Development
+
+1. **Create API Route**
+   - Define GET endpoint to fetch disputes and PUT endpoint to update dispute status.
+
+2. **Implement Controller Logic**
+   - Write functions in `disputeController.js` to handle fetching and updating disputes.
+
+3. **Define Mongoose Model**
+   - Create the Dispute schema in `Dispute.js` with necessary fields (status, details, etc.).
+
+4. **Add Authentication Middleware**
+   - Implement middleware to check admin permissions for accessing dispute routes.
+
+## Testing
+
+- **Frontend**
+  - Write unit tests for components using Jest and React Testing Library.
+  - Ensure API calls are mocked and tested for various scenarios.
+
+- **Backend**
+  - Write integration tests for API endpoints using Mocha/Chai.
+  - Test authentication middleware to ensure security.
+
+## Deployment
+
+- Prepare the application for deployment on the staging environment.
+- Ensure all environment variables are configured correctly.
+
+## Documentation
+
+- Update API documentation to include new endpoints and usage examples.
+- Create user documentation for admin on how to use the new dispute management feature.
 ```
