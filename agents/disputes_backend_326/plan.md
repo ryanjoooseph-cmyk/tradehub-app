@@ -6,96 +6,94 @@ This plan outlines the implementation of the UI and API for managing disputes at
 
 ## File Structure
 
+```
+/src
+  ├── api
+  │   ├── disputes.js               # API routes for disputes
+  │   └── index.js                  # Main API entry point
+  ├── components
+  │   ├── DisputeList.js            # Component for listing disputes
+  │   ├── DisputeForm.js            # Component for opening/updating disputes
+  │   └── EvidenceUploader.js        # Component for uploading evidence URLs
+  ├── pages
+  │   ├── DisputePage.js             # Page for displaying disputes
+  │   └── index.js                   # Main application entry point
+  ├── services
+  │   ├── disputeService.js          # Service for API calls related to disputes
+  ├── styles
+  │   ├── disputes.css               # Styles for dispute components
+  └── utils
+      └── validation.js              # Utility for validating dispute data
+```
+
+## Responsibilities
+
 ### API Implementation
 
-- **File Paths:**
-  - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
+- **`/src/api/disputes.js`**
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Open a new dispute
+    - `PUT /api/disputes/:id`: Update an existing dispute
+  - Implement logic to handle dispute statuses (OPEN, REVIEW, RESOLVED).
+  - Handle evidence URLs as an array in the dispute model.
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
-
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
-
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+- **`/src/api/index.js`**
+  - Set up Express server and middleware.
+  - Integrate dispute routes.
 
 ### UI Implementation
 
-- **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+- **`/src/components/DisputeList.js`**
+  - Fetch and display a list of disputes.
+  - Include status indicators and action buttons for each dispute.
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Handle input for evidence URLs and status selection.
+- **`/src/components/DisputeForm.js`**
+  - Form for creating and updating disputes.
+  - Include fields for status and evidence URLs.
+  - Implement form validation using `validation.js`.
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
+- **`/src/components/EvidenceUploader.js`**
+  - Component for uploading evidence URLs.
+  - Handle file input and URL submission.
 
-  - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
-      - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
+- **`/src/pages/DisputePage.js`**
+  - Render `DisputeList` and `DisputeForm`.
+  - Manage state for disputes and handle API interactions via `disputeService.js`.
 
-  - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
+### Service Layer
 
-### Testing
+- **`/src/services/disputeService.js`**
+  - Implement functions for:
+    - Fetching disputes from the API.
+    - Creating a new dispute.
+    - Updating an existing dispute.
+  - Handle API responses and errors.
 
-- **File Paths:**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
+### Styling
 
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
+- **`/src/styles/disputes.css`**
+  - Style dispute components for a user-friendly interface.
 
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
+### Utilities
+
+- **`/src/utils/validation.js`**
+  - Implement validation logic for dispute data (e.g., required fields, URL format).
+
+## Testing
+
+- Write unit tests for API endpoints in `/tests/api/disputes.test.js`.
+- Write component tests for UI components in `/tests/components/DisputeList.test.js` and `/tests/components/DisputeForm.test.js`.
+
+## Deployment
+
+- Ensure the API is deployed on the backend server.
+- Deploy the UI on the frontend server, ensuring it connects to the correct API endpoint.
 
 ## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
 
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
+- **Week 1**: API implementation and initial testing.
+- **Week 2**: UI component development and integration.
+- **Week 3**: Final testing and deployment.
 
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
-
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
 ```
