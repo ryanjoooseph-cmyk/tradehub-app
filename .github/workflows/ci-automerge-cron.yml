@@ -1,0 +1,33 @@
+name: ci automerge cron
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: automerge-cron
+  cancel-in-progress: false
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create branch
+        run: |
+          BR=ci-smoketest-$(date -u +%Y%m%d%H%M%S)
+          echo "$BR" > .ci_smoketest_branch
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BR"
+          date -u +%Y%m%dT%H%M%SZ > .agent-smoketest
+          git add .agent-smoketest
+          git commit -m "ci: agent smoketest"
+          git push -u origin "$BR"
+      - name: Open PR with automerge label
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BR=$(cat .ci_smoketest_branch)
+          gh pr create --base main --head "$BR" --title "ci: automerge smoketest" --body "automerge validation" --label automerge
