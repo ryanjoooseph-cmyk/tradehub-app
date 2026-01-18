@@ -1,101 +1,112 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+## Directory Structure
+```
+/disputes_backend
+├── /api
+│   ├── disputes.py
+│   ├── __init__.py
+├── /models
+│   ├── dispute.py
+│   ├── __init__.py
+├── /schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+├── /services
+│   ├── dispute_service.py
+│   ├── __init__.py
+├── /tests
+│   ├── test_disputes.py
+│   ├── __init__.py
+├── app.py
+├── config.py
+└── requirements.txt
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### 1. Define Dispute Model
+- **File:** `/models/dispute.py`
+- **Responsibilities:**
+  - Create a Dispute class with fields: `id`, `evidence_urls`, `status`.
+  - Define status options: `OPEN`, `REVIEW`, `RESOLVED`.
 
-- **File Paths:**
-  - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
+### 2. Create Dispute Schema
+- **File:** `/schemas/dispute_schema.py`
+- **Responsibilities:**
+  - Define Pydantic schema for input validation and serialization.
+  - Include fields: `evidence_urls` (array), `status`.
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
+### 3. Implement Dispute Service
+- **File:** `/services/dispute_service.py`
+- **Responsibilities:**
+  - Implement functions to:
+    - Create a dispute.
+    - List all disputes.
+    - Update a dispute status.
+  - Handle business logic and data persistence.
 
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
+### 4. Build API Endpoints
+- **File:** `/api/disputes.py`
+- **Responsibilities:**
+  - Define Flask routes for:
+    - `POST /api/disputes` - Create a new dispute.
+    - `GET /api/disputes` - List all disputes.
+    - `PUT /api/disputes/<id>` - Update a dispute status.
+  - Integrate with the dispute service.
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+## UI Implementation
 
-### UI Implementation
+### 5. Create Dispute Form
+- **File:** `/templates/dispute_form.html`
+- **Responsibilities:**
+  - Build a form for creating a new dispute.
+  - Include fields for `evidence_urls` and `status`.
 
-- **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+### 6. Dispute List View
+- **File:** `/templates/dispute_list.html`
+- **Responsibilities:**
+  - Display a list of all disputes.
+  - Include options to update status.
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Handle input for evidence URLs and status selection.
+### 7. Update Dispute Status UI
+- **File:** `/templates/update_dispute.html`
+- **Responsibilities:**
+  - Create a UI for updating the status of a dispute.
+  - Include dropdown for status selection.
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
+## Testing
 
-  - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
-      - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
+### 8. Write Unit Tests
+- **File:** `/tests/test_disputes.py`
+- **Responsibilities:**
+  - Implement tests for:
+    - API endpoints.
+    - Service functions.
+    - Schema validation.
 
-  - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
+## Configuration
 
-### Testing
+### 9. App Configuration
+- **File:** `/config.py`
+- **Responsibilities:**
+  - Set up configuration for Flask app.
+  - Include database settings and environment variables.
 
-- **File Paths:**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
+### 10. Main Application Entry Point
+- **File:** `/app.py`
+- **Responsibilities:**
+  - Initialize Flask app.
+  - Register API routes and templates.
 
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
-
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
+## Dependencies
+- **File:** `/requirements.txt`
+- **Responsibilities:**
+  - List required packages (Flask, Pydantic, etc.).
 
 ## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
-
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
-
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
+- **Week 1:** Model, schema, and service implementation.
+- **Week 2:** API endpoints and UI development.
+- **Week 3:** Testing and deployment preparation.
 ```
