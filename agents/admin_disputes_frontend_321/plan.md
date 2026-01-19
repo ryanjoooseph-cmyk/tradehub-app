@@ -2,96 +2,102 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses, interacting with the `/api/disputes` endpoint.
 
 ## File Structure
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
-```
+### Frontend
 
-## Responsibilities
+#### 1. UI Components
+- **File:** `src/components/AdminDisputesTable.jsx`
+  - **Responsibilities:** 
+    - Render the admin disputes table.
+    - Implement filters for dispute status and date.
+    - Handle pagination.
 
-### UI Components
+- **File:** `src/components/DisputeRow.jsx`
+  - **Responsibilities:** 
+    - Render individual dispute rows.
+    - Include buttons for updating dispute status.
 
-- **AdminDisputesTable.jsx**
-  - Render the table of disputes.
-  - Display columns: ID, Description, Status, Actions.
-  - Integrate with filters and status update actions.
+- **File:** `src/components/FilterBar.jsx`
+  - **Responsibilities:** 
+    - Provide UI for filtering disputes.
+    - Emit filter change events to parent component.
 
-- **DisputeFilter.jsx**
-  - Provide filter options for disputes (e.g., by status, date).
-  - Handle filter state and trigger updates to the displayed data.
+#### 2. Pages
+- **File:** `src/pages/AdminDisputesPage.jsx`
+  - **Responsibilities:** 
+    - Main page component for `/admin/disputes/321`.
+    - Fetch disputes data from API.
+    - Pass data to `AdminDisputesTable`.
 
-- **StatusUpdateButton.jsx**
-  - Button component to update the status of a dispute.
-  - Handle click events to call the API for status updates.
+#### 3. Styles
+- **File:** `src/styles/AdminDisputes.css`
+  - **Responsibilities:** 
+    - Define styles for the admin disputes table and filters.
 
-### Pages
+### API
 
-- **AdminDisputesPage.jsx**
-  - Main page component for `/admin/disputes/321`.
-  - Integrate `AdminDisputesTable` and `DisputeFilter`.
-  - Fetch disputes data on component mount using `disputesService`.
+#### 1. API Endpoints
+- **File:** `src/api/disputes.js`
+  - **Responsibilities:** 
+    - Define functions to interact with `/api/disputes`.
+    - Implement GET method for fetching disputes.
+    - Implement PATCH method for updating dispute status.
 
-### Services
+#### 2. API Routes
+- **File:** `src/routes/api/disputes.js`
+  - **Responsibilities:** 
+    - Set up Express routes for `/api/disputes`.
+    - Handle GET requests to retrieve disputes.
+    - Handle PATCH requests to update dispute status.
 
-- **disputesService.js**
-  - Define functions to interact with the `/api/disputes` endpoint.
-  - Functions:
-    - `fetchDisputes(filters)`: Fetch disputes based on applied filters.
-    - `updateDisputeStatus(disputeId, newStatus)`: Update the status of a specific dispute.
+### State Management
+- **File:** `src/store/disputesSlice.js`
+  - **Responsibilities:** 
+    - Create Redux slice for managing disputes state.
+    - Define actions for fetching and updating disputes.
 
-### Styles
+### Testing
+- **File:** `src/tests/AdminDisputesTable.test.js`
+  - **Responsibilities:** 
+    - Write unit tests for `AdminDisputesTable` component.
+    - Test filtering and row rendering.
 
-- **AdminDisputesPage.css**
-  - Style the admin disputes page and table.
-  - Ensure responsive design for better usability.
+- **File:** `src/tests/api/disputes.test.js`
+  - **Responsibilities:** 
+    - Write tests for API functions in `disputes.js`.
+    - Ensure correct responses for GET and PATCH requests.
 
-### Utilities
+## Implementation Steps
+1. **Design UI Components**
+   - Create `AdminDisputesTable`, `DisputeRow`, and `FilterBar`.
+   
+2. **Set Up API Functions**
+   - Implement GET and PATCH methods in `disputes.js`.
 
-- **api.js**
-  - Create a utility for API calls.
-  - Handle common tasks like error handling and response parsing.
+3. **Create Admin Disputes Page**
+   - Fetch data and render `AdminDisputesTable`.
 
-### Main Application
+4. **Implement State Management**
+   - Set up Redux slice for disputes.
 
-- **App.js**
-  - Set up routing for the application.
-  - Ensure `/admin/disputes/321` route is connected to `AdminDisputesPage`.
+5. **Style Components**
+   - Apply styles in `AdminDisputes.css`.
 
-## Development Steps
+6. **Write Tests**
+   - Ensure components and API functions are tested.
 
-1. **Set up the project structure** as outlined above.
-2. **Implement the API service** in `disputesService.js`.
-3. **Create UI components** (`AdminDisputesTable`, `DisputeFilter`, `StatusUpdateButton`).
-4. **Develop the main page** (`AdminDisputesPage`) to integrate components.
-5. **Style the components** using `AdminDisputesPage.css`.
-6. **Test the functionality** of fetching and updating disputes.
-7. **Conduct code reviews** and ensure adherence to coding standards.
-8. **Deploy the feature** to the staging environment for further testing.
+7. **Review and Refactor**
+   - Conduct code reviews and refactor as necessary.
 
-## Testing
+8. **Deploy**
+   - Deploy changes to staging and production environments.
 
-- Ensure unit tests are written for each component and service.
-- Conduct integration tests for the complete flow from UI to API.
-
-## Documentation
-
-- Update README with usage instructions for the new feature.
-- Document API endpoints in the API documentation.
+## Timeline
+- **Week 1:** UI components and API setup.
+- **Week 2:** State management and testing.
+- **Week 3:** Review, refactor, and deploy.
 
 ```
