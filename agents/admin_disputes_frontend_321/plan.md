@@ -1,5 +1,5 @@
 ```markdown
-# Implementation Plan for Feature 'admin_disputes_frontend_321'
+# Implementation Plan for Feature: admin_disputes_frontend_321
 
 ## Overview
 This plan outlines the necessary steps to build the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters, actions to update dispute statuses, and API calls to `/api/disputes`.
@@ -10,14 +10,21 @@ This plan outlines the necessary steps to build the UI and API for the admin dis
 ```
 /src
   ├── components
-  │   ├── AdminDisputes
+  │   ├── AdminDisputesTable
   │   │   ├── AdminDisputesTable.jsx        # Table component for displaying disputes
-  │   │   ├── DisputeFilter.jsx              # Filter component for disputes
-  │   │   └── UpdateStatusButton.jsx         # Button component to update dispute status
+  │   │   ├── AdminDisputeRow.jsx            # Row component for individual dispute
+  │   │   └── Filters.jsx                    # Filter component for disputes
+  │   └── StatusUpdateModal.jsx               # Modal for updating dispute status
   ├── pages
   │   └── AdminDisputesPage.jsx              # Main page for admin disputes
   ├── api
   │   └── disputes.js
+  ├── components
+  │   ├── AdminDisputesTable.js
+  │   ├── FilterComponent.js
+  │   └── StatusUpdateButton.js
+  ├── pages
+  │   └── AdminDisputesPage.js
   ├── styles
   │   └── AdminDisputes.css
   └── utils
