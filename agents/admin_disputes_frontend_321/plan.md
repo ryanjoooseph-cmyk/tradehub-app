@@ -2,85 +2,91 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
+This plan outlines the development of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses.
 
 ## File Structure
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputesApi.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
-```
+### Frontend
 
-## Responsibilities
+#### 1. UI Components
+- **Path:** `src/components/AdminDisputesTable.js`
+  - **Responsibilities:** 
+    - Render the admin table displaying disputes.
+    - Implement filters for dispute status, date, and other relevant fields.
+    - Include action buttons for updating dispute status.
 
-### 1. UI Components
-- **`/src/components/AdminDisputesTable.jsx`**
-  - Render the table of disputes.
-  - Include columns for dispute details and actions.
-  - Handle row actions for updating status.
+- **Path:** `src/components/DisputeFilter.js`
+  - **Responsibilities:**
+    - Create filter UI elements (dropdowns, date pickers).
+    - Handle filter state and pass it to the parent component.
 
-- **`/src/components/DisputeFilter.jsx`**
-  - Provide filtering options for disputes (e.g., by status, date).
-  - Emit filter changes to the parent component.
+- **Path:** `src/components/DisputeActions.js`
+  - **Responsibilities:**
+    - Provide buttons for updating dispute status (e.g., Approve, Reject).
+    - Handle button click events to trigger API calls.
 
-- **`/src/components/StatusUpdateModal.jsx`**
-  - Modal for confirming status updates.
-  - Include dropdown for selecting new status and a confirm button.
+#### 2. Pages
+- **Path:** `src/pages/AdminDisputesPage.js`
+  - **Responsibilities:**
+    - Main page component for `/admin/disputes/321`.
+    - Integrate `AdminDisputesTable`, `DisputeFilter`, and `DisputeActions`.
+    - Manage state for disputes and filters.
 
-### 2. Page Component
-- **`/src/pages/AdminDisputesPage.jsx`**
-  - Main page component for `/admin/disputes/321`.
-  - Integrate `AdminDisputesTable` and `DisputeFilter`.
-  - Manage state for disputes and filters.
-  - Handle API calls to fetch disputes and update status.
+#### 3. Styles
+- **Path:** `src/styles/AdminDisputes.css`
+  - **Responsibilities:**
+    - Define styles for the admin disputes table and filter components.
 
-### 3. API Integration
-- **`/src/api/disputesApi.js`**
-  - Define API calls:
-    - `fetchDisputes()`: GET request to `/api/disputes`.
-    - `updateDisputeStatus(id, status)`: PATCH request to `/api/disputes/:id`.
+### API
 
-### 4. Custom Hooks
-- **`/src/hooks/useDisputes.js`**
-  - Custom hook to manage disputes state and API interactions.
-  - Handle loading states and error management.
+#### 1. API Endpoints
+- **Path:** `src/api/disputes.js`
+  - **Responsibilities:**
+    - Define API functions to fetch disputes and update dispute status.
+    - Implement error handling for API calls.
 
-### 5. Styles
-- **`/src/styles/AdminDisputesPage.css`**
-  - Styles for the Admin Disputes page and components.
-  - Ensure responsive design for the table and filters.
+#### 2. API Routes
+- **Path:** `src/routes/api/disputes.js`
+  - **Responsibilities:**
+    - Create Express routes for handling GET and POST requests related to disputes.
+    - Implement logic to fetch disputes from the database and update their status.
 
-### 6. Constants
-- **`/src/utils/constants.js`**
-  - Define constants for dispute statuses and filter options.
+### Backend
 
-## Development Steps
-1. **Setup Project Structure**: Create the file structure as outlined.
-2. **Implement API Calls**: Develop the API functions in `disputesApi.js`.
-3. **Create UI Components**: Build `AdminDisputesTable`, `DisputeFilter`, and `StatusUpdateModal`.
-4. **Develop Page Logic**: Implement `AdminDisputesPage` to manage state and render components.
-5. **Style Components**: Apply styles in `AdminDisputesPage.css`.
-6. **Testing**: Write unit tests for components and API functions.
-7. **Integration Testing**: Ensure the UI interacts correctly with the API.
-8. **Deployment**: Prepare for deployment and ensure all routes are functioning.
+#### 1. Database Model
+- **Path:** `src/models/Dispute.js`
+  - **Responsibilities:**
+    - Define the Dispute schema for the database.
+    - Include fields for status, date, and other relevant information.
+
+#### 2. Controller
+- **Path:** `src/controllers/disputeController.js`
+  - **Responsibilities:**
+    - Implement functions to handle business logic for fetching and updating disputes.
+    - Validate incoming data and handle errors.
+
+### Testing
+
+#### 1. Unit Tests
+- **Path:** `src/tests/AdminDisputesTable.test.js`
+  - **Responsibilities:**
+    - Write unit tests for the `AdminDisputesTable` component.
+
+- **Path:** `src/tests/api/disputes.test.js`
+  - **Responsibilities:**
+    - Write tests for API endpoints to ensure correct functionality.
+
+### Documentation
+- **Path:** `docs/admin_disputes_feature.md`
+  - **Responsibilities:**
+    - Document the feature, including API endpoints, UI components, and usage instructions.
 
 ## Timeline
-- **Week 1**: Setup and API integration.
-- **Week 2**: UI component development.
-- **Week 3**: Testing and final adjustments.
-- **Week 4**: Deployment and monitoring.
+- **Week 1:** UI component development and initial API setup.
+- **Week 2:** Integrate components, implement filtering, and update actions.
+- **Week 3:** Testing and documentation.
 
+## Notes
+- Ensure responsiveness and accessibility in UI components.
+- Follow best practices for API security and data validation.
 ```
