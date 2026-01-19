@@ -22,58 +22,55 @@
 └── app.py
 ```
 
-## File Responsibilities
+## Responsibilities
 
 ### API Layer
-- **`/api/disputes.py`**
-  - Define Flask routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
+- **File: `api/disputes.py`**
+  - Implement routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
   - Handle request validation and response formatting.
 
 ### Models
-- **`/models/dispute.py`**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement methods for CRUD operations.
+- **File: `models/dispute.py`**
+  - Define the `Dispute` model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement methods for database interactions (CRUD).
 
 ### Schemas
-- **`/schemas/dispute_schema.py`**
-  - Define Pydantic schemas for:
-    - Dispute creation and update validation.
-    - Response serialization.
+- **File: `schemas/dispute_schema.py`**
+  - Create Pydantic schemas for:
+    - `DisputeCreate`: For creating a dispute
+    - `DisputeUpdate`: For updating a dispute
+    - `DisputeResponse`: For returning dispute data
 
 ### Services
-- **`/services/dispute_service.py`**
+- **File: `services/dispute_service.py`**
   - Implement business logic for:
-    - Creating a dispute.
-    - Retrieving disputes.
-    - Updating dispute status.
-  - Interact with the Dispute model for database operations.
+    - Creating a dispute
+    - Listing disputes
+    - Updating dispute status
+  - Handle any necessary data transformations.
 
 ### Tests
-- **`/tests/test_disputes.py`**
+- **File: `tests/test_disputes.py`**
   - Write unit tests for:
-    - API endpoints (GET, POST, PUT).
-    - Service layer methods.
-  - Use a testing framework (e.g., pytest) for assertions.
+    - API endpoints (GET, POST, PUT)
+    - Service methods (CRUD operations)
+  - Ensure coverage for edge cases and error handling.
 
 ### Main Application
-- **`/app.py`**
-  - Initialize Flask app.
-  - Register API routes from `api/disputes.py`.
-  - Configure database connection and middleware.
+- **File: `app.py`**
+  - Set up the FastAPI application.
+  - Include the disputes API router.
+  - Configure middleware and CORS if necessary.
 
 ## Timeline
 - **Week 1**: Set up project structure and implement models.
-- **Week 2**: Develop API endpoints and service logic.
+- **Week 2**: Develop API endpoints and services.
 - **Week 3**: Create schemas and write tests.
-- **Week 4**: Perform integration testing and finalize documentation.
-
-## Documentation
-- Update README.md with API usage examples.
-- Document model attributes and expected request/response formats.
+- **Week 4**: Finalize documentation and conduct code reviews.
 ```
