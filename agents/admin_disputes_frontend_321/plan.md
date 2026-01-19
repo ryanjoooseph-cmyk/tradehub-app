@@ -2,91 +2,86 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+This plan outlines the necessary steps to build the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters, actions to update dispute statuses, and API calls to `/api/disputes`.
 
 ## File Structure
 
+## Project Structure
 ```
 /src
   ├── components
-  │   ├── AdminDisputesTable
-  │   │   ├── AdminDisputesTable.js          # Main table component
-  │   │   ├── AdminDisputeRow.js              # Row component for each dispute
-  │   │   └── Filters.js                       # Filter component for disputes
-  │   └── StatusUpdateModal
-  │       ├── StatusUpdateModal.js            # Modal for updating dispute status
-  │       └── StatusUpdateForm.js             # Form inside the modal
+  │   ├── AdminDisputesTable.jsx
+  │   ├── FilterComponent.jsx
+  │   └── StatusUpdateButton.jsx
   ├── pages
-  │   └── AdminDisputesPage.js                # Page component for /admin/disputes/321
+  │   └── AdminDisputesPage.jsx              # Main page for admin disputes
   ├── api
-  │   └── disputesApi.js                       # API calls related to disputes
-  ├── hooks
-  │   └── useDisputes.js                       # Custom hook for fetching and managing disputes
+  │   └── disputes.js
+  ├── components
+  │   ├── AdminDisputesTable.js
+  │   ├── FilterComponent.js
+  │   └── StatusUpdateButton.js
+  ├── pages
+  │   └── AdminDisputesPage.js
   ├── styles
-  │   └── AdminDisputes.css                   # Styles for the admin disputes page
+  │   └── AdminDisputesPage.css
   └── utils
-      └── constants.js                         # Constants for status types and filters
+      └── apiUtils.js
 ```
 
-## Responsibilities
+#### 1. UI Components
+- **Path:** `src/components/AdminDisputesTable.js`
+  - **Responsibilities:** 
+    - Render the admin table displaying disputes.
+    - Implement filters for dispute status, date, and other relevant fields.
+    - Include action buttons for updating dispute status.
 
-### Components
-- **AdminDisputesTable.js**
-  - Render the table of disputes.
-  - Integrate filtering functionality.
-  - Handle row actions for updating status.
+### 1. **AdminDisputesPage.jsx**
+   - **Path:** `/src/pages/AdminDisputesPage.jsx`
+   - **Responsibilities:**
+     - Set up the main layout for the disputes page.
+     - Integrate `AdminDisputesTable` and `FilterComponent`.
+     - Handle API calls to fetch disputes data on component mount.
 
-- **AdminDisputeRow.js**
-  - Display individual dispute details.
-  - Trigger status update modal on action.
+### 2. **AdminDisputesTable.jsx**
+   - **Path:** `/src/components/AdminDisputesTable.jsx`
+   - **Responsibilities:**
+     - Render a table displaying disputes.
+     - Implement sorting and filtering based on user input.
+     - Include `StatusUpdateButton` for each dispute to change status.
 
-- **Filters.js**
-  - Provide UI for filtering disputes by status, date, etc.
-  - Communicate filter changes to the parent component.
+### 3. **FilterComponent.jsx**
+   - **Path:** `/src/components/FilterComponent.jsx`
+   - **Responsibilities:**
+     - Provide UI elements for filtering disputes (e.g., by status, date).
+     - Manage filter state and pass it to `AdminDisputesTable`.
 
-- **StatusUpdateModal.js**
-  - Display modal for updating dispute status.
-  - Handle form submission to update status.
+### 4. **StatusUpdateButton.jsx**
+   - **Path:** `/src/components/StatusUpdateButton.jsx`
+   - **Responsibilities:**
+     - Render a button to update the status of a dispute.
+     - Handle click events to trigger API call for status update.
 
-- **StatusUpdateForm.js**
-  - Render form fields for selecting new status.
-  - Validate and submit the form.
+### 5. **disputes.js (API)**
+   - **Path:** `/src/api/disputes.js`
+   - **Responsibilities:**
+     - Define API functions to fetch disputes and update status.
+     - Implement error handling for API requests.
 
-### Pages
-- **AdminDisputesPage.js**
-  - Set up the route `/admin/disputes/321`.
-  - Manage state for disputes and filters.
-  - Render `AdminDisputesTable` and handle API calls.
+### 6. **apiUtils.js**
+   - **Path:** `/src/utils/apiUtils.js`
+   - **Responsibilities:**
+     - Create utility functions for API calls (e.g., GET, POST).
+     - Handle response parsing and error logging.
 
-### API
-- **disputesApi.js**
-  - Implement API calls to `/api/disputes` for fetching and updating disputes.
-  - Handle error responses and data formatting.
+### 7. **AdminDisputesPage.css**
+   - **Path:** `/src/styles/AdminDisputesPage.css`
+   - **Responsibilities:**
+     - Style the Admin Disputes page and components.
+     - Ensure responsive design for different screen sizes.
 
-### Hooks
-- **useDisputes.js**
-  - Fetch disputes data using the API.
-  - Manage loading and error states.
-  - Provide functions for updating dispute status.
-
-### Styles
-- **AdminDisputes.css**
-  - Style the admin disputes table, filters, and modal.
-
-### Utils
-- **constants.js**
-  - Define constants for dispute status types and filter options.
-
-## Timeline
-- **Week 1**: Set up file structure, implement API calls, and create basic components.
-- **Week 2**: Develop filtering functionality and integrate status update modal.
-- **Week 3**: Finalize UI, conduct testing, and prepare for deployment.
-
-## Testing
-- Unit tests for components and API calls.
-- Integration tests for the complete flow from fetching disputes to updating status.
-
-## Deployment
-- Deploy to staging environment for QA.
-- Monitor for any issues post-deployment.
+## Additional Notes
+- Ensure to implement unit tests for components and API functions.
+- Follow accessibility best practices for UI components.
+- Document API endpoints and expected request/response formats.
 ```
