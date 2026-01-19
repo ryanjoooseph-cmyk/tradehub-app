@@ -2,89 +2,78 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update the status of disputes.
 
-## Directory Structure
+## File Structure
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable
-  │   │   ├── AdminDisputesTable.jsx          # Table component for displaying disputes
-  │   │   ├── AdminDisputeRow.jsx              # Row component for individual dispute
-  │   │   └── AdminDisputeFilters.jsx          # Filters component for disputes
-  ├── pages
-  │   └── AdminDisputesPage.jsx                # Main page component for /admin/disputes/321
-  ├── api
-  │   └── disputes.js                           # API calls related to disputes
-  ├── styles
-  │   └── AdminDisputes.css                     # CSS styles for the disputes page
-  └── utils
-      └── apiHelpers.js                         # Helper functions for API calls
-```
+### Frontend
+
+- **src/**
+  - **components/**
+    - **DisputeTable.jsx**  
+      - Responsibilities: Render the table of disputes with filters and actions.
+    - **DisputeFilter.jsx**  
+      - Responsibilities: Provide filtering options for disputes (e.g., status, date).
+    - **DisputeActionButton.jsx**  
+      - Responsibilities: Handle actions to update dispute status.
+  - **pages/**
+    - **AdminDisputesPage.jsx**  
+      - Responsibilities: Main page component for `/admin/disputes/321`, integrates `DisputeTable` and `DisputeFilter`.
+  - **hooks/**
+    - **useDisputes.js**  
+      - Responsibilities: Custom hook to fetch disputes from the API and manage state.
+  - **styles/**
+    - **DisputeTable.css**  
+      - Responsibilities: Styles for the dispute table and filters.
+
+### API
+
+- **src/api/**
+  - **disputes.js**  
+    - Responsibilities: Define API calls to `/api/disputes` for fetching and updating dispute statuses.
+  - **src/controllers/**
+    - **disputeController.js**  
+      - Responsibilities: Handle business logic for disputes, including fetching and updating status.
+  - **src/routes/**
+    - **disputeRoutes.js**  
+      - Responsibilities: Define routes for dispute-related API endpoints.
+  - **src/models/**
+    - **Dispute.js**  
+      - Responsibilities: Define the dispute model/schema for database interactions.
+
+### Testing
+
+- **src/tests/**
+  - **DisputeTable.test.js**  
+    - Responsibilities: Unit tests for `DisputeTable` component.
+  - **DisputeFilter.test.js**  
+    - Responsibilities: Unit tests for `DisputeFilter` component.
+  - **disputeApi.test.js**  
+    - Responsibilities: Integration tests for API calls in `disputes.js`.
 
 ## Responsibilities
 
-### 1. UI Components
+### Frontend Development
+- Implement UI components for displaying and filtering disputes.
+- Integrate API calls to fetch and update dispute data.
+- Ensure responsive design and accessibility standards.
 
-- **AdminDisputesTable.jsx**
-  - Render the table structure for displaying disputes.
-  - Integrate pagination and sorting features.
+### API Development
+- Create endpoints for fetching disputes and updating their statuses.
+- Implement validation and error handling for API requests.
+- Ensure secure access to the API for admin users.
 
-- **AdminDisputeRow.jsx**
-  - Display individual dispute details.
-  - Include buttons for updating dispute status.
-
-- **AdminDisputeFilters.jsx**
-  - Provide filter options (e.g., status, date range).
-  - Handle filter state and trigger updates to the table.
-
-### 2. Main Page
-
-- **AdminDisputesPage.jsx**
-  - Import and render `AdminDisputesTable` and `AdminDisputeFilters`.
-  - Manage overall state for disputes and filters.
-  - Handle API calls to fetch disputes on component mount.
-
-### 3. API Integration
-
-- **disputes.js**
-  - Create functions for API calls:
-    - `fetchDisputes(filters)` - Fetch disputes based on applied filters.
-    - `updateDisputeStatus(disputeId, newStatus)` - Update the status of a specific dispute.
-
-### 4. Styles
-
-- **AdminDisputes.css**
-  - Style the table, filters, and buttons for a cohesive admin interface.
-
-### 5. Utility Functions
-
-- **apiHelpers.js**
-  - Implement helper functions for error handling and response parsing.
-
-## Development Steps
-
-1. **Set up the project structure** as outlined above.
-2. **Develop UI components**:
-   - Create `AdminDisputesTable`, `AdminDisputeRow`, and `AdminDisputeFilters`.
-3. **Implement the main page**:
-   - Set up `AdminDisputesPage` to integrate components and manage state.
-4. **Build API functions**:
-   - Implement `fetchDisputes` and `updateDisputeStatus` in `disputes.js`.
-5. **Style the components** using `AdminDisputes.css`.
-6. **Test the functionality**:
-   - Ensure API calls work as expected and UI updates correctly.
-7. **Review and refine** the code for performance and usability.
+### Testing
+- Write unit tests for all components and API functions.
+- Conduct integration tests to ensure frontend and backend work seamlessly together.
 
 ## Timeline
-
-- **Week 1**: Set up project structure and develop UI components.
-- **Week 2**: Implement main page and API integration.
-- **Week 3**: Testing, styling, and final refinements.
+- **Week 1:** Set up project structure and implement basic UI components.
+- **Week 2:** Develop API endpoints and integrate with frontend.
+- **Week 3:** Testing and bug fixing.
+- **Week 4:** Final review and deployment.
 
 ## Notes
-
-- Ensure to handle loading states and error messages in the UI.
-- Consider accessibility best practices in the UI design.
+- Ensure that the admin panel adheres to security best practices.
+- Consider user experience when designing filters and actions.
 ```
