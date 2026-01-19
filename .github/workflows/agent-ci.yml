@@ -1,0 +1,14 @@
+name: agent-ci
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  agent-ci:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo ok
