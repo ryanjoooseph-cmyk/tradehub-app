@@ -1,77 +1,82 @@
 ```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
+## Overview
+This plan outlines the necessary steps to build the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters, actions to update dispute statuses, and API calls to `/api/disputes`.
+
+## File Structure
+
 ## Project Structure
 ```
 /src
-  /components
-    /AdminDisputes
-      - AdminDisputes.jsx          # Main component for displaying disputes
-      - DisputeTable.jsx           # Table component for listing disputes
-      - FilterBar.jsx               # Component for filtering disputes
-      - StatusUpdateModal.jsx       # Modal for updating dispute status
-  /hooks
-    - useDisputes.js                # Custom hook for fetching and managing disputes
-  /api
-    - disputes.js                   # API calls related to disputes
-  /styles
-    - AdminDisputes.css             # Styles for AdminDisputes components
-  /pages
-    - AdminDisputesPage.jsx         # Page component for the route /admin/disputes/321
+  ├── components
+  │   ├── AdminDisputesTable.jsx
+  │   ├── FilterComponent.jsx
+  │   └── StatusUpdateButton.jsx
+  ├── pages
+  │   └── AdminDisputesPage.jsx              # Main page for admin disputes
+  ├── api
+  │   └── disputes.js
+  ├── components
+  │   ├── AdminDisputesTable.js
+  │   ├── FilterComponent.js
+  │   └── StatusUpdateButton.js
+  ├── pages
+  │   └── AdminDisputesPage.js
+  ├── styles
+  │   └── AdminDisputesPage.css
+  └── utils
+      └── apiUtils.js
 ```
 
 ## Responsibilities
 
-### 1. **AdminDisputes.jsx**
-- **File Path:** `/src/components/AdminDisputes/AdminDisputes.jsx`
-- **Responsibility:** 
-  - Render the `DisputeTable` and `FilterBar`.
-  - Handle state management for disputes and loading states.
+### 1. **AdminDisputesPage.jsx**
+   - **Path:** `/src/pages/AdminDisputesPage.jsx`
+   - **Responsibilities:**
+     - Set up the main layout for the disputes page.
+     - Integrate `AdminDisputesTable` and `FilterComponent`.
+     - Handle API calls to fetch disputes data on component mount.
 
-### 2. **DisputeTable.jsx**
-- **File Path:** `/src/components/AdminDisputes/DisputeTable.jsx`
-- **Responsibility:**
-  - Display a table of disputes with columns for details and status.
-  - Include action buttons for updating dispute status.
+### 2. **AdminDisputesTable.jsx**
+   - **Path:** `/src/components/AdminDisputesTable.jsx`
+   - **Responsibilities:**
+     - Render a table displaying disputes.
+     - Implement sorting and filtering based on user input.
+     - Include `StatusUpdateButton` for each dispute to change status.
 
-### 3. **FilterBar.jsx**
-- **File Path:** `/src/components/AdminDisputes/FilterBar.jsx`
-- **Responsibility:**
-  - Provide input fields and dropdowns for filtering disputes.
-  - Trigger updates to the dispute list based on filter criteria.
+### 3. **FilterComponent.jsx**
+   - **Path:** `/src/components/FilterComponent.jsx`
+   - **Responsibilities:**
+     - Provide UI elements for filtering disputes (e.g., by status, date).
+     - Manage filter state and pass it to `AdminDisputesTable`.
 
-### 4. **StatusUpdateModal.jsx**
-- **File Path:** `/src/components/AdminDisputes/StatusUpdateModal.jsx`
-- **Responsibility:**
-  - Display a modal for confirming status updates.
-  - Call the API to update the dispute status upon confirmation.
+### 4. **StatusUpdateButton.jsx**
+   - **Path:** `/src/components/StatusUpdateButton.jsx`
+   - **Responsibilities:**
+     - Render a button to update the status of a dispute.
+     - Handle click events to trigger API call for status update.
 
-### 5. **useDisputes.js**
-- **File Path:** `/src/hooks/useDisputes.js`
-- **Responsibility:**
-  - Fetch disputes from `/api/disputes`.
-  - Manage state for disputes, including loading and error states.
+### 5. **disputes.js (API)**
+   - **Path:** `/src/api/disputes.js`
+   - **Responsibilities:**
+     - Define API functions to fetch disputes and update status.
+     - Implement error handling for API requests.
 
-### 6. **disputes.js**
-- **File Path:** `/src/api/disputes.js`
-- **Responsibility:**
-  - Define API functions for fetching disputes and updating status.
-  - Handle API responses and errors.
+### 6. **apiUtils.js**
+   - **Path:** `/src/utils/apiUtils.js`
+   - **Responsibilities:**
+     - Create utility functions for API calls (e.g., GET, POST).
+     - Handle response parsing and error logging.
 
-### 7. **AdminDisputesPage.jsx**
-- **File Path:** `/src/pages/AdminDisputesPage.jsx`
-- **Responsibility:**
-  - Set up routing for `/admin/disputes/321`.
-  - Render the `AdminDisputes` component.
-
-### 8. **AdminDisputes.css**
-- **File Path:** `/src/styles/AdminDisputes.css`
-- **Responsibility:**
-  - Style the components for the Admin Disputes interface.
+### 7. **AdminDisputesPage.css**
+   - **Path:** `/src/styles/AdminDisputesPage.css`
+   - **Responsibilities:**
+     - Style the Admin Disputes page and components.
+     - Ensure responsive design for different screen sizes.
 
 ## Additional Notes
-- Ensure all components are responsive and accessible.
-- Implement error handling for API calls.
-- Write unit tests for components and API functions.
-- Document the code and provide usage examples where necessary.
+- Ensure to implement unit tests for components and API functions.
+- Follow accessibility best practices for UI components.
+- Document API endpoints and expected request/response formats.
 ```
