@@ -1,4 +1,3 @@
-```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
@@ -26,11 +25,11 @@ This plan outlines the implementation of the UI and API for the admin disputes f
 
 ## Responsibilities
 
-### 1. UI Components
+### Components
 
-- **`/src/components/AdminDisputesTable.jsx`**
-  - Render a table displaying disputes.
-  - Integrate filtering options.
+- **AdminDisputesTable.jsx**
+  - Render the table of disputes.
+  - Accept props for disputes data and filter criteria.
   - Handle row actions for updating dispute status.
 
 - **`/src/components/DisputeFilter.jsx`**
@@ -41,9 +40,9 @@ This plan outlines the implementation of the UI and API for the admin disputes f
   - Button component for updating the status of a dispute.
   - Trigger API call on click.
 
-### 2. Pages
+### Pages
 
-- **`/src/pages/AdminDisputesPage.jsx`**
+- **AdminDisputesPage.jsx**
   - Main page component for `/admin/disputes/321`.
   - Manage state for disputes and filters.
   - Fetch disputes data using the API.
