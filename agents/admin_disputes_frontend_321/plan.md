@@ -1,4 +1,3 @@
-```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
@@ -38,11 +37,10 @@ This plan outlines the necessary components to build the UI and API for the admi
 
 ### API
 
-#### 1. Routes
-- **File:** `src/routes/api/disputes.js`
-  - **Responsibilities:**
-    - Define API endpoints for fetching and updating disputes.
-    - Implement GET and POST methods for disputes.
+- **`/src/api/disputes.js`**
+  - Implement API functions:
+    - `fetchDisputes(filters)`: Fetch disputes based on filter criteria.
+    - `updateDisputeStatus(disputeId, newStatus)`: Update the status of a specific dispute.
 
 #### 2. Controllers
 - **File:** `src/controllers/disputeController.js`
