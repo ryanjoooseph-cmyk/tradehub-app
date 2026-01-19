@@ -3,8 +3,10 @@ on:
   pull_request:
     branches: [ main ]
   push:
-    branches:
-      - agent-*
+    branches: [ agent-* ]
+permissions:
+  contents: read
+  statuses: write
 jobs:
   agent-ci:
     runs-on: ubuntu-latest
