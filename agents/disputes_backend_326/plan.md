@@ -1,107 +1,102 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
-```
-/project-root
-│
-├── /api
-│   ├── /disputes
-│   │   ├── disputesController.js
-│   │   ├── disputesRoutes.js
-│   │   └── disputesService.js
-│   └── /middleware
-│       └── authMiddleware.js
-│
-├── /models
-│   └── disputeModel.js
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── /hooks
-│   │   └── useDisputes.js
-│   ├── /pages
-│   │   └── DisputesPage.jsx
-│   └── /styles
-│       └── Disputes.css
-│
-└── /tests
-    ├── /api
-    │   └── disputes.test.js
-    └── /ui
-        └── DisputesPage.test.jsx
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
 
-## API Implementation
+## File Structure
 
-### 1. **Model**
-- **File:** `/models/disputeModel.js`
-  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+### API Implementation
 
-### 2. **Controller**
-- **File:** `/api/disputes/disputesController.js`
-  - Implement functions:
-    - `getAllDisputes(req, res)`: Fetch all disputes.
-    - `createDispute(req, res)`: Create a new dispute.
-    - `updateDispute(req, res)`: Update an existing dispute by ID.
+- **File: `src/api/disputes.js`**
+  - Responsibilities:
+    - Define API routes for `/api/disputes`.
+    - Implement CRUD operations for disputes.
+    - Validate input data and handle errors.
+    - Manage dispute statuses and evidence URLs.
 
-### 3. **Service**
-- **File:** `/api/disputes/disputesService.js`
-  - Implement business logic for:
-    - Fetching disputes from the database.
-    - Creating a new dispute.
-    - Updating dispute status.
+- **File: `src/models/Dispute.js`**
+  - Responsibilities:
+    - Define the Dispute model/schema (using Mongoose or Sequelize).
+    - Include fields for status and evidence_urls.
+    - Implement methods for querying and updating disputes.
 
-### 4. **Routes**
-- **File:** `/api/disputes/disputesRoutes.js`
-  - Define routes:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update a dispute by ID.
+- **File: `src/controllers/disputeController.js`**
+  - Responsibilities:
+    - Handle business logic for dispute operations.
+    - Implement functions for:
+      - `createDispute(req, res)`: Open a new dispute.
+      - `getDisputes(req, res)`: List all disputes.
+      - `updateDispute(req, res)`: Update a specific dispute.
 
-### 5. **Middleware**
-- **File:** `/api/middleware/authMiddleware.js`
-  - Implement authentication middleware to protect routes.
+- **File: `src/routes/disputeRoutes.js`**
+  - Responsibilities:
+    - Set up Express routes for API endpoints.
+    - Connect routes to corresponding controller methods.
 
-## UI Implementation
+- **File: `src/middleware/errorHandler.js`**
+  - Responsibilities:
+    - Centralized error handling for API responses.
 
-### 1. **Components**
-- **File:** `/ui/components/DisputeList.jsx`
-  - Display a list of disputes with status and evidence URLs.
+### UI Implementation
 
-- **File:** `/ui/components/DisputeForm.jsx`
-  - Form for creating/updating disputes.
+- **File: `src/components/DisputeList.js`**
+  - Responsibilities:
+    - Display a list of disputes.
+    - Include filtering options based on status.
 
-- **File:** `/ui/components/DisputeDetail.jsx`
-  - Detailed view of a single dispute.
+- **File: `src/components/DisputeForm.js`**
+  - Responsibilities:
+    - Form for creating and updating disputes.
+    - Handle input for status and evidence URLs.
 
-### 2. **Hooks**
-- **File:** `/ui/hooks/useDisputes.js`
-  - Custom hook to manage API calls for fetching, creating, and updating disputes.
+- **File: `src/pages/DisputePage.js`**
+  - Responsibilities:
+    - Main page for disputes.
+    - Integrate `DisputeList` and `DisputeForm`.
+    - Manage state and API calls for fetching/updating disputes.
 
-### 3. **Pages**
-- **File:** `/ui/pages/DisputesPage.jsx`
-  - Main page to render `DisputeList` and `DisputeForm`.
+- **File: `src/hooks/useDisputes.js`**
+  - Responsibilities:
+    - Custom hook for managing API calls related to disputes.
+    - Handle fetching, creating, and updating disputes.
 
-### 4. **Styles**
-- **File:** `/ui/styles/Disputes.css`
-  - Styles for dispute components.
+### Testing
 
-## Testing
+- **File: `tests/api/disputes.test.js`**
+  - Responsibilities:
+    - Unit tests for API endpoints.
+    - Validate CRUD operations and status handling.
 
-### 1. **API Tests**
-- **File:** `/tests/api/disputes.test.js`
-  - Unit tests for API endpoints.
+- **File: `tests/ui/DisputePage.test.js`**
+  - Responsibilities:
+    - Unit tests for the UI components.
+    - Ensure proper rendering and functionality of dispute forms and lists.
 
-### 2. **UI Tests**
-- **File:** `/tests/ui/DisputesPage.test.jsx`
-  - Component tests for `DisputesPage`.
+## Deployment
 
-## Responsibilities
-- **Backend Developer:** Implement API logic, routes, and middleware.
-- **Frontend Developer:** Build UI components, hooks, and pages.
-- **QA Engineer:** Write and execute tests for API and UI.
+- **File: `docker-compose.yml`**
+  - Responsibilities:
+    - Define services for the application and database.
+    - Ensure proper environment setup for deployment.
+
+- **File: `README.md`**
+  - Responsibilities:
+    - Document setup instructions, API usage, and UI navigation.
+
+## Timeline
+
+- **Week 1: API Development**
+  - Complete API routes, models, and controllers.
+
+- **Week 2: UI Development**
+  - Build components and integrate with API.
+
+- **Week 3: Testing and Deployment**
+  - Write tests and prepare for deployment.
+
+## Notes
+- Ensure proper validation for evidence URLs.
+- Implement authentication if required for dispute management.
+- Consider pagination for listing disputes if the dataset is large.
 ```
