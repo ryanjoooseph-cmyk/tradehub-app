@@ -1,11 +1,12 @@
 name: agent-ci
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
+  pull_request:
+    branches: [ main ]
+  push:
+    branches:
+      - agent-*
 jobs:
   agent-ci:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - run: echo ok
