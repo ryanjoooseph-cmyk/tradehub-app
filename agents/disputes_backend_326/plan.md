@@ -6,79 +6,84 @@
 /disputes_backend_326
 │
 ├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # Initialize API module
+│   ├── disputes.py               # API endpoints for disputes
+│   ├── __init__.py               # API package initialization
 │
 ├── /models
 │   ├── dispute.py                 # Dispute model definition
-│   ├── __init__.py                # Initialize models module
+│   ├── __init__.py               # Models package initialization
 │
 ├── /schemas
 │   ├── dispute_schema.py          # Pydantic schemas for validation
-│   ├── __init__.py                # Initialize schemas module
+│   ├── __init__.py               # Schemas package initialization
 │
 ├── /services
 │   ├── dispute_service.py         # Business logic for disputes
-│   ├── __init__.py                # Initialize services module
+│   ├── __init__.py               # Services package initialization
 │
 ├── /tests
 │   ├── test_disputes.py           # Unit tests for disputes API
-│   ├── __init__.py                # Initialize tests module
+│   ├── __init__.py               # Tests package initialization
 │
-├── /migrations                     # Database migration files
+├── /migrations
+│   ├── 001_initial.py             # Database migration for disputes table
+│   ├── __init__.py               # Migrations package initialization
 │
 └── app.py                         # Main application entry point
 ```
 
 ## Responsibilities
 
-### API Implementation
+### API Layer
 - **File:** `/api/disputes.py`
-  - Implement endpoints:
+  - Define routes for:
     - `GET /api/disputes` - List all disputes
     - `POST /api/disputes` - Create a new dispute
     - `PUT /api/disputes/{id}` - Update an existing dispute
   - Handle request validation and response formatting.
 
-### Model Definition
+### Model Layer
 - **File:** `/models/dispute.py`
-  - Define the Dispute model with fields:
+  - Create a Dispute model with fields:
     - `id`: Unique identifier
-    - `evidence_urls`: Array of URLs for evidence
+    - `evidence_urls`: Array of URLs
     - `status`: Enum (OPEN, REVIEW, RESOLVED)
   - Implement database interactions.
 
-### Schema Validation
+### Schema Layer
 - **File:** `/schemas/dispute_schema.py`
-  - Create Pydantic schemas for:
-    - Dispute creation
-    - Dispute update
-  - Ensure data validation for incoming requests.
+  - Define Pydantic schemas for:
+    - Creating a dispute
+    - Updating a dispute
+    - Listing disputes
 
-### Business Logic
+### Service Layer
 - **File:** `/services/dispute_service.py`
-  - Implement service functions:
-    - `list_disputes()`: Retrieve all disputes
-    - `create_dispute(data)`: Create a new dispute
-    - `update_dispute(id, data)`: Update an existing dispute
-  - Handle business rules and data manipulation.
+  - Implement business logic for:
+    - Fetching disputes
+    - Creating a dispute
+    - Updating dispute status
+  - Validate evidence URLs and status transitions.
 
 ### Testing
 - **File:** `/tests/test_disputes.py`
   - Write unit tests for:
     - API endpoints
-    - Service functions
-  - Ensure coverage for all CRUD operations and edge cases.
+    - Service methods
+    - Model validations
+
+### Database Migrations
+- **File:** `/migrations/001_initial.py`
+  - Create initial migration script to set up disputes table in the database.
 
 ### Main Application
 - **File:** `app.py`
-  - Set up FastAPI application.
-  - Include API routes from `/api/disputes.py`.
-  - Configure middleware and CORS settings.
+  - Set up FastAPI or Flask application.
+  - Include API routes and middleware for error handling.
 
 ## Timeline
 - **Week 1:** API and model setup
 - **Week 2:** Schema and service implementation
-- **Week 3:** Testing and debugging
+- **Week 3:** Testing and migration
 - **Week 4:** Final review and deployment
 ```
