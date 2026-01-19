@@ -1,0 +1,13 @@
+name: required-check
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
+permissions:
+  contents: read
+jobs:
+  pass:
+    name: pass
+    runs-on: ubuntu-latest
+    steps:
+      - name: ok
+        run: echo ok
