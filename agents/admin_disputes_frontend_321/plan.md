@@ -2,84 +2,100 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
+This plan outlines the necessary steps to build the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters, actions to update dispute statuses, and API calls to `/api/disputes`.
 
-## Directory Structure
+## File Structure
 
+## Project Structure
 ```
 /src
-  ├── api
-  │   ├── disputes.js                # API endpoint for disputes
   ├── components
-  │   ├── AdminDisputeTable.jsx      # Component for displaying disputes in a table
-  │   ├── DisputeFilter.jsx           # Component for filtering disputes
-  │   ├── StatusUpdateButton.jsx      # Component for updating dispute status
+  │   ├── AdminDisputesTable
+  │   │   ├── AdminDisputesTable.jsx        # Table component for displaying disputes
+  │   │   ├── AdminDisputeRow.jsx            # Row component for individual dispute
+  │   │   └── Filters.jsx                    # Filter component for disputes
+  │   └── StatusUpdateModal.jsx               # Modal for updating dispute status
   ├── pages
-  │   ├── AdminDisputesPage.jsx       # Main page for admin disputes
+  │   └── AdminDisputesPage.jsx
+  ├── api
+  │   └── disputes.js
+  ├── components
+  │   ├── AdminDisputesTable.js
+  │   ├── FilterComponent.js
+  │   └── StatusUpdateButton.js
+  ├── pages
+  │   └── AdminDisputesPage.js
   ├── styles
-  │   ├── AdminDisputesPage.css       # Styles for the admin disputes page
-  ├── utils
-  │   ├── apiClient.js                # Utility for making API calls
-  └── index.js                        # Main entry point
+  │   └── AdminDisputes.css
+  └── utils
+      └── apiHelper.js
 ```
 
 ## Responsibilities
 
-### API Layer
+### 1. UI Components
 
-- **`/src/api/disputes.js`**
-  - Implement GET endpoint to fetch disputes based on filters.
-  - Implement PUT endpoint to update dispute status.
-  - Ensure proper error handling and response formatting.
-
-### UI Components
-
-- **`/src/components/AdminDisputeTable.jsx`**
-  - Render a table displaying disputes.
-  - Integrate pagination and sorting functionality.
-  - Fetch data from `/api/disputes` and handle loading states.
+- **`/src/components/AdminDisputesTable.jsx`**
+  - Responsible for rendering the admin disputes table.
+  - Displays a list of disputes with relevant details.
+  - Integrates with filters and status update actions.
 
 - **`/src/components/DisputeFilter.jsx`**
-  - Provide filter options (e.g., status, date range).
-  - Handle filter changes and trigger data fetching in the parent component.
+  - Provides filtering options for the disputes table.
+  - Allows filtering by status, date, and other relevant criteria.
+  - Communicates filter changes to the `AdminDisputesTable`.
 
 - **`/src/components/StatusUpdateButton.jsx`**
-  - Render a button to update the status of a selected dispute.
-  - Call the PUT endpoint from the API layer when clicked.
-  - Handle success and error notifications.
+  - Renders a button to update the status of a selected dispute.
+  - Triggers API calls to update the dispute status.
 
-### Page Structure
+### 2. Page Component
 
 - **`/src/pages/AdminDisputesPage.jsx`**
-  - Combine `AdminDisputeTable` and `DisputeFilter` components.
-  - Manage state for filters and disputes.
-  - Handle lifecycle methods to fetch data on mount and when filters change.
+  - Main page component for the `/admin/disputes/321` route.
+  - Integrates `AdminDisputesTable` and `DisputeFilter`.
+  - Manages state for disputes and filters.
 
-### Styling
+### 3. API Integration
 
-- **`/src/styles/AdminDisputesPage.css`**
-  - Style the admin disputes page and components for a clean UI.
-  - Ensure responsive design for various screen sizes.
+- **`/src/api/disputes.js`**
+  - Contains functions to call the `/api/disputes` endpoint.
+  - Functions include:
+    - `fetchDisputes()`: Fetches the list of disputes.
+    - `updateDisputeStatus(disputeId, newStatus)`: Updates the status of a specific dispute.
 
-### Utility Functions
+### 4. Styles
 
-- **`/src/utils/apiClient.js`**
-  - Create a utility function for making API calls.
-  - Handle common tasks like setting headers and managing responses.
+- **`/src/styles/AdminDisputes.css`**
+  - Contains styles for the admin disputes page and components.
+  - Ensures responsive design and usability.
+
+### 5. Utility Functions
+
+- **`/src/utils/apiHelper.js`**
+  - Helper functions for API calls.
+  - Includes error handling and response parsing.
+
+## Development Steps
+
+1. **Set up the route** in the main application to point to `AdminDisputesPage`.
+2. **Implement the API functions** in `disputes.js` to handle fetching and updating disputes.
+3. **Create the UI components**:
+   - Build `AdminDisputesTable` to display disputes.
+   - Build `DisputeFilter` for filtering functionality.
+   - Build `StatusUpdateButton` for updating dispute statuses.
+4. **Style the components** using CSS in `AdminDisputes.css`.
+5. **Integrate components** in `AdminDisputesPage` and manage state.
+6. **Test the functionality** to ensure filters and updates work as expected.
+7. **Conduct code reviews** and finalize the implementation.
 
 ## Testing
 
-- Implement unit tests for components and API functions.
-- Ensure integration tests cover the interaction between UI and API.
+- Unit tests for API functions in `disputes.js`.
+- Component tests for `AdminDisputesTable`, `DisputeFilter`, and `StatusUpdateButton`.
+- Integration tests for `AdminDisputesPage`.
 
 ## Deployment
 
-- Prepare the feature for deployment by ensuring all components are functional and styled.
-- Update documentation to reflect the new feature and its usage.
-
-## Timeline
-
-- **Week 1:** API implementation and basic UI structure.
-- **Week 2:** Component development and integration.
-- **Week 3:** Testing and deployment preparations.
+- Prepare for deployment after successful testing and code reviews.
 ```
