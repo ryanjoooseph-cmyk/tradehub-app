@@ -18,7 +18,7 @@
   └── App.jsx
 ```
 
-## File Responsibilities
+## Responsibilities
 
 ### 1. **AdminDisputesTable.jsx**
 - **Path:** `/src/components/AdminDisputesTable.jsx`
