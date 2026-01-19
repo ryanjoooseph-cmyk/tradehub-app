@@ -1,111 +1,90 @@
 ```markdown
-# Implementation Plan for Feature: admin_disputes_frontend_321
+# Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
 
-## Directory Structure
+## File Structure
 
 ```
 /src
   ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateButton.jsx
+  │   ├── AdminDisputesTable
+  │   │   ├── AdminDisputesTable.jsx        # Table component for displaying disputes
+  │   │   ├── AdminDisputeRow.jsx            # Row component for individual dispute
+  │   │   └── Filters.jsx                    # Filter component for disputes
+  │   └── StatusUpdateModal.jsx               # Modal for updating dispute status
   ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputesApi.js
-  ├── styles
-  │   └── AdminDisputes.css
+  │   └── AdminDisputesPage.jsx               # Main page component for /admin/disputes/321
+  ├── services
+  │   └── disputesService.js                  # API service for fetching/updating disputes
   ├── hooks
-  │   └── useDisputes.js
+  │   └── useDisputes.js                      # Custom hook for managing disputes state
+  ├── styles
+  │   └── AdminDisputes.css                   # CSS styles for the admin disputes page
   └── utils
-      └── constants.js
+      └── api.js                              # Utility for API calls
 ```
 
-## File Responsibilities
+## Responsibilities
 
 ### Components
+- **AdminDisputesTable.jsx**
+  - Render the table of disputes.
+  - Integrate filters from `Filters.jsx`.
+  - Handle row actions for updating status.
 
-- **`/src/components/AdminDisputesTable.jsx`**
-  - Render the table displaying disputes.
-  - Integrate filtering options.
-  - Handle status update actions via `StatusUpdateButton`.
+- **AdminDisputeRow.jsx**
+  - Display individual dispute details.
+  - Provide buttons for status updates.
 
-- **`/src/components/DisputeFilter.jsx`**
-  - Provide UI elements for filtering disputes (e.g., by status, date).
-  - Manage filter state and pass it to the `AdminDisputesTable`.
+- **Filters.jsx**
+  - Implement filtering logic for disputes (e.g., by status, date).
+  - Pass filter criteria to the parent component.
 
-- **`/src/components/StatusUpdateButton.jsx`**
-  - Button component to trigger status updates for selected disputes.
-  - Call the API to update dispute status.
+- **StatusUpdateModal.jsx**
+  - Modal for confirming status updates.
+  - Handle user input for new status.
 
 ### Pages
+- **AdminDisputesPage.jsx**
+  - Set up the main layout for the disputes page.
+  - Fetch disputes data using `useDisputes` hook.
+  - Render `AdminDisputesTable` and `Filters`.
 
-- **`/src/pages/AdminDisputesPage.jsx`**
-  - Main page component for `/admin/disputes/321`.
-  - Integrate `AdminDisputesTable` and `DisputeFilter`.
-  - Manage overall state and API calls.
-
-### API
-
-- **`/src/api/disputesApi.js`**
-  - Define API calls to `/api/disputes`.
-  - Implement functions for fetching disputes and updating statuses.
-
-### Styles
-
-- **`/src/styles/AdminDisputes.css`**
-  - Styles for the admin disputes page and components.
-  - Ensure responsive design and usability.
+### Services
+- **disputesService.js**
+  - Implement API calls to `/api/disputes` for fetching and updating disputes.
+  - Handle error responses and data formatting.
 
 ### Hooks
+- **useDisputes.js**
+  - Manage state for disputes, including loading and error states.
+  - Provide functions to fetch disputes and update status.
 
-- **`/src/hooks/useDisputes.js`**
-  - Custom hook to manage disputes state.
-  - Fetch disputes from the API and handle loading/error states.
+### Styles
+- **AdminDisputes.css**
+  - Style the admin disputes table, filters, and modal.
+  - Ensure responsive design for various screen sizes.
 
-### Utilities
+### Utils
+- **api.js**
+  - Create a utility function for making API calls.
+  - Handle common headers and error handling.
 
-- **`/src/utils/constants.js`**
-  - Define constants for dispute statuses and other reusable values.
+## API Endpoints
+- **GET /api/disputes**
+  - Fetch list of disputes with optional filters.
 
-## Implementation Steps
+- **PATCH /api/disputes/:id**
+  - Update the status of a specific dispute.
 
-1. **Set Up Project Structure**
-   - Create the necessary directories and files as outlined above.
+## Testing
+- Implement unit tests for components and services.
+- Ensure integration tests cover API interactions.
 
-2. **Develop API Integration**
-   - Implement API functions in `disputesApi.js` for fetching and updating disputes.
-
-3. **Build UI Components**
-   - Create `AdminDisputesTable`, `DisputeFilter`, and `StatusUpdateButton` components.
-   - Ensure components are reusable and maintainable.
-
-4. **Create Main Page**
-   - Implement `AdminDisputesPage` to integrate all components and manage state.
-
-5. **Implement State Management**
-   - Use `useDisputes` hook to manage data fetching and state updates.
-
-6. **Style the Components**
-   - Apply styles in `AdminDisputes.css` to ensure a cohesive look.
-
-7. **Testing**
-   - Write unit tests for components and API functions.
-   - Conduct integration testing for the complete flow.
-
-8. **Documentation**
-   - Document the API endpoints and component usage for future reference.
-
-9. **Deployment**
-   - Prepare the feature for deployment and ensure it is accessible at `/admin/disputes/321`.
-
-## Timeline
-- **Week 1:** Project setup and API development.
-- **Week 2:** UI component development and integration.
-- **Week 3:** Testing and documentation.
-- **Week 4:** Final review and deployment.
+## Deployment
+- Prepare for deployment in staging and production environments.
+- Monitor for any issues post-deployment.
 
 ```
