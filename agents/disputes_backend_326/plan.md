@@ -1,94 +1,122 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+
+## File Structure
+
 ```
-/disputes_backend_326
+/project-root
+│
 ├── /api
-│   ├── disputes.py
-│   ├── __init__.py
-├── /models
-│   ├── dispute.py
-│   ├── __init__.py
-├── /schemas
-│   ├── dispute_schema.py
-│   ├── __init__.py
-├── /services
-│   ├── dispute_service.py
-│   ├── __init__.py
-├── /tests
-│   ├── test_disputes.py
-│   ├── __init__.py
-├── /ui
+│   ├── /controllers
+│   │   └── disputesController.js
+│   ├── /models
+│   │   └── disputeModel.js
+│   ├── /routes
+│   │   └── disputesRoutes.js
+│   └── /middleware
+│       └── authMiddleware.js
+│
+├── /client
 │   ├── /components
-│   │   ├── DisputeList.js
-│   │   ├── DisputeForm.js
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
 │   ├── /pages
-│   │   ├── DisputePage.js
-│   ├── /styles
-│   │   ├── DisputeStyles.css
-├── app.py
-├── requirements.txt
-└── README.md
+│   │   └── DisputesPage.jsx
+│   └── /styles
+│       └── disputes.css
+│
+└── /tests
+    ├── /api
+    │   └── disputes.test.js
+    └── /client
+        └── DisputesPage.test.jsx
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **`/api/disputes.py`**
-  - Define routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Handle request validation and response formatting.
+### 1. Model Definition
+- **File:** `/api/models/disputeModel.js`
+- **Responsibilities:**
+  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - Implement Mongoose model for MongoDB.
 
-- **`/models/dispute.py`**
-  - Define the Dispute model with fields:
-    - `id`
-    - `evidence_urls` (array)
-    - `status` (enum: OPEN, REVIEW, RESOLVED)
-  - Implement database interactions.
+### 2. Controller Logic
+- **File:** `/api/controllers/disputesController.js`
+- **Responsibilities:**
+  - Implement functions to handle:
+    - `createDispute`: Create a new dispute.
+    - `getDisputes`: List all disputes.
+    - `updateDispute`: Update a dispute's status or evidence URLs.
 
-- **`/schemas/dispute_schema.py`**
-  - Create Pydantic schemas for request and response validation.
+### 3. Route Definition
+- **File:** `/api/routes/disputesRoutes.js`
+- **Responsibilities:**
+  - Define RESTful routes for:
+    - `POST /api/disputes`: Create a dispute.
+    - `GET /api/disputes`: List disputes.
+    - `PUT /api/disputes/:id`: Update a dispute.
 
-- **`/services/dispute_service.py`**
-  - Implement business logic for:
-    - Creating, retrieving, and updating disputes.
-    - Validating status transitions.
+### 4. Middleware
+- **File:** `/api/middleware/authMiddleware.js`
+- **Responsibilities:**
+  - Implement authentication middleware to protect routes if necessary.
 
-### UI Implementation
-- **`/ui/components/DisputeList.js`**
-  - Create a component to display a list of disputes.
-  - Implement functionality to filter by status.
+## UI Implementation
 
-- **`/ui/components/DisputeForm.js`**
-  - Create a form for submitting new disputes or updating existing ones.
-  - Include fields for evidence URLs and status selection.
+### 1. Dispute List Component
+- **File:** `/client/components/DisputeList.jsx`
+- **Responsibilities:**
+  - Fetch and display a list of disputes.
+  - Provide links to view/update individual disputes.
 
-- **`/ui/pages/DisputePage.js`**
-  - Create a page that integrates `DisputeList` and `DisputeForm`.
-  - Manage state and API calls for fetching and submitting disputes.
+### 2. Dispute Form Component
+- **File:** `/client/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Form for creating/updating disputes.
+  - Handle input for status and evidence URLs.
 
-- **`/ui/styles/DisputeStyles.css`**
-  - Define styles for dispute components and pages.
+### 3. Dispute Detail Component
+- **File:** `/client/components/DisputeDetail.jsx`
+- **Responsibilities:**
+  - Display detailed information about a selected dispute.
+  - Allow updates to status and evidence URLs.
 
-### Testing
-- **`/tests/test_disputes.py`**
-  - Write unit tests for API endpoints.
-  - Write integration tests for UI components.
+### 4. Disputes Page
+- **File:** `/client/pages/DisputesPage.jsx`
+- **Responsibilities:**
+  - Combine `DisputeList` and `DisputeForm`.
+  - Manage state for creating and updating disputes.
 
-### Documentation
-- **`README.md`**
-  - Provide an overview of the feature, setup instructions, and API usage examples.
+### 5. Custom Hook
+- **File:** `/client/hooks/useDisputes.js`
+- **Responsibilities:**
+  - Implement custom hook for API calls related to disputes (fetch, create, update).
 
-### Dependencies
-- **`requirements.txt`**
-  - List necessary libraries (e.g., Flask, SQLAlchemy, Pydantic, React).
+## Testing
+
+### 1. API Tests
+- **File:** `/tests/api/disputes.test.js`
+- **Responsibilities:**
+  - Write tests for API endpoints to ensure correct functionality.
+
+### 2. Client Tests
+- **File:** `/tests/client/DisputesPage.test.jsx`
+- **Responsibilities:**
+  - Write tests for the DisputesPage component and its interactions.
 
 ## Timeline
-- **Week 1**: API development (models, routes, services).
-- **Week 2**: UI development (components, pages, styles).
-- **Week 3**: Testing and documentation.
-- **Week 4**: Review and deployment.
+- **Week 1:** Set up models and API routes.
+- **Week 2:** Implement controller logic and middleware.
+- **Week 3:** Develop UI components and integrate with API.
+- **Week 4:** Testing and bug fixing.
+
+## Notes
+- Ensure proper error handling and validation in both API and UI.
+- Consider user experience for dispute management.
 ```
