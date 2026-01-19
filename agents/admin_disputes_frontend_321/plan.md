@@ -2,84 +2,94 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update the dispute status.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
 
-## Directory Structure
+## File Structure
 
-```
-/src
-  ├── api
-  │   ├── disputes.js
-  ├── components
-  │   ├── AdminDisputesTable.js
-  │   ├── FilterComponent.js
-  │   ├── StatusUpdateButton.js
-  ├── pages
-  │   ├── AdminDisputesPage.js
-  ├── styles
-  │   ├── AdminDisputes.css
-  ├── utils
-  │   ├── apiClient.js
-  └── index.js
-```
+### Frontend
 
-## File Responsibilities
+#### 1. Components
+- **File:** `src/components/AdminDisputesTable.jsx`
+  - **Responsibilities:** 
+    - Render the admin disputes table.
+    - Implement filters for dispute status and date range.
+    - Display dispute details and actions.
 
-### API Layer
-- **`/src/api/disputes.js`**
-  - Define API endpoints for fetching disputes and updating dispute status.
-  - Implement functions:
-    - `getDisputes()`: Fetch disputes from the server.
-    - `updateDisputeStatus(id, status)`: Update the status of a specific dispute.
+- **File:** `src/components/DisputeRow.jsx`
+  - **Responsibilities:** 
+    - Render individual dispute rows.
+    - Include buttons for updating dispute status.
 
-### Components
-- **`/src/components/AdminDisputesTable.js`**
-  - Render the admin table displaying disputes.
-  - Integrate filtering functionality using props from `FilterComponent`.
-  - Handle status updates via `StatusUpdateButton`.
+- **File:** `src/components/FilterBar.jsx`
+  - **Responsibilities:** 
+    - Provide UI elements for filtering disputes.
+    - Handle filter state and pass it to the table.
 
-- **`/src/components/FilterComponent.js`**
-  - Provide UI for filtering disputes (e.g., by status, date).
-  - Emit filter changes to the parent component.
+#### 2. Pages
+- **File:** `src/pages/AdminDisputesPage.jsx`
+  - **Responsibilities:** 
+    - Set up the main layout for the `/admin/disputes/321` route.
+    - Integrate `AdminDisputesTable` and `FilterBar`.
 
-- **`/src/components/StatusUpdateButton.js`**
-  - Button component to trigger status updates for disputes.
-  - Call `updateDisputeStatus` from the API layer on click.
+#### 3. Styles
+- **File:** `src/styles/AdminDisputes.css`
+  - **Responsibilities:** 
+    - Define styles for the admin disputes page and components.
 
-### Pages
-- **`/src/pages/AdminDisputesPage.js`**
-  - Main page component for `/admin/disputes/321`.
-  - Fetch disputes on component mount using `getDisputes`.
-  - Manage state for disputes and filters.
-  - Render `AdminDisputesTable` and `FilterComponent`.
+### API
 
-### Styles
-- **`/src/styles/AdminDisputes.css`**
-  - Define styles for the admin disputes table and components.
-  - Ensure responsive design for better usability.
+#### 1. Routes
+- **File:** `src/api/disputes.js`
+  - **Responsibilities:** 
+    - Define API routes for fetching and updating disputes.
+    - Implement GET and PATCH methods for `/api/disputes`.
 
-### Utilities
-- **`/src/utils/apiClient.js`**
-  - Create a utility for making API calls (e.g., using Axios).
-  - Handle error responses and provide a consistent interface for API calls.
+#### 2. Controllers
+- **File:** `src/controllers/disputeController.js`
+  - **Responsibilities:** 
+    - Handle business logic for fetching disputes.
+    - Implement logic to update dispute status.
 
-### Entry Point
-- **`/src/index.js`**
-  - Set up routing for the application.
-  - Ensure that `/admin/disputes/321` route loads `AdminDisputesPage`.
+#### 3. Models
+- **File:** `src/models/Dispute.js`
+  - **Responsibilities:** 
+    - Define the Dispute model schema.
+    - Include fields for status, date, and other relevant data.
+
+### State Management
+- **File:** `src/store/disputeSlice.js`
+  - **Responsibilities:** 
+    - Create a Redux slice for managing dispute state.
+    - Include actions for fetching disputes and updating status.
+
+### Testing
+- **File:** `src/__tests__/AdminDisputesTable.test.js`
+  - **Responsibilities:** 
+    - Write unit tests for `AdminDisputesTable` component.
+    - Test filtering functionality and status updates.
+
+- **File:** `src/__tests__/disputeController.test.js`
+  - **Responsibilities:** 
+    - Write tests for dispute controller methods.
+    - Ensure API responses are correct.
 
 ## Development Steps
-1. **Set up API endpoints** in `disputes.js`.
-2. **Create UI components**: `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateButton`.
-3. **Implement the main page** in `AdminDisputesPage`.
-4. **Style components** using `AdminDisputes.css`.
-5. **Test API integration** and UI functionality.
-6. **Deploy and monitor** for any issues post-launch.
+1. **Set up the route** in the frontend for `/admin/disputes/321`.
+2. **Create components** for the admin disputes table and filters.
+3. **Implement API routes** for fetching and updating disputes.
+4. **Connect frontend to API** using Axios or Fetch.
+5. **Implement state management** with Redux for dispute data.
+6. **Style the components** to match the admin dashboard.
+7. **Write tests** for components and API logic.
+8. **Conduct code reviews** and testing.
+9. **Deploy the feature** to staging for QA.
 
-## Testing
-- Write unit tests for API functions in `/src/api/disputes.test.js`.
-- Write component tests for UI components using a testing library (e.g., Jest, React Testing Library).
+## Timeline
+- **Week 1:** Component development and API setup.
+- **Week 2:** State management and styling.
+- **Week 3:** Testing and deployment.
 
-## Documentation
-- Update README with usage instructions and API documentation.
+## Notes
+- Ensure accessibility standards are met in UI components.
+- Follow best practices for API security and error handling.
 ```
