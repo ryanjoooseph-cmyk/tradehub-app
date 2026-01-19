@@ -5,75 +5,77 @@
 ```
 /disputes_backend_326
 ├── api
-│   ├── disputes.py
-│   └── __init__.py
+│   ├── disputes.js
+│   └── index.js
 ├── models
-│   ├── dispute.py
-│   └── __init__.py
-├── schemas
-│   ├── dispute_schema.py
-│   └── __init__.py
-├── services
-│   ├── dispute_service.py
-│   └── __init__.py
+│   ├── disputeModel.js
+├── controllers
+│   ├── disputeController.js
+├── routes
+│   ├── disputeRoutes.js
+├── middlewares
+│   ├── authMiddleware.js
 ├── tests
-│   ├── test_disputes.py
-│   └── __init__.py
-└── app.py
+│   ├── dispute.test.js
+├── config
+│   ├── db.js
+└── server.js
 ```
 
-## File Responsibilities
+## Responsibilities
 
-### API Layer
-- **`/api/disputes.py`**
-  - Define Flask routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Handle request validation and response formatting.
+### 1. **API Layer**
+- **File:** `/api/disputes.js`
+  - Implement API endpoints for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
 
-### Models
-- **`/models/dispute.py`**
-  - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement methods for CRUD operations.
+- **File:** `/api/index.js`
+  - Set up API routing and middleware integration.
 
-### Schemas
-- **`/schemas/dispute_schema.py`**
-  - Define Pydantic schemas for:
-    - Dispute creation and update validation.
-    - Response serialization.
+### 2. **Model Layer**
+- **File:** `/models/disputeModel.js`
+  - Define the Dispute schema:
+    - Fields: `id`, `evidence_urls` (array), `status` (enum: OPEN, REVIEW, RESOLVED), `created_at`, `updated_at`.
+  - Implement Mongoose model for database interactions.
 
-### Services
-- **`/services/dispute_service.py`**
-  - Implement business logic for:
-    - Creating a dispute.
-    - Retrieving disputes.
-    - Updating dispute status.
-  - Interact with the Dispute model for database operations.
+### 3. **Controller Layer**
+- **File:** `/controllers/disputeController.js`
+  - Implement controller functions for:
+    - `listDisputes`: Fetch all disputes.
+    - `createDispute`: Handle dispute creation with validation.
+    - `updateDispute`: Update dispute status and evidence URLs.
 
-### Tests
-- **`/tests/test_disputes.py`**
+### 4. **Routes Layer**
+- **File:** `/routes/disputeRoutes.js`
+  - Define routes for disputes:
+    - Link routes to respective controller functions.
+
+### 5. **Middleware Layer**
+- **File:** `/middlewares/authMiddleware.js`
+  - Implement authentication middleware to protect routes.
+
+### 6. **Testing Layer**
+- **File:** `/tests/dispute.test.js`
   - Write unit tests for:
     - API endpoints (GET, POST, PUT).
-    - Service layer methods.
-  - Use a testing framework (e.g., pytest) for assertions.
+    - Validate response structure and status codes.
 
-### Main Application
-- **`/app.py`**
-  - Initialize Flask app.
-  - Register API routes from `api/disputes.py`.
-  - Configure database connection and middleware.
+### 7. **Database Configuration**
+- **File:** `/config/db.js`
+  - Set up database connection (MongoDB).
+  - Handle connection errors and logging.
+
+### 8. **Server Setup**
+- **File:** `/server.js`
+  - Initialize Express server.
+  - Integrate routes and middleware.
+  - Set up error handling.
 
 ## Timeline
-- **Week 1**: Set up project structure and implement models.
-- **Week 2**: Develop API endpoints and service logic.
-- **Week 3**: Create schemas and write tests.
-- **Week 4**: Perform integration testing and finalize documentation.
-
-## Documentation
-- Update README.md with API usage examples.
-- Document model attributes and expected request/response formats.
+- **Week 1:** API and Model Layer Implementation
+- **Week 2:** Controller and Routes Layer Implementation
+- **Week 3:** Middleware and Testing Layer Implementation
+- **Week 4:** Final Testing and Deployment Preparation
 ```
