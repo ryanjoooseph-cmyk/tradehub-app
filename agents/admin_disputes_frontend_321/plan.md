@@ -1,5 +1,5 @@
 ```markdown
-# Implementation Plan for Feature: admin_disputes_frontend_321
+# Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
 This plan outlines the necessary steps to build the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters, actions to update dispute statuses, and API calls to `/api/disputes`.
