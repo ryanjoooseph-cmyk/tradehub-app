@@ -1,101 +1,92 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+## Project Structure
+```
+/src
+  ├── api
+  │   ├── disputes.js
+  ├── components
+  │   ├── DisputeList.js
+  │   ├── DisputeForm.js
+  ├── services
+  │   ├── disputeService.js
+  ├── styles
+  │   ├── DisputeStyles.css
+  ├── utils
+  │   ├── apiUtils.js
+  └── App.js
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### File: `/src/api/disputes.js`
+- **Responsibilities:**
+  - Define Express routes for `/api/disputes`.
+  - Implement CRUD operations for disputes.
+  - Handle request validation and error responses.
+  - Use a mock database or integrate with an existing database.
 
-- **File Paths:**
-  - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
+### Endpoints:
+- `GET /api/disputes`: List all disputes.
+- `POST /api/disputes`: Create a new dispute.
+- `PUT /api/disputes/:id`: Update an existing dispute.
+- `GET /api/disputes/:id`: Retrieve a specific dispute by ID.
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
+## UI Implementation
 
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
+### File: `/src/components/DisputeList.js`
+- **Responsibilities:**
+  - Fetch and display a list of disputes.
+  - Allow users to filter disputes by status (OPEN, REVIEW, RESOLVED).
+  - Provide links to view/update each dispute.
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+### File: `/src/components/DisputeForm.js`
+- **Responsibilities:**
+  - Create a form for submitting new disputes or updating existing ones.
+  - Include fields for evidence URLs and status selection.
+  - Handle form submission and validation.
 
-### UI Implementation
+## Service Layer
 
-- **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+### File: `/src/services/disputeService.js`
+- **Responsibilities:**
+  - Define functions to interact with the API (GET, POST, PUT).
+  - Handle API responses and errors.
+  - Manage state related to disputes.
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Handle input for evidence URLs and status selection.
+## Styling
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
+### File: `/src/styles/DisputeStyles.css`
+- **Responsibilities:**
+  - Define styles for dispute components.
+  - Ensure responsive design for mobile and desktop views.
 
-  - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
-      - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
+## Utility Functions
 
-  - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
+### File: `/src/utils/apiUtils.js`
+- **Responsibilities:**
+  - Create utility functions for API calls (e.g., fetch, post).
+  - Handle common error handling and response parsing.
 
-### Testing
+## Main Application
 
-- **File Paths:**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
+### File: `/src/App.js`
+- **Responsibilities:**
+  - Set up routing for the application.
+  - Integrate `DisputeList` and `DisputeForm` components.
+  - Manage global state if necessary (e.g., using Context API or Redux).
 
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
+## Testing
+- Implement unit tests for API endpoints in `/tests/api/disputes.test.js`.
+- Implement component tests for `DisputeList` and `DisputeForm` in `/tests/components/`.
 
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
+## Documentation
+- Update README.md with API usage and UI instructions.
+- Document endpoint specifications and expected request/response formats.
 
 ## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
-
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
-
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
+- **Week 1:** Set up API routes and database integration.
+- **Week 2:** Develop UI components and integrate with API.
+- **Week 3:** Testing and documentation.
 ```
