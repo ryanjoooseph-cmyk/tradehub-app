@@ -26,7 +26,12 @@ This plan outlines the implementation of the UI and API for the admin disputes f
       └── constants.js
 ```
 
-## Responsibilities
+#### 1. UI Components
+- **Path:** `src/components/AdminDisputesTable.js`
+  - **Responsibilities:** 
+    - Render the admin table displaying disputes.
+    - Implement filters for dispute status, date, and other relevant fields.
+    - Include action buttons for updating dispute status.
 
 ### Components
 - **AdminDisputesTable.jsx**
