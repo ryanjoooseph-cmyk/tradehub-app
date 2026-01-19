@@ -4,7 +4,7 @@
 ## Overview
 This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
 
-## File Structure
+## Directory Structure
 
 ```
 /src
@@ -23,75 +23,76 @@ This plan outlines the implementation of the UI and API for the admin disputes f
   └── App.js
 ```
 
-## Responsibilities
+## File Responsibilities
 
-### UI Components
+### 1. Components
 
-- **AdminDisputesTable.jsx**
-  - Render the table of disputes.
-  - Display columns: ID, Description, Status, Actions.
-  - Integrate with filters and status update actions.
+- **`/src/components/AdminDisputesTable.jsx`**
+  - Render the table displaying disputes.
+  - Handle sorting and pagination.
+  - Integrate with the filter component.
 
-- **DisputeFilter.jsx**
-  - Provide filter options for disputes (e.g., by status, date).
-  - Handle filter state and trigger updates to the displayed data.
+- **`/src/components/DisputeFilter.jsx`**
+  - Provide filter options (e.g., status, date).
+  - Emit filter changes to the parent component.
 
-- **StatusUpdateButton.jsx**
-  - Button component to update the status of a dispute.
-  - Handle click events to call the API for status updates.
+- **`/src/components/StatusUpdateButton.jsx`**
+  - Button to update the status of a selected dispute.
+  - Trigger API call to update status.
 
-### Pages
+### 2. Pages
 
-- **AdminDisputesPage.jsx**
+- **`/src/pages/AdminDisputesPage.jsx`**
   - Main page component for `/admin/disputes/321`.
-  - Integrate `AdminDisputesTable` and `DisputeFilter`.
-  - Fetch disputes data on component mount using `disputesService`.
+  - Manage state for disputes and filters.
+  - Fetch disputes data from the API on mount.
+  - Render `AdminDisputesTable` and `DisputeFilter`.
 
-### Services
+### 3. Services
 
-- **disputesService.js**
-  - Define functions to interact with the `/api/disputes` endpoint.
-  - Functions:
-    - `fetchDisputes(filters)`: Fetch disputes based on applied filters.
-    - `updateDisputeStatus(disputeId, newStatus)`: Update the status of a specific dispute.
+- **`/src/services/disputesService.js`**
+  - Define API calls to `/api/disputes`.
+  - Include methods for fetching disputes and updating status.
 
-### Styles
+### 4. Styles
 
-- **AdminDisputesPage.css**
-  - Style the admin disputes page and table.
-  - Ensure responsive design for better usability.
+- **`/src/styles/AdminDisputesPage.css`**
+  - Styles for the admin disputes page and components.
+  - Ensure responsive design and accessibility.
 
-### Utilities
+### 5. Utilities
 
-- **api.js**
-  - Create a utility for API calls.
-  - Handle common tasks like error handling and response parsing.
+- **`/src/utils/api.js`**
+  - Configure Axios or Fetch API for making requests.
+  - Handle error responses and loading states.
 
-### Main Application
+### 6. Main Application
 
-- **App.js**
+- **`/src/App.js`**
   - Set up routing for the application.
-  - Ensure `/admin/disputes/321` route is connected to `AdminDisputesPage`.
+  - Include route for `/admin/disputes/321`.
 
-## Development Steps
+## API Integration
 
-1. **Set up the project structure** as outlined above.
-2. **Implement the API service** in `disputesService.js`.
-3. **Create UI components** (`AdminDisputesTable`, `DisputeFilter`, `StatusUpdateButton`).
-4. **Develop the main page** (`AdminDisputesPage`) to integrate components.
-5. **Style the components** using `AdminDisputesPage.css`.
-6. **Test the functionality** of fetching and updating disputes.
-7. **Conduct code reviews** and ensure adherence to coding standards.
-8. **Deploy the feature** to the staging environment for further testing.
+- **GET `/api/disputes`**
+  - Fetch all disputes based on filters.
+  
+- **POST `/api/disputes/:id/status`**
+  - Update the status of a specific dispute.
 
 ## Testing
 
-- Ensure unit tests are written for each component and service.
-- Conduct integration tests for the complete flow from UI to API.
+- Implement unit tests for components and services.
+- Ensure API integration is tested with mock data.
 
-## Documentation
+## Deployment
 
-- Update README with usage instructions for the new feature.
-- Document API endpoints in the API documentation.
+- Prepare for deployment on the staging environment.
+- Ensure all environment variables are configured for API access.
 
+## Timeline
+
+- **Week 1:** Component development and initial API integration.
+- **Week 2:** Styling and testing.
+- **Week 3:** Final review and deployment preparation.
 ```
