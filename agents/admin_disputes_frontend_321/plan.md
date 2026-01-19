@@ -18,7 +18,7 @@
       └── constants.js
 ```
 
-## Responsibilities
+## File Structure
 
 ### 1. **AdminDisputesPage.jsx**
    - **Path:** `/src/pages/AdminDisputesPage.jsx`
