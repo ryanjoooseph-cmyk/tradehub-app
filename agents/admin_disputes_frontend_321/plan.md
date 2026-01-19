@@ -2,82 +2,86 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-Build a UI for the admin disputes management system targeting the route `/admin/disputes/321`. The UI will include an admin table with filters and actions to update dispute statuses. It will interact with the API endpoint `/api/disputes`.
+This plan outlines the necessary steps to build the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters, actions to update dispute statuses, and API calls to `/api/disputes`.
 
 ## File Structure
 
-### Frontend
+## Project Structure
+```
+/src
+  ├── components
+  │   ├── AdminDisputesTable.jsx
+  │   ├── FilterComponent.jsx
+  │   └── StatusUpdateButton.jsx
+  ├── pages
+  │   └── AdminDisputesPage.jsx              # Main page for admin disputes
+  ├── api
+  │   └── disputes.js
+  ├── components
+  │   ├── AdminDisputesTable.js
+  │   ├── FilterComponent.js
+  │   └── StatusUpdateButton.js
+  ├── pages
+  │   └── AdminDisputesPage.js
+  ├── styles
+  │   └── AdminDisputesPage.css
+  └── utils
+      └── apiUtils.js
+```
 
-- **src/**
-  - **components/**
-    - **AdminDisputesTable.jsx**
-      - Responsibilities: Render the admin table with disputes, implement filtering functionality, and display status updates.
-    - **DisputeRow.jsx**
-      - Responsibilities: Render individual dispute rows, provide buttons for status updates.
-    - **Filters.jsx**
-      - Responsibilities: Provide filter options for disputes (e.g., by status, date).
-  
-  - **hooks/**
-    - **useDisputes.js**
-      - Responsibilities: Custom hook to fetch disputes from `/api/disputes`, manage loading and error states.
-  
-  - **pages/**
-    - **AdminDisputesPage.jsx**
-      - Responsibilities: Main page component for `/admin/disputes/321`, integrate table and filters.
-  
-  - **styles/**
-    - **AdminDisputes.css**
-      - Responsibilities: Styles for the admin disputes page and components.
+#### 1. UI Components
+- **Path:** `src/components/AdminDisputesTable.js`
+  - **Responsibilities:** 
+    - Render the admin table displaying disputes.
+    - Implement filters for dispute status, date, and other relevant fields.
+    - Include action buttons for updating dispute status.
 
-- **src/api/**
-  - **disputesApi.js**
-    - Responsibilities: API calls to `/api/disputes`, including GET for fetching disputes and PATCH for updating status.
+### 1. **AdminDisputesPage.jsx**
+   - **Path:** `/src/pages/AdminDisputesPage.jsx`
+   - **Responsibilities:**
+     - Set up the main layout for the disputes page.
+     - Integrate `AdminDisputesTable` and `FilterComponent`.
+     - Handle API calls to fetch disputes data on component mount.
 
-### Backend
+### 2. **AdminDisputesTable.jsx**
+   - **Path:** `/src/components/AdminDisputesTable.jsx`
+   - **Responsibilities:**
+     - Render a table displaying disputes.
+     - Implement sorting and filtering based on user input.
+     - Include `StatusUpdateButton` for each dispute to change status.
 
-- **routes/**
-  - **disputes.js**
-    - Responsibilities: Define the API route `/api/disputes`, handle GET and PATCH requests for disputes.
+### 3. **FilterComponent.jsx**
+   - **Path:** `/src/components/FilterComponent.jsx`
+   - **Responsibilities:**
+     - Provide UI elements for filtering disputes (e.g., by status, date).
+     - Manage filter state and pass it to `AdminDisputesTable`.
 
-- **controllers/**
-  - **disputesController.js**
-    - Responsibilities: Logic for fetching disputes and updating dispute statuses.
+### 4. **StatusUpdateButton.jsx**
+   - **Path:** `/src/components/StatusUpdateButton.jsx`
+   - **Responsibilities:**
+     - Render a button to update the status of a dispute.
+     - Handle click events to trigger API call for status update.
 
-- **models/**
-  - **Dispute.js**
-    - Responsibilities: Mongoose model/schema for disputes, including fields for status, date, and other relevant data.
+### 5. **disputes.js (API)**
+   - **Path:** `/src/api/disputes.js`
+   - **Responsibilities:**
+     - Define API functions to fetch disputes and update status.
+     - Implement error handling for API requests.
 
-- **middlewares/**
-  - **authMiddleware.js**
-    - Responsibilities: Ensure only authenticated admins can access the disputes API.
+### 6. **apiUtils.js**
+   - **Path:** `/src/utils/apiUtils.js`
+   - **Responsibilities:**
+     - Create utility functions for API calls (e.g., GET, POST).
+     - Handle response parsing and error logging.
 
-## Tasks
+### 7. **AdminDisputesPage.css**
+   - **Path:** `/src/styles/AdminDisputesPage.css`
+   - **Responsibilities:**
+     - Style the Admin Disputes page and components.
+     - Ensure responsive design for different screen sizes.
 
-1. **Frontend Development**
-   - Create `AdminDisputesPage.jsx` to serve as the main entry point.
-   - Implement `AdminDisputesTable.jsx` to display disputes.
-   - Develop `Filters.jsx` for filtering functionality.
-   - Create `DisputeRow.jsx` for individual dispute representation.
-   - Implement `useDisputes.js` to handle API calls and state management.
-   - Style components using `AdminDisputes.css`.
-
-2. **Backend Development**
-   - Set up `/api/disputes` route in `disputes.js`.
-   - Implement GET and PATCH methods in `disputesController.js`.
-   - Create `Dispute.js` model for database interactions.
-   - Add authentication middleware in `authMiddleware.js`.
-
-3. **Testing**
-   - Write unit tests for API endpoints.
-   - Write integration tests for the frontend components.
-   - Ensure all filters and status updates work as expected.
-
-4. **Deployment**
-   - Prepare the application for deployment.
-   - Ensure environment variables are set for production.
-
-## Timeline
-- **Week 1:** Frontend component development.
-- **Week 2:** Backend API development.
-- **Week 3:** Testing and deployment preparations.
+## Additional Notes
+- Ensure to implement unit tests for components and API functions.
+- Follow accessibility best practices for UI components.
+- Document API endpoints and expected request/response formats.
 ```
