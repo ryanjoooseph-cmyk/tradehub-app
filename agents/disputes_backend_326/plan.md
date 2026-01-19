@@ -71,7 +71,9 @@
 - **Responsibilities:**
   - Format API responses for consistency (success/error).
 
-## Client Implementation
+3. **`/src/ui/pages/DisputePage.jsx`**
+   - Main page that integrates `DisputeList` and `DisputeForm`.
+   - Manage state and handle API calls.
 
 ### 1. **Components**
 - **File:** `/client/components/DisputeList.js`
