@@ -2,97 +2,97 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, with an evidence URLs array and statuses: OPEN, REVIEW, RESOLVED.
+This plan outlines the development of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
 
-## File Structure
+## Directory Structure
 
 ```
-/src
-  ├── api
-  │   ├── disputes.js
-  ├── components
-  │   ├── DisputeList.jsx
-  │   ├── DisputeForm.jsx
-  ├── hooks
-  │   ├── useDisputes.js
-  ├── pages
-  │   ├── DisputesPage.jsx
-  ├── styles
-  │   ├── Disputes.css
-  ├── utils
-  │   ├── apiClient.js
-  └── index.js
+/disputes_backend_326
+│
+├── /api
+│   ├── /controllers
+│   │   ├── disputesController.js          # Handle API logic for disputes
+│   │
+│   ├── /models
+│   │   ├── disputeModel.js                 # Mongoose model for disputes
+│   │
+│   ├── /routes
+│   │   ├── disputesRoutes.js               # Define API routes for disputes
+│   │
+│   ├── /middlewares
+│   │   ├── errorHandler.js                 # Error handling middleware
+│   │
+│   └── index.js                            # Main API entry point
+│
+├── /client
+│   ├── /components
+│   │   ├── DisputeList.js                  # Component to list disputes
+│   │   ├── DisputeForm.js                  # Component to open/update disputes
+│   │
+│   ├── /services
+│   │   ├── disputeService.js                # API calls for disputes
+│   │
+│   ├── /styles
+│   │   ├── disputes.css                     # Styles for dispute components
+│   │
+│   └── App.js                               # Main application file
+│
+└── README.md                                # Project documentation
 ```
 
-## API Implementation
+## Responsibilities
 
-### File: `/src/api/disputes.js`
-- **Responsibilities:**
-  - Define API endpoints for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Open a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
-  - Handle request validation and response formatting.
-  - Manage dispute statuses (OPEN, REVIEW, RESOLVED).
+### API Development
 
-### File: `/src/utils/apiClient.js`
-- **Responsibilities:**
-  - Create a reusable API client for making HTTP requests.
-  - Handle error responses and logging.
+1. **disputeModel.js**
+   - Define the schema for disputes, including fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
 
-## UI Implementation
+2. **disputesController.js**
+   - Implement functions:
+     - `createDispute(req, res)`: Handle opening a new dispute.
+     - `getDisputes(req, res)`: Retrieve a list of disputes.
+     - `updateDispute(req, res)`: Update an existing dispute's status or evidence URLs.
 
-### File: `/src/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Display a list of disputes.
-  - Include filtering options based on status.
-  - Integrate with `useDisputes` hook to fetch data.
+3. **disputesRoutes.js**
+   - Set up Express routes:
+     - `POST /api/disputes`: Create a new dispute.
+     - `GET /api/disputes`: List all disputes.
+     - `PUT /api/disputes/:id`: Update a specific dispute.
 
-### File: `/src/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Form to open a new dispute or update an existing one.
-  - Include fields for evidence URLs and status selection.
-  - Handle form submission and validation.
+4. **errorHandler.js**
+   - Create middleware to handle errors and send appropriate responses.
 
-### File: `/src/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Custom hook to manage dispute data fetching and state.
-  - Provide functions to open, list, and update disputes.
+5. **index.js**
+   - Initialize Express app, connect to the database, and use routes.
 
-### File: `/src/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Main page component for disputes.
-  - Integrate `DisputeList` and `DisputeForm`.
-  - Manage overall layout and state.
+### UI Development
 
-### File: `/src/styles/Disputes.css`
-- **Responsibilities:**
-  - Define styles for dispute components.
-  - Ensure responsive design and accessibility.
+1. **DisputeList.js**
+   - Fetch and display a list of disputes.
+   - Include status indicators and links to update disputes.
+
+2. **DisputeForm.js**
+   - Create a form for opening new disputes and updating existing ones.
+   - Handle file uploads for evidence URLs.
+
+3. **disputeService.js**
+   - Implement API calls to interact with the disputes API:
+     - `createDispute(data)`: POST request to create a dispute.
+     - `fetchDisputes()`: GET request to retrieve disputes.
+     - `updateDispute(id, data)`: PUT request to update a dispute.
+
+4. **disputes.css**
+   - Style components for a user-friendly interface.
+
+5. **App.js**
+   - Integrate components and manage application state.
 
 ## Testing
 
-### File: `/tests/api/disputes.test.js`
-- **Responsibilities:**
-  - Unit tests for API endpoints.
-  - Validate request and response formats.
+- Write unit tests for API endpoints in `/api/tests`.
+- Write integration tests for UI components in `/client/tests`.
 
-### File: `/tests/components/DisputeList.test.js`
-- **Responsibilities:**
-  - Unit tests for `DisputeList` component.
-  - Ensure correct rendering and functionality.
+## Documentation
 
-### File: `/tests/components/DisputeForm.test.js`
-- **Responsibilities:**
-  - Unit tests for `DisputeForm` component.
-  - Validate form submission and error handling.
-
-## Deployment
-- Ensure CI/CD pipeline includes tests for API and UI.
-- Deploy to staging environment for QA before production release.
-
-## Timeline
-- **Week 1:** API development and testing.
-- **Week 2:** UI component development and integration.
-- **Week 3:** Testing, bug fixing, and deployment preparation.
+- Update `README.md` with setup instructions, API endpoints, and usage examples.
 ```
