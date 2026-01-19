@@ -1,89 +1,93 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
-```
-/disputes_backend_326
-│
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # Initialize API module
-│   └── utils.py                   # Utility functions for API
-│
-├── /models
-│   ├── dispute.py                 # Dispute model definition
-│   └── __init__.py                # Initialize models module
-│
-├── /schemas
-│   ├── dispute_schema.py          # Pydantic schemas for validation
-│   └── __init__.py                # Initialize schemas module
-│
-├── /services
-│   ├── dispute_service.py         # Business logic for disputes
-│   └── __init__.py                # Initialize services module
-│
-├── /tests
-│   ├── test_disputes.py           # Unit tests for disputes API
-│   └── __init__.py                # Initialize tests module
-│
-├── /static
-│   └── styles.css                 # CSS for UI (if applicable)
-│
-└── app.py                         # Main application entry point
-```
+## Overview
+This plan outlines the file structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an `evidence_urls` array and a status field with values OPEN, REVIEW, and RESOLVED.
 
-## Responsibilities
+## File Structure
 
-### API Endpoints (`/api/disputes.py`)
-- **GET /api/disputes**: List all disputes
-  - Fetch disputes from the database
-  - Return JSON response with disputes array
-- **POST /api/disputes**: Create a new dispute
-  - Validate request body using `dispute_schema.py`
-  - Save dispute to the database
-  - Return created dispute with status 201
-- **PUT /api/disputes/{id}**: Update an existing dispute
-  - Validate request body using `dispute_schema.py`
-  - Update dispute in the database
-  - Return updated dispute with status 200
+### API Implementation
 
-### Models (`/models/dispute.py`)
-- Define `Dispute` class with fields:
-  - `id`: Unique identifier
-  - `evidence_urls`: Array of URLs
-  - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - `created_at`: Timestamp
-  - `updated_at`: Timestamp
+- **File: `src/api/disputes.js`**
+  - **Responsibilities:**
+    - Define API endpoints for disputes.
+    - Implement CRUD operations (Create, Read, Update).
+    - Validate request data and manage response formats.
 
-### Schemas (`/schemas/dispute_schema.py`)
-- Create Pydantic model for dispute validation:
-  - Fields: `evidence_urls`, `status`
-  - Include validation for `status` to ensure it is one of the defined enums
+- **File: `src/models/Dispute.js`**
+  - **Responsibilities:**
+    - Define the Dispute model schema (including fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`).
+    - Implement methods for database interactions (e.g., find, save, update).
 
-### Services (`/services/dispute_service.py`)
-- Implement functions for:
-  - Fetching all disputes
-  - Creating a new dispute
-  - Updating an existing dispute
-- Handle business logic and database interactions
+- **File: `src/controllers/disputeController.js`**
+  - **Responsibilities:**
+    - Handle business logic for disputes.
+    - Implement functions for creating, listing, and updating disputes.
+    - Manage status transitions and validate evidence URLs.
 
-### Tests (`/tests/test_disputes.py`)
-- Write unit tests for:
-  - API endpoints (GET, POST, PUT)
-  - Validation logic in schemas
-  - Service functions
+- **File: `src/routes/disputeRoutes.js`**
+  - **Responsibilities:**
+    - Set up Express routes for `/api/disputes`.
+    - Connect routes to corresponding controller methods.
 
-### UI (if applicable)
-- **Static Files**: Add CSS for styling the UI components
-- **Frontend Integration**: Ensure API endpoints are called correctly from the UI
+- **File: `src/middleware/validateDispute.js`**
+  - **Responsibilities:**
+    - Middleware to validate incoming requests for disputes.
+    - Ensure `evidence_urls` is an array and status is one of OPEN, REVIEW, RESOLVED.
 
-### Documentation
-- Update API documentation to include new endpoints and their usage
-- Document the dispute model and schema for developers
+### UI Implementation
 
-## Timeline
-- **Week 1**: Set up directory structure and initial files
-- **Week 2**: Implement API endpoints and models
-- **Week 3**: Develop services and schemas
-- **Week 4**: Write tests and finalize documentation
+- **File: `src/components/DisputeList.js`**
+  - **Responsibilities:**
+    - Display a list of disputes.
+    - Implement filtering and sorting options.
+
+- **File: `src/components/DisputeForm.js`**
+  - **Responsibilities:**
+    - Provide a form for creating and updating disputes.
+    - Handle input for `evidence_urls` and status selection.
+
+- **File: `src/pages/DisputePage.js`**
+  - **Responsibilities:**
+    - Integrate `DisputeList` and `DisputeForm`.
+    - Manage state for disputes and handle API calls.
+
+- **File: `src/services/disputeService.js`**
+  - **Responsibilities:**
+    - Implement API calls to `/api/disputes`.
+    - Handle responses and errors from the API.
+
+### Testing
+
+- **File: `src/tests/api/disputes.test.js`**
+  - **Responsibilities:**
+    - Write unit tests for API endpoints.
+    - Test CRUD operations and validation logic.
+
+- **File: `src/tests/ui/DisputeForm.test.js`**
+  - **Responsibilities:**
+    - Write tests for the DisputeForm component.
+    - Validate user input handling and submission.
+
+- **File: `src/tests/ui/DisputeList.test.js`**
+  - **Responsibilities:**
+    - Write tests for the DisputeList component.
+    - Validate rendering and filtering functionality.
+
+## Deployment
+
+- **File: `src/config/index.js`**
+  - **Responsibilities:**
+    - Configure environment variables for API and database connections.
+    - Set up logging and error handling.
+
+## Documentation
+
+- **File: `docs/api/disputes.md`**
+  - **Responsibilities:**
+    - Document API endpoints, request/response formats, and usage examples.
+
+- **File: `docs/ui/disputes.md`**
+  - **Responsibilities:**
+    - Document UI components and their usage.
 ```
