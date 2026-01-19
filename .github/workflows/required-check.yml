@@ -1,13 +1,12 @@
-name: required-check
+name: agent-required-check
 on:
   pull_request:
-    types: [opened, reopened, synchronize, labeled]
+    types: [opened, synchronize, reopened, labeled]
 permissions:
   contents: read
 jobs:
-  pass:
-    name: pass
+  required:
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
-      - name: ok
-        run: echo ok
+      - run: echo ok
