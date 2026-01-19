@@ -26,7 +26,7 @@
 │   ├── /pages
 │   │   └── DisputesPage.jsx
 │   └── /styles
-│       └── Disputes.css
+│       └── disputes.css
 │
 └── /tests
     ├── /api
@@ -37,71 +37,91 @@
 
 ## API Implementation
 
-### 1. **Model**
+### 1. **Model Definition**
 - **File:** `/models/disputeModel.js`
+- **Responsibilities:**
   - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - Implement Mongoose model for MongoDB.
 
-### 2. **Controller**
+### 2. **Controller Logic**
 - **File:** `/api/disputes/disputesController.js`
-  - Implement functions:
-    - `getAllDisputes(req, res)`: Fetch all disputes.
-    - `createDispute(req, res)`: Create a new dispute.
-    - `updateDispute(req, res)`: Update an existing dispute by ID.
-
-### 3. **Service**
-- **File:** `/api/disputes/disputesService.js`
-  - Implement business logic for:
-    - Fetching disputes from the database.
-    - Creating a new dispute.
-    - Updating dispute status.
-
-### 4. **Routes**
-- **File:** `/api/disputes/disputesRoutes.js`
-  - Define routes:
+- **Responsibilities:**
+  - Implement functions to handle:
     - `GET /api/disputes`: List all disputes.
     - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update a dispute by ID.
+    - `PUT /api/disputes/:id`: Update an existing dispute.
+  - Validate input data and manage response formats.
 
-### 5. **Middleware**
+### 3. **Routing**
+- **File:** `/api/disputes/disputesRoutes.js`
+- **Responsibilities:**
+  - Define routes for disputes API.
+  - Integrate controller functions with appropriate HTTP methods.
+
+### 4. **Service Layer**
+- **File:** `/api/disputes/disputesService.js`
+- **Responsibilities:**
+  - Implement business logic for disputes.
+  - Interact with the database through the model.
+
+### 5. **Authentication Middleware**
 - **File:** `/api/middleware/authMiddleware.js`
-  - Implement authentication middleware to protect routes.
+- **Responsibilities:**
+  - Implement middleware to protect routes and verify user authentication.
 
 ## UI Implementation
 
-### 1. **Components**
+### 6. **Dispute List Component**
 - **File:** `/ui/components/DisputeList.jsx`
-  - Display a list of disputes with status and evidence URLs.
+- **Responsibilities:**
+  - Fetch and display a list of disputes.
+  - Provide links to view/update individual disputes.
 
+### 7. **Dispute Form Component**
 - **File:** `/ui/components/DisputeForm.jsx`
-  - Form for creating/updating disputes.
+- **Responsibilities:**
+  - Handle creation and updating of disputes.
+  - Manage form state and submission.
 
+### 8. **Dispute Detail Component**
 - **File:** `/ui/components/DisputeDetail.jsx`
-  - Detailed view of a single dispute.
+- **Responsibilities:**
+  - Display detailed information about a selected dispute.
+  - Allow users to update status and add evidence URLs.
 
-### 2. **Hooks**
+### 9. **Custom Hook for Disputes**
 - **File:** `/ui/hooks/useDisputes.js`
-  - Custom hook to manage API calls for fetching, creating, and updating disputes.
+- **Responsibilities:**
+  - Create a custom hook to manage API calls related to disputes.
+  - Handle loading and error states.
 
-### 3. **Pages**
+### 10. **Disputes Page**
 - **File:** `/ui/pages/DisputesPage.jsx`
-  - Main page to render `DisputeList` and `DisputeForm`.
+- **Responsibilities:**
+  - Combine components to create the main disputes interface.
+  - Manage routing and state for the disputes feature.
 
-### 4. **Styles**
-- **File:** `/ui/styles/Disputes.css`
-  - Styles for dispute components.
+### 11. **Styling**
+- **File:** `/ui/styles/disputes.css`
+- **Responsibilities:**
+  - Style the disputes components for a cohesive UI.
 
 ## Testing
 
-### 1. **API Tests**
+### 12. **API Tests**
 - **File:** `/tests/api/disputes.test.js`
-  - Unit tests for API endpoints.
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Test CRUD operations and response formats.
 
-### 2. **UI Tests**
+### 13. **UI Tests**
 - **File:** `/tests/ui/DisputesPage.test.jsx`
-  - Component tests for `DisputesPage`.
+- **Responsibilities:**
+  - Write tests for UI components.
+  - Ensure components render correctly and handle user interactions.
 
-## Responsibilities
-- **Backend Developer:** Implement API logic, routes, and middleware.
-- **Frontend Developer:** Build UI components, hooks, and pages.
-- **QA Engineer:** Write and execute tests for API and UI.
+## Notes
+- Ensure to follow best practices for error handling and validation.
+- Use environment variables for sensitive configurations.
+- Document API endpoints and UI components for future reference.
 ```
