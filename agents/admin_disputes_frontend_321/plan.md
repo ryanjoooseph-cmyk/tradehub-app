@@ -1,95 +1,127 @@
 ```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterBar.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputesApi.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
-```
+## Overview
+Build the UI and API for managing disputes in the admin panel, targeting the route `/admin/disputes/321`. The UI will include an admin table with filters and actions to update dispute statuses. The API will handle data retrieval and updates.
+
+---
+
+## File Structure
+
+### Frontend
+
+- **src/**
+  - **components/**
+    - **DisputeTable.jsx**  
+      - Responsible for rendering the table of disputes with filters and actions.
+  
+    - **DisputeRow.jsx**  
+      - Responsible for rendering individual dispute rows with status update actions.
+  
+    - **FilterComponent.jsx**  
+      - Responsible for rendering filter options for disputes (e.g., status, date).
+  
+  - **pages/**
+    - **AdminDisputesPage.jsx**  
+      - Main page component for `/admin/disputes/321`, integrating `DisputeTable` and `FilterComponent`.
+  
+  - **hooks/**
+    - **useDisputes.js**  
+      - Custom hook for fetching disputes from the API and managing state.
+  
+  - **api/**
+    - **disputeApi.js**  
+      - API utility functions for fetching and updating disputes using `/api/disputes`.
+
+- **styles/**
+  - **DisputeTable.css**  
+    - Styles for the dispute table and its components.
+
+### Backend
+
+- **src/**
+  - **controllers/**
+    - **disputeController.js**  
+      - Handles API requests for fetching and updating disputes.
+  
+  - **routes/**
+    - **disputeRoutes.js**  
+      - Defines routes for `/api/disputes` for GET and POST requests.
+  
+  - **models/**
+    - **Dispute.js**  
+      - Mongoose model for the dispute schema.
+  
+  - **middleware/**
+    - **authMiddleware.js**  
+      - Middleware for admin authentication and authorization.
+
+- **services/**
+  - **disputeService.js**  
+    - Business logic for fetching and updating disputes, interacting with the database.
+
+---
 
 ## Responsibilities
 
-### Components
-- **AdminDisputesTable.jsx**
-  - Display a table of disputes with pagination and sorting.
-  - Integrate filters from FilterBar component.
-  - Handle status update actions via StatusUpdateModal.
+### Frontend
 
-- **FilterBar.jsx**
-  - Provide UI for filtering disputes (e.g., by date, status).
-  - Emit filter changes to AdminDisputesTable.
+- **DisputeTable.jsx**
+  - Render the list of disputes.
+  - Integrate filters and actions for updating statuses.
 
-- **StatusUpdateModal.jsx**
-  - Modal for updating the status of a selected dispute.
-  - Call API to update status and refresh the table.
+- **DisputeRow.jsx**
+  - Display individual dispute details and provide buttons for status updates.
 
-### Pages
+- **FilterComponent.jsx**
+  - Allow users to filter disputes based on criteria (e.g., status, date).
+
 - **AdminDisputesPage.jsx**
-  - Main entry point for the admin disputes route.
-  - Render AdminDisputesTable and FilterBar.
-  - Manage state for disputes and filters.
+  - Combine components and manage overall page state.
 
-### API
-- **disputesApi.js**
-  - Define API calls to `/api/disputes`.
-  - Implement functions for fetching disputes, updating status, and handling errors.
-
-### Styles
-- **AdminDisputesPage.css**
-  - Style the AdminDisputesPage and its components for a clean UI.
-
-### Hooks
 - **useDisputes.js**
-  - Custom hook to manage fetching and updating disputes.
-  - Handle loading states and errors.
+  - Fetch disputes from the API and manage loading/error states.
 
-### Utilities
-- **constants.js**
-  - Define constants for dispute statuses and API endpoints.
+- **disputeApi.js**
+  - Implement API calls for fetching and updating disputes.
 
-## Development Steps
-1. **Setup Route**
-   - Configure route in the main application file (e.g., `App.js`).
-   - Ensure route `/admin/disputes/321` is accessible only to admin users.
+### Backend
 
-2. **Build Components**
-   - Implement AdminDisputesTable, FilterBar, and StatusUpdateModal.
-   - Ensure components communicate effectively.
+- **disputeController.js**
+  - Implement logic for handling GET and POST requests for disputes.
 
-3. **Implement API Calls**
-   - Create functions in disputesApi.js for fetching and updating disputes.
-   - Handle API responses and errors.
+- **disputeRoutes.js**
+  - Set up routes for dispute-related API endpoints.
 
-4. **Integrate State Management**
-   - Use useDisputes hook in AdminDisputesPage to manage data flow.
-   - Connect filters and status updates to the state.
+- **Dispute.js**
+  - Define the schema for disputes in the database.
 
-5. **Style the UI**
-   - Apply styles from AdminDisputesPage.css to ensure a cohesive look.
+- **authMiddleware.js**
+  - Ensure that only authenticated admins can access dispute routes.
 
-6. **Testing**
-   - Write unit tests for components and API functions.
-   - Conduct integration tests for the complete flow.
+- **disputeService.js**
+  - Handle database interactions for fetching and updating disputes.
 
-7. **Deployment**
-   - Prepare for deployment by ensuring all features are functional.
-   - Update documentation for the new route and features.
+---
 
 ## Timeline
-- **Week 1:** Component development and API integration.
-- **Week 2:** Testing and styling.
-- **Week 3:** Final review and deployment.
+
+- **Week 1:**
+  - Set up file structure and basic components.
+  - Implement API routes and controllers.
+
+- **Week 2:**
+  - Develop frontend components and integrate API calls.
+  - Implement filtering and status update functionality.
+
+- **Week 3:**
+  - Testing and debugging of both frontend and backend.
+  - Prepare for deployment and documentation.
+
+---
+
+## Notes
+- Ensure proper error handling in both frontend and backend.
+- Consider user experience for loading states and error messages.
+- Follow coding standards and best practices for maintainability.
 ```
