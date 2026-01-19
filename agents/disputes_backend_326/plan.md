@@ -62,7 +62,11 @@ This plan outlines the structure and responsibilities for building the UI and AP
     - Ensure `evidence_urls` is an array
     - Validate `status` against allowed values
 
-### UI Implementation
+### 3. Dispute Page (`/src/pages/DisputePage.jsx`)
+- **Responsibilities:**
+  - Render the main UI for disputes.
+  - Integrate `DisputeList` and `DisputeForm` components.
+  - Manage state for disputes using `useDisputes` hook.
 
 - **`DisputeList.jsx`**
   - Fetch and display a list of disputes
@@ -84,7 +88,9 @@ This plan outlines the structure and responsibilities for building the UI and AP
   - Custom hook to encapsulate API calls for disputes
   - Provide functions for fetching, creating, and updating disputes
 
-### Testing
+3. **`/src/ui/pages/DisputePage.jsx`**
+   - Main page that integrates `DisputeList` and `DisputeForm`.
+   - Manage state and handle API calls.
 
 - **`disputes.test.js`**
   - Write unit tests for API endpoints
