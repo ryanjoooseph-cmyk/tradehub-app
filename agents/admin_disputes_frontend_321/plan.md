@@ -2,89 +2,84 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
+This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The UI will include an admin table with filters and actions to update the dispute status, while the API will handle data retrieval and updates.
 
 ## File Structure
 
 ### Frontend
 
-#### 1. UI Components
-- **File:** `src/components/AdminDisputesTable.jsx`
-  - **Responsibilities:** 
-    - Render the admin disputes table.
-    - Display dispute details, status, and actions.
-    - Implement filtering functionality.
+- **src/**
+  - **components/**
+    - **AdminDisputesTable.jsx**  
+      - Responsibilities: Render the admin table with disputes, implement filtering functionality, and display actions for updating status.
+  
+    - **DisputeStatusDropdown.jsx**  
+      - Responsibilities: Provide a dropdown for selecting dispute status updates.
 
-- **File:** `src/components/DisputeStatusDropdown.jsx`
-  - **Responsibilities:** 
-    - Provide a dropdown for updating dispute status.
-    - Trigger API calls on status change.
+  - **pages/**
+    - **AdminDisputesPage.jsx**  
+      - Responsibilities: Main page component for `/admin/disputes/321`, integrates `AdminDisputesTable` and handles route-specific logic.
 
-- **File:** `src/pages/AdminDisputesPage.jsx`
-  - **Responsibilities:** 
-    - Main page component for `/admin/disputes/321`.
-    - Integrate `AdminDisputesTable` and handle page-level state.
+  - **hooks/**
+    - **useDisputes.js**  
+      - Responsibilities: Custom hook to fetch disputes from the API and manage state.
 
-#### 2. Styles
-- **File:** `src/styles/AdminDisputes.css`
-  - **Responsibilities:** 
-    - Define styles for the admin disputes table and dropdown.
+  - **styles/**
+    - **AdminDisputes.css**  
+      - Responsibilities: Styles for the admin disputes table and related components.
 
-#### 3. API Service
-- **File:** `src/services/disputeService.js`
-  - **Responsibilities:** 
-    - Create functions to call `/api/disputes` for fetching and updating disputes.
+### API
+
+- **src/api/**
+  - **disputes.js**  
+    - Responsibilities: Define API calls for fetching disputes and updating dispute statuses.
+      - `getDisputes()`: Fetch disputes from the database.
+      - `updateDisputeStatus(id, status)`: Update the status of a specific dispute.
+
+- **src/routes/**
+  - **disputesRoutes.js**  
+    - Responsibilities: Define Express routes for handling API requests related to disputes.
+      - `GET /api/disputes`: Fetch all disputes.
+      - `PUT /api/disputes/:id/status`: Update the status of a specific dispute.
 
 ### Backend
 
-#### 1. API Endpoints
-- **File:** `src/routes/disputes.js`
-  - **Responsibilities:** 
-    - Define the API route `/api/disputes`.
-    - Implement GET and PUT methods for fetching and updating dispute data.
+- **src/controllers/**
+  - **disputesController.js**  
+    - Responsibilities: Implement business logic for fetching disputes and updating their statuses.
 
-#### 2. Controller Logic
-- **File:** `src/controllers/disputeController.js`
-  - **Responsibilities:** 
-    - Handle business logic for fetching disputes and updating statuses.
-    - Validate input data for updates.
+- **src/models/**
+  - **Dispute.js**  
+    - Responsibilities: Define the Dispute model schema for the database.
 
-#### 3. Models
-- **File:** `src/models/Dispute.js`
-  - **Responsibilities:** 
-    - Define the Dispute model schema.
-    - Implement methods for database interactions.
+- **src/middleware/**
+  - **authMiddleware.js**  
+    - Responsibilities: Ensure that only authenticated admin users can access the disputes API.
 
-#### 4. Middleware
-- **File:** `src/middleware/authMiddleware.js`
-  - **Responsibilities:** 
-    - Ensure that only authorized admin users can access the disputes API.
+## Implementation Steps
 
-## Testing
+1. **Setup API Endpoints**
+   - Implement `disputesRoutes.js` to define the necessary routes.
+   - Create `disputesController.js` to handle the logic for fetching and updating disputes.
+   - Ensure proper middleware for authentication is in place.
 
-### Frontend Tests
-- **File:** `src/__tests__/AdminDisputesTable.test.js`
-  - **Responsibilities:** 
-    - Test rendering and filtering functionality of the disputes table.
+2. **Develop Frontend Components**
+   - Create `AdminDisputesTable.jsx` to display disputes in a table format with filtering options.
+   - Implement `DisputeStatusDropdown.jsx` for status updates.
+   - Integrate the custom hook `useDisputes.js` to manage API calls and state.
 
-### Backend Tests
-- **File:** `src/__tests__/disputeController.test.js`
-  - **Responsibilities:** 
-    - Test API endpoints for fetching and updating disputes.
+3. **Styling**
+   - Write CSS in `AdminDisputes.css` to ensure the UI is user-friendly and visually appealing.
 
-## Deployment
-- **File:** `deploy/admin_disputes_setup.sh`
-  - **Responsibilities:** 
-    - Script to deploy the new feature to the production environment.
+4. **Testing**
+   - Write unit tests for API endpoints in `disputesRoutes.js`.
+   - Implement component tests for `AdminDisputesTable` and `DisputeStatusDropdown`.
 
-## Documentation
-- **File:** `docs/admin_disputes_feature.md`
-  - **Responsibilities:** 
-    - Document the feature, including API usage and UI components.
+5. **Deployment**
+   - Ensure the feature is integrated into the main branch and deployed to the staging environment for QA.
 
-## Timeline
-- **Week 1:** UI component development and styling.
-- **Week 2:** API development and integration.
-- **Week 3:** Testing and documentation.
-- **Week 4:** Deployment and feedback iteration.
+## Notes
+- Ensure to handle error states and loading indicators in the UI.
+- Consider accessibility best practices in the UI components.
+- Document the API endpoints for future reference.
 ```
