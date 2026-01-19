@@ -56,8 +56,14 @@ This plan outlines the steps to build the UI and API for managing disputes at th
     - Fetch and display a list of disputes.
     - Render individual dispute items using `DisputeItem`.
 
-### 5. Dispute Item Component
-- **File:** `/src/components/DisputeItem.js`
+### 3. Dispute Page (`/src/pages/DisputePage.jsx`)
+- **Responsibilities:**
+  - Render the main UI for disputes.
+  - Integrate `DisputeList` and `DisputeForm` components.
+  - Manage state for disputes using `useDisputes` hook.
+
+#### 5. UI Components
+- **File:** `src/components/DisputeList.js`
   - **Responsibilities:**
     - Display details of a single dispute.
     - Provide options to update the dispute status.
@@ -80,8 +86,12 @@ This plan outlines the steps to build the UI and API for managing disputes at th
     - Style the dispute components for a cohesive UI.
     - Ensure responsiveness and accessibility.
 
-## Utility for API Client
-- **File:** `/src/utils/apiClient.js`
+3. **`/src/ui/pages/DisputePage.jsx`**
+   - Main page that integrates `DisputeList` and `DisputeForm`.
+   - Manage state and handle API calls.
+
+#### 8. API Tests
+- **File:** `tests/api/disputes.test.js`
   - **Responsibilities:**
     - Set up a centralized API client for making HTTP requests.
     - Handle error responses and manage loading states.
