@@ -2,97 +2,97 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, with an evidence URLs array and statuses: OPEN, REVIEW, RESOLVED.
+This plan outlines the structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an `evidence_urls` array and a status field with values OPEN, REVIEW, and RESOLVED.
 
-## File Structure
+## Directory Structure
 
 ```
-/src
-  ├── api
-  │   ├── disputes.js
-  ├── components
-  │   ├── DisputeList.jsx
-  │   ├── DisputeForm.jsx
-  ├── hooks
-  │   ├── useDisputes.js
-  ├── pages
-  │   ├── DisputesPage.jsx
-  ├── styles
-  │   ├── Disputes.css
-  ├── utils
-  │   ├── apiClient.js
-  └── index.js
+/disputes_backend_326
+│
+├── /api
+│   ├── /controllers
+│   │   ├── disputesController.js          # Handle API requests for disputes
+│   │
+│   ├── /models
+│   │   ├── disputeModel.js                 # Define dispute schema and model
+│   │
+│   ├── /routes
+│   │   ├── disputesRoutes.js               # Define routes for disputes API
+│   │
+│   ├── /middleware
+│   │   ├── errorHandler.js                 # Handle API errors
+│   │
+│   └── index.js                            # Main API entry point
+│
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.jsx                 # Component to list disputes
+│   │   ├── DisputeForm.jsx                 # Component to open/update disputes
+│   │
+│   ├── /hooks
+│   │   ├── useDisputes.js                  # Custom hook for API calls
+│   │
+│   ├── /pages
+│   │   ├── DisputesPage.jsx                # Main page for disputes UI
+│   │
+│   ├── /styles
+│   │   ├── disputes.css                     # Styles for disputes UI
+│   │
+│   └── App.js                               # Main application component
+│
+└── README.md                                # Project documentation
 ```
 
-## API Implementation
+## Responsibilities
 
-### File: `/src/api/disputes.js`
-- **Responsibilities:**
-  - Define API endpoints for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Open a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
-  - Handle request validation and response formatting.
-  - Manage dispute statuses (OPEN, REVIEW, RESOLVED).
+### API
 
-### File: `/src/utils/apiClient.js`
-- **Responsibilities:**
-  - Create a reusable API client for making HTTP requests.
-  - Handle error responses and logging.
+- **disputesController.js**
+  - Implement functions to handle:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Open a new dispute
+    - `PUT /api/disputes/:id`: Update an existing dispute
 
-## UI Implementation
+- **disputeModel.js**
+  - Define the schema for a dispute:
+    - Fields: `id`, `evidence_urls`, `status` (enum: OPEN, REVIEW, RESOLVED)
 
-### File: `/src/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Display a list of disputes.
-  - Include filtering options based on status.
-  - Integrate with `useDisputes` hook to fetch data.
+- **disputesRoutes.js**
+  - Set up the routes for the disputes API and link to the controller functions.
 
-### File: `/src/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Form to open a new dispute or update an existing one.
-  - Include fields for evidence URLs and status selection.
-  - Handle form submission and validation.
+- **errorHandler.js**
+  - Create middleware to handle errors and send appropriate responses.
 
-### File: `/src/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Custom hook to manage dispute data fetching and state.
-  - Provide functions to open, list, and update disputes.
+- **index.js**
+  - Initialize the Express app and set up middleware for JSON parsing and routing.
 
-### File: `/src/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Main page component for disputes.
-  - Integrate `DisputeList` and `DisputeForm`.
-  - Manage overall layout and state.
+### UI
 
-### File: `/src/styles/Disputes.css`
-- **Responsibilities:**
-  - Define styles for dispute components.
-  - Ensure responsive design and accessibility.
+- **DisputeList.jsx**
+  - Fetch and display a list of disputes using the custom hook.
 
-## Testing
+- **DisputeForm.jsx**
+  - Create a form to open a new dispute or update an existing one, including input for `evidence_urls` and status.
 
-### File: `/tests/api/disputes.test.js`
-- **Responsibilities:**
-  - Unit tests for API endpoints.
-  - Validate request and response formats.
+- **useDisputes.js**
+  - Implement API calls to interact with the disputes API (GET, POST, PUT).
 
-### File: `/tests/components/DisputeList.test.js`
-- **Responsibilities:**
-  - Unit tests for `DisputeList` component.
-  - Ensure correct rendering and functionality.
+- **DisputesPage.jsx**
+  - Combine `DisputeList` and `DisputeForm` components to create the main disputes interface.
 
-### File: `/tests/components/DisputeForm.test.js`
-- **Responsibilities:**
-  - Unit tests for `DisputeForm` component.
-  - Validate form submission and error handling.
+- **disputes.css**
+  - Style the components for a user-friendly interface.
 
-## Deployment
-- Ensure CI/CD pipeline includes tests for API and UI.
-- Deploy to staging environment for QA before production release.
+- **App.js**
+  - Set up routing and render the `DisputesPage`.
 
 ## Timeline
-- **Week 1:** API development and testing.
-- **Week 2:** UI component development and integration.
-- **Week 3:** Testing, bug fixing, and deployment preparation.
+- **Week 1**: Set up API structure and implement basic CRUD operations.
+- **Week 2**: Develop UI components and integrate with the API.
+- **Week 3**: Testing and bug fixing for both API and UI.
+- **Week 4**: Final review and deployment.
+
+## Notes
+- Ensure proper validation for inputs in both API and UI.
+- Consider implementing authentication if necessary for dispute management.
 ```
