@@ -1,0 +1,12 @@
+name: agent-ci
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  agent-ci:
+    name: agent-ci
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
