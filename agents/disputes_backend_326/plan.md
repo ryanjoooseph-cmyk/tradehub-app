@@ -1,89 +1,93 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Directory Structure
+## Project Structure
 ```
-/disputes_backend_326
+/project-root
 │
-├── /api
-│   ├── disputes.py                # API endpoints for disputes
-│   ├── __init__.py                # Initialize API module
-│   └── utils.py                   # Utility functions for API
+├── /src
+│   ├── /api
+│   │   ├── disputes.js                # API route for disputes
+│   │   └── index.js                   # Main API index file
+│   │
+│   ├── /controllers
+│   │   ├── disputesController.js       # Business logic for disputes
+│   │
+│   ├── /models
+│   │   ├── disputeModel.js             # Mongoose model for disputes
+│   │
+│   ├── /routes
+│   │   ├── disputesRoutes.js           # Route definitions for disputes
+│   │
+│   ├── /middlewares
+│   │   ├── authMiddleware.js           # Authentication middleware
+│   │
+│   ├── /utils
+│   │   ├── responseHandler.js           # Utility for API responses
+│   │
+│   └── /tests
+│       ├── disputes.test.js            # Unit tests for disputes API
 │
-├── /models
-│   ├── dispute.py                 # Dispute model definition
-│   └── __init__.py                # Initialize models module
+├── /client
+│   ├── /components
+│   │   ├── DisputeList.js              # Component to list disputes
+│   │   ├── DisputeForm.js              # Component to create/update disputes
+│   │
+│   ├── /services
+│   │   ├── disputeService.js            # API service for disputes
+│   │
+│   ├── /pages
+│   │   ├── DisputePage.js               # Page to manage disputes
+│   │
+│   └── /styles
+│       ├── disputes.css                 # CSS styles for disputes UI
 │
-├── /schemas
-│   ├── dispute_schema.py          # Pydantic schemas for validation
-│   └── __init__.py                # Initialize schemas module
-│
-├── /services
-│   ├── dispute_service.py         # Business logic for disputes
-│   └── __init__.py                # Initialize services module
-│
-├── /tests
-│   ├── test_disputes.py           # Unit tests for disputes API
-│   └── __init__.py                # Initialize tests module
-│
-├── /static
-│   └── styles.css                 # CSS for UI (if applicable)
-│
-└── app.py                         # Main application entry point
+└── /config
+    ├── db.js                            # Database configuration
+    └── server.js                        # Server configuration
 ```
 
 ## Responsibilities
 
-### API Endpoints (`/api/disputes.py`)
-- **GET /api/disputes**: List all disputes
-  - Fetch disputes from the database
-  - Return JSON response with disputes array
-- **POST /api/disputes**: Create a new dispute
-  - Validate request body using `dispute_schema.py`
-  - Save dispute to the database
-  - Return created dispute with status 201
-- **PUT /api/disputes/{id}**: Update an existing dispute
-  - Validate request body using `dispute_schema.py`
-  - Update dispute in the database
-  - Return updated dispute with status 200
+### API Implementation
+- **disputes.js**: Define the API route `/api/disputes` with methods for:
+  - `GET`: List all disputes
+  - `POST`: Create a new dispute
+  - `PUT`: Update an existing dispute
+- **disputesController.js**: Implement logic for handling disputes:
+  - Fetching disputes from the database
+  - Creating a new dispute with `evidence_urls` and `status`
+  - Updating dispute status (OPEN/REVIEW/RESOLVED)
+- **disputeModel.js**: Define the Mongoose schema for disputes:
+  - Fields: `evidence_urls`, `status`, `created_at`, `updated_at`
+- **disputesRoutes.js**: Set up route handlers for the disputes API.
 
-### Models (`/models/dispute.py`)
-- Define `Dispute` class with fields:
-  - `id`: Unique identifier
-  - `evidence_urls`: Array of URLs
-  - `status`: Enum (OPEN, REVIEW, RESOLVED)
-  - `created_at`: Timestamp
-  - `updated_at`: Timestamp
+### UI Implementation
+- **DisputeList.js**: Create a component to display a list of disputes with status.
+- **DisputeForm.js**: Create a form component for creating/updating disputes, including:
+  - Input for `evidence_urls`
+  - Dropdown for `status` selection
+- **DisputePage.js**: Main page to manage disputes, integrating `DisputeList` and `DisputeForm`.
+- **disputeService.js**: Implement API calls to interact with the disputes API.
 
-### Schemas (`/schemas/dispute_schema.py`)
-- Create Pydantic model for dispute validation:
-  - Fields: `evidence_urls`, `status`
-  - Include validation for `status` to ensure it is one of the defined enums
+### Testing
+- **disputes.test.js**: Write unit tests for API endpoints and UI components to ensure functionality.
 
-### Services (`/services/dispute_service.py`)
-- Implement functions for:
-  - Fetching all disputes
-  - Creating a new dispute
-  - Updating an existing dispute
-- Handle business logic and database interactions
+### Middleware
+- **authMiddleware.js**: Implement authentication checks for API routes.
 
-### Tests (`/tests/test_disputes.py`)
-- Write unit tests for:
-  - API endpoints (GET, POST, PUT)
-  - Validation logic in schemas
-  - Service functions
-
-### UI (if applicable)
-- **Static Files**: Add CSS for styling the UI components
-- **Frontend Integration**: Ensure API endpoints are called correctly from the UI
-
-### Documentation
-- Update API documentation to include new endpoints and their usage
-- Document the dispute model and schema for developers
+### Configuration
+- **db.js**: Set up MongoDB connection for storing disputes.
+- **server.js**: Configure Express server to use the disputes API.
 
 ## Timeline
-- **Week 1**: Set up directory structure and initial files
-- **Week 2**: Implement API endpoints and models
-- **Week 3**: Develop services and schemas
-- **Week 4**: Write tests and finalize documentation
+- **Week 1**: Set up API routes and models.
+- **Week 2**: Implement controllers and middleware.
+- **Week 3**: Develop UI components and integrate with API.
+- **Week 4**: Testing and bug fixing.
+
+## Notes
+- Ensure proper validation for `evidence_urls` and `status`.
+- Consider pagination for dispute listing if necessary.
+- Document API endpoints for future reference.
 ```
