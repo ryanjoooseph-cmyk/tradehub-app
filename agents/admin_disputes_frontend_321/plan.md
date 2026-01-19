@@ -2,96 +2,87 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters and actions to update dispute statuses, as well as API calls to `/api/disputes`.
 
 ## File Structure
 
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
-```
+### Frontend
+
+- **src/**
+  - **components/**
+    - **AdminDisputesTable.jsx**  
+      - Responsible for rendering the disputes table with filters and actions.
+    - **DisputeRow.jsx**  
+      - Responsible for rendering individual dispute rows with status update options.
+    - **Filters.jsx**  
+      - Responsible for rendering filter options for the disputes table.
+  - **hooks/**
+    - **useDisputes.js**  
+      - Custom hook for fetching and managing disputes data from the API.
+  - **pages/**
+    - **AdminDisputesPage.jsx**  
+      - Main page component for `/admin/disputes/321`, integrating the table and filters.
+  - **styles/**
+    - **AdminDisputes.css**  
+      - Styles specific to the admin disputes page and components.
+
+### API
+
+- **src/api/**
+  - **disputes.js**  
+    - Responsible for defining API calls to `/api/disputes` for fetching and updating dispute data.
+      - `getDisputes()` - Fetches all disputes.
+      - `updateDisputeStatus(id, status)` - Updates the status of a specific dispute.
+
+### Backend
+
+- **src/controllers/**
+  - **disputeController.js**  
+    - Handles the logic for fetching and updating disputes.
+      - `getDisputes(req, res)` - Fetches disputes based on query parameters.
+      - `updateDisputeStatus(req, res)` - Updates the status of a dispute based on request data.
+  
+- **src/routes/**
+  - **disputeRoutes.js**  
+    - Defines the API routes for disputes.
+      - `GET /api/disputes` - Route to fetch disputes.
+      - `PUT /api/disputes/:id/status` - Route to update dispute status.
+
+- **src/models/**
+  - **Dispute.js**  
+    - Mongoose model for the Dispute schema, defining the structure of dispute documents in the database.
+
+### Testing
+
+- **src/tests/**
+  - **AdminDisputesPage.test.js**  
+    - Unit tests for the AdminDisputesPage component.
+  - **disputeController.test.js**  
+    - Tests for dispute controller functions.
 
 ## Responsibilities
 
-### UI Components
+- **Frontend Development**
+  - Implement UI components for displaying disputes and filters.
+  - Integrate API calls using the custom hook.
+  - Ensure responsive design and user-friendly interactions.
 
-- **AdminDisputesTable.jsx**
-  - Render the table of disputes.
-  - Display columns: ID, Description, Status, Actions.
-  - Integrate with filters and status update actions.
+- **Backend Development**
+  - Create API endpoints for fetching and updating disputes.
+  - Implement business logic in the dispute controller.
+  - Ensure data validation and error handling.
 
-- **DisputeFilter.jsx**
-  - Provide filter options for disputes (e.g., by status, date).
-  - Handle filter state and trigger updates to the displayed data.
+- **Testing**
+  - Write unit tests for frontend components and backend logic.
+  - Ensure all tests pass before deployment.
 
-- **StatusUpdateButton.jsx**
-  - Button component to update the status of a dispute.
-  - Handle click events to call the API for status updates.
+## Timeline
+- **Week 1:** Setup project structure, implement UI components.
+- **Week 2:** Develop API endpoints and backend logic.
+- **Week 3:** Integrate frontend with backend, write tests.
+- **Week 4:** Final testing and deployment.
 
-### Pages
-
-- **AdminDisputesPage.jsx**
-  - Main page component for `/admin/disputes/321`.
-  - Integrate `AdminDisputesTable` and `DisputeFilter`.
-  - Fetch disputes data on component mount using `disputesService`.
-
-### Services
-
-- **disputesService.js**
-  - Define functions to interact with the `/api/disputes` endpoint.
-  - Functions:
-    - `fetchDisputes(filters)`: Fetch disputes based on applied filters.
-    - `updateDisputeStatus(disputeId, newStatus)`: Update the status of a specific dispute.
-
-### Styles
-
-- **AdminDisputesPage.css**
-  - Style the admin disputes page and table.
-  - Ensure responsive design for better usability.
-
-### Utilities
-
-- **api.js**
-  - Create a utility for API calls.
-  - Handle common tasks like error handling and response parsing.
-
-### Main Application
-
-- **App.js**
-  - Set up routing for the application.
-  - Ensure `/admin/disputes/321` route is connected to `AdminDisputesPage`.
-
-## Development Steps
-
-1. **Set up the project structure** as outlined above.
-2. **Implement the API service** in `disputesService.js`.
-3. **Create UI components** (`AdminDisputesTable`, `DisputeFilter`, `StatusUpdateButton`).
-4. **Develop the main page** (`AdminDisputesPage`) to integrate components.
-5. **Style the components** using `AdminDisputesPage.css`.
-6. **Test the functionality** of fetching and updating disputes.
-7. **Conduct code reviews** and ensure adherence to coding standards.
-8. **Deploy the feature** to the staging environment for further testing.
-
-## Testing
-
-- Ensure unit tests are written for each component and service.
-- Conduct integration tests for the complete flow from UI to API.
-
-## Documentation
-
-- Update README with usage instructions for the new feature.
-- Document API endpoints in the API documentation.
-
+## Notes
+- Ensure to follow coding standards and best practices.
+- Document any additional configurations or dependencies required.
 ```
