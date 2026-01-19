@@ -4,9 +4,27 @@
 ## Overview
 This plan outlines the file structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an `evidence_urls` array and a status field with values OPEN, REVIEW, and RESOLVED.
 
-## File Structure
+## Responsibilities
 
 ### API Implementation
+- **`/src/api/disputes.js`**
+  - Define API endpoints for:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/:id` - Update an existing dispute
+- **`/src/controllers/disputesController.js`**
+  - Implement logic for handling requests:
+    - Fetching disputes from the database
+    - Creating new disputes with evidence_urls and status
+    - Updating dispute status (OPEN/REVIEW/RESOLVED)
+- **`/src/models/disputeModel.js`**
+  - Define the Dispute schema with fields:
+    - `evidence_urls` (Array)
+    - `status` (ENUM: OPEN/REVIEW/RESOLVED)
+- **`/src/routes/disputesRoutes.js`**
+  - Set up routes and link to controller methods
+- **`/src/middlewares/validateDispute.js`**
+  - Validate incoming requests for creating/updating disputes
 
 #### 1. API Routes
 - **File:** `src/routes/api/disputes.js`
