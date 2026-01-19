@@ -54,6 +54,9 @@ Develop a user interface and API for managing disputes in the admin panel, speci
   - Handle data fetching and state management for disputes.
 
 ### API
+- **disputes.js**
+  - Contains functions to interact with the `/api/disputes` endpoint.
+  - Handles GET for fetching disputes and POST for updating status.
 
 - **disputesApi.js**
   - Implement API calls to `/api/disputes`.
