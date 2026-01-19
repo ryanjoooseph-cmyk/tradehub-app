@@ -1,114 +1,116 @@
-```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
-
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
 
 ## Directory Structure
 
 ```
 /disputes_backend_326
-├── api
-│   ├── controllers
-│   │   └── disputesController.js
-│   ├── models
-│   │   └── disputeModel.js
-│   ├── routes
-│   │   └── disputesRoutes.js
-│   ├── middlewares
-│   │   └── validateDispute.js
-│   └── index.js
-├── client
-│   ├── src
-│   │   ├── components
-│   │   │   ├── DisputeList.js
-│   │   │   ├── DisputeForm.js
-│   │   │   └── DisputeDetail.js
-│   │   ├── services
-│   │   │   └── disputeService.js
-│   │   ├── App.js
-│   │   └── index.js
-│   └── public
-│       └── index.html
+│
+├── /api
+│   ├── disputes.py
+│   ├── __init__.py
+│   └── models.py
+│
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /pages
+│   │   └── DisputesPage.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   ├── /styles
+│   │   └── Disputes.css
+│   └── App.jsx
+│
+├── /tests
+│   ├── test_disputes_api.py
+│   └── test_disputes_ui.jsx
+│
+├── requirements.txt
 └── README.md
 ```
 
 ## API Implementation
 
-### 1. **Model Definition**
-- **File:** `/api/models/disputeModel.js`
+### File: `/api/disputes.py`
 - **Responsibilities:**
-  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  - Implement Mongoose model for MongoDB.
-
-### 2. **Controller Logic**
-- **File:** `/api/controllers/disputesController.js`
-- **Responsibilities:**
-  - Implement functions to:
-    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
-    - `getDisputes(req, res)`: Handle GET requests to list all disputes.
-    - `updateDispute(req, res)`: Handle PUT requests to update a dispute's status or evidence URLs.
-
-### 3. **Routing**
-- **File:** `/api/routes/disputesRoutes.js`
-- **Responsibilities:**
-  - Define routes for:
-    - `POST /api/disputes`: Create a new dispute.
+  - Define routes for `/api/disputes`.
+  - Implement CRUD operations for disputes:
     - `GET /api/disputes`: List all disputes.
-    - `PUT /api/disputes/:id`: Update a specific dispute.
+    - `POST /api/disputes`: Create a new dispute.
+    - `PUT /api/disputes/<id>`: Update an existing dispute.
+  - Handle status updates (OPEN/REVIEW/RESOLVED).
+  - Validate `evidence_urls` array.
 
-### 4. **Middleware**
-- **File:** `/api/middlewares/validateDispute.js`
+### File: `/api/models.py`
 - **Responsibilities:**
-  - Validate incoming requests for creating and updating disputes.
-  - Ensure `evidence_urls` is an array and `status` is one of OPEN/REVIEW/RESOLVED.
-
-### 5. **API Entry Point**
-- **File:** `/api/index.js`
-- **Responsibilities:**
-  - Set up Express server.
-  - Connect to MongoDB.
-  - Use defined routes and middleware.
+  - Define the Dispute model with fields:
+    - `id`
+    - `status` (OPEN/REVIEW/RESOLVED)
+    - `evidence_urls` (array)
+    - `created_at`
+    - `updated_at`
+  - Implement database interactions (CRUD).
 
 ## UI Implementation
 
-### 1. **Components**
-- **File:** `/client/src/components/DisputeList.js`
+### File: `/ui/App.jsx`
 - **Responsibilities:**
-  - Fetch and display a list of disputes.
-  - Provide options to view details or update status.
+  - Set up routing for the DisputesPage component.
+  - Integrate global state management if necessary.
 
-- **File:** `/client/src/components/DisputeForm.js`
+### File: `/ui/pages/DisputesPage.jsx`
 - **Responsibilities:**
-  - Form to create a new dispute.
-  - Include fields for `evidence_urls` and status selection.
+  - Fetch disputes from the API and display them using `DisputeList`.
+  - Provide a form to create/update disputes using `DisputeForm`.
 
-- **File:** `/client/src/components/DisputeDetail.js`
+### File: `/ui/components/DisputeList.jsx`
 - **Responsibilities:**
-  - Display details of a selected dispute.
-  - Allow updating of status and evidence URLs.
+  - Render a list of disputes.
+  - Allow users to click on a dispute to view details or update status.
 
-### 2. **Service Layer**
-- **File:** `/client/src/services/disputeService.js`
+### File: `/ui/components/DisputeForm.jsx`
 - **Responsibilities:**
-  - Implement API calls to interact with the backend:
-    - `createDispute(data)`: POST request.
-    - `getDisputes()`: GET request.
-    - `updateDispute(id, data)`: PUT request.
+  - Provide a form for creating/updating disputes.
+  - Handle input for `evidence_urls` and status selection.
 
-### 3. **Main Application**
-- **File:** `/client/src/App.js`
+### File: `/ui/components/DisputeDetail.jsx`
 - **Responsibilities:**
-  - Set up routing for components.
-  - Manage state for disputes.
+  - Display detailed information about a selected dispute.
+  - Allow status updates.
 
-### 4. **Entry Point**
-- **File:** `/client/src/index.js`
+### File: `/ui/hooks/useDisputes.js`
 - **Responsibilities:**
-  - Render the main application component.
+  - Custom hook to manage API calls for disputes.
+  - Handle loading states and error management.
+
+### File: `/ui/styles/Disputes.css`
+- **Responsibilities:**
+  - Style the dispute components and pages.
+
+## Testing
+
+### File: `/tests/test_disputes_api.py`
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Test CRUD operations and status updates.
+
+### File: `/tests/test_disputes_ui.jsx`
+- **Responsibilities:**
+  - Write tests for UI components.
+  - Ensure proper rendering and interaction.
+
+## Dependencies
+
+### File: `requirements.txt`
+- **Responsibilities:**
+  - List necessary dependencies for the API (Flask, SQLAlchemy, etc.).
+  - Include testing libraries (pytest, etc.).
 
 ## Documentation
-- **File:** `/README.md`
+
+### File: `README.md`
 - **Responsibilities:**
-  - Provide setup instructions and API documentation.
-```
+  - Provide an overview of the feature.
+  - Include setup instructions and API usage examples.
