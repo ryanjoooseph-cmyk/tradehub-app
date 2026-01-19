@@ -50,7 +50,11 @@ This plan outlines the file structure and responsibilities for building the UI a
     - Validate incoming requests for creating and updating disputes.
     - Ensure `evidence_urls` is an array and `status` is one of the allowed values.
 
-### UI Implementation
+### 3. Dispute Page (`/src/pages/DisputePage.jsx`)
+- **Responsibilities:**
+  - Render the main UI for disputes.
+  - Integrate `DisputeList` and `DisputeForm` components.
+  - Manage state for disputes using `useDisputes` hook.
 
 #### 5. UI Components
 - **File:** `src/components/DisputeList.js`
