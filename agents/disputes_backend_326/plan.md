@@ -1,76 +1,121 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the development of the UI and API for managing disputes at the route `/api/disputes`. The feature includes functionalities to open, list, and update disputes, with an array for evidence URLs and a status field that can be OPEN, REVIEW, or RESOLVED.
+## Project Structure
+```
+/project-root
+│
+├── /api
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesRoutes.js
+│   │   └── disputesService.js
+│   └── index.js
+│
+├── /models
+│   └── disputeModel.js
+│
+├── /middlewares
+│   └── authMiddleware.js
+│
+├── /utils
+│   └── responseHandler.js
+│
+├── /client
+│   ├── /components
+│   │   ├── DisputeList.js
+│   │   ├── DisputeForm.js
+│   │   └── DisputeDetail.js
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   ├── /pages
+│   │   └── DisputesPage.js
+│   └── App.js
+│
+├── /tests
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /client
+│       └── DisputeList.test.js
+│
+└── server.js
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### 1. **Disputes Controller (`/api/disputes/disputesController.js`)**
+- **Responsibilities:**
+  - Handle requests for opening, listing, and updating disputes.
+  - Validate input data and manage response formats.
 
-- **File Paths**
-  - `src/api/disputes.js`
-    - **Responsibilities**: Define API endpoints for disputes (GET, POST, PUT).
-  - `src/models/Dispute.js`
-    - **Responsibilities**: Define the Dispute model/schema (Mongoose or Sequelize).
-  - `src/controllers/disputeController.js`
-    - **Responsibilities**: Implement business logic for handling disputes (CRUD operations).
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities**: Set up Express routes for disputes API.
-  - `src/middleware/errorHandler.js`
-    - **Responsibilities**: Handle errors and send appropriate responses.
+### 2. **Disputes Routes (`/api/disputes/disputesRoutes.js`)**
+- **Responsibilities:**
+  - Define API routes for:
+    - `GET /api/disputes` - List all disputes.
+    - `POST /api/disputes` - Open a new dispute.
+    - `PUT /api/disputes/:id` - Update an existing dispute.
+  - Integrate with the controller.
 
-### UI Implementation
+### 3. **Disputes Service (`/api/disputes/disputesService.js`)**
+- **Responsibilities:**
+  - Interact with the database to perform CRUD operations on disputes.
+  - Manage business logic for dispute status (OPEN/REVIEW/RESOLVED).
 
-- **File Paths**
-  - `src/components/DisputeList.js`
-    - **Responsibilities**: Display a list of disputes with status and actions.
-  - `src/components/DisputeForm.js`
-    - **Responsibilities**: Form for creating and updating disputes.
-  - `src/pages/DisputePage.js`
-    - **Responsibilities**: Main page for disputes, integrating list and form components.
-  - `src/services/disputeService.js`
-    - **Responsibilities**: API calls to the backend for disputes (GET, POST, PUT).
-  - `src/styles/disputeStyles.css`
-    - **Responsibilities**: Styles for dispute components.
+### 4. **Dispute Model (`/models/disputeModel.js`)**
+- **Responsibilities:**
+  - Define the dispute schema including fields:
+    - `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
 
-### Testing
+### 5. **Auth Middleware (`/middlewares/authMiddleware.js`)**
+- **Responsibilities:**
+  - Protect routes by ensuring user authentication.
 
-- **File Paths**
-  - `tests/api/dispute.test.js`
-    - **Responsibilities**: Unit tests for API endpoints.
-  - `tests/ui/DisputePage.test.js`
-    - **Responsibilities**: Unit tests for UI components.
+### 6. **Response Handler (`/utils/responseHandler.js`)**
+- **Responsibilities:**
+  - Standardize API responses for success and error cases.
 
-## Development Steps
+## Client Implementation
 
-1. **API Development**
-   - Implement the Dispute model in `src/models/Dispute.js`.
-   - Create CRUD operations in `src/controllers/disputeController.js`.
-   - Set up routes in `src/routes/disputeRoutes.js`.
-   - Implement error handling in `src/middleware/errorHandler.js`.
+### 7. **Dispute Components (`/client/components`)**
+- **DisputeList.js**
+  - Display a list of disputes.
+  - Handle loading and error states.
+  
+- **DisputeForm.js**
+  - Form for opening a new dispute.
+  - Include fields for evidence URLs and status.
 
-2. **UI Development**
-   - Create the DisputeList component to fetch and display disputes.
-   - Develop the DisputeForm component for creating and updating disputes.
-   - Integrate components in `src/pages/DisputePage.js`.
-   - Implement API service calls in `src/services/disputeService.js`.
+- **DisputeDetail.js**
+  - View and update details of a specific dispute.
 
-3. **Testing**
-   - Write unit tests for API in `tests/api/dispute.test.js`.
-   - Write unit tests for UI components in `tests/ui/DisputePage.test.js`.
+### 8. **Custom Hook (`/client/hooks/useDisputes.js`)**
+- **Responsibilities:**
+  - Fetch disputes from the API.
+  - Provide functions to create and update disputes.
 
-4. **Documentation**
-   - Update API documentation to include new endpoints.
-   - Document UI components and their usage.
+### 9. **Disputes Page (`/client/pages/DisputesPage.js`)**
+- **Responsibilities:**
+  - Main page for displaying and managing disputes.
+  - Integrate components and hooks.
 
-5. **Deployment**
-   - Prepare the application for deployment.
-   - Ensure all tests pass before merging to the main branch.
+### 10. **App Entry Point (`/client/App.js`)**
+- **Responsibilities:**
+  - Set up routing and global state management.
 
-## Timeline
-- **Week 1**: API Development
-- **Week 2**: UI Development
-- **Week 3**: Testing and Documentation
-- **Week 4**: Deployment and Review
+## Testing
+
+### 11. **API Tests (`/tests/api/disputes.test.js`)**
+- **Responsibilities:**
+  - Test all API endpoints for expected behavior and edge cases.
+
+### 12. **Client Tests (`/tests/client/DisputeList.test.js`)**
+- **Responsibilities:**
+  - Test the DisputeList component for rendering and functionality.
+
+## Server Setup
+
+### 13. **Server Entry Point (`/server.js`)**
+- **Responsibilities:**
+  - Initialize the server and middleware.
+  - Import and use dispute routes.
 ```
