@@ -1,97 +1,98 @@
-```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
-
-## File Structure
+## Project Structure
 
 ```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateButton.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── services
-  │   └── disputesService.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── api.js
-  └── App.js
+/project-root
+│
+├── /src
+│   ├── /components
+│   │   ├── /AdminDisputes
+│   │   │   ├── AdminDisputes.jsx          # Main component for displaying disputes
+│   │   │   ├── DisputeTable.jsx            # Table component for listing disputes
+│   │   │   ├── FilterBar.jsx               # Component for filtering disputes
+│   │   │   ├── StatusUpdateModal.jsx       # Modal for updating dispute status
+│   │   │   └── styles.css                   # Styles for AdminDisputes components
+│   │   └── /common
+│   │       └── Loader.jsx                   # Loader component for async operations
+│   │
+│   ├── /hooks
+│   │   └── useDisputes.js                   # Custom hook for fetching and managing disputes
+│   │
+│   ├── /api
+│   │   └── disputes.js                       # API calls for disputes
+│   │
+│   ├── /pages
+│   │   └── AdminDisputesPage.jsx            # Page component for the route '/admin/disputes/321'
+│   │
+│   ├── /utils
+│   │   └── constants.js                      # Constants for status types and filters
+│   │
+│   └── /styles
+│       └── AdminDisputesPage.css            # Page-specific styles
+│
+├── /tests
+│   ├── /components
+│   │   └── AdminDisputes.test.js            # Tests for AdminDisputes components
+│   └── /hooks
+│       └── useDisputes.test.js              # Tests for useDisputes hook
+│
+└── /public
+    └── index.html                            # Main HTML file
 ```
 
 ## Responsibilities
 
-### UI Components
+### Components
+- **AdminDisputes.jsx**: 
+  - Render the main layout for the disputes page.
+  - Integrate `DisputeTable`, `FilterBar`, and `StatusUpdateModal`.
 
-- **AdminDisputesTable.jsx**
-  - Render the table of disputes.
-  - Display columns: ID, Description, Status, Actions.
-  - Integrate with filters and status update actions.
+- **DisputeTable.jsx**: 
+  - Display a table of disputes with pagination.
+  - Handle row actions for updating status.
 
-- **DisputeFilter.jsx**
-  - Provide filter options for disputes (e.g., by status, date).
-  - Handle filter state and trigger updates to the displayed data.
+- **FilterBar.jsx**: 
+  - Provide UI elements for filtering disputes (e.g., by status, date).
+  - Trigger updates to the displayed data based on filter selections.
 
-- **StatusUpdateButton.jsx**
-  - Button component to update the status of a dispute.
-  - Handle click events to call the API for status updates.
+- **StatusUpdateModal.jsx**: 
+  - Show a modal for confirming status updates.
+  - Call API to update the dispute status upon confirmation.
+
+### Hooks
+- **useDisputes.js**: 
+  - Fetch disputes from `/api/disputes`.
+  - Manage state for disputes, loading, and error handling.
+
+### API
+- **disputes.js**: 
+  - Define functions for API calls:
+    - `fetchDisputes()`: GET request to fetch disputes.
+    - `updateDisputeStatus(id, status)`: PUT request to update dispute status.
 
 ### Pages
+- **AdminDisputesPage.jsx**: 
+  - Set up the route `/admin/disputes/321`.
+  - Integrate all components and manage overall state.
 
-- **AdminDisputesPage.jsx**
-  - Main page component for `/admin/disputes/321`.
-  - Integrate `AdminDisputesTable` and `DisputeFilter`.
-  - Fetch disputes data on component mount using `disputesService`.
-
-### Services
-
-- **disputesService.js**
-  - Define functions to interact with the `/api/disputes` endpoint.
-  - Functions:
-    - `fetchDisputes(filters)`: Fetch disputes based on applied filters.
-    - `updateDisputeStatus(disputeId, newStatus)`: Update the status of a specific dispute.
+### Utils
+- **constants.js**: 
+  - Define constants for dispute statuses and filter options.
 
 ### Styles
+- **AdminDisputesPage.css**: 
+  - Style the Admin Disputes page layout and components.
 
-- **AdminDisputesPage.css**
-  - Style the admin disputes page and table.
-  - Ensure responsive design for better usability.
+### Tests
+- **AdminDisputes.test.js**: 
+  - Write unit tests for rendering and functionality of AdminDisputes components.
 
-### Utilities
+- **useDisputes.test.js**: 
+  - Write tests for the custom hook to ensure correct data fetching and state management.
 
-- **api.js**
-  - Create a utility for API calls.
-  - Handle common tasks like error handling and response parsing.
-
-### Main Application
-
-- **App.js**
-  - Set up routing for the application.
-  - Ensure `/admin/disputes/321` route is connected to `AdminDisputesPage`.
-
-## Development Steps
-
-1. **Set up the project structure** as outlined above.
-2. **Implement the API service** in `disputesService.js`.
-3. **Create UI components** (`AdminDisputesTable`, `DisputeFilter`, `StatusUpdateButton`).
-4. **Develop the main page** (`AdminDisputesPage`) to integrate components.
-5. **Style the components** using `AdminDisputesPage.css`.
-6. **Test the functionality** of fetching and updating disputes.
-7. **Conduct code reviews** and ensure adherence to coding standards.
-8. **Deploy the feature** to the staging environment for further testing.
-
-## Testing
-
-- Ensure unit tests are written for each component and service.
-- Conduct integration tests for the complete flow from UI to API.
-
-## Documentation
-
-- Update README with usage instructions for the new feature.
-- Document API endpoints in the API documentation.
-
-```
+## Timeline
+- **Week 1**: Set up project structure, create components and API functions.
+- **Week 2**: Implement filtering and status update functionality.
+- **Week 3**: Write tests and finalize styles.
+- **Week 4**: Review, test, and deploy the feature.
