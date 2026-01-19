@@ -1,90 +1,83 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Directory Structure
 ```
-/api
-  └── disputes
-      ├── disputesController.js
-      ├── disputesRoutes.js
-      └── disputesService.js
-/src
-  ├── components
-  │   └── DisputeForm.js
-  ├── pages
-  │   └── DisputePage.js
-  ├── services
-  │   └── disputeService.js
-  └── App.js
+/disputes_backend_326
+│
+├── /api
+│   ├── disputes.py
+│   ├── __init__.py
+│
+├── /models
+│   ├── dispute.py
+│   ├── __init__.py
+│
+├── /schemas
+│   ├── dispute_schema.py
+│   ├── __init__.py
+│
+├── /services
+│   ├── dispute_service.py
+│   ├── __init__.py
+│
+├── /tests
+│   ├── test_disputes.py
+│   ├── __init__.py
+│
+└── app.py
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. **Disputes Controller** (`/api/disputes/disputesController.js`)
-- **Responsibilities:**
-  - Handle incoming requests for disputes.
-  - Implement methods for:
-    - `listDisputes`: GET `/api/disputes`
-    - `createDispute`: POST `/api/disputes`
-    - `updateDispute`: PUT `/api/disputes/:id`
+### API Layer
+- **File:** `/api/disputes.py`
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/<id>`: Update an existing dispute
+  - Implement request validation and response formatting.
 
-### 2. **Disputes Routes** (`/api/disputes/disputesRoutes.js`)
-- **Responsibilities:**
-  - Define API routes for disputes.
-  - Link routes to corresponding controller methods.
+### Model Layer
+- **File:** `/models/dispute.py`
+  - Define the `Dispute` model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement ORM methods for CRUD operations.
 
-### 3. **Disputes Service** (`/api/disputes/disputesService.js`)
-- **Responsibilities:**
-  - Interact with the database for CRUD operations.
-  - Implement logic for:
-    - Fetching disputes
-    - Creating a new dispute with `evidence_urls` and `status`
-    - Updating dispute status (OPEN/REVIEW/RESOLVED)
+### Schema Layer
+- **File:** `/schemas/dispute_schema.py`
+  - Create Pydantic schemas for:
+    - `DisputeCreate`: For creating disputes
+    - `DisputeUpdate`: For updating disputes
+    - `DisputeResponse`: For returning dispute data
 
-## UI Implementation
-
-### 4. **Dispute Form Component** (`/src/components/DisputeForm.js`)
-- **Responsibilities:**
-  - Create a form for users to submit new disputes.
-  - Include fields for `evidence_urls` and `status`.
-  - Handle form submission and validation.
-
-### 5. **Dispute Page Component** (`/src/pages/DisputePage.js`)
-- **Responsibilities:**
-  - Display a list of disputes.
-  - Allow users to view and update dispute details.
-  - Integrate with `disputeService` to fetch and update data.
-
-### 6. **Dispute Service** (`/src/services/disputeService.js`)
-- **Responsibilities:**
-  - Implement API calls to the backend for:
-    - Fetching disputes
-    - Creating new disputes
+### Service Layer
+- **File:** `/services/dispute_service.py`
+  - Implement business logic for:
+    - Listing disputes
+    - Creating a new dispute
     - Updating existing disputes
+  - Handle status transitions and validations.
 
-### 7. **Main App Component** (`/src/App.js`)
-- **Responsibilities:**
-  - Set up routing for the application.
-  - Include `DisputePage` for displaying disputes.
+### Testing
+- **File:** `/tests/test_disputes.py`
+  - Write unit tests for:
+    - API endpoints
+    - Service layer methods
+    - Model validations
+  - Use a testing framework (e.g., pytest) for assertions.
 
-## Testing
-- **Unit Tests:**
-  - Write tests for controller methods in `/api/disputes/disputesController.test.js`.
-  - Write tests for service methods in `/api/disputes/disputesService.test.js`.
-- **Integration Tests:**
-  - Test API endpoints using tools like Postman or Jest.
-
-## Documentation
-- Update API documentation to include endpoints for disputes.
-- Document UI components and their usage in the README.
-
-## Deployment
-- Ensure the API is deployed to the server.
-- Deploy the frontend application to the hosting service.
+### Main Application
+- **File:** `app.py`
+  - Initialize the FastAPI application.
+  - Include the disputes API routes.
+  - Set up middleware and CORS if necessary.
 
 ## Timeline
-- **Week 1:** API development (Controller, Routes, Service)
-- **Week 2:** UI development (Components, Pages)
-- **Week 3:** Testing and Documentation
-- **Week 4:** Deployment and Review
+- **Week 1:** Set up directory structure and initial files.
+- **Week 2:** Implement API endpoints and model.
+- **Week 3:** Develop service layer and schemas.
+- **Week 4:** Write tests and finalize documentation.
 ```
