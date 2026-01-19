@@ -2,101 +2,89 @@
 # Implementation Plan for Feature 'disputes_backend_326'
 
 ## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes with an array of evidence URLs and statuses (OPEN, REVIEW, RESOLVED).
+This plan outlines the structure and responsibilities for building the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an `evidence_urls` array and a status field with values OPEN, REVIEW, and RESOLVED.
 
 ## File Structure
 
 ### API Implementation
 
-- **File Paths**
-  - `src/api/disputes.js`
-  - `src/models/Dispute.js`
-  - `src/controllers/disputeController.js`
-  - `src/routes/disputeRoutes.js`
-  - `src/middleware/authMiddleware.js`
-  - `src/utils/responseHandler.js`
-
-- **Responsibilities**
-  - `src/models/Dispute.js`
-    - Define the Dispute model schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+- **File: `src/routes/api/disputes.js`**
+  - **Responsibilities:**
+    - Define API endpoints for disputes.
+    - Implement GET, POST, and PUT methods for listing, creating, and updating disputes.
   
-  - `src/controllers/disputeController.js`
-    - Implement functions:
-      - `createDispute(req, res)`: Handle POST requests to create a new dispute.
-      - `getDisputes(req, res)`: Handle GET requests to list all disputes.
-      - `updateDispute(req, res)`: Handle PUT requests to update an existing dispute.
+- **File: `src/controllers/disputeController.js`**
+  - **Responsibilities:**
+    - Handle business logic for disputes.
+    - Interact with the database to perform CRUD operations.
 
-  - `src/routes/disputeRoutes.js`
-    - Set up Express routes for:
-      - `POST /api/disputes`: Create a new dispute.
-      - `GET /api/disputes`: List all disputes.
-      - `PUT /api/disputes/:id`: Update a specific dispute.
+- **File: `src/models/disputeModel.js`**
+  - **Responsibilities:**
+    - Define the dispute schema (including fields for `evidence_urls` and `status`).
+    - Implement database interaction methods.
 
-  - `src/middleware/authMiddleware.js`
-    - Implement authentication middleware to protect the API routes.
-
-  - `src/utils/responseHandler.js`
-    - Utility functions for standardized API responses.
+- **File: `src/middleware/validateDispute.js`**
+  - **Responsibilities:**
+    - Validate incoming data for disputes (e.g., required fields, status values).
+  
+- **File: `src/utils/errorHandler.js`**
+  - **Responsibilities:**
+    - Centralized error handling for API responses.
 
 ### UI Implementation
 
-- **File Paths**
-  - `src/components/DisputeForm.js`
-  - `src/components/DisputeList.js`
-  - `src/pages/DisputePage.js`
-  - `src/services/disputeService.js`
-  - `src/styles/disputeStyles.css`
+- **File: `src/components/DisputeList.js`**
+  - **Responsibilities:**
+    - Display a list of disputes.
+    - Implement functionality to filter by status.
 
-- **Responsibilities**
-  - `src/components/DisputeForm.js`
-    - Create a form for submitting new disputes, including fields for evidence URLs and status selection.
+- **File: `src/components/DisputeForm.js`**
+  - **Responsibilities:**
+    - Provide a form for creating and updating disputes.
+    - Handle input for `evidence_urls` and status selection.
 
-  - `src/components/DisputeList.js`
-    - Display a list of disputes with options to view details and update status.
+- **File: `src/pages/DisputePage.js`**
+  - **Responsibilities:**
+    - Main page for managing disputes.
+    - Integrate `DisputeList` and `DisputeForm` components.
 
-  - `src/pages/DisputePage.js`
-    - Combine `DisputeForm` and `DisputeList` components to create a full page for managing disputes.
+- **File: `src/hooks/useDisputes.js`**
+  - **Responsibilities:**
+    - Custom hook for fetching and managing dispute data.
+    - Handle API calls for GET, POST, and PUT requests.
 
-  - `src/services/disputeService.js`
-    - Implement API calls to interact with the backend:
-      - `createDispute(data)`: POST request to create a dispute.
-      - `fetchDisputes()`: GET request to retrieve all disputes.
-      - `updateDispute(id, data)`: PUT request to update a dispute.
+- **File: `src/styles/disputeStyles.css`**
+  - **Responsibilities:**
+    - Define styles for dispute-related components.
 
   - `src/styles/disputeStyles.css`
     - Add styles for the dispute components and page layout.
 
-## Testing
+- **File: `src/tests/disputeController.test.js`**
+  - **Responsibilities:**
+    - Unit tests for dispute controller methods.
 
-- **File Paths**
-  - `tests/api/dispute.test.js`
-  - `tests/ui/DisputeForm.test.js`
-  - `tests/ui/DisputeList.test.js`
+- **File: `src/tests/disputeModel.test.js`**
+  - **Responsibilities:**
+    - Unit tests for dispute model methods.
 
-- **Responsibilities**
-  - `tests/api/dispute.test.js`
-    - Write unit tests for API endpoints using Jest and Supertest.
+- **File: `src/tests/DisputeForm.test.js`**
+  - **Responsibilities:**
+    - Unit tests for the DisputeForm component.
 
-  - `tests/ui/DisputeForm.test.js`
-    - Write tests for the DisputeForm component using React Testing Library.
+- **File: `src/tests/DisputeList.test.js`**
+  - **Responsibilities:**
+    - Unit tests for the DisputeList component.
 
-  - `tests/ui/DisputeList.test.js`
-    - Write tests for the DisputeList component using React Testing Library.
+## Timeline
+- **Week 1:** Set up API routes and controllers.
+- **Week 2:** Implement dispute model and middleware.
+- **Week 3:** Develop UI components and integrate with API.
+- **Week 4:** Testing and bug fixing.
 
-## Deployment
+## Notes
+- Ensure proper error handling and validation throughout the API and UI.
+- Follow RESTful conventions for API design.
+- Use state management (e.g., Context API or Redux) if necessary for UI state.
 
-- **File Paths**
-  - `Dockerfile`
-  - `docker-compose.yml`
-  - `README.md`
-
-- **Responsibilities**
-  - `Dockerfile`
-    - Create a Docker image for the application.
-
-  - `docker-compose.yml`
-    - Define services for the API and database.
-
-  - `README.md`
-    - Document setup instructions, API usage, and deployment steps.
 ```
