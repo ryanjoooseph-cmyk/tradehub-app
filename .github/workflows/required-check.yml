@@ -9,4 +9,5 @@ jobs:
     name: pass
     runs-on: ubuntu-latest
     steps:
-      - run: echo ok
+      - name: ok
+        run: echo ok
