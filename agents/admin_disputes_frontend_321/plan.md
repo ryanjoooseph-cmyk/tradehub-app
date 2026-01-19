@@ -8,10 +8,13 @@ This plan outlines the implementation of the UI and API for the admin disputes f
 
 ```
 /src
+  ├── api
+  │   ├── disputes.js                # API logic for handling disputes
+  │   └── index.js                   # Central API export
   ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateButton.jsx
+  │   ├── AdminDisputeTable.jsx      # Table component for displaying disputes
+  │   ├── DisputeFilter.jsx           # Filter component for disputes
+  │   └── StatusUpdateButton.jsx      # Button for updating dispute status
   ├── pages
   │   └── AdminDisputesPage.jsx
   ├── api
