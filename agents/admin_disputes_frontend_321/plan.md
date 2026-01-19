@@ -9,9 +9,11 @@ This plan outlines the necessary steps to build the UI and API for the admin dis
 ```
 /src
   ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── DisputeFilter.jsx
-  │   └── StatusUpdateButton.jsx
+  │   ├── AdminDisputesTable
+  │   │   ├── AdminDisputesTable.jsx        # Table component for displaying disputes
+  │   │   ├── AdminDisputeRow.jsx            # Row component for individual dispute
+  │   │   └── Filters.jsx                    # Filter component for disputes
+  │   └── StatusUpdateModal.jsx               # Modal for updating dispute status
   ├── pages
   │   └── AdminDisputesPage.jsx
   ├── api
