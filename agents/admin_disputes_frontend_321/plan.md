@@ -20,6 +20,7 @@
 ## File Responsibilities
 
 ### Components
+
 - **AdminDisputesTable.jsx**
   - Render the table of disputes.
   - Accept props for disputes data and filter criteria.
@@ -34,6 +35,7 @@
   - Handle click events to trigger API calls.
 
 ### Pages
+
 - **AdminDisputesPage.jsx**
   - Main page component for `/admin/disputes/321`.
   - Fetch disputes data from the API on mount.
