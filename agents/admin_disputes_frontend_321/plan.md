@@ -1,86 +1,98 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses, utilizing the `/api/disputes` endpoint.
+This plan outlines the structure and responsibilities for building the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The implementation will include an admin table with filters and actions to update dispute status, along with API calls to `/api/disputes`.
 
-## Directory Structure
+## File Structure
 
-```
-/src
-  ├── api
-  │   └── disputes.js
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── utils
-  │   └── apiUtils.js
-  └── index.js
-```
+### Frontend
 
-## File Responsibilities
+- **src/**
+  - **components/**
+    - **AdminDisputesTable.jsx**  
+      - Responsible for rendering the disputes table with filters and actions.
+    - **DisputeStatusFilter.jsx**  
+      - Responsible for providing filter options for dispute statuses.
+    - **UpdateStatusButton.jsx**  
+      - Responsible for the button to update the status of a dispute.
+  - **pages/**
+    - **AdminDisputesPage.jsx**  
+      - Main page component for `/admin/disputes/321`, integrates the table and filters.
+  - **hooks/**
+    - **useDisputes.js**  
+      - Custom hook to fetch disputes data and handle updates.
+  - **styles/**
+    - **AdminDisputes.css**  
+      - Styles for the admin disputes page and components.
 
-### API Layer
-- **`/src/api/disputes.js`**
-  - Implement API calls to `/api/disputes` for fetching disputes and updating their statuses.
-  - Functions:
-    - `fetchDisputes()`: GET request to retrieve disputes.
-    - `updateDisputeStatus(id, status)`: PUT request to update the status of a specific dispute.
+### API
 
-### Components
-- **`/src/components/AdminDisputesTable.jsx`**
-  - Render the admin table displaying disputes.
-  - Integrate filters for sorting and searching disputes.
-  - Handle actions for updating dispute statuses via a modal.
+- **src/api/**
+  - **disputes.js**  
+    - Responsible for API calls related to disputes, including fetching and updating status.
+      - `getDisputes()` - Fetches disputes data.
+      - `updateDisputeStatus(disputeId, status)` - Updates the status of a specific dispute.
 
-- **`/src/components/FilterComponent.jsx`**
-  - Provide UI elements for filtering disputes (e.g., by date, status).
-  - Emit filter changes to the parent component.
+### Routing
 
-- **`/src/components/StatusUpdateModal.jsx`**
-  - Modal for confirming status updates.
-  - Include dropdown for selecting new status and a confirm button.
+- **src/routes/**
+  - **AdminRoutes.js**  
+    - Define the route `/admin/disputes/321` and link it to `AdminDisputesPage`.
 
-### Pages
-- **`/src/pages/AdminDisputesPage.jsx`**
-  - Main page component for `/admin/disputes/321`.
-  - Integrate `AdminDisputesTable` and `FilterComponent`.
-  - Manage state for disputes and filter criteria.
-  - Handle API calls to fetch disputes on mount.
+## Responsibilities
 
-### Styles
-- **`/src/styles/AdminDisputesPage.css`**
-  - Styles for the admin disputes page and components.
-  - Ensure responsive design and accessibility.
+### Frontend Development
 
-### Utilities
-- **`/src/utils/apiUtils.js`**
-  - Helper functions for API error handling and response parsing.
+1. **AdminDisputesTable.jsx**
+   - Implement table structure to display disputes.
+   - Integrate filtering functionality using `DisputeStatusFilter`.
 
-### Entry Point
-- **`/src/index.js`**
-  - Set up routing for `/admin/disputes/321`.
-  - Render `AdminDisputesPage` component.
+2. **DisputeStatusFilter.jsx**
+   - Create dropdown or checkbox filters for dispute statuses.
+   - Handle filter changes and update the displayed data.
 
-## Development Steps
-1. **Set up API calls** in `disputes.js`.
-2. **Create UI components**: `AdminDisputesTable`, `FilterComponent`, `StatusUpdateModal`.
-3. **Build the main page**: `AdminDisputesPage` to integrate components.
-4. **Implement styles** in `AdminDisputesPage.css`.
-5. **Test functionality**: Ensure API calls work and UI updates correctly.
-6. **Conduct code review** and finalize implementation.
+3. **UpdateStatusButton.jsx**
+   - Implement button to trigger status updates.
+   - Ensure it calls the update function from `useDisputes`.
 
-## Testing
-- Unit tests for API functions in `disputes.js`.
-- Component tests for `AdminDisputesTable`, `FilterComponent`, and `StatusUpdateModal`.
-- Integration tests for `AdminDisputesPage`.
+4. **AdminDisputesPage.jsx**
+   - Combine all components and manage state.
+   - Use `useDisputes` to fetch and display data.
+
+5. **useDisputes.js**
+   - Implement data fetching logic using `fetch` or `axios`.
+   - Handle loading and error states.
+
+6. **AdminDisputes.css**
+   - Style the components for a clean admin interface.
+
+### API Development
+
+1. **disputes.js**
+   - Implement `getDisputes()` to retrieve data from the database.
+   - Implement `updateDisputeStatus()` to handle PUT requests for status updates.
+
+### Testing
+
+- **src/tests/**
+  - **AdminDisputesPage.test.js**  
+    - Unit tests for the main page component.
+  - **AdminDisputesTable.test.js**  
+    - Unit tests for the disputes table component.
+  - **api/disputes.test.js**  
+    - Integration tests for API endpoints.
 
 ## Deployment
-- Deploy to staging for QA.
-- Monitor for issues and gather feedback.
-- Prepare for production deployment after successful testing.
+
+- Ensure all changes are merged into the main branch.
+- Deploy to staging for QA testing before production release.
+
+## Timeline
+
+- **Week 1:** Frontend component development.
+- **Week 2:** API development and integration.
+- **Week 3:** Testing and bug fixing.
+- **Week 4:** Deployment and monitoring.
+
 ```
