@@ -6,6 +6,7 @@ This plan outlines the necessary steps to build the UI and API for the admin dis
 
 ## File Structure
 
+## Project Structure
 ```
 /src
   ├── components
