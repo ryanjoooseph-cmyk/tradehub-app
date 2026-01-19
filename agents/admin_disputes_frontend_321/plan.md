@@ -1,95 +1,97 @@
 ```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterBar.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputesApi.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
-```
+## Overview
+This plan outlines the development of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update dispute statuses.
 
-## Responsibilities
+## File Structure
 
-### Components
-- **AdminDisputesTable.jsx**
-  - Display a table of disputes with pagination and sorting.
-  - Integrate filters from FilterBar component.
-  - Handle status update actions via StatusUpdateModal.
+### Frontend
 
-- **FilterBar.jsx**
-  - Provide UI for filtering disputes (e.g., by date, status).
-  - Emit filter changes to AdminDisputesTable.
-
-- **StatusUpdateModal.jsx**
-  - Modal for updating the status of a selected dispute.
-  - Call API to update status and refresh the table.
-
-### Pages
-- **AdminDisputesPage.jsx**
-  - Main entry point for the admin disputes route.
-  - Render AdminDisputesTable and FilterBar.
-  - Manage state for disputes and filters.
+- **src/**
+  - **components/**
+    - **AdminDisputesTable.jsx**  
+      - Responsibility: Render the table of disputes with filtering options and action buttons.
+    - **DisputeStatusDropdown.jsx**  
+      - Responsibility: Provide a dropdown for selecting dispute status updates.
+  - **pages/**
+    - **AdminDisputesPage.jsx**  
+      - Responsibility: Main page component for `/admin/disputes/321`, integrates table and filters.
+  - **hooks/**
+    - **useDisputes.js**  
+      - Responsibility: Custom hook for fetching disputes and managing state.
+  - **styles/**
+    - **AdminDisputes.css**  
+      - Responsibility: Styles for the admin disputes page and table.
 
 ### API
-- **disputesApi.js**
-  - Define API calls to `/api/disputes`.
-  - Implement functions for fetching disputes, updating status, and handling errors.
 
-### Styles
-- **AdminDisputesPage.css**
-  - Style the AdminDisputesPage and its components for a clean UI.
+- **src/api/**
+  - **disputes.js**  
+    - Responsibility: API calls related to disputes, including fetching and updating dispute statuses.
+  - **routes/**
+    - **disputes.js**  
+      - Responsibility: Express route handlers for `/api/disputes` endpoints.
+  
+### Backend
 
-### Hooks
-- **useDisputes.js**
-  - Custom hook to manage fetching and updating disputes.
-  - Handle loading states and errors.
+- **src/controllers/**
+  - **disputeController.js**  
+    - Responsibility: Logic for handling dispute-related requests (fetching, updating).
+- **src/models/**
+  - **Dispute.js**  
+    - Responsibility: Mongoose model for the Dispute schema.
+- **src/routes/**
+  - **adminDisputes.js**  
+    - Responsibility: Define routes for admin dispute management.
 
-### Utilities
-- **constants.js**
-  - Define constants for dispute statuses and API endpoints.
+## Development Tasks
 
-## Development Steps
-1. **Setup Route**
-   - Configure route in the main application file (e.g., `App.js`).
-   - Ensure route `/admin/disputes/321` is accessible only to admin users.
+### Frontend Tasks
+1. **Create AdminDisputesTable Component**  
+   - Implement table structure with columns for dispute details and actions.
+   - Add filtering functionality based on dispute status and date.
 
-2. **Build Components**
-   - Implement AdminDisputesTable, FilterBar, and StatusUpdateModal.
-   - Ensure components communicate effectively.
+2. **Implement DisputeStatusDropdown Component**  
+   - Create a dropdown for selecting dispute statuses.
+   - Integrate with the AdminDisputesTable for updating statuses.
 
-3. **Implement API Calls**
-   - Create functions in disputesApi.js for fetching and updating disputes.
-   - Handle API responses and errors.
+3. **Build AdminDisputesPage Component**  
+   - Set up routing for `/admin/disputes/321`.
+   - Integrate AdminDisputesTable and filters.
 
-4. **Integrate State Management**
-   - Use useDisputes hook in AdminDisputesPage to manage data flow.
-   - Connect filters and status updates to the state.
+4. **Develop useDisputes Hook**  
+   - Implement API call to fetch disputes from `/api/disputes`.
+   - Manage loading and error states.
 
-5. **Style the UI**
-   - Apply styles from AdminDisputesPage.css to ensure a cohesive look.
+5. **Style Components**  
+   - Apply CSS styles to AdminDisputesPage and AdminDisputesTable.
 
-6. **Testing**
-   - Write unit tests for components and API functions.
-   - Conduct integration tests for the complete flow.
+### API Tasks
+1. **Define API Endpoints in disputes.js**  
+   - Create GET endpoint for fetching disputes.
+   - Create PUT endpoint for updating dispute statuses.
 
-7. **Deployment**
-   - Prepare for deployment by ensuring all features are functional.
-   - Update documentation for the new route and features.
+2. **Implement Logic in disputeController.js**  
+   - Fetch disputes from the database.
+   - Handle status updates and validate input.
+
+3. **Set Up Mongoose Model in Dispute.js**  
+   - Define schema for dispute data including status, details, and timestamps.
+
+4. **Create Route Handlers in adminDisputes.js**  
+   - Link API endpoints to the controller functions.
+
+## Testing
+- Write unit tests for components and hooks.
+- Write integration tests for API endpoints.
+
+## Deployment
+- Ensure all changes are merged into the main branch.
+- Deploy to staging for QA testing before production release.
 
 ## Timeline
-- **Week 1:** Component development and API integration.
-- **Week 2:** Testing and styling.
-- **Week 3:** Final review and deployment.
+- **Week 1:** Frontend component development and styling.
+- **Week 2:** API development and integration.
+- **Week 3:** Testing and deployment preparations.
 ```
