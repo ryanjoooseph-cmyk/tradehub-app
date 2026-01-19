@@ -1,7 +1,8 @@
 ```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Project Structure
+## Directory Structure
+
 ```
 /src
   ├── components
@@ -18,7 +19,7 @@
       └── constants.js
 ```
 
-## File Responsibilities
+## Responsibilities
 
 ### Components
 - **AdminDisputesTable.jsx**
