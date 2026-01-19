@@ -6,99 +6,79 @@
 /disputes_backend_326
 │
 ├── /api
-│   ├── /controllers
-│   │   └── disputesController.js
-│   ├── /routes
-│   │   └── disputesRoutes.js
-│   ├── /models
-│   │   └── disputeModel.js
-│   ├── /middlewares
-│   │   └── authMiddleware.js
-│   └── /validators
-│       └── disputeValidator.js
+│   ├── disputes.py                # API endpoints for disputes
+│   ├── __init__.py                # Initialize API module
 │
-├── /client
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── /hooks
-│   │   └── useDisputes.js
-│   ├── /pages
-│   │   └── DisputesPage.jsx
-│   └── /styles
-│       └── disputes.css
+├── /models
+│   ├── dispute.py                 # Dispute model definition
+│   ├── __init__.py                # Initialize models module
+│
+├── /schemas
+│   ├── dispute_schema.py          # Pydantic schemas for validation
+│   ├── __init__.py                # Initialize schemas module
+│
+├── /services
+│   ├── dispute_service.py         # Business logic for disputes
+│   ├── __init__.py                # Initialize services module
 │
 ├── /tests
-│   ├── /api
-│   │   └── disputes.test.js
-│   └── /client
-│       └── DisputesPage.test.jsx
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   ├── __init__.py                # Initialize tests module
 │
-└── server.js
+├── /migrations                     # Database migration files
+│
+└── app.py                         # Main application entry point
 ```
 
 ## Responsibilities
 
 ### API Implementation
-- **`/api/controllers/disputesController.js`**
-  - Implement functions to handle:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
-  
-- **`/api/routes/disputesRoutes.js`**
-  - Define routes for disputes.
-  - Integrate controller functions.
-  - Apply authentication middleware.
+- **File:** `/api/disputes.py`
+  - Implement endpoints:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/{id}` - Update an existing dispute
+  - Handle request validation and response formatting.
 
-- **`/api/models/disputeModel.js`**
-  - Define the Dispute schema with fields:
-    - `evidence_urls` (Array)
-    - `status` (Enum: OPEN/REVIEW/RESOLVED)
-  
-- **`/api/middlewares/authMiddleware.js`**
-  - Implement authentication checks for API routes.
+### Model Definition
+- **File:** `/models/dispute.py`
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs for evidence
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement database interactions.
 
-- **`/api/validators/disputeValidator.js`**
-  - Validate request data for creating and updating disputes.
+### Schema Validation
+- **File:** `/schemas/dispute_schema.py`
+  - Create Pydantic schemas for:
+    - Dispute creation
+    - Dispute update
+  - Ensure data validation for incoming requests.
 
-### Client Implementation
-- **`/client/components/DisputeList.jsx`**
-  - Display a list of disputes with status indicators.
-
-- **`/client/components/DisputeForm.jsx`**
-  - Form for creating/updating disputes.
-  - Handle evidence URLs input.
-
-- **`/client/components/DisputeDetail.jsx`**
-  - Show detailed view of a selected dispute.
-
-- **`/client/hooks/useDisputes.js`**
-  - Custom hook for fetching and managing disputes state.
-
-- **`/client/pages/DisputesPage.jsx`**
-  - Main page to render dispute components.
-
-- **`/client/styles/disputes.css`**
-  - Styling for dispute components.
+### Business Logic
+- **File:** `/services/dispute_service.py`
+  - Implement service functions:
+    - `list_disputes()`: Retrieve all disputes
+    - `create_dispute(data)`: Create a new dispute
+    - `update_dispute(id, data)`: Update an existing dispute
+  - Handle business rules and data manipulation.
 
 ### Testing
-- **`/tests/api/disputes.test.js`**
-  - Write unit tests for API endpoints.
+- **File:** `/tests/test_disputes.py`
+  - Write unit tests for:
+    - API endpoints
+    - Service functions
+  - Ensure coverage for all CRUD operations and edge cases.
 
-- **`/tests/client/DisputesPage.test.jsx`**
-  - Write tests for the DisputesPage component.
-
-### Server Setup
-- **`server.js`**
-  - Set up Express server.
-  - Connect to the database.
-  - Integrate API routes.
+### Main Application
+- **File:** `app.py`
+  - Set up FastAPI application.
+  - Include API routes from `/api/disputes.py`.
+  - Configure middleware and CORS settings.
 
 ## Timeline
-- **Week 1**: API setup and model creation.
-- **Week 2**: Implement API routes and controllers.
-- **Week 3**: Develop client components and hooks.
-- **Week 4**: Testing and final adjustments.
+- **Week 1:** API and model setup
+- **Week 2:** Schema and service implementation
+- **Week 3:** Testing and debugging
+- **Week 4:** Final review and deployment
 ```
