@@ -8,10 +8,9 @@
 ├── /api
 │   ├── /disputes
 │   │   ├── disputesController.js
-│   │   ├── disputesService.js
-│   │   └── disputesRoutes.js
-│   │
-│   └── /middleware
+│   │   ├── disputesRoutes.js
+│   │   └── disputesService.js
+│   └── /middlewares
 │       └── authMiddleware.js
 │
 ├── /models
@@ -22,51 +21,49 @@
 │   │   ├── DisputeList.jsx
 │   │   ├── DisputeForm.jsx
 │   │   └── DisputeDetail.jsx
-│   │
 │   ├── /hooks
 │   │   └── useDisputes.js
-│   │
-│   ├── /pages
-│   │   └── DisputesPage.jsx
-│   │
-│   └── /styles
-│       └── disputes.css
+│   └── /pages
+│       └── DisputesPage.jsx
 │
-└── /tests
-    ├── /api
-    │   └── disputes.test.js
-    └── /ui
-        └── DisputesPage.test.jsx
+├── /tests
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /ui
+│       └── DisputesPage.test.jsx
+│
+└── server.js
 ```
 
 ## API Implementation
 
 ### 1. **Model**
 - **File:** `/models/disputeModel.js`
-  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
 
 ### 2. **Controller**
 - **File:** `/api/disputes/disputesController.js`
   - Implement functions:
-    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
-    - `getDisputes(req, res)`: Handle GET requests to list all disputes.
-    - `updateDispute(req, res)`: Handle PUT requests to update a specific dispute.
+    - `getAllDisputes(req, res)`: Fetch all disputes.
+    - `createDispute(req, res)`: Create a new dispute.
+    - `updateDispute(req, res)`: Update an existing dispute by ID.
 
 ### 3. **Service**
 - **File:** `/api/disputes/disputesService.js`
   - Implement business logic for:
-    - Creating, retrieving, and updating disputes.
-    - Validating status (OPEN/REVIEW/RESOLVED) and evidence_urls.
+    - Fetching disputes from the database.
+    - Creating a new dispute.
+    - Updating the dispute status.
 
 ### 4. **Routes**
 - **File:** `/api/disputes/disputesRoutes.js`
   - Define routes:
-    - `POST /api/disputes`: Create a dispute.
     - `GET /api/disputes`: List all disputes.
+    - `POST /api/disputes`: Create a new dispute.
     - `PUT /api/disputes/:id`: Update a dispute.
 
 ### 5. **Middleware**
-- **File:** `/api/middleware/authMiddleware.js`
+- **File:** `/api/middlewares/authMiddleware.js`
   - Implement authentication middleware to protect routes.
 
 ## UI Implementation
@@ -76,36 +73,30 @@
   - Display a list of disputes with status and evidence URLs.
 
 - **File:** `/ui/components/DisputeForm.jsx`
-  - Form for creating and updating disputes.
+  - Form for creating/updating disputes, including input for evidence URLs.
 
 - **File:** `/ui/components/DisputeDetail.jsx`
-  - Show detailed view of a selected dispute.
+  - Detailed view of a selected dispute.
 
 ### 2. **Hooks**
 - **File:** `/ui/hooks/useDisputes.js`
-  - Custom hook to manage API calls for disputes (fetch, create, update).
+  - Custom hook to manage API calls for fetching, creating, and updating disputes.
 
 ### 3. **Pages**
 - **File:** `/ui/pages/DisputesPage.jsx`
-  - Main page to render `DisputeList` and `DisputeForm`.
-
-### 4. **Styles**
-- **File:** `/ui/styles/disputes.css`
-  - Basic styles for disputes UI components.
+  - Main page to display the list of disputes and integrate `DisputeList` and `DisputeForm`.
 
 ## Testing
 
 ### 1. **API Tests**
 - **File:** `/tests/api/disputes.test.js`
-  - Write tests for API endpoints (create, list, update).
+  - Test cases for all API endpoints (GET, POST, PUT).
 
 ### 2. **UI Tests**
 - **File:** `/tests/ui/DisputesPage.test.jsx`
-  - Write tests for UI components and interactions.
+  - Test rendering of components and interaction with the API.
 
-## Timeline
-- **Week 1:** Set up models and API endpoints.
-- **Week 2:** Implement UI components and hooks.
-- **Week 3:** Testing and bug fixes.
-- **Week 4:** Final review and deployment.
+## Deployment
+- Ensure all endpoints are documented and tested.
+- Deploy to staging for QA before production release.
 ```
