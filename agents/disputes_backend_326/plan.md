@@ -1,17 +1,18 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Directory Structure
 ```
-/project-root
+/disputes_backend_326
 │
 ├── /api
-│   ├── /disputes
-│   │   ├── disputesController.js
-│   │   ├── disputesModel.js
-│   │   ├── disputesRoutes.js
-│   │   └── disputesService.js
-│   └── /middleware
+│   ├── /controllers
+│   │   └── disputesController.js
+│   ├── /models
+│   │   └── disputeModel.js
+│   ├── /routes
+│   │   └── disputesRoutes.js
+│   └── /middlewares
 │       └── authMiddleware.js
 │
 ├── /client
@@ -19,83 +20,87 @@
 │   │   ├── DisputeList.jsx
 │   │   ├── DisputeForm.jsx
 │   │   └── DisputeDetail.jsx
-│   ├── /hooks
-│   │   └── useDisputes.js
-│   ├── /pages
-│   │   └── DisputesPage.jsx
+│   ├── /services
+│   │   └── disputeService.js
 │   └── /styles
 │       └── disputes.css
 │
-└── /tests
-    ├── /api
-    │   └── disputes.test.js
-    └── /client
-        └── DisputesPage.test.jsx
+├── /tests
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /client
+│       └── DisputeList.test.jsx
+│
+└── /config
+    └── db.js
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. **disputesModel.js**
-- **Responsibilities**: Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
-- **Notes**: Use a database ORM (e.g., Mongoose for MongoDB).
+### API Implementation
+- **/api/controllers/disputesController.js**
+  - Implement functions to handle:
+    - `getAllDisputes`: Fetch all disputes (GET)
+    - `createDispute`: Create a new dispute (POST)
+    - `updateDispute`: Update an existing dispute (PUT)
+  - Validate input data and manage response formats.
 
-### 2. **disputesService.js**
-- **Responsibilities**: Implement business logic for:
-  - Creating a new dispute
-  - Retrieving all disputes
-  - Updating a dispute status
-- **Notes**: Handle validation and error management.
+- **/api/models/disputeModel.js**
+  - Define the Dispute schema with fields:
+    - `evidence_urls` (Array of Strings)
+    - `status` (Enum: OPEN, REVIEW, RESOLVED)
+  - Implement Mongoose model for database interactions.
 
-### 3. **disputesController.js**
-- **Responsibilities**: Define API endpoints:
-  - `POST /api/disputes`: Create a dispute
-  - `GET /api/disputes`: List all disputes
-  - `PUT /api/disputes/:id`: Update a dispute status
-- **Notes**: Use middleware for authentication.
+- **/api/routes/disputesRoutes.js**
+  - Set up Express routes for:
+    - `GET /api/disputes`: List all disputes
+    - `POST /api/disputes`: Create a new dispute
+    - `PUT /api/disputes/:id`: Update a dispute by ID
+  - Integrate controller methods with routes.
 
-### 4. **disputesRoutes.js**
-- **Responsibilities**: Set up Express routes for disputes.
-- **Notes**: Integrate with the controller.
+- **/api/middlewares/authMiddleware.js**
+  - Implement authentication middleware to protect routes.
 
-### 5. **authMiddleware.js**
-- **Responsibilities**: Implement authentication checks for API routes.
-- **Notes**: Ensure only authorized users can access dispute endpoints.
+### Client Implementation
+- **/client/components/DisputeList.jsx**
+  - Fetch and display a list of disputes.
+  - Provide options to view, edit, and delete disputes.
 
-## UI Implementation
+- **/client/components/DisputeForm.jsx**
+  - Create a form for submitting new disputes.
+  - Include fields for evidence URLs and status selection.
 
-### 1. **DisputesPage.jsx**
-- **Responsibilities**: Main page to display the list of disputes and a form to create/update disputes.
-- **Notes**: Use state management to handle data fetching and form submissions.
+- **/client/components/DisputeDetail.jsx**
+  - Display detailed information about a selected dispute.
+  - Allow status updates and evidence URL management.
 
-### 2. **DisputeList.jsx**
-- **Responsibilities**: Render a list of disputes with status indicators.
-- **Notes**: Include buttons for updating status and viewing details.
+- **/client/services/disputeService.js**
+  - Implement API calls to interact with the disputes API:
+    - `fetchDisputes`: GET request to fetch disputes.
+    - `createDispute`: POST request to create a new dispute.
+    - `updateDispute`: PUT request to update an existing dispute.
 
-### 3. **DisputeForm.jsx**
-- **Responsibilities**: Form for creating and updating disputes.
-- **Notes**: Include fields for `evidence_urls` and `status`.
+- **/client/styles/disputes.css**
+  - Style the dispute components for a user-friendly interface.
 
-### 4. **useDisputes.js**
-- **Responsibilities**: Custom hook for fetching and managing disputes data.
-- **Notes**: Handle API calls and state updates.
+### Testing
+- **/tests/api/disputes.test.js**
+  - Write unit tests for API endpoints using Jest and Supertest.
+  - Test all CRUD operations and validate response formats.
 
-### 5. **disputes.css**
-- **Responsibilities**: Basic styling for disputes UI components.
-- **Notes**: Ensure responsive design.
+- **/tests/client/DisputeList.test.jsx**
+  - Write unit tests for the DisputeList component.
+  - Ensure proper rendering and interaction with API.
 
-## Testing
-
-### 1. **disputes.test.js**
-- **Responsibilities**: Unit and integration tests for API endpoints.
-- **Notes**: Use a testing framework (e.g., Jest, Mocha).
-
-### 2. **DisputesPage.test.jsx**
-- **Responsibilities**: Test rendering and functionality of the DisputesPage component.
-- **Notes**: Mock API calls for testing.
+### Configuration
+- **/config/db.js**
+  - Set up database connection configuration (MongoDB).
+  - Export connection for use in the API.
 
 ## Timeline
-- **Week 1**: API model and service implementation.
-- **Week 2**: API controller and routes setup.
-- **Week 3**: UI components and hooks development.
-- **Week 4**: Testing and final adjustments.
+- **Week 1**: Set up project structure and database connection.
+- **Week 2**: Implement API endpoints and models.
+- **Week 3**: Develop client components and services.
+- **Week 4**: Write tests and finalize UI/UX.
+- **Week 5**: Review, refactor, and deploy.
 ```
