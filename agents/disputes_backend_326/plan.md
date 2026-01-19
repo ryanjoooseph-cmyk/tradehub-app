@@ -50,14 +50,11 @@ This plan outlines the file structure and responsibilities for building the UI a
     - Validate incoming requests for creating and updating disputes.
     - Ensure `evidence_urls` is an array and `status` is one of the allowed values.
 
-### 7. Dependencies
-- **File:** `requirements.txt`
-  - List necessary packages:
-    - `fastapi`
-    - `uvicorn`
-    - `pydantic`
-    - `sqlalchemy`
-    - `pytest`
+### 3. Dispute Page (`/src/pages/DisputePage.jsx`)
+- **Responsibilities:**
+  - Render the main UI for disputes.
+  - Integrate `DisputeList` and `DisputeForm` components.
+  - Manage state for disputes using `useDisputes` hook.
 
 #### 5. UI Components
 - **File:** `src/components/DisputeList.js`
@@ -82,7 +79,9 @@ This plan outlines the file structure and responsibilities for building the UI a
     - Manage dispute state using Redux or Context API.
     - Handle actions for fetching, adding, and updating disputes.
 
-### Testing
+3. **`/src/ui/pages/DisputePage.jsx`**
+   - Main page that integrates `DisputeList` and `DisputeForm`.
+   - Manage state and handle API calls.
 
 #### 8. API Tests
 - **File:** `tests/api/disputes.test.js`
