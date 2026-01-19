@@ -4,86 +4,81 @@
 ## Directory Structure
 ```
 /disputes_backend_326
-├── api
-│   ├── disputes.py
-│   └── __init__.py
-├── models
-│   ├── dispute.py
-│   └── __init__.py
-├── services
-│   ├── dispute_service.py
-│   └── __init__.py
-├── tests
-│   ├── test_disputes.py
-│   └── __init__.py
-├── ui
-│   ├── disputes_page.html
-│   ├── disputes.js
-│   └── styles.css
-└── app.py
+│
+├── /api
+│   ├── disputes.py                # API endpoints for disputes
+│   ├── __init__.py                # Initialize API module
+│
+├── /models
+│   ├── dispute.py                 # Dispute model definition
+│   ├── __init__.py                # Initialize models module
+│
+├── /schemas
+│   ├── dispute_schema.py          # Pydantic schemas for validation
+│   ├── __init__.py                # Initialize schemas module
+│
+├── /services
+│   ├── dispute_service.py         # Business logic for disputes
+│   ├── __init__.py                # Initialize services module
+│
+├── /tests
+│   ├── test_disputes.py           # Unit tests for disputes API
+│   ├── __init__.py                # Initialize tests module
+│
+├── /migrations                     # Database migration files
+│
+└── app.py                         # Main application entry point
 ```
 
-## API Implementation
+## Responsibilities
 
-### 1. `api/disputes.py`
-- **Responsibilities:**
-  - Define Flask routes for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Create a new dispute.
-    - `PUT /api/disputes/<id>`: Update an existing dispute.
-  - Validate request data and handle errors.
+### API Implementation
+- **File:** `/api/disputes.py`
+  - Implement endpoints:
+    - `GET /api/disputes` - List all disputes
+    - `POST /api/disputes` - Create a new dispute
+    - `PUT /api/disputes/{id}` - Update an existing dispute
+  - Handle request validation and response formatting.
 
-### 2. `models/dispute.py`
-- **Responsibilities:**
+### Model Definition
+- **File:** `/models/dispute.py`
   - Define the Dispute model with fields:
-    - `id`: Unique identifier.
-    - `evidence_urls`: Array of URLs.
-    - `status`: Enum (OPEN, REVIEW, RESOLVED).
-  - Implement database interactions (CRUD operations).
+    - `id`: Unique identifier
+    - `evidence_urls`: Array of URLs for evidence
+    - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - Implement database interactions.
 
-### 3. `services/dispute_service.py`
-- **Responsibilities:**
-  - Implement business logic for:
-    - Fetching disputes.
-    - Creating disputes.
-    - Updating dispute status.
-  - Handle data validation and transformation.
+### Schema Validation
+- **File:** `/schemas/dispute_schema.py`
+  - Create Pydantic schemas for:
+    - Dispute creation
+    - Dispute update
+  - Ensure data validation for incoming requests.
 
-### 4. `tests/test_disputes.py`
-- **Responsibilities:**
-  - Write unit tests for API endpoints.
-  - Test model validations and service logic.
-  - Ensure coverage for all status scenarios (OPEN, REVIEW, RESOLVED).
+### Business Logic
+- **File:** `/services/dispute_service.py`
+  - Implement service functions:
+    - `list_disputes()`: Retrieve all disputes
+    - `create_dispute(data)`: Create a new dispute
+    - `update_dispute(id, data)`: Update an existing dispute
+  - Handle business rules and data manipulation.
 
-## UI Implementation
+### Testing
+- **File:** `/tests/test_disputes.py`
+  - Write unit tests for:
+    - API endpoints
+    - Service functions
+  - Ensure coverage for all CRUD operations and edge cases.
 
-### 5. `ui/disputes_page.html`
-- **Responsibilities:**
-  - Create a user interface for displaying disputes.
-  - Include forms for creating and updating disputes.
-  - Display evidence URLs and status.
+### Main Application
+- **File:** `app.py`
+  - Set up FastAPI application.
+  - Include API routes from `/api/disputes.py`.
+  - Configure middleware and CORS settings.
 
-### 6. `ui/disputes.js`
-- **Responsibilities:**
-  - Implement AJAX calls to API endpoints.
-  - Handle form submissions for creating and updating disputes.
-  - Update the UI dynamically based on API responses.
-
-### 7. `ui/styles.css`
-- **Responsibilities:**
-  - Style the disputes page for better user experience.
-  - Ensure responsive design for various devices.
-
-## Main Application
-
-### 8. `app.py`
-- **Responsibilities:**
-  - Initialize Flask app and register API routes.
-  - Set up CORS and error handling.
-  - Serve the UI files.
-
-## Additional Notes
-- Ensure proper logging and monitoring for API requests.
-- Consider implementing authentication if necessary.
-- Document API endpoints using Swagger or similar tools.
+## Timeline
+- **Week 1:** API and model setup
+- **Week 2:** Schema and service implementation
+- **Week 3:** Testing and debugging
+- **Week 4:** Final review and deployment
 ```
