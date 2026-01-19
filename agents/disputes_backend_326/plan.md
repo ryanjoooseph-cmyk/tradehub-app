@@ -1,101 +1,112 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an array of evidence URLs and managing dispute statuses (OPEN, REVIEW, RESOLVED).
+## Directory Structure
+```
+/disputes_backend_326
+│
+├── api
+│   ├── __init__.py
+│   ├── routes.py
+│   ├── models.py
+│   ├── schemas.py
+│   └── utils.py
+│
+├── ui
+│   ├── __init__.py
+│   ├── components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── pages
+│   │   └── DisputePage.jsx
+│   ├── services
+│   │   └── disputeService.js
+│   └── App.jsx
+│
+├── tests
+│   ├── api
+│   │   ├── test_routes.py
+│   │   └── test_models.py
+│   └── ui
+│       └── test_DisputePage.jsx
+│
+└── requirements.txt
+```
 
-## File Structure
+## API Implementation
 
-### API Implementation
+### 1. `api/models.py`
+- Define the `Dispute` model with fields:
+  - `id`: Unique identifier
+  - `status`: Enum (OPEN, REVIEW, RESOLVED)
+  - `evidence_urls`: Array of strings
+  - `created_at`: Timestamp
+  - `updated_at`: Timestamp
 
-- **File Paths:**
-  - `src/api/disputes.js`
-    - **Responsibilities:**
-      - Define API routes for disputes.
-      - Implement CRUD operations for disputes.
-      - Handle validation and error responses.
-  
-  - `src/models/Dispute.js`
-    - **Responsibilities:**
-      - Define the Dispute model schema (including fields for evidence_urls and status).
-      - Implement methods for database interactions (e.g., find, create, update).
+### 2. `api/schemas.py`
+- Create Pydantic schemas for:
+  - `DisputeCreate`: For creating a dispute
+  - `DisputeUpdate`: For updating a dispute
+  - `DisputeResponse`: For returning dispute data
 
-  - `src/controllers/disputeController.js`
-    - **Responsibilities:**
-      - Implement controller functions for handling requests (createDispute, getDisputes, updateDispute).
-      - Manage business logic for dispute status transitions.
+### 3. `api/routes.py`
+- Implement the following endpoints:
+  - `POST /api/disputes`: Create a new dispute
+  - `GET /api/disputes`: List all disputes
+  - `GET /api/disputes/{id}`: Retrieve a specific dispute
+  - `PUT /api/disputes/{id}`: Update a specific dispute (status, evidence_urls)
 
-  - `src/routes/disputeRoutes.js`
-    - **Responsibilities:**
-      - Set up Express routes for API endpoints (GET, POST, PUT).
-      - Connect routes to corresponding controller functions.
+### 4. `api/utils.py`
+- Add utility functions for:
+  - Validating dispute status
+  - Formatting evidence URLs
 
-  - `src/middleware/validateDispute.js`
-    - **Responsibilities:**
-      - Middleware for validating incoming dispute data (e.g., status, evidence_urls).
-      - Ensure proper error handling for invalid data.
+## UI Implementation
 
-### UI Implementation
+### 1. `ui/components/DisputeList.jsx`
+- Display a list of disputes with status and evidence URLs.
+- Include buttons for viewing and updating disputes.
 
-- **File Paths:**
-  - `src/components/DisputeList.jsx`
-    - **Responsibilities:**
-      - Display a list of disputes.
-      - Implement functionality to filter and sort disputes by status.
+### 2. `ui/components/DisputeForm.jsx`
+- Form for creating and updating disputes.
+- Fields for status and evidence URLs.
 
-  - `src/components/DisputeForm.jsx`
-    - **Responsibilities:**
-      - Create a form for opening and updating disputes.
-      - Handle input for evidence URLs and status selection.
+### 3. `ui/components/DisputeDetail.jsx`
+- Display detailed view of a selected dispute.
+- Include options to update status and evidence URLs.
 
-  - `src/pages/DisputePage.jsx`
-    - **Responsibilities:**
-      - Main page component for disputes.
-      - Integrate `DisputeList` and `DisputeForm`.
-      - Manage state for disputes and handle API calls.
+### 4. `ui/pages/DisputePage.jsx`
+- Main page to manage disputes.
+- Integrate `DisputeList` and `DisputeForm`.
 
-  - `src/hooks/useDisputes.js`
-    - **Responsibilities:**
-      - Custom hook for fetching and managing disputes data.
-      - Handle API requests and state updates.
+### 5. `ui/services/disputeService.js`
+- Implement API calls for:
+  - Creating a dispute
+  - Fetching disputes
+  - Updating a dispute
 
-  - `src/utils/api.js`
-    - **Responsibilities:**
-      - Define API utility functions for making requests to `/api/disputes`.
-      - Handle response parsing and error management.
+### 6. `ui/App.jsx`
+- Set up routing for the application.
+- Include the `DisputePage` component.
 
-### Testing
+## Testing
 
-- **File Paths:**
-  - `tests/api/disputes.test.js`
-    - **Responsibilities:**
-      - Write unit tests for API endpoints.
-      - Test CRUD operations and validation logic.
+### 1. `tests/api/test_routes.py`
+- Write tests for all API endpoints.
+- Validate response status and data structure.
 
-  - `tests/components/DisputeForm.test.jsx`
-    - **Responsibilities:**
-      - Write tests for the DisputeForm component.
-      - Validate form submission and error handling.
+### 2. `tests/api/test_models.py`
+- Test model methods and validations.
 
-  - `tests/hooks/useDisputes.test.js`
-    - **Responsibilities:**
-      - Write tests for the useDisputes hook.
-      - Ensure correct data fetching and state management.
+### 3. `tests/ui/test_DisputePage.jsx`
+- Write tests for UI components and interactions.
 
-## Timeline
-- **Week 1:**
-  - Set up API structure and model.
-  - Implement basic CRUD operations.
-
-- **Week 2:**
-  - Develop UI components and integrate with API.
-  - Implement state management and hooks.
-
-- **Week 3:**
-  - Write tests for API and UI components.
-  - Conduct code reviews and finalize implementation.
-
-- **Week 4:**
-  - Deploy feature to staging.
-  - Gather feedback and make necessary adjustments.
+## Dependencies
+- Update `requirements.txt` with necessary libraries:
+  - FastAPI
+  - Pydantic
+  - React
+  - Axios
+  - Jest (for testing)
 ```
