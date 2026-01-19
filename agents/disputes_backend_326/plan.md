@@ -1,111 +1,95 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
-```
-/project-root
-│
-├── /api
-│   ├── /disputes
-│   │   ├── disputesController.js
-│   │   ├── disputesService.js
-│   │   └── disputesRoutes.js
-│   │
-│   └── /middleware
-│       └── authMiddleware.js
-│
-├── /models
-│   └── disputeModel.js
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   │
-│   ├── /hooks
-│   │   └── useDisputes.js
-│   │
-│   ├── /pages
-│   │   └── DisputesPage.jsx
-│   │
-│   └── /styles
-│       └── disputes.css
-│
-└── /tests
-    ├── /api
-    │   └── disputes.test.js
-    └── /ui
-        └── DisputesPage.test.jsx
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an `evidence_urls` array and a status field with values OPEN, REVIEW, and RESOLVED.
 
-## API Implementation
+## File Structure
 
-### 1. **Model**
-- **File:** `/models/disputeModel.js`
-  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+### API Implementation
 
-### 2. **Controller**
-- **File:** `/api/disputes/disputesController.js`
-  - Implement functions:
-    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
-    - `getDisputes(req, res)`: Handle GET requests to list all disputes.
-    - `updateDispute(req, res)`: Handle PUT requests to update a specific dispute.
+#### 1. API Routes
+- **File:** `src/routes/api/disputes.js`
+  - **Responsibilities:**
+    - Define routes for GET, POST, and PUT methods.
+    - Handle request validation and response formatting.
 
-### 3. **Service**
-- **File:** `/api/disputes/disputesService.js`
-  - Implement business logic for:
-    - Creating, retrieving, and updating disputes.
-    - Validating status (OPEN/REVIEW/RESOLVED) and evidence_urls.
+#### 2. Controller
+- **File:** `src/controllers/disputeController.js`
+  - **Responsibilities:**
+    - Implement logic for creating, retrieving, and updating disputes.
+    - Validate input data and manage dispute status transitions.
 
-### 4. **Routes**
-- **File:** `/api/disputes/disputesRoutes.js`
-  - Define routes:
-    - `POST /api/disputes`: Create a dispute.
-    - `GET /api/disputes`: List all disputes.
-    - `PUT /api/disputes/:id`: Update a dispute.
+#### 3. Model
+- **File:** `src/models/Dispute.js`
+  - **Responsibilities:**
+    - Define the Dispute schema with fields: `id`, `evidence_urls`, `status`, `created_at`, `updated_at`.
+    - Implement methods for database interactions (CRUD operations).
 
-### 5. **Middleware**
-- **File:** `/api/middleware/authMiddleware.js`
-  - Implement authentication middleware to protect routes.
+#### 4. Middleware
+- **File:** `src/middleware/validateDispute.js`
+  - **Responsibilities:**
+    - Validate incoming request data for disputes.
+    - Ensure `evidence_urls` is an array and `status` is one of the allowed values.
 
-## UI Implementation
+### UI Implementation
 
-### 1. **Components**
-- **File:** `/ui/components/DisputeList.jsx`
-  - Display a list of disputes with status and evidence URLs.
+#### 5. UI Components
+- **File:** `src/components/DisputeList.js`
+  - **Responsibilities:**
+    - Display a list of disputes with their statuses and evidence URLs.
+    - Provide options to view details and update disputes.
 
-- **File:** `/ui/components/DisputeForm.jsx`
-  - Form for creating and updating disputes.
+- **File:** `src/components/DisputeForm.js`
+  - **Responsibilities:**
+    - Form for creating and updating disputes.
+    - Include fields for evidence URLs and status selection.
 
-- **File:** `/ui/components/DisputeDetail.jsx`
-  - Show detailed view of a selected dispute.
+#### 6. API Service
+- **File:** `src/services/disputeService.js`
+  - **Responsibilities:**
+    - Implement functions to call the API for creating, listing, and updating disputes.
+    - Handle API responses and errors.
 
-### 2. **Hooks**
-- **File:** `/ui/hooks/useDisputes.js`
-  - Custom hook to manage API calls for disputes (fetch, create, update).
+#### 7. State Management
+- **File:** `src/store/disputeSlice.js`
+  - **Responsibilities:**
+    - Manage dispute-related state using Redux or Context API.
+    - Handle actions for fetching, adding, and updating disputes.
 
-### 3. **Pages**
-- **File:** `/ui/pages/DisputesPage.jsx`
-  - Main page to render `DisputeList` and `DisputeForm`.
+### Testing
 
-### 4. **Styles**
-- **File:** `/ui/styles/disputes.css`
-  - Basic styles for disputes UI components.
+#### 8. API Tests
+- **File:** `tests/api/disputes.test.js`
+  - **Responsibilities:**
+    - Write unit tests for API endpoints.
+    - Test success and error scenarios for dispute operations.
 
-## Testing
+#### 9. UI Tests
+- **File:** `tests/ui/DisputeForm.test.js`
+  - **Responsibilities:**
+    - Write tests for the DisputeForm component.
+    - Validate form submission and error handling.
 
-### 1. **API Tests**
-- **File:** `/tests/api/disputes.test.js`
-  - Write tests for API endpoints (create, list, update).
+## Deployment
 
-### 2. **UI Tests**
-- **File:** `/tests/ui/DisputesPage.test.jsx`
-  - Write tests for UI components and interactions.
+#### 10. Documentation
+- **File:** `docs/api/disputes.md`
+  - **Responsibilities:**
+    - Document API endpoints, request/response formats, and usage examples.
+
+#### 11. Configuration
+- **File:** `src/config/index.js`
+  - **Responsibilities:**
+    - Configure environment variables for API and database connections.
 
 ## Timeline
-- **Week 1:** Set up models and API endpoints.
-- **Week 2:** Implement UI components and hooks.
-- **Week 3:** Testing and bug fixes.
-- **Week 4:** Final review and deployment.
+- **Week 1:** API routes and model implementation.
+- **Week 2:** UI components and state management.
+- **Week 3:** Testing and documentation.
+- **Week 4:** Deployment and review.
+
+## Notes
+- Ensure proper error handling and logging throughout the implementation.
+- Follow coding standards and best practices for maintainability.
 ```
