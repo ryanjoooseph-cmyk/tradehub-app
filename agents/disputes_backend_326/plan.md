@@ -1,98 +1,105 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, with an evidence URLs array and statuses: OPEN, REVIEW, RESOLVED.
-
-## File Structure
-
+## Project Structure
 ```
-/src
-  ├── api
-  │   ├── disputes.js
-  ├── components
-  │   ├── DisputeList.jsx
-  │   ├── DisputeForm.jsx
-  ├── hooks
-  │   ├── useDisputes.js
-  ├── pages
-  │   ├── DisputesPage.jsx
-  ├── styles
-  │   ├── Disputes.css
-  ├── utils
-  │   ├── apiClient.js
-  └── index.js
+/project-root
+│
+├── /api
+│   ├── /disputes
+│   │   ├── disputesController.js
+│   │   ├── disputesService.js
+│   │   ├── disputesModel.js
+│   │   └── disputesRoutes.js
+│   └── index.js
+│
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   ├── /pages
+│   │   └── DisputesPage.jsx
+│   └── App.jsx
+│
+└── /tests
+    ├── /api
+    │   └── disputes.test.js
+    └── /ui
+        └── DisputesPage.test.jsx
 ```
 
 ## API Implementation
 
-### File: `/src/api/disputes.js`
-- **Responsibilities:**
-  - Define API endpoints for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Open a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
-  - Handle request validation and response formatting.
-  - Manage dispute statuses (OPEN, REVIEW, RESOLVED).
+### 1. `disputesRoutes.js`
+- **Responsibilities**: Define Express routes for handling disputes.
+- **Endpoints**:
+  - `POST /api/disputes`: Create a new dispute.
+  - `GET /api/disputes`: List all disputes.
+  - `PUT /api/disputes/:id`: Update a specific dispute.
 
-### File: `/src/utils/apiClient.js`
-- **Responsibilities:**
-  - Create a reusable API client for making HTTP requests.
-  - Handle error responses and logging.
+### 2. `disputesController.js`
+- **Responsibilities**: Handle incoming requests and responses.
+- **Methods**:
+  - `createDispute(req, res)`: Validate and create a new dispute.
+  - `listDisputes(req, res)`: Fetch and return all disputes.
+  - `updateDispute(req, res)`: Validate and update a specific dispute.
+
+### 3. `disputesService.js`
+- **Responsibilities**: Business logic for disputes.
+- **Methods**:
+  - `addDispute(data)`: Logic to add a dispute to the database.
+  - `getAllDisputes()`: Logic to retrieve all disputes.
+  - `modifyDispute(id, data)`: Logic to update a dispute.
+
+### 4. `disputesModel.js`
+- **Responsibilities**: Define the dispute schema and database interactions.
+- **Schema Fields**:
+  - `evidence_urls`: Array of URLs for evidence.
+  - `status`: Enum (OPEN, REVIEW, RESOLVED).
 
 ## UI Implementation
 
-### File: `/src/components/DisputeList.jsx`
-- **Responsibilities:**
-  - Display a list of disputes.
-  - Include filtering options based on status.
-  - Integrate with `useDisputes` hook to fetch data.
+### 1. `DisputesPage.jsx`
+- **Responsibilities**: Main page to display and manage disputes.
+- **Components**: Integrate `DisputeList` and `DisputeForm`.
 
-### File: `/src/components/DisputeForm.jsx`
-- **Responsibilities:**
-  - Form to open a new dispute or update an existing one.
-  - Include fields for evidence URLs and status selection.
-  - Handle form submission and validation.
+### 2. `DisputeList.jsx`
+- **Responsibilities**: Display a list of disputes.
+- **Features**: Allow users to view and select a dispute for details.
 
-### File: `/src/hooks/useDisputes.js`
-- **Responsibilities:**
-  - Custom hook to manage dispute data fetching and state.
-  - Provide functions to open, list, and update disputes.
+### 3. `DisputeForm.jsx`
+- **Responsibilities**: Form for creating/updating disputes.
+- **Fields**: Include inputs for evidence URLs and status.
 
-### File: `/src/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Main page component for disputes.
-  - Integrate `DisputeList` and `DisputeForm`.
-  - Manage overall layout and state.
+### 4. `DisputeDetail.jsx`
+- **Responsibilities**: Show detailed view of a selected dispute.
+- **Features**: Allow status updates and evidence URL management.
 
-### File: `/src/styles/Disputes.css`
-- **Responsibilities:**
-  - Define styles for dispute components.
-  - Ensure responsive design and accessibility.
+### 5. `useDisputes.js`
+- **Responsibilities**: Custom hook for API calls related to disputes.
+- **Methods**:
+  - `fetchDisputes()`: Fetch disputes from the API.
+  - `createDispute(data)`: Create a new dispute via API.
+  - `updateDispute(id, data)`: Update a dispute via API.
 
 ## Testing
 
-### File: `/tests/api/disputes.test.js`
-- **Responsibilities:**
-  - Unit tests for API endpoints.
-  - Validate request and response formats.
+### 1. `disputes.test.js`
+- **Responsibilities**: Test API endpoints and logic.
+- **Tests**:
+  - Validate creation, listing, and updating of disputes.
 
-### File: `/tests/components/DisputeList.test.js`
-- **Responsibilities:**
-  - Unit tests for `DisputeList` component.
-  - Ensure correct rendering and functionality.
+### 2. `DisputesPage.test.jsx`
+- **Responsibilities**: Test UI components and interactions.
+- **Tests**:
+  - Ensure disputes are displayed correctly.
+  - Validate form submissions and updates.
 
-### File: `/tests/components/DisputeForm.test.js`
-- **Responsibilities:**
-  - Unit tests for `DisputeForm` component.
-  - Validate form submission and error handling.
-
-## Deployment
-- Ensure CI/CD pipeline includes tests for API and UI.
-- Deploy to staging environment for QA before production release.
-
-## Timeline
-- **Week 1:** API development and testing.
-- **Week 2:** UI component development and integration.
-- **Week 3:** Testing, bug fixing, and deployment preparation.
+## Notes
+- Ensure proper error handling and validation for all API endpoints.
+- Use a state management solution (e.g., Redux or Context API) if necessary for UI state.
+- Follow best practices for API design and UI component structure.
 ```
