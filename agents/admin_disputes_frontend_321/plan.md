@@ -1,4 +1,3 @@
-```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Project Structure
@@ -46,10 +45,10 @@
   - Define API calls to `/api/disputes`.
   - Implement functions for fetching disputes and updating status.
 
-### Hooks
-- **useDisputes.js**
-  - Custom hook to manage fetching and updating disputes.
-  - Handle loading states and errors.
+- **`/src/api/disputes.js`**
+  - Implement API functions:
+    - `fetchDisputes(filters)`: Fetch disputes based on filter criteria.
+    - `updateDisputeStatus(disputeId, newStatus)`: Update the status of a specific dispute.
 
 ### Styles
 - **AdminDisputesPage.css**
