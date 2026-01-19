@@ -21,7 +21,7 @@
 
 ## File Responsibilities
 
-### Components
+### 1. Components
 - **AdminDisputesTable.jsx**
   - Render the table of disputes with pagination and sorting.
   - Integrate filters from `FilterComponent`.
@@ -35,7 +35,7 @@
   - Display a modal for updating the status of a selected dispute.
   - Call `disputesService.updateStatus` on confirmation.
 
-### Pages
+### 2. Pages
 - **AdminDisputesPage.jsx**
   - Main page component for `/admin/disputes/321`.
   - Fetch disputes data using `disputesService.getDisputes`.
@@ -47,7 +47,7 @@
     - `getDisputes(filters)`: Fetch disputes based on applied filters.
     - `updateStatus(disputeId, newStatus)`: Update the status of a specific dispute.
 
-### Styles
+### 4. Styles
 - **AdminDisputesPage.css**
   - Style the Admin Disputes page, table, filters, and modal.
 
