@@ -1,0 +1,11 @@
+name: agent-required-check
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  required:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
