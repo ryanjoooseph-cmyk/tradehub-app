@@ -2,97 +2,97 @@
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
-Develop a user interface and API for managing disputes in the admin panel, targeting the route `/admin/disputes/321`. The UI will include an admin table with filters and actions to update dispute statuses. The API will handle data retrieval and updates.
+This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
 
 ## File Structure
 
 ### Frontend
 
-- **src/**
-  - **components/**
-    - **DisputeTable.jsx**  
-      - Render the admin table displaying disputes with filters.
-    - **DisputeRow.jsx**  
-      - Render individual dispute rows with action buttons for status updates.
-    - **FilterComponent.jsx**  
-      - Provide filtering options for disputes (e.g., by status, date).
-  - **pages/**
-    - **AdminDisputesPage.jsx**  
-      - Main page component for `/admin/disputes/321`, integrating the table and filters.
-  - **hooks/**
-    - **useDisputes.js**  
-      - Custom hook for fetching disputes and handling updates via API.
-  - **styles/**
-    - **DisputeTable.css**  
-      - Styles for the dispute table and rows.
-  - **utils/**
-    - **api.js**  
-      - API utility functions for fetching and updating disputes.
-
-### Backend
-
-- **src/**
-  - **controllers/**
-    - **disputeController.js**  
-      - Handle API requests for fetching and updating disputes.
-  - **routes/**
-    - **disputeRoutes.js**  
-      - Define routes for `/api/disputes` for GET and POST requests.
-  - **models/**
-    - **Dispute.js**  
-      - Mongoose model for the dispute schema.
-  - **middlewares/**
-    - **authMiddleware.js**  
-      - Middleware for admin authentication and authorization.
-  - **services/**
-    - **disputeService.js**  
-      - Business logic for retrieving and updating disputes.
-
-## Responsibilities
-
-### Frontend
-
-- **DisputeTable.jsx**  
-  - Display a table of disputes with pagination and sorting.
+- **File Paths:**
+  - `src/components/AdminDisputesTable.jsx`
+    - **Responsibility:** Render the admin disputes table with filters and actions.
   
-- **DisputeRow.jsx**  
-  - Show dispute details and provide buttons for status updates (e.g., Approve, Reject).
+  - `src/hooks/useDisputes.js`
+    - **Responsibility:** Custom hook to fetch disputes data and handle updates.
 
-- **FilterComponent.jsx**  
-  - Allow users to filter disputes based on criteria (status, date range).
+  - `src/pages/AdminDisputesPage.jsx`
+    - **Responsibility:** Main page component that integrates the `AdminDisputesTable`.
 
-- **AdminDisputesPage.jsx**  
-  - Integrate `DisputeTable` and `FilterComponent`, manage state and API calls.
+  - `src/services/api.js`
+    - **Responsibility:** API service to handle requests to `/api/disputes`.
 
-- **useDisputes.js**  
-  - Fetch disputes from the API and handle updates to dispute statuses.
+  - `src/styles/AdminDisputes.css`
+    - **Responsibility:** Styles for the admin disputes page and table.
 
-### Backend
+### API
 
-- **disputeController.js**  
-  - Implement methods for `getDisputes` (GET) and `updateDisputeStatus` (POST).
+- **`/src/api/disputes.js`**
+  - Implement API functions:
+    - `fetchDisputes(filters)`: Fetch disputes based on filter criteria.
+    - `updateDisputeStatus(disputeId, newStatus)`: Update the status of a specific dispute.
 
-- **disputeRoutes.js**  
-  - Set up routes for handling disputes, linking to the controller methods.
+  - `src/controllers/disputesController.js`
+    - **Responsibility:** Logic for handling disputes data retrieval and status updates.
 
-- **Dispute.js**  
-  - Define the schema for disputes, including fields like `status`, `createdAt`, etc.
+  - `src/models/Dispute.js`
+    - **Responsibility:** Mongoose model for the Dispute schema.
 
-- **authMiddleware.js**  
-  - Ensure only authenticated admins can access the dispute API.
+  - `src/middleware/authMiddleware.js`
+    - **Responsibility:** Middleware for admin authentication and authorization.
 
-- **disputeService.js**  
-  - Implement logic for querying the database and updating dispute statuses.
+## Implementation Steps
+
+### Frontend Development
+
+1. **Create AdminDisputesTable Component**
+   - Implement table structure with columns for dispute details and actions.
+   - Add filter inputs for searching disputes.
+
+2. **Implement useDisputes Hook**
+   - Fetch disputes from the API.
+   - Handle state management for disputes and loading/error states.
+
+3. **Build AdminDisputesPage Component**
+   - Integrate `AdminDisputesTable` and manage overall page layout.
+   - Add navigation and header for admin context.
+
+4. **Style the Component**
+   - Apply styles in `AdminDisputes.css` for a clean and responsive design.
+
+### API Development
+
+1. **Define API Routes in disputes.js**
+   - Create GET endpoint for fetching disputes.
+   - Create PUT endpoint for updating dispute status.
+
+2. **Implement Disputes Controller Logic**
+   - Fetch disputes from the database and return them in the response.
+   - Handle status updates and return appropriate responses.
+
+3. **Create Dispute Model**
+   - Define schema with necessary fields (e.g., status, details, timestamps).
+
+4. **Set Up Authentication Middleware**
+   - Ensure only authorized admin users can access the disputes API.
 
 ## Testing
+- Implement unit tests for API functions and UI components.
+- Ensure integration tests cover the full flow from fetching disputes to updating status.
 
-- **Frontend**  
-  - Write unit tests for components and hooks using Jest and React Testing Library.
+- **File Paths:**
+  - `src/tests/AdminDisputesTable.test.js`
+    - **Responsibility:** Unit tests for the AdminDisputesTable component.
 
-- **Backend**  
-  - Write integration tests for API endpoints using Mocha/Chai or Jest.
+  - `src/tests/api/disputes.test.js`
+    - **Responsibility:** Integration tests for API endpoints.
 
 ## Deployment
 
-- Ensure the feature is included in the CI/CD pipeline for deployment to staging and production environments.
+- Ensure all changes are merged into the main branch.
+- Deploy to staging for QA testing before production release.
+
+## Documentation
+
+- Update API documentation to include new endpoints.
+- Document frontend component usage and props in the README.
 ```
