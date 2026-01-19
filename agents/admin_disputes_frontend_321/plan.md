@@ -1,95 +1,107 @@
 ```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
-## Directory Structure
-```
-/src
-  ├── components
-  │   ├── AdminDisputesTable.jsx
-  │   ├── FilterBar.jsx
-  │   └── StatusUpdateModal.jsx
-  ├── pages
-  │   └── AdminDisputesPage.jsx
-  ├── api
-  │   └── disputesApi.js
-  ├── styles
-  │   └── AdminDisputesPage.css
-  ├── hooks
-  │   └── useDisputes.js
-  └── utils
-      └── constants.js
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes in the admin panel, specifically targeting the route `/admin/disputes/321`. The feature will include an admin table with filters and actions to update the status of disputes.
+
+## File Structure
+
+### Frontend
+
+- **src/**
+  - **components/**
+    - **DisputeTable.jsx**  
+      - Responsible for rendering the table of disputes with filtering options.
+    
+    - **DisputeRow.jsx**  
+      - Responsible for rendering individual dispute rows and providing action buttons for status updates.
+    
+    - **FilterComponent.jsx**  
+      - Responsible for providing filter options for the disputes table.
+    
+  - **pages/**
+    - **AdminDisputesPage.jsx**  
+      - Main page component for `/admin/disputes/321`, integrates `DisputeTable` and `FilterComponent`.
+    
+  - **hooks/**
+    - **useDisputes.js**  
+      - Custom hook to fetch disputes from the API and manage state.
+    
+  - **api/**
+    - **disputeApi.js**  
+      - Contains functions to call `/api/disputes` for fetching and updating dispute statuses.
+
+- **styles/**
+  - **DisputeTable.css**  
+    - Styles for the dispute table and its components.
+
+### Backend
+
+- **src/**
+  - **controllers/**
+    - **disputeController.js**  
+      - Handles API requests related to disputes, including fetching and updating dispute statuses.
+    
+  - **routes/**
+    - **disputeRoutes.js**  
+      - Defines the API endpoints for disputes, including GET and PUT methods for `/api/disputes`.
+
+  - **models/**
+    - **Dispute.js**  
+      - Mongoose model for the dispute schema, defining fields and validation.
+
+  - **middlewares/**
+    - **authMiddleware.js**  
+      - Middleware for authenticating admin users before accessing dispute routes.
 
 ## Responsibilities
 
-### Components
-- **AdminDisputesTable.jsx**
-  - Display a table of disputes with pagination and sorting.
-  - Integrate filters from FilterBar component.
-  - Handle status update actions via StatusUpdateModal.
+### Frontend
 
-- **FilterBar.jsx**
-  - Provide UI for filtering disputes (e.g., by date, status).
-  - Emit filter changes to AdminDisputesTable.
+- **DisputeTable.jsx**
+  - Fetch and display disputes using `useDisputes` hook.
+  - Integrate filtering options from `FilterComponent`.
 
-- **StatusUpdateModal.jsx**
-  - Modal for updating the status of a selected dispute.
-  - Call API to update status and refresh the table.
+- **DisputeRow.jsx**
+  - Display dispute details and provide buttons for status updates.
+  - Call the API to update dispute status on button click.
 
-### Pages
+- **FilterComponent.jsx**
+  - Provide UI for filtering disputes based on status, date, etc.
+  - Pass filter criteria to `DisputeTable`.
+
 - **AdminDisputesPage.jsx**
-  - Main entry point for the admin disputes route.
-  - Render AdminDisputesTable and FilterBar.
-  - Manage state for disputes and filters.
+  - Set up the layout for the admin disputes page.
+  - Integrate `DisputeTable` and `FilterComponent`.
 
-### API
-- **disputesApi.js**
-  - Define API calls to `/api/disputes`.
-  - Implement functions for fetching disputes, updating status, and handling errors.
-
-### Styles
-- **AdminDisputesPage.css**
-  - Style the AdminDisputesPage and its components for a clean UI.
-
-### Hooks
 - **useDisputes.js**
-  - Custom hook to manage fetching and updating disputes.
-  - Handle loading states and errors.
+  - Implement logic to fetch disputes from the API and manage loading/error states.
 
-### Utilities
-- **constants.js**
-  - Define constants for dispute statuses and API endpoints.
+- **disputeApi.js**
+  - Create functions for GET and PUT requests to `/api/disputes`.
 
-## Development Steps
-1. **Setup Route**
-   - Configure route in the main application file (e.g., `App.js`).
-   - Ensure route `/admin/disputes/321` is accessible only to admin users.
+### Backend
 
-2. **Build Components**
-   - Implement AdminDisputesTable, FilterBar, and StatusUpdateModal.
-   - Ensure components communicate effectively.
+- **disputeController.js**
+  - Implement logic for fetching disputes and updating their statuses.
+  - Ensure proper error handling and response formatting.
 
-3. **Implement API Calls**
-   - Create functions in disputesApi.js for fetching and updating disputes.
-   - Handle API responses and errors.
+- **disputeRoutes.js**
+  - Set up routes for fetching disputes (`GET /api/disputes`) and updating status (`PUT /api/disputes/:id`).
 
-4. **Integrate State Management**
-   - Use useDisputes hook in AdminDisputesPage to manage data flow.
-   - Connect filters and status updates to the state.
+- **Dispute.js**
+  - Define the schema for disputes, including fields like `status`, `createdAt`, etc.
 
-5. **Style the UI**
-   - Apply styles from AdminDisputesPage.css to ensure a cohesive look.
-
-6. **Testing**
-   - Write unit tests for components and API functions.
-   - Conduct integration tests for the complete flow.
-
-7. **Deployment**
-   - Prepare for deployment by ensuring all features are functional.
-   - Update documentation for the new route and features.
+- **authMiddleware.js**
+  - Implement authentication checks for admin access to dispute routes.
 
 ## Timeline
-- **Week 1:** Component development and API integration.
-- **Week 2:** Testing and styling.
-- **Week 3:** Final review and deployment.
+- **Week 1**: Set up file structure and implement backend API.
+- **Week 2**: Develop frontend components and integrate with the API.
+- **Week 3**: Testing and bug fixing.
+- **Week 4**: Deployment and documentation.
+
+## Notes
+- Ensure that all components are responsive and accessible.
+- Implement unit tests for both frontend and backend functionalities.
 ```
