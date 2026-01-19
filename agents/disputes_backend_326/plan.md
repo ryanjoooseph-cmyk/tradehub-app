@@ -1,111 +1,101 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
-```
-/project-root
-│
-├── /api
-│   ├── /disputes
-│   │   ├── disputesController.js
-│   │   ├── disputesService.js
-│   │   └── disputesRoutes.js
-│   │
-│   └── /middleware
-│       └── authMiddleware.js
-│
-├── /models
-│   └── disputeModel.js
-│
-├── /ui
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   │
-│   ├── /hooks
-│   │   └── useDisputes.js
-│   │
-│   ├── /pages
-│   │   └── DisputesPage.jsx
-│   │
-│   └── /styles
-│       └── disputes.css
-│
-└── /tests
-    ├── /api
-    │   └── disputes.test.js
-    └── /ui
-        └── DisputesPage.test.jsx
-```
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including handling an `evidence_urls` array and managing dispute statuses (OPEN, REVIEW, RESOLVED).
 
-## API Implementation
+## File Structure
 
-### 1. **Model**
-- **File:** `/models/disputeModel.js`
-  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+### API Implementation
 
-### 2. **Controller**
-- **File:** `/api/disputes/disputesController.js`
-  - Implement functions:
-    - `createDispute(req, res)`: Handle POST requests to create a new dispute.
-    - `getDisputes(req, res)`: Handle GET requests to list all disputes.
-    - `updateDispute(req, res)`: Handle PUT requests to update a specific dispute.
+- **File Paths:**
+  - `src/api/disputes.js`
+    - **Responsibilities:**
+      - Define API endpoints for disputes.
+      - Implement CRUD operations for disputes.
+      - Handle request validation and error responses.
 
-### 3. **Service**
-- **File:** `/api/disputes/disputesService.js`
-  - Implement business logic for:
-    - Creating, retrieving, and updating disputes.
-    - Validating status (OPEN/REVIEW/RESOLVED) and evidence_urls.
+  - `src/models/Dispute.js`
+    - **Responsibilities:**
+      - Define the Dispute model/schema.
+      - Include fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
 
-### 4. **Routes**
-- **File:** `/api/disputes/disputesRoutes.js`
-  - Define routes:
-    - `POST /api/disputes`: Create a dispute.
-    - `GET /api/disputes`: List all disputes.
-    - `PUT /api/disputes/:id`: Update a dispute.
+  - `src/controllers/disputeController.js`
+    - **Responsibilities:**
+      - Implement controller functions for handling API requests.
+      - Functions: `createDispute`, `getDisputes`, `updateDispute`.
 
-### 5. **Middleware**
-- **File:** `/api/middleware/authMiddleware.js`
-  - Implement authentication middleware to protect routes.
+  - `src/routes/disputeRoutes.js`
+    - **Responsibilities:**
+      - Set up Express routes for `/api/disputes`.
+      - Connect routes to controller functions.
 
-## UI Implementation
+  - `src/middleware/validateDispute.js`
+    - **Responsibilities:**
+      - Middleware for validating dispute data (e.g., status, evidence_urls).
+      - Ensure proper error handling for invalid data.
 
-### 1. **Components**
-- **File:** `/ui/components/DisputeList.jsx`
-  - Display a list of disputes with status and evidence URLs.
+### UI Implementation
 
-- **File:** `/ui/components/DisputeForm.jsx`
-  - Form for creating and updating disputes.
+- **File Paths:**
+  - `src/components/DisputeList.jsx`
+    - **Responsibilities:**
+      - Display a list of disputes.
+      - Include filtering options based on status.
 
-- **File:** `/ui/components/DisputeDetail.jsx`
-  - Show detailed view of a selected dispute.
+  - `src/components/DisputeForm.jsx`
+    - **Responsibilities:**
+      - Form for creating and updating disputes.
+      - Handle input for `evidence_urls` and status selection.
 
-### 2. **Hooks**
-- **File:** `/ui/hooks/useDisputes.js`
-  - Custom hook to manage API calls for disputes (fetch, create, update).
+  - `src/pages/DisputePage.jsx`
+    - **Responsibilities:**
+      - Main page for disputes.
+      - Integrate `DisputeList` and `DisputeForm`.
 
-### 3. **Pages**
-- **File:** `/ui/pages/DisputesPage.jsx`
-  - Main page to render `DisputeList` and `DisputeForm`.
+  - `src/services/disputeService.js`
+    - **Responsibilities:**
+      - API calls to the backend for disputes (GET, POST, PUT).
+      - Handle response data and errors.
 
-### 4. **Styles**
-- **File:** `/ui/styles/disputes.css`
-  - Basic styles for disputes UI components.
+  - `src/hooks/useDisputes.js`
+    - **Responsibilities:**
+      - Custom hook for managing dispute state.
+      - Fetch disputes and handle updates.
 
-## Testing
+### Testing
 
-### 1. **API Tests**
-- **File:** `/tests/api/disputes.test.js`
-  - Write tests for API endpoints (create, list, update).
+- **File Paths:**
+  - `src/tests/api/disputes.test.js`
+    - **Responsibilities:**
+      - Unit tests for API endpoints.
+      - Validate response structure and status codes.
 
-### 2. **UI Tests**
-- **File:** `/tests/ui/DisputesPage.test.jsx`
-  - Write tests for UI components and interactions.
+  - `src/tests/components/DisputeList.test.jsx`
+    - **Responsibilities:**
+      - Unit tests for the DisputeList component.
+      - Ensure proper rendering and filtering.
+
+  - `src/tests/components/DisputeForm.test.jsx`
+    - **Responsibilities:**
+      - Unit tests for the DisputeForm component.
+      - Validate form submission and error handling.
 
 ## Timeline
-- **Week 1:** Set up models and API endpoints.
-- **Week 2:** Implement UI components and hooks.
-- **Week 3:** Testing and bug fixes.
-- **Week 4:** Final review and deployment.
+- **Week 1:**
+  - Set up API structure and models.
+  - Implement basic CRUD operations.
+
+- **Week 2:**
+  - Develop UI components for listing and creating disputes.
+  - Integrate API with UI.
+
+- **Week 3:**
+  - Implement testing for API and UI components.
+  - Conduct code reviews and finalize feature.
+
+## Notes
+- Ensure proper error handling and user feedback in the UI.
+- Consider accessibility best practices in UI components.
+- Document API endpoints and usage in `README.md`.
 ```
