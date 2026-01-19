@@ -3,71 +3,82 @@
 
 ## Directory Structure
 ```
-/disputes_backend
-├── /api
+/disputes_backend_326
+├── api
 │   ├── disputes.js
 │   └── index.js
-├── /models
+├── models
 │   └── disputeModel.js
-├── /controllers
+├── controllers
 │   └── disputeController.js
-├── /routes
+├── routes
 │   └── disputeRoutes.js
-├── /middleware
+├── middleware
 │   └── authMiddleware.js
-├── /tests
+├── tests
 │   ├── disputeController.test.js
 │   └── disputeRoutes.test.js
-├── /config
-│   └── dbConfig.js
-└── server.js
+└── app.js
 ```
 
-## Responsibilities
+## File Responsibilities
 
-### 1. **Model Definition**
-- **File:** `/models/disputeModel.js`
-- **Responsibility:** Define the Dispute schema with fields: `id`, `evidence_urls` (array), `status` (enum: OPEN/REVIEW/RESOLVED), and timestamps.
+### 1. **API Layer**
+- **`/api/disputes.js`**
+  - Define API endpoints for disputes.
+  - Handle HTTP methods: GET (list), POST (create), PUT (update).
+  
+- **`/api/index.js`**
+  - Export routes for integration with the main application.
 
-### 2. **API Routes**
-- **File:** `/routes/disputeRoutes.js`
-- **Responsibility:** Set up Express routes for:
-  - `GET /api/disputes` - List all disputes
-  - `POST /api/disputes` - Create a new dispute
-  - `PUT /api/disputes/:id` - Update an existing dispute
+### 2. **Models**
+- **`/models/disputeModel.js`**
+  - Define the Dispute schema with fields: `id`, `evidence_urls`, `status`.
+  - Implement Mongoose model for MongoDB.
 
-### 3. **Controller Logic**
-- **File:** `/controllers/disputeController.js`
-- **Responsibility:** Implement controller functions for:
-  - `listDisputes` - Fetch all disputes
-  - `createDispute` - Handle dispute creation with validation
-  - `updateDispute` - Update dispute status and evidence_urls
+### 3. **Controllers**
+- **`/controllers/disputeController.js`**
+  - Implement logic for:
+    - `listDisputes`: Fetch all disputes.
+    - `createDispute`: Create a new dispute with evidence URLs.
+    - `updateDispute`: Update status and evidence URLs of an existing dispute.
 
-### 4. **Middleware**
-- **File:** `/middleware/authMiddleware.js`
-- **Responsibility:** Implement authentication middleware to protect routes.
+### 4. **Routes**
+- **`/routes/disputeRoutes.js`**
+  - Define routes for:
+    - `GET /api/disputes`: List all disputes.
+    - `POST /api/disputes`: Create a new dispute.
+    - `PUT /api/disputes/:id`: Update an existing dispute.
 
-### 5. **API Entry Point**
-- **File:** `/api/index.js`
-- **Responsibility:** Import and use dispute routes in the Express app.
+### 5. **Middleware**
+- **`/middleware/authMiddleware.js`**
+  - Implement authentication checks for API access.
 
-### 6. **Database Configuration**
-- **File:** `/config/dbConfig.js`
-- **Responsibility:** Set up database connection (e.g., MongoDB, PostgreSQL).
+### 6. **Tests**
+- **`/tests/disputeController.test.js`**
+  - Write unit tests for dispute controller functions.
+  
+- **`/tests/disputeRoutes.test.js`**
+  - Write integration tests for dispute routes.
 
-### 7. **Server Setup**
-- **File:** `/server.js`
-- **Responsibility:** Initialize Express app, connect to the database, and listen on a specified port.
+### 7. **Main Application**
+- **`/app.js`**
+  - Set up Express server.
+  - Integrate routes and middleware.
+  - Connect to MongoDB.
 
-### 8. **Testing**
-- **Files:** 
-  - `/tests/disputeController.test.js`
-  - `/tests/disputeRoutes.test.js`
-- **Responsibility:** Write unit tests for controller functions and integration tests for API routes.
+## Development Steps
+1. **Set up project structure**: Create directories and files as outlined.
+2. **Implement model**: Define Dispute schema and model.
+3. **Create controller logic**: Implement functions for handling disputes.
+4. **Define routes**: Set up API endpoints in routes file.
+5. **Add middleware**: Implement authentication checks.
+6. **Write tests**: Create unit and integration tests for coverage.
+7. **Integrate and test**: Connect all components in `app.js` and run tests.
+8. **Documentation**: Update API documentation with endpoint details.
 
 ## Timeline
-- **Week 1:** Model and API route setup
-- **Week 2:** Controller implementation and middleware
-- **Week 3:** Testing and debugging
-- **Week 4:** Final review and deployment
+- **Week 1**: Set up project structure, implement model and controller.
+- **Week 2**: Define routes, add middleware, and write tests.
+- **Week 3**: Integrate components, run tests, and finalize documentation.
 ```
