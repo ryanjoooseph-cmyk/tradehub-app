@@ -5,6 +5,8 @@
 
 ```
 /src
+  ├── api
+  │   ├── disputes.js               # API calls related to disputes
   ├── components
   │   ├── AdminDisputesTable.jsx
   │   ├── FilterBar.jsx
