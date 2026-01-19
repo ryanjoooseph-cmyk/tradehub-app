@@ -1,98 +1,119 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Overview
-This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, with an evidence URLs array and statuses: OPEN, REVIEW, RESOLVED.
-
-## File Structure
-
+## Project Structure
 ```
-/src
-  ├── api
-  │   ├── disputes.js
-  ├── components
-  │   ├── DisputeList.jsx
-  │   ├── DisputeForm.jsx
-  ├── hooks
-  │   ├── useDisputes.js
-  ├── pages
-  │   ├── DisputesPage.jsx
-  ├── styles
-  │   ├── Disputes.css
-  ├── utils
-  │   ├── apiClient.js
-  └── index.js
+/disputes_backend_326
+│
+├── /api
+│   ├── /controllers
+│   │   └── disputesController.js
+│   ├── /routes
+│   │   └── disputesRoutes.js
+│   ├── /models
+│   │   └── disputeModel.js
+│   ├── /middlewares
+│   │   └── validateDispute.js
+│   └── /utils
+│       └── responseHandler.js
+│
+├── /client
+│   ├── /components
+│   │   ├── DisputeList.jsx
+│   │   ├── DisputeForm.jsx
+│   │   └── DisputeDetail.jsx
+│   ├── /services
+│   │   └── disputeService.js
+│   ├── /hooks
+│   │   └── useDisputes.js
+│   └── /styles
+│       └── disputes.css
+│
+├── /tests
+│   ├── /api
+│   │   └── disputes.test.js
+│   └── /client
+│       └── DisputeList.test.jsx
+│
+└── server.js
 ```
 
 ## API Implementation
 
-### File: `/src/api/disputes.js`
+### 1. **Model Creation**
+- **File:** `/api/models/disputeModel.js`
 - **Responsibilities:**
-  - Define API endpoints for:
-    - `GET /api/disputes`: List all disputes.
-    - `POST /api/disputes`: Open a new dispute.
-    - `PUT /api/disputes/:id`: Update an existing dispute.
-  - Handle request validation and response formatting.
-  - Manage dispute statuses (OPEN, REVIEW, RESOLVED).
+  - Define the Dispute schema with fields: `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
+  - Implement Mongoose model for MongoDB.
 
-### File: `/src/utils/apiClient.js`
+### 2. **Controller Functions**
+- **File:** `/api/controllers/disputesController.js`
 - **Responsibilities:**
-  - Create a reusable API client for making HTTP requests.
-  - Handle error responses and logging.
+  - `createDispute(req, res)`: Handle POST requests to create a new dispute.
+  - `getDisputes(req, res)`: Handle GET requests to list all disputes.
+  - `updateDispute(req, res)`: Handle PUT requests to update a dispute's status or evidence_urls.
 
-## UI Implementation
-
-### File: `/src/components/DisputeList.jsx`
+### 3. **Routes Definition**
+- **File:** `/api/routes/disputesRoutes.js`
 - **Responsibilities:**
-  - Display a list of disputes.
-  - Include filtering options based on status.
-  - Integrate with `useDisputes` hook to fetch data.
+  - Define routes for `/api/disputes`:
+    - `POST /`: Create a dispute.
+    - `GET /`: List all disputes.
+    - `PUT /:id`: Update a specific dispute.
 
-### File: `/src/components/DisputeForm.jsx`
+### 4. **Middleware for Validation**
+- **File:** `/api/middlewares/validateDispute.js`
 - **Responsibilities:**
-  - Form to open a new dispute or update an existing one.
-  - Include fields for evidence URLs and status selection.
-  - Handle form submission and validation.
+  - Validate request body for creating/updating disputes (check status and evidence_urls).
 
-### File: `/src/hooks/useDisputes.js`
+### 5. **Response Handling Utility**
+- **File:** `/api/utils/responseHandler.js`
 - **Responsibilities:**
-  - Custom hook to manage dispute data fetching and state.
-  - Provide functions to open, list, and update disputes.
+  - Standardize API responses (success and error formats).
 
-### File: `/src/pages/DisputesPage.jsx`
-- **Responsibilities:**
-  - Main page component for disputes.
-  - Integrate `DisputeList` and `DisputeForm`.
-  - Manage overall layout and state.
+## Client Implementation
 
-### File: `/src/styles/Disputes.css`
+### 6. **Dispute Components**
+- **File:** `/client/components/DisputeList.jsx`
 - **Responsibilities:**
-  - Define styles for dispute components.
-  - Ensure responsive design and accessibility.
+  - Display a list of disputes with status and evidence URLs.
+
+- **File:** `/client/components/DisputeForm.jsx`
+- **Responsibilities:**
+  - Form for creating/updating disputes.
+
+- **File:** `/client/components/DisputeDetail.jsx`
+- **Responsibilities:**
+  - Detailed view of a single dispute.
+
+### 7. **Service Layer**
+- **File:** `/client/services/disputeService.js`
+- **Responsibilities:**
+  - Implement API calls to the backend for creating, listing, and updating disputes.
+
+### 8. **Custom Hook**
+- **File:** `/client/hooks/useDisputes.js`
+- **Responsibilities:**
+  - Manage state and side effects related to disputes (fetching, creating, updating).
+
+### 9. **Styling**
+- **File:** `/client/styles/disputes.css`
+- **Responsibilities:**
+  - Style the dispute components for a cohesive UI.
 
 ## Testing
 
-### File: `/tests/api/disputes.test.js`
+### 10. **API Tests**
+- **File:** `/tests/api/disputes.test.js`
 - **Responsibilities:**
-  - Unit tests for API endpoints.
-  - Validate request and response formats.
+  - Write unit tests for API endpoints (create, list, update).
 
-### File: `/tests/components/DisputeList.test.js`
+### 11. **Client Tests**
+- **File:** `/tests/client/DisputeList.test.jsx`
 - **Responsibilities:**
-  - Unit tests for `DisputeList` component.
-  - Ensure correct rendering and functionality.
-
-### File: `/tests/components/DisputeForm.test.js`
-- **Responsibilities:**
-  - Unit tests for `DisputeForm` component.
-  - Validate form submission and error handling.
+  - Write tests for the DisputeList component.
 
 ## Deployment
-- Ensure CI/CD pipeline includes tests for API and UI.
-- Deploy to staging environment for QA before production release.
-
-## Timeline
-- **Week 1:** API development and testing.
-- **Week 2:** UI component development and integration.
-- **Week 3:** Testing, bug fixing, and deployment preparation.
+- Ensure all changes are committed and pushed to the repository.
+- Deploy the backend and frontend to the respective environments.
 ```
