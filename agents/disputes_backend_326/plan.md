@@ -74,6 +74,11 @@ This plan outlines the implementation of the UI and API for managing disputes at
 - **Responsibilities**: Create a reusable API client for making requests to the `/api/disputes` endpoint.
 
 ## Testing
+- **File:** `/src/__tests__/disputeService.test.js`
+  - Write unit tests for dispute service functions.
+  
+- **File:** `/src/__tests__/DisputeList.test.jsx`
+  - Write tests for the `DisputeList` component.
 
 - Implement unit tests for API endpoints in `/tests/api/disputes.test.js`.
 - Implement component tests for UI components in `/tests/components/Dispute*.test.js`.
