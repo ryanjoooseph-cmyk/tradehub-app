@@ -1,9 +1,10 @@
+```markdown
 # Implementation Plan for Feature 'admin_disputes_frontend_321'
 
 ## Overview
 This plan outlines the implementation of the UI and API for the admin disputes feature targeting the route `/admin/disputes/321`. The feature includes an admin table with filters and actions to update dispute statuses.
 
-## File Structure
+## Responsibilities
 
 ### Frontend
 
@@ -75,6 +76,8 @@ This plan outlines the implementation of the UI and API for the admin disputes f
    - Ensure only authorized admin users can access the disputes API.
 
 ## Testing
+- Implement unit tests for API functions and UI components.
+- Ensure integration tests cover the full flow from fetching disputes to updating status.
 
 - **File Paths:**
   - `src/tests/AdminDisputesTable.test.js`
