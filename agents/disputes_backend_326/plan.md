@@ -4,104 +4,119 @@
 ## Project Structure
 ```
 /disputes_backend_326
-│
 ├── /api
-│   ├── /controllers
-│   │   └── disputesController.js
-│   ├── /routes
-│   │   └── disputesRoutes.js
-│   ├── /models
-│   │   └── disputeModel.js
-│   ├── /middlewares
-│   │   └── authMiddleware.js
-│   └── /utils
-│       └── responseHandler.js
-│
-├── /client
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── /services
-│   │   └── disputeService.js
-│   ├── /pages
-│   │   └── DisputePage.jsx
-│   └── /styles
-│       └── DisputeStyles.css
-│
+│   ├── disputes.py
+│   ├── __init__.py
+│   └── utils.py
+├── /models
+│   ├── dispute.py
+│   └── __init__.py
+├── /schemas
+│   ├── dispute_schema.py
+│   └── __init__.py
 ├── /tests
-│   ├── /api
-│   │   └── disputes.test.js
-│   └── /client
-│       └── DisputePage.test.jsx
-│
-└── server.js
+│   ├── test_disputes.py
+│   └── __init__.py
+├── /ui
+│   ├── /components
+│   │   ├── DisputeList.vue
+│   │   ├── DisputeForm.vue
+│   │   └── EvidenceUploader.vue
+│   ├── /views
+│   │   ├── DisputeView.vue
+│   │   └── DisputeDetailView.vue
+│   ├── App.vue
+│   └── main.js
+└── requirements.txt
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **`/api/controllers/disputesController.js`**
-  - Implement functions to handle:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
-  - Validate input data and manage status (OPEN/REVIEW/RESOLVED).
+### File: `/api/disputes.py`
+- **Responsibilities:**
+  - Define API routes for disputes:
+    - `GET /api/disputes`: List all disputes.
+    - `POST /api/disputes`: Create a new dispute.
+    - `PUT /api/disputes/<id>`: Update an existing dispute.
+  - Handle request validation and response formatting.
+  - Integrate with the database to perform CRUD operations.
 
-- **`/api/routes/disputesRoutes.js`**
-  - Define routes for disputes API.
-  - Integrate with `disputesController`.
+### File: `/api/utils.py`
+- **Responsibilities:**
+  - Helper functions for error handling and response formatting.
+  - Functions to validate dispute status and evidence URLs.
 
-- **`/api/models/disputeModel.js`**
-  - Define the dispute schema with fields:
-    - `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  - Implement methods for database interactions.
+## Model Implementation
 
-- **`/api/middlewares/authMiddleware.js`**
-  - Implement authentication middleware to protect routes.
+### File: `/models/dispute.py`
+- **Responsibilities:**
+  - Define the Dispute model with fields:
+    - `id`: Unique identifier.
+    - `status`: Enum (OPEN, REVIEW, RESOLVED).
+    - `evidence_urls`: Array of strings.
+  - Implement methods for database interactions (CRUD).
 
-- **`/api/utils/responseHandler.js`**
-  - Create utility functions for standardized API responses.
+## Schema Implementation
 
-### Client Implementation
-- **`/client/components/DisputeList.jsx`**
-  - Display a list of disputes with status and actions.
+### File: `/schemas/dispute_schema.py`
+- **Responsibilities:**
+  - Define Pydantic schemas for request and response validation.
+  - Create schemas for creating and updating disputes.
 
-- **`/client/components/DisputeForm.jsx`**
-  - Form for creating/updating disputes.
-  - Include fields for `evidence_urls` and status selection.
+## UI Implementation
 
-- **`/client/components/DisputeDetail.jsx`**
-  - Show detailed view of a selected dispute.
+### File: `/ui/components/DisputeList.vue`
+- **Responsibilities:**
+  - Display a list of disputes with statuses.
+  - Provide buttons for viewing and updating disputes.
 
-- **`/client/services/disputeService.js`**
-  - Implement API calls for:
-    - Fetching disputes
-    - Creating a new dispute
-    - Updating an existing dispute
+### File: `/ui/components/DisputeForm.vue`
+- **Responsibilities:**
+  - Form for creating and updating disputes.
+  - Input fields for status and evidence URLs.
 
-- **`/client/pages/DisputePage.jsx`**
-  - Main page to render dispute components and manage state.
+### File: `/ui/components/EvidenceUploader.vue`
+- **Responsibilities:**
+  - Handle file uploads for evidence.
+  - Manage the evidence_urls array.
 
-- **`/client/styles/DisputeStyles.css`**
-  - Style the dispute components for a user-friendly interface.
+### File: `/ui/views/DisputeView.vue`
+- **Responsibilities:**
+  - Main view for displaying disputes.
+  - Integrate `DisputeList` and `DisputeForm` components.
 
-### Testing
-- **`/tests/api/disputes.test.js`**
-  - Write unit tests for API endpoints and controller logic.
+### File: `/ui/views/DisputeDetailView.vue`
+- **Responsibilities:**
+  - Detailed view of a single dispute.
+  - Show evidence and allow updates.
 
-- **`/tests/client/DisputePage.test.jsx`**
-  - Write tests for the DisputePage component and its interactions.
+### File: `/ui/App.vue`
+- **Responsibilities:**
+  - Main application layout.
+  - Router setup for navigating between views.
 
-### Server Setup
-- **`server.js`**
-  - Set up Express server.
-  - Integrate API routes and middleware.
-  - Connect to the database.
+### File: `/ui/main.js`
+- **Responsibilities:**
+  - Initialize Vue app.
+  - Set up Vue Router and state management (Vuex).
+
+## Testing Implementation
+
+### File: `/tests/test_disputes.py`
+- **Responsibilities:**
+  - Write unit tests for API endpoints.
+  - Test CRUD operations and validation logic.
+
+## Dependencies
+
+### File: `/requirements.txt`
+- **Responsibilities:**
+  - List required packages for the backend (e.g., Flask, SQLAlchemy, Pydantic).
+  - List required packages for the frontend (e.g., Vue.js, Axios).
 
 ## Timeline
-- **Week 1**: API design and initial implementation.
-- **Week 2**: Client-side component development.
-- **Week 3**: Testing and debugging.
-- **Week 4**: Final review and deployment.
+- **Week 1:** API routes and models implementation.
+- **Week 2:** UI components and views development.
+- **Week 3:** Testing and integration.
+- **Week 4:** Final review and deployment.
 ```
