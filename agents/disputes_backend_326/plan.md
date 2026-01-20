@@ -1,107 +1,104 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will allow users to open, list, and update disputes, manage evidence URLs, and handle dispute statuses (OPEN, REVIEW, RESOLVED).
+
+## Directory Structure
+
 ```
 /disputes_backend_326
 │
 ├── /api
-│   ├── /controllers
-│   │   └── disputesController.js
-│   ├── /routes
-│   │   └── disputesRoutes.js
-│   ├── /models
-│   │   └── disputeModel.js
-│   ├── /middlewares
-│   │   └── authMiddleware.js
-│   └── /utils
-│       └── responseHandler.js
+│   ├── disputes.js                # API routes for disputes
+│   ├── disputesController.js       # Controller for dispute logic
+│   ├── disputesModel.js            # Mongoose model for disputes
+│   └── validation.js               # Input validation middleware
 │
-├── /client
+├── /ui
 │   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── /services
-│   │   └── disputeService.js
+│   │   ├── DisputeList.jsx         # Component to list disputes
+│   │   ├── DisputeForm.jsx         # Component to open/update disputes
+│   │   └── EvidenceUploader.jsx     # Component to upload evidence URLs
+│   │
 │   ├── /pages
-│   │   └── DisputePage.jsx
+│   │   └── DisputePage.jsx         # Main page for disputes
+│   │
+│   ├── /hooks
+│   │   └── useDispute.js           # Custom hook for dispute API calls
+│   │
 │   └── /styles
-│       └── DisputeStyles.css
+│       └── disputes.css            # Styles for dispute components
 │
 ├── /tests
-│   ├── /api
-│   │   └── disputes.test.js
-│   └── /client
-│       └── DisputePage.test.jsx
+│   ├── disputes.test.js            # Unit tests for API
+│   └── DisputeForm.test.js         # Unit tests for UI components
 │
-└── server.js
+└── README.md                       # Project documentation
 ```
 
 ## Responsibilities
 
 ### API Implementation
-- **`/api/controllers/disputesController.js`**
-  - Implement functions to handle:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
-  - Validate input data and manage status (OPEN/REVIEW/RESOLVED).
 
-- **`/api/routes/disputesRoutes.js`**
-  - Define routes for disputes API.
-  - Integrate with `disputesController`.
+1. **disputes.js**
+   - Define routes for GET, POST, PUT requests.
+   - Route handlers for listing, opening, and updating disputes.
 
-- **`/api/models/disputeModel.js`**
-  - Define the dispute schema with fields:
-    - `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  - Implement methods for database interactions.
+2. **disputesController.js**
+   - Implement logic for handling disputes:
+     - `listDisputes`: Fetch all disputes.
+     - `openDispute`: Create a new dispute with evidence URLs.
+     - `updateDispute`: Update status and evidence URLs.
 
-- **`/api/middlewares/authMiddleware.js`**
-  - Implement authentication middleware to protect routes.
+3. **disputesModel.js**
+   - Define Mongoose schema for disputes:
+     - Fields: `status`, `evidence_urls`, `created_at`, `updated_at`.
 
-- **`/api/utils/responseHandler.js`**
-  - Create utility functions for standardized API responses.
+4. **validation.js**
+   - Create middleware for validating request bodies:
+     - Ensure `status` is one of OPEN/REVIEW/RESOLVED.
+     - Validate `evidence_urls` as an array of URLs.
 
-### Client Implementation
-- **`/client/components/DisputeList.jsx`**
-  - Display a list of disputes with status and actions.
+### UI Implementation
 
-- **`/client/components/DisputeForm.jsx`**
-  - Form for creating/updating disputes.
-  - Include fields for `evidence_urls` and status selection.
+1. **DisputeList.jsx**
+   - Fetch and display a list of disputes.
+   - Provide options to view details or edit disputes.
 
-- **`/client/components/DisputeDetail.jsx`**
-  - Show detailed view of a selected dispute.
+2. **DisputeForm.jsx**
+   - Form for opening a new dispute or updating an existing one.
+   - Include fields for status and evidence URLs.
 
-- **`/client/services/disputeService.js`**
-  - Implement API calls for:
-    - Fetching disputes
-    - Creating a new dispute
-    - Updating an existing dispute
+3. **EvidenceUploader.jsx**
+   - Component for handling evidence URL input.
+   - Validate and display uploaded evidence.
 
-- **`/client/pages/DisputePage.jsx`**
-  - Main page to render dispute components and manage state.
+4. **DisputePage.jsx**
+   - Main page that integrates `DisputeList` and `DisputeForm`.
+   - Manage state for displaying the correct form based on user actions.
 
-- **`/client/styles/DisputeStyles.css`**
-  - Style the dispute components for a user-friendly interface.
+5. **useDispute.js**
+   - Custom hook for API calls to manage disputes.
+   - Handle loading and error states.
 
 ### Testing
-- **`/tests/api/disputes.test.js`**
-  - Write unit tests for API endpoints and controller logic.
 
-- **`/tests/client/DisputePage.test.jsx`**
-  - Write tests for the DisputePage component and its interactions.
+1. **disputes.test.js**
+   - Write unit tests for API endpoints.
+   - Test for correct status codes and response structures.
 
-### Server Setup
-- **`server.js`**
-  - Set up Express server.
-  - Integrate API routes and middleware.
-  - Connect to the database.
+2. **DisputeForm.test.js**
+   - Write unit tests for UI components.
+   - Ensure form validation and submission work as expected.
 
 ## Timeline
-- **Week 1**: API design and initial implementation.
-- **Week 2**: Client-side component development.
-- **Week 3**: Testing and debugging.
-- **Week 4**: Final review and deployment.
+- **Week 1**: API development (routes, controller, model).
+- **Week 2**: UI development (components, pages, hooks).
+- **Week 3**: Testing and bug fixing.
+- **Week 4**: Documentation and deployment preparation.
+
+## Notes
+- Ensure proper error handling in both API and UI.
+- Follow best practices for code quality and maintainability.
 ```
