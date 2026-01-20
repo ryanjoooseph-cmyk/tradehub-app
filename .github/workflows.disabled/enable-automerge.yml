@@ -1,7 +1,7 @@
 name: enable-automerge
 on:
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review, labeled]
+    types: [labeled, synchronize]
 
 concurrency:
   group: pr-${{ github.event.pull_request.number }}-${{ github.workflow }}
@@ -16,16 +16,8 @@ jobs:
       contents: write
     steps:
       - name: Enable PR automerge (squash)
-        id: enable
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: squash
-
-      # If GitHub has a transient state (base updated / merge queue churn), don't fail the whole PR.
-      - name: Mark success even if enable is temporarily blocked
-        if: failure()
-        run: |
-          echo "enable-automerge encountered a transient failure; not failing the check."
-          exit 0
