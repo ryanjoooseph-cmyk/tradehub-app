@@ -15,17 +15,17 @@ jobs:
       pull-requests: write
       contents: write
     steps:
-      - name: Enable PR automerge (squash)
+      - name: Enable PR automerge (squash) - best effort
         id: enable
+        continue-on-error: true
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: squash
 
-      # If GitHub has a transient state (base updated / merge queue churn), don't fail the whole PR.
-      - name: Mark success even if enable is temporarily blocked
-        if: failure()
+      - name: Report result (never fails)
+        if: always()
         run: |
-          echo "enable-automerge encountered a transient failure; not failing the check."
-          exit 0
+          echo "enable-automerge step outcome: ${{ steps.enable.outcome }}"
+          echo "If GitHub says base branch modified / merge queue churn, this job stays GREEN and will succeed on next event."
