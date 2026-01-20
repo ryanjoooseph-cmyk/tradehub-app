@@ -1,10 +1,12 @@
 name: enable-automerge
 on:
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review, labeled]
+    types: [labeled, synchronize]
+
 concurrency:
   group: pr-${{ github.event.pull_request.number }}-${{ github.workflow }}
   cancel-in-progress: true
+
 jobs:
   enable:
     if: contains(github.event.pull_request.labels.*.name, 'automerge')
