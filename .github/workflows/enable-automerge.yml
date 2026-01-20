@@ -9,7 +9,6 @@ concurrency:
 
 jobs:
   enable:
-    # Only act on in-repo agent PRs with the automerge label
     if: >
       github.event.pull_request.head.repo.full_name == github.repository &&
       startsWith(github.event.pull_request.head.ref, 'agent-') &&
@@ -19,7 +18,7 @@ jobs:
       pull-requests: write
       contents: write
     steps:
-      - name: Enable PR automerge (squash) - best effort
+      - name: Enable PR automerge (squash) - best effort (never fails the check)
         id: enable
         continue-on-error: true
         uses: peter-evans/enable-pull-request-automerge@v3
@@ -28,8 +27,8 @@ jobs:
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: squash
 
-      - name: Report result (never fails)
+      - name: Report result
         if: always()
         run: |
           echo "enable-automerge step outcome: ${{ steps.enable.outcome }}"
-          echo "If GitHub says base branch modified / churn, this stays GREEN and will succeed on next event."
+          echo "This job is non-blocking by design."
