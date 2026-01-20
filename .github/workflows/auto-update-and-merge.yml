@@ -1,0 +1,47 @@
+name: auto-update-and-merge
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review, labeled]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  update-and-merge:
+    if: startsWith(github.head_ref, 'agent-') && contains(github.event.pull_request.labels.*.name, 'automerge')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - name: Update branch + enable automerge (single PR, best-effort)
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+            const number = pr.number;
+
+            // Make sure PR isn't draft
+            if (pr.draft) {
+              await github.rest.pulls.update({ owner, repo, pull_number: number, draft: false });
+            }
+
+            // Refresh mergeable state
+            const full = await github.rest.pulls.get({ owner, repo, pull_number: number });
+            const state = full.data.mergeable_state;
+
+            // Update branch if needed (best effort; ignores errors)
+            if (['dirty', 'behind', 'unstable', 'unknown'].includes(state)) {
+              try { await github.rest.pulls.updateBranch({ owner, repo, pull_number: number }); } catch (e) {}
+            }
+
+            // Enable automerge (best effort)
+            try {
+              await github.graphql(
+                'mutation($pr:ID!){ enablePullRequestAutoMerge(input:{pullRequestId:$pr, mergeMethod:SQUASH}){ clientMutationId } }',
+                { pr: full.data.node_id }
+              );
+            } catch (e) {}
