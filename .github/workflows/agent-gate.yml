@@ -1,0 +1,9 @@
+name: agent-gate
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+jobs:
+  agent-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "agent-gate pass"
