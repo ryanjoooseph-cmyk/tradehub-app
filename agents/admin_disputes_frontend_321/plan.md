@@ -6,73 +6,67 @@
 /src
   ├── components
   │   ├── AdminDisputesTable.jsx
-  │   ├── FilterComponent.jsx
-  │   └── StatusUpdateButton.jsx
+  │   ├── FilterBar.jsx
+  │   └── StatusUpdateModal.jsx
   ├── pages
   │   └── AdminDisputesPage.jsx
   ├── api
   │   └── disputesApi.js
   ├── styles
-  │   └── AdminDisputes.css
+  │   └── AdminDisputesPage.css
   └── utils
-      └── filters.js
+      └── constants.js
 ```
 
-## File Responsibilities
+## Responsibilities
 
-### Components
-- **AdminDisputesTable.jsx**
-  - Render the admin disputes table.
-  - Display dispute data with pagination.
-  - Integrate filtering options from `FilterComponent`.
+### 1. **AdminDisputesPage.jsx**
+   - **Path:** `/src/pages/AdminDisputesPage.jsx`
+   - **Responsibility:** 
+     - Set up the main layout for the disputes page.
+     - Integrate `AdminDisputesTable` and `FilterBar`.
+     - Handle routing to `/admin/disputes/321`.
 
-- **FilterComponent.jsx**
-  - Provide UI for filtering disputes (e.g., by status, date).
-  - Handle filter state and pass selected filters to `AdminDisputesTable`.
+### 2. **AdminDisputesTable.jsx**
+   - **Path:** `/src/components/AdminDisputesTable.jsx`
+   - **Responsibility:**
+     - Display a table of disputes with pagination.
+     - Implement filtering functionality using props from `FilterBar`.
+     - Include action buttons for updating dispute status.
 
-- **StatusUpdateButton.jsx**
-  - Button to update the status of a selected dispute.
-  - Call the API to update the dispute status and refresh the table.
+### 3. **FilterBar.jsx**
+   - **Path:** `/src/components/FilterBar.jsx`
+   - **Responsibility:**
+     - Provide UI elements for filtering disputes (e.g., by status, date).
+     - Manage state for filter inputs and pass filters to `AdminDisputesTable`.
 
-### Pages
-- **AdminDisputesPage.jsx**
-  - Main page component for the route `/admin/disputes/321`.
-  - Combine `AdminDisputesTable` and `FilterComponent`.
-  - Manage overall state and API calls.
+### 4. **StatusUpdateModal.jsx**
+   - **Path:** `/src/components/StatusUpdateModal.jsx`
+   - **Responsibility:**
+     - Create a modal for updating the status of a selected dispute.
+     - Handle form submission and call the API to update status.
 
-### API
-- **disputesApi.js**
-  - Define API calls for fetching disputes and updating status.
-  - Implement functions:
-    - `fetchDisputes(filters)`: Fetch disputes based on filters.
-    - `updateDisputeStatus(disputeId, newStatus)`: Update the status of a specific dispute.
+### 5. **disputesApi.js**
+   - **Path:** `/src/api/disputesApi.js`
+   - **Responsibility:**
+     - Define API calls for fetching disputes and updating status.
+     - Use Axios or Fetch API for making requests to `/api/disputes`.
 
-### Styles
-- **AdminDisputes.css**
-  - Styles for the admin disputes table and filters.
-  - Ensure responsive design for various screen sizes.
+### 6. **AdminDisputesPage.css**
+   - **Path:** `/src/styles/AdminDisputesPage.css`
+   - **Responsibility:**
+     - Style the Admin Disputes page, table, and modal.
+     - Ensure responsive design for various screen sizes.
 
-### Utilities
-- **filters.js**
-  - Utility functions to handle filter logic.
-  - Functions to format filter options and validate user input.
+### 7. **constants.js**
+   - **Path:** `/src/utils/constants.js`
+   - **Responsibility:**
+     - Define constants for API endpoints and status options.
+     - Centralize configuration for easy updates.
 
-## Development Tasks
-1. **Set up routing** for `/admin/disputes/321` in the main app.
-2. **Create API functions** in `disputesApi.js`.
-3. **Develop UI components**:
-   - Implement `FilterComponent` for filtering options.
-   - Build `AdminDisputesTable` to display disputes.
-   - Add `StatusUpdateButton` for updating dispute status.
-4. **Integrate components** in `AdminDisputesPage`.
-5. **Style components** using `AdminDisputes.css`.
-6. **Test functionality**:
-   - Ensure filters work correctly.
-   - Validate API calls and status updates.
-7. **Code review and finalize** before deployment.
-
-## Timeline
-- **Week 1**: API development and initial component setup.
-- **Week 2**: Complete UI components and integrate filters.
-- **Week 3**: Testing, styling, and code review.
+## Additional Notes
+- Ensure proper error handling for API calls.
+- Implement loading states for better user experience.
+- Write unit tests for components and API functions.
+- Review accessibility standards for UI components.
 ```
