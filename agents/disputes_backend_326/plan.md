@@ -1,107 +1,104 @@
 ```markdown
 # Implementation Plan for Feature 'disputes_backend_326'
 
-## Project Structure
+## Overview
+This plan outlines the implementation of the UI and API for managing disputes at the route `/api/disputes`. The feature will support opening, listing, and updating disputes, including an array for evidence URLs and a status field with values OPEN, REVIEW, and RESOLVED.
+
+## File Structure
+
 ```
-/disputes_backend_326
-│
-├── /api
-│   ├── /controllers
-│   │   └── disputesController.js
-│   ├── /routes
-│   │   └── disputesRoutes.js
-│   ├── /models
-│   │   └── disputeModel.js
-│   ├── /middlewares
-│   │   └── authMiddleware.js
-│   └── /utils
-│       └── responseHandler.js
-│
-├── /client
-│   ├── /components
-│   │   ├── DisputeList.jsx
-│   │   ├── DisputeForm.jsx
-│   │   └── DisputeDetail.jsx
-│   ├── /services
-│   │   └── disputeService.js
-│   ├── /pages
-│   │   └── DisputePage.jsx
-│   └── /styles
-│       └── DisputeStyles.css
-│
-├── /tests
-│   ├── /api
-│   │   └── disputes.test.js
-│   └── /client
-│       └── DisputePage.test.jsx
-│
-└── server.js
+/src
+  ├── api
+  │   ├── disputes
+  │   │   ├── disputesController.js
+  │   │   ├── disputesModel.js
+  │   │   ├── disputesRoutes.js
+  │   │   └── disputesService.js
+  ├── components
+  │   ├── DisputeList.js
+  │   ├── DisputeForm.js
+  │   └── DisputeDetail.js
+  ├── pages
+  │   ├── DisputesPage.js
+  ├── styles
+  │   ├── disputes.css
+  └── utils
+      ├── api.js
+      └── validation.js
 ```
 
-## Responsibilities
+## API Implementation
 
-### API Implementation
-- **`/api/controllers/disputesController.js`**
-  - Implement functions to handle:
-    - `GET /api/disputes`: List all disputes
-    - `POST /api/disputes`: Create a new dispute
-    - `PUT /api/disputes/:id`: Update an existing dispute
-  - Validate input data and manage status (OPEN/REVIEW/RESOLVED).
+### 1. `disputesRoutes.js`
+- **Responsibilities**: Define API routes for disputes.
+- **Endpoints**:
+  - `GET /api/disputes`: List all disputes.
+  - `POST /api/disputes`: Open a new dispute.
+  - `PUT /api/disputes/:id`: Update an existing dispute.
 
-- **`/api/routes/disputesRoutes.js`**
-  - Define routes for disputes API.
-  - Integrate with `disputesController`.
+### 2. `disputesController.js`
+- **Responsibilities**: Handle incoming requests and responses.
+- **Methods**:
+  - `listDisputes(req, res)`: Fetch and return all disputes.
+  - `createDispute(req, res)`: Validate and create a new dispute.
+  - `updateDispute(req, res)`: Validate and update an existing dispute.
 
-- **`/api/models/disputeModel.js`**
-  - Define the dispute schema with fields:
-    - `id`, `status`, `evidence_urls`, `created_at`, `updated_at`.
-  - Implement methods for database interactions.
+### 3. `disputesModel.js`
+- **Responsibilities**: Define the dispute schema and interact with the database.
+- **Schema Fields**:
+  - `id`: Unique identifier.
+  - `evidence_urls`: Array of URLs.
+  - `status`: Enum (OPEN, REVIEW, RESOLVED).
 
-- **`/api/middlewares/authMiddleware.js`**
-  - Implement authentication middleware to protect routes.
+### 4. `disputesService.js`
+- **Responsibilities**: Business logic for disputes.
+- **Methods**:
+  - `getAllDisputes()`: Retrieve all disputes from the database.
+  - `addDispute(data)`: Add a new dispute to the database.
+  - `modifyDispute(id, data)`: Update an existing dispute.
 
-- **`/api/utils/responseHandler.js`**
-  - Create utility functions for standardized API responses.
+## UI Implementation
 
-### Client Implementation
-- **`/client/components/DisputeList.jsx`**
-  - Display a list of disputes with status and actions.
+### 1. `DisputesPage.js`
+- **Responsibilities**: Main page for displaying and managing disputes.
+- **Components**: 
+  - `DisputeList`: Displays a list of disputes.
+  - `DisputeForm`: Form for creating/updating disputes.
 
-- **`/client/components/DisputeForm.jsx`**
-  - Form for creating/updating disputes.
-  - Include fields for `evidence_urls` and status selection.
+### 2. `DisputeList.js`
+- **Responsibilities**: Render a list of disputes with options to view details and update status.
 
-- **`/client/components/DisputeDetail.jsx`**
-  - Show detailed view of a selected dispute.
+### 3. `DisputeForm.js`
+- **Responsibilities**: Form for opening a new dispute or updating an existing one.
+- **Fields**:
+  - `evidence_urls`: Input for URLs.
+  - `status`: Dropdown for selecting dispute status.
 
-- **`/client/services/disputeService.js`**
-  - Implement API calls for:
-    - Fetching disputes
-    - Creating a new dispute
-    - Updating an existing dispute
+### 4. `DisputeDetail.js`
+- **Responsibilities**: Display detailed information about a selected dispute.
 
-- **`/client/pages/DisputePage.jsx`**
-  - Main page to render dispute components and manage state.
+## Styles
 
-- **`/client/styles/DisputeStyles.css`**
-  - Style the dispute components for a user-friendly interface.
+### 1. `disputes.css`
+- **Responsibilities**: Styles for dispute components and pages.
 
-### Testing
-- **`/tests/api/disputes.test.js`**
-  - Write unit tests for API endpoints and controller logic.
+## Utilities
 
-- **`/tests/client/DisputePage.test.jsx`**
-  - Write tests for the DisputePage component and its interactions.
+### 1. `api.js`
+- **Responsibilities**: API calls to the backend for disputes.
+- **Methods**:
+  - `fetchDisputes()`: Fetch disputes from the API.
+  - `submitDispute(data)`: Submit a new or updated dispute.
 
-### Server Setup
-- **`server.js`**
-  - Set up Express server.
-  - Integrate API routes and middleware.
-  - Connect to the database.
+### 2. `validation.js`
+- **Responsibilities**: Validate input data for disputes.
+- **Methods**:
+  - `validateDispute(data)`: Check for required fields and valid URLs.
 
-## Timeline
-- **Week 1**: API design and initial implementation.
-- **Week 2**: Client-side component development.
-- **Week 3**: Testing and debugging.
-- **Week 4**: Final review and deployment.
+## Testing
+- **Unit Tests**: Implement tests for API endpoints and UI components.
+- **Integration Tests**: Test interactions between UI and API.
+
+## Deployment
+- Ensure all changes are merged into the main branch and deployed to the staging environment for testing before production release.
 ```
