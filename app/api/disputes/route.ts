@@ -1,7 +1,11 @@
+import { requireApiKey } from "@/lib/api/requireApiKey";
 import { NextRequest, NextResponse } from 'next/server';
 import getAdminClient from '../../../lib/supabase/admin';
 
 export async function GET() {
+  const denied = requireApiKey(req as any);
+  if (denied) return denied;
+
   const s = getAdminClient();
   const { data, error } = await s.from('disputes').select('*').order('created_at', { ascending: false });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -9,6 +13,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const denied = requireApiKey(req as any);
+  if (denied) return denied;
+
   const s = getAdminClient(); const body = await req.json(); // { job_id | invoice_id, reason, status }
   const { data, error } = await s.from('disputes').insert(body).select('*').single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
