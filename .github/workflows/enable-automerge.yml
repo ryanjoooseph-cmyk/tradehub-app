@@ -1,6 +1,6 @@
 name: enable-automerge
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, reopened, synchronize, ready_for_review, labeled]
 
 concurrency:
@@ -9,7 +9,11 @@ concurrency:
 
 jobs:
   enable:
-    if: contains(github.event.pull_request.labels.*.name, 'automerge')
+    # Only act on in-repo agent PRs with the automerge label
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'agent-') &&
+      contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -28,4 +32,4 @@ jobs:
         if: always()
         run: |
           echo "enable-automerge step outcome: ${{ steps.enable.outcome }}"
-          echo "If GitHub says base branch modified / merge queue churn, this job stays GREEN and will succeed on next event."
+          echo "If GitHub says base branch modified / churn, this stays GREEN and will succeed on next event."
