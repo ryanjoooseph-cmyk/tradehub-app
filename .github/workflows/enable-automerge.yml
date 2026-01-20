@@ -2,14 +2,11 @@ name: enable-automerge
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review, labeled]
-
 concurrency:
   group: pr-${{ github.event.pull_request.number }}-${{ github.workflow }}
   cancel-in-progress: true
-
 jobs:
   enable:
-    # Only run when PR is labeled "automerge"
     if: contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
     permissions:

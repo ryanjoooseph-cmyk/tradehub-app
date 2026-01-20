@@ -2,11 +2,9 @@ name: label-agent-prs
 on:
   pull_request:
     types: [opened, reopened]
-
 concurrency:
   group: pr-${{ github.event.pull_request.number }}-${{ github.workflow }}
   cancel-in-progress: true
-
 jobs:
   label:
     if: startsWith(github.head_ref, 'agent-')
@@ -14,7 +12,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - name: Add labels needed for agent PRs
+      - name: Add labels for agent PRs
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
