@@ -35,3 +35,5 @@ The component imports the v6 CSS bundles:
 ### Hooks to wire later
 - `eventReceive`, `eventDrop`, `eventResize` in `Scheduler.tsx`.
 - Replace `lib/sampleData.ts` with server data; keep the Scheduler client‑only.
+
+# agent automerge test Wed 28 Jan 2026 14:33:52 AEDT
