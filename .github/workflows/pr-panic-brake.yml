@@ -13,15 +13,20 @@ jobs:
   brake:
     runs-on: ubuntu-latest
     steps:
-      - name: Disable auto-merge on failure
+      - name: Disable auto-merge + label + comment on failure
         if: ${{ github.event.workflow_run.conclusion != 'success' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          WORKFLOW: ${{ github.event.workflow_run.name }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
           PRS: ${{ toJson(github.event.workflow_run.pull_requests) }}
         run: |
           echo "$PRS" | jq -r '.[].number' | while read -r pr; do
-            echo "Disabling auto-merge for PR #$pr due to failed workflow_run: ${{ github.event.workflow_run.name }}"
+            echo "Panic brake: disabling auto-merge for PR #$pr"
             gh pr merge "$pr" --repo "$REPO" --disable-auto || true
             gh pr edit "$pr" --repo "$REPO" --add-label "ci-failed" || true
+            gh pr comment "$pr" --repo "$REPO" --body \
+              ":rotating_light: CI failed (**$WORKFLOW**: $CONCLUSION). Auto-merge disabled.\n\nRun: $RUN_URL" || true
           done
