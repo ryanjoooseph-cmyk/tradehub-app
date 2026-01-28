@@ -1,0 +1,45 @@
+name: prod-smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install jq
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq
+      - name: Smoke check production
+        run: |
+          set -euo pipefail
+          BASE="https://tradehub-app.onrender.com"
+
+          echo "==> /api/health"
+          curl -fsS "$BASE/api/health" -o /tmp/health.json
+          jq . /tmp/health.json
+
+          OK="$(jq -r '.ok // empty' /tmp/health.json)"
+          ENV="$(jq -r '.env // empty' /tmp/health.json)"
+          SHA="$(jq -r '.sha // empty' /tmp/health.json)"
+          test "$OK" = "true"
+          test "$ENV" = "production"
+          test -n "$SHA"
+          test "$SHA" != "null"
+
+          echo "==> /api/version"
+          curl -fsS "$BASE/api/version" -o /tmp/version.json
+          jq . /tmp/version.json
+
+          OK2="$(jq -r '.ok // empty' /tmp/version.json)"
+          SHA2="$(jq -r '.sha // empty' /tmp/version.json)"
+          BRANCH="$(jq -r '.branch // empty' /tmp/version.json)"
+          test "$OK2" = "true"
+          test -n "$SHA2"
+          test "$SHA2" != "null"
+          test "$BRANCH" = "main"
+
+          echo "Smoke test passed."

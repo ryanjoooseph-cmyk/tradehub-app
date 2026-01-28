@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   return NextResponse.json({
-    ok: true,
+    sha: process.env.RENDER_GIT_COMMIT || process.env.GITHUB_SHA || process.env.VERCEL_GIT_COMMIT_SHA || process.env.COMMIT_SHA || null,
+  ok: true,
     time: new Date().toISOString(),
     env: process.env.NODE_ENV,
     sha:
