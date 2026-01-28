@@ -1,0 +1,98 @@
+name: backlog-feeder
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+concurrency:
+  group: backlog-feeder
+  cancel-in-progress: false
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  feed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ensure label exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh label create agent-job --color 0E8A16 --description "Queued job for agents" 2>/dev/null || true
+
+      - name: Create issues from backlog/jobs.yml (idempotent)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re, subprocess
+          from pathlib import Path
+
+          txt = Path("backlog/jobs.yml").read_text(encoding="utf-8")
+
+          # Parse our controlled format (id/priority/status/title/body|)
+          jobs = []
+          i = -1
+          lines = txt.splitlines()
+          while i + 1 < len(lines):
+            i += 1
+            line = lines[i]
+            m = re.match(r'^\s*-\s+id:\s*(\S+)\s*$', line)
+            if not m:
+              continue
+            job_id = m.group(1)
+            priority = status = title = ""
+            body = ""
+            # scan forward until next job
+            j = i + 1
+            in_body = False
+            body_buf = []
+            while j < len(lines) and not re.match(r'^\s*-\s+id:\s*', lines[j]):
+              l = lines[j]
+              if re.match(r'^\s+priority:\s*', l): priority = l.split(":",1)[1].strip().strip('"')
+              if re.match(r'^\s+status:\s*', l): status = l.split(":",1)[1].strip().strip('"')
+              if re.match(r'^\s+title:\s*', l): title = l.split(":",1)[1].strip().strip('"')
+              if re.match(r'^\s+body:\s*\|\s*$', l):
+                in_body = True
+                body_buf = []
+                j += 1
+                while j < len(lines) and re.match(r'^\s{6}', lines[j]):
+                  body_buf.append(re.sub(r'^\s{6}', '', lines[j]))
+                  j += 1
+                in_body = False
+                continue
+              j += 1
+            i = j - 1
+            body = "\n".join(body_buf).rstrip()
+            jobs.append({"id": job_id, "priority": priority, "status": status, "title": title, "body": body})
+
+          todo = [x for x in jobs if x.get("status") == "todo"]
+          if not todo:
+            print("No todo jobs.")
+            raise SystemExit(0)
+
+          # existing open agent-job issues contain "Job-ID: <id>"
+          existing = subprocess.check_output(
+            ["gh","issue","list","--state","open","--label","agent-job","--json","body","--jq",".[]|.body"],
+            text=True
+          )
+          existing_ids = set(re.findall(r'Job-ID:\s*([A-Za-z0-9\-_]+)', existing))
+
+          created = 0
+          for j in todo:
+            if j["id"] in existing_ids:
+              continue
+            title = f'[{j.get("priority","P1")}] {j.get("title","Untitled")}'
+            body = f"Job-ID: {j['id']}\nPriority: {j.get('priority','P1')}\n\n{j.get('body','')}\n"
+            subprocess.check_call(["gh","issue","create","--title",title,"--body",body,"--label","agent-job"])
+            created += 1
+
+          print(f"Created {created} issue(s).")
+          PY
