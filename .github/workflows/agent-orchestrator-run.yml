@@ -1,16 +1,23 @@
-name: agent-orchestrator-run
+name: agent-orchestrator
 
 on:
   workflow_dispatch:
+    inputs:
+      reason:
+        description: reason
+        required: false
+        default: manual
+  schedule:
+    - cron: "*/10 * * * *"
+
+concurrency:
+  group: agent-orchestrator
+  cancel-in-progress: false
 
 permissions:
   contents: write
   pull-requests: write
   issues: write
-
-concurrency:
-  group: agent-orchestrator-run
-  cancel-in-progress: false
 
 jobs:
   spawn:
@@ -19,6 +26,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh label create agent-job --color 0E8A16 --description "Queued job for agents" 2>/dev/null || true
+          gh label create agent-in-progress --color FBCA04 --description "Job has been spawned into a PR" 2>/dev/null || true
 
       - name: Spawn
         env:
