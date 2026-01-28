@@ -1,0 +1,88 @@
+name: ci-failed-autocleanup
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close ci-failed PRs older than 30 minutes (unless keep-open)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const MIN_AGE_MINUTES = 30;
+            const cutoff = new Date(Date.now() - MIN_AGE_MINUTES * 60 * 1000);
+
+            // Search PRs with label ci-failed that are still open
+            const q = `repo:${owner}/${repo} is:pr is:open label:ci-failed`;
+            const res = await github.rest.search.issuesAndPullRequests({ q, per_page: 100 });
+            const items = res.data.items || [];
+
+            core.info(`Found ${items.length} open PR(s) with label ci-failed`);
+
+            for (const item of items) {
+              const prNumber = item.number;
+
+              // Fetch PR detail
+              const pr = await github.rest.pulls.get({ owner, repo, pull_number: prNumber });
+              const labels = (pr.data.labels || []).map(l => l.name);
+              const updatedAt = new Date(pr.data.updated_at);
+
+              // Escape hatch
+              if (labels.includes("keep-open")) {
+                core.info(`#${prNumber}: keep-open present, skipping`);
+                continue;
+              }
+
+              // Only close older ones
+              if (updatedAt > cutoff) {
+                core.info(`#${prNumber}: updated recently (${pr.data.updated_at}), skipping`);
+                continue;
+              }
+
+              const branch = pr.data.head.ref;
+              const isSameRepo = pr.data.head.repo?.full_name === `${owner}/${repo}`;
+
+              core.info(`#${prNumber}: closing PR and deleting branch ${branch}`);
+
+              // Comment then close PR
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: `🧹 Auto-cleanup: closing PR because it is labeled **ci-failed** and has not been updated in ${MIN_AGE_MINUTES}+ minutes.\n\nAdd label **keep-open** to prevent cleanup.`
+              });
+
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number: prNumber,
+                state: "closed"
+              });
+
+              // Delete branch (only if same repo)
+              if (isSameRepo) {
+                try {
+                  await github.rest.git.deleteRef({
+                    owner,
+                    repo,
+                    ref: `heads/${branch}`
+                  });
+                  core.info(`#${prNumber}: deleted branch heads/${branch}`);
+                } catch (e) {
+                  core.warning(`#${prNumber}: could not delete branch heads/${branch} (${e.message})`);
+                }
+              } else {
+                core.info(`#${prNumber}: branch is from fork, not deleting`);
+              }
+            }
