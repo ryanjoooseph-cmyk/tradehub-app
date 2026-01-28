@@ -1,0 +1,28 @@
+name: guardrail-agent-taskfiles
+
+on:
+  pull_request:
+
+jobs:
+  block_shared_taskfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fail if .agent/AGENT_TASK.md is added/modified
+        run: |
+          set -euo pipefail
+          BASE="${{ github.base_ref }}"
+          git fetch origin "$BASE" --depth=1
+
+          # List changed files vs base
+          CHANGED="$(git diff --name-only "origin/$BASE"...HEAD || true)"
+
+          echo "$CHANGED" | grep -qx ".agent/AGENT_TASK.md" && {
+            echo "ERROR: Shared task file .agent/AGENT_TASK.md causes PR conflicts. Use .agent/tasks/<unique>.md"
+            exit 1
+          }
+
+          echo "OK: no shared agent task file touched."
