@@ -1,0 +1,38 @@
+jobs:
+  - id: P0-foundation-001
+    priority: P0
+    status: todo
+    title: "Database foundation: multi-tenant model + RLS baseline"
+    body: |
+      Implement Supabase schema + migrations:
+      - tenants, tenant_members, clients, jobs, job_events, quotes, invoices, payments, attachments, activity_log
+      - RLS: tenant isolation by tenant_id, member gating via tenant_members
+      Acceptance:
+      - migrations committed
+      - RLS blocks cross-tenant access
+
+  - id: P0-foundation-002
+    priority: P0
+    status: todo
+    title: "Build metadata: always show Commit + Version time"
+    body: |
+      Ensure Commit + Version time never show '-':
+      - emit public/build.json {sha,builtAt} during build/CI
+      - /api/version reads it (fallback env)
+      - UI displays it
+      Acceptance:
+      - prod shows sha + builtAt
+
+  - id: P0-foundation-003
+    priority: P0
+    status: todo
+    title: "Jobs calendar: drag/drop scheduling core (Tradify-level, better)"
+    body: |
+      Calendar with drag/drop create/move/resize job events (day/week/month).
+      Persist to job_events. Realtime updates via Supabase.
+      Acceptance:
+      - drag to create event
+      - drag/resize to reschedule
+      - persists + reloads
+      - tenant-safe
+
