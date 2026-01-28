@@ -6,7 +6,8 @@
     "dev": "next dev --webpack --port 3000",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "start:render": "next start -p $PORT"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
