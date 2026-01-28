@@ -37,9 +37,7 @@ jobs:
           set -euo pipefail
           OPEN_CAP=10
           OPEN_NOW="$(gh pr list --state open --search 'head:agent/' --json number --jq 'length')"
-          echo "Open agent PRs: $OPEN_NOW (cap $OPEN_CAP)"
           if [ "$OPEN_NOW" -ge "$OPEN_CAP" ]; then
-            echo "Cap reached; not spawning."
             exit 0
           fi
 
@@ -56,7 +54,6 @@ jobs:
           )
 
           if [ "${#ISSUE_NUMS[@]}" -eq 0 ]; then
-            echo "No queued issues."
             exit 0
           fi
 
@@ -70,8 +67,6 @@ jobs:
             TS="$(date -u +%Y%m%d-%H%M%S)"
             SLUG="$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g' | cut -c1-40)"
             BRANCH="agent/issue-${N}-${SLUG}-${TS}"
-
-            echo "Issue #$N -> $BRANCH"
 
             git checkout -B "$BRANCH" origin/main
             mkdir -p .agent/tasks
