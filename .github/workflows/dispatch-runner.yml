@@ -2,12 +2,25 @@ name: dispatch-runner
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: dispatch-runner
+  cancel-in-progress: false
 
 jobs:
-  ping:
+  orchestrate:
     runs-on: ubuntu-latest
     steps:
-      - run: echo ok
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: bash scripts/orchestrate.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
