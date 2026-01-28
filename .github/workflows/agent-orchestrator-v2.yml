@@ -1,0 +1,86 @@
+name: agent-orchestrator-v2
+
+"on":
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: why
+        required: false
+        default: manual
+  schedule:
+    - cron: "*/10 * * * *"
+
+concurrency:
+  group: agent-orchestrator-v2
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  spawn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh label create agent-job --color 0E8A16 --description "Queued job for agents" 2>/dev/null || true
+          gh label create agent-in-progress --color FBCA04 --description "Job has been spawned into a PR" 2>/dev/null || true
+
+      - name: spawn
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          OPEN_CAP=10
+          OPEN_NOW="$(gh pr list --state open --search 'head:agent/' --json number --jq 'length')"
+          if [ "$OPEN_NOW" -ge "$OPEN_CAP" ]; then exit 0; fi
+
+          MAX_SPAWN=3
+          mapfile -t ISSUE_NUMS < <(
+            gh issue list --label agent-job --state open --search '-label:"agent-in-progress"' \
+              --json number,createdAt --jq 'sort_by(.createdAt) | .[].number' | head -n "$MAX_SPAWN"
+          )
+          if [ "${#ISSUE_NUMS[@]}" -eq 0 ]; then exit 0; fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          for N in "${ISSUE_NUMS[@]}"; do
+            TITLE="$(gh issue view "$N" --json title --jq .title)"
+            BODY="$(gh issue view "$N" --json body --jq .body)"
+            TS="$(date -u +%Y%m%d-%H%M%S)"
+            SLUG="$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g' | cut -c1-40)"
+            BRANCH="agent/issue-${N}-${SLUG}-${TS}"
+
+            git checkout -B "$BRANCH" origin/main
+            mkdir -p .agent/tasks
+            TASK_FILE=".agent/tasks/${TS}-issue-${N}.md"
+
+            cat > "$TASK_FILE" <<EOF
+# Agent Job (Issue #$N)
+
+## Title
+$TITLE
+
+## Objective
+$BODY
+EOF
+
+            git add "$TASK_FILE"
+            git commit -m "chore(agent): seed job from issue #$N"
+            git push -u origin "$BRANCH"
+
+            gh pr create --head "$BRANCH" --base main --title "agent: $TITLE (fixes #$N)" --body "Fixes #$N" || true
+            gh issue edit "$N" --add-label agent-in-progress || true
+
+            git checkout origin/main
+          done
