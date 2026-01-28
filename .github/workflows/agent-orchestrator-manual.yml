@@ -1,0 +1,13 @@
+name: agent-orchestrator-manual
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo ok
