@@ -28,6 +28,14 @@ read -r _
 # Ensure branch is pushed
 git push -u origin HEAD
 
+echo "==> Verify branch has commits ahead of origin/main"
+git fetch origin main >/dev/null 2>&1 || true
+AHEAD="$(git rev-list --count origin/main..HEAD 2>/dev/null || echo 0)"
+if [ "${AHEAD:-0}" -le 0 ]; then
+  echo "ERROR: No commits ahead of origin/main on $BR. Make a change + commit before creating PR." >&2
+  exit 1
+fi
+
 echo "==> Create PR"
 PR_URL="$(gh pr create -R "$REPO" --base main --head "$BR" --title "$TITLE" --body "$BODY")"
 echo "PR_URL=$PR_URL"
