@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       reason:
-        description: trigger reason
+        description: reason
         required: false
         default: manual
   schedule:
@@ -35,7 +35,7 @@ jobs:
           gh label create agent-job --color 0E8A16 --description "Queued job for agents" 2>/dev/null || true
           gh label create agent-in-progress --color FBCA04 --description "Job has been spawned into a PR" 2>/dev/null || true
 
-      - name: Throttle
+      - name: Spawn PR stubs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -46,16 +46,11 @@ jobs:
             exit 0
           fi
 
-      - name: Spawn
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
           MAX_SPAWN=3
           mapfile -t ISSUE_NUMS < <(
-            gh issue list --label agent-job --state open --search '-label:"agent-in-progress"' \
-              --json number,createdAt --jq 'sort_by(.createdAt) | .[].number' | head -n "$MAX_SPAWN"
+            gh issue list --label agent-job --state open --search '-label:"agent-in-progress"'               --json number,createdAt --jq 'sort_by(.createdAt) | .[].number' | head -n "$MAX_SPAWN"
           )
+
           if [ "${#ISSUE_NUMS[@]}" -eq 0 ]; then
             exit 0
           fi
@@ -89,12 +84,8 @@ EOF
             git push -u origin "$BRANCH"
 
             gh pr create --head "$BRANCH" --base main --title "agent: $TITLE (fixes #$N)" --body "Fixes #$N" || true
-            gh issue edit "$N" --add-label agent-in-progress
-
-            PR_NUM="$(gh pr list --head "$BRANCH" --json number --jq '.[0].number' 2>/dev/null || true)"
-            if [ -n "${PR_NUM:-}" ]; then
-              gh pr merge "$PR_NUM" --auto --squash 2>/dev/null || true
-            fi
+            gh issue edit "$N" --add-label agent-in-progress || true
 
             git checkout origin/main
           done
+
