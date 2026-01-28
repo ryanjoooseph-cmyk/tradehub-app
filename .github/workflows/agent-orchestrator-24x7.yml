@@ -1,7 +1,12 @@
 name: agent-orchestrator-24x7
 
-on:
+"on":
   workflow_dispatch:
+    inputs:
+      reason:
+        description: manual trigger reason
+        required: false
+        default: manual
   schedule:
     - cron: "*/10 * * * *"
 
