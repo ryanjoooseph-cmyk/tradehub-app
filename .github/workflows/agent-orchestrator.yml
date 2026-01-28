@@ -1,0 +1,112 @@
+name: agent-orchestrator
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  spawn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure labels exist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh label create agent-job --color 0E8A16 --description "Queued job for agents" 2>/dev/null || true
+          gh label create agent-in-progress --color FBCA04 --description "Job has been spawned into a PR" 2>/dev/null || true
+
+      - name: Spawn PRs from queued agent-job issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          MAX_SPAWN=3
+
+          # Get newest queued jobs that are NOT already in-progress
+          mapfile -t ISSUE_NUMS < <(
+            gh issue list \
+              --label agent-job \
+              --state open \
+              --search '-label:"agent-in-progress"' \
+              --json number,createdAt \
+              --jq 'sort_by(.createdAt) | .[].number' \
+              | head -n "$MAX_SPAWN"
+          )
+
+          if [ "${#ISSUE_NUMS[@]}" -eq 0 ]; then
+            echo "No queued agent-job issues. Exiting."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          for N in "${ISSUE_NUMS[@]}"; do
+            TITLE="$(gh issue view "$N" --json title --jq .title)"
+            BODY="$(gh issue view "$N" --json body --jq .body)"
+
+            TS="$(date -u +%Y%m%d-%H%M%S)"
+            SLUG="$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g' | cut -c1-40)"
+            BRANCH="agent/issue-${N}-${SLUG}-${TS}"
+
+            echo "==> Spawning PR for issue #$N -> $BRANCH"
+
+            git checkout -B "$BRANCH" origin/main
+
+            mkdir -p .agent/tasks
+            TASK_FILE=".agent/tasks/${TS}-issue-${N}.md"
+
+            cat > "$TASK_FILE" <<EOF
+# Agent Job (Issue #$N)
+
+## Title
+$TITLE
+
+## Objective
+$BODY
+
+## Rules
+- Keep changes minimal and production-safe.
+- Ensure \`npm run typecheck\` and \`npm run build\` pass.
+- Do NOT commit secrets.
+EOF
+
+            git add "$TASK_FILE"
+            git commit -m "chore(agent): seed job from issue #$N"
+            git push -u origin "$BRANCH"
+
+            # Open PR and link it to the issue so merge closes it
+            PR_URL="$(gh pr create \
+              --head "$BRANCH" \
+              --base main \
+              --title "agent: $TITLE (fixes #$N)" \
+              --body "Fixes #$N
+
+Auto-generated from issue #$N. Task file: \`$TASK_FILE\`" \
+              || true)"
+
+            echo "PR: ${PR_URL:-"(already exists or failed to create)"}"
+
+            # Mark issue as in-progress so we don’t respawn it
+            gh issue edit "$N" --add-label agent-in-progress
+
+            # Enable auto-merge if your repo allows it (won't fail the job if not)
+            PR_NUM="$(gh pr list --head "$BRANCH" --json number --jq '.[0].number' 2>/dev/null || true)"
+            if [ -n "${PR_NUM:-}" ]; then
+              gh pr merge "$PR_NUM" --auto --squash 2>/dev/null || true
+            fi
+
+            git checkout origin/main
+          done
