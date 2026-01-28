@@ -11,8 +11,9 @@ jobs:
   enable:
     if: >
       github.event.pull_request.head.repo.full_name == github.repository &&
-      startsWith(github.event.pull_request.head.ref, 'agent-') &&
-      contains(github.event.pull_request.labels.*.name, 'automerge')
+      github.event.pull_request.draft == false &&
+      (startsWith(github.event.pull_request.head.ref, 'agent-') ||
+       startsWith(github.event.pull_request.head.ref, 'agent/'))
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
