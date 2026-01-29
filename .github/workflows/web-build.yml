@@ -2,7 +2,7 @@ name: web-build
 
 on:
   pull_request:
-  workflow_dispatch:
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -11,16 +11,17 @@ jobs:
   web-build:
     name: web-build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: 20
+          cache: npm
 
       - name: Install
         run: npm ci
 
-      - name: Build
-        run: npm run -s build
+      - name: Build web
+        run: npm run -w web build
