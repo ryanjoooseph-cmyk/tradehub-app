@@ -6,13 +6,13 @@ on:
 
 permissions:
   contents: read
-  statuses: write
 
 jobs:
   web-build:
     name: web-build
     runs-on: ubuntu-latest
     timeout-minutes: 20
+
     steps:
       - uses: actions/checkout@v4
 
@@ -25,19 +25,10 @@ jobs:
         run: npm ci
 
       - name: Build web
-        run: npm run -w web build
-
-      - name: Publish required status context (web-build)
-        if: always()
         env:
-          GH_TOKEN: ${{ github.token }}
-          SHA: ${{ github.event.pull_request.head.sha }}
-          REPO: ${{ github.repository }}
-        run: |
-          state=success
-          desc="web build ok"
-          if [ "${{ job.status }}" != "success" ]; then
-            state=failure
-            desc="web build failed"
-          fi
-          gh api -X POST "repos/$REPO/statuses/$SHA" -f state="$state" -f context="web-build" -f description="$desc" >/dev/null
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy.dummy
+          SUPABASE_URL: https://example.supabase.co
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy.dummy
+          NODE_ENV: production
+        run: npm run -w web build
