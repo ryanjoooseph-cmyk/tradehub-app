@@ -3,6 +3,7 @@ name: web-build
 on:
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,7 +13,6 @@ jobs:
     name: web-build
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
       - uses: actions/checkout@v4
 
@@ -20,15 +20,28 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            web/package-lock.json
 
-      - name: Install
-        run: npm ci
+      - name: Install (root)
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-      - name: Build web
+      - name: Install (web)
+        run: |
+          if [ -d web ]; then
+            if [ -f web/package-lock.json ]; then npm ci --prefix web; else npm install --prefix web; fi
+          fi
+
+      - name: Build (web)
         env:
+          NODE_ENV: production
           NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy.dummy
-          SUPABASE_URL: https://example.supabase.co
-          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy.dummy
-          NODE_ENV: production
-        run: npm run -w web build
+        run: |
+          if [ -d web ]; then
+            npm run --prefix web -s build
+          else
+            npm run -s build
+          fi
