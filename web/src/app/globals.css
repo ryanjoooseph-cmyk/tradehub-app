@@ -47,3 +47,14 @@ body { margin: 0; }
   color: hsl(var(--muted-foreground));
 }
 
+
+
+/* Calendar v3: status/priority */
+.calendar-premium .fc .fc-day-today { background: hsl(var(--foreground) / 0.03); }
+.calendar-premium .fc .fc-timegrid-now-indicator-line { border-color: hsl(var(--foreground) / 0.35); }
+.calendar-premium .fc .fc-timegrid-now-indicator-arrow { border-color: hsl(var(--foreground) / 0.35); }
+.calendar-premium .fc .fc-event.ev-scheduled { border-color: hsl(243 75% 59% / .35); }
+.calendar-premium .fc .fc-event.ev-inprogress { border-color: hsl(38 92% 50% / .40); }
+.calendar-premium .fc .fc-event.ev-done { border-color: hsl(142 76% 36% / .35); opacity: .92; }
+.calendar-premium .fc .fc-event.ev-high { box-shadow: 0 10px 30px hsl(0 0% 0% / .12); }
+
