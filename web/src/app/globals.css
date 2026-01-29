@@ -4,3 +4,46 @@
 
 html, body { height: 100%; }
 body { margin: 0; }
+
+
+/* Premium calendar styling */
+.calendar-premium .fc {
+  font-family: inherit;
+}
+.calendar-premium .fc .fc-toolbar-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.calendar-premium .fc .fc-button {
+  border-radius: 12px;
+}
+.calendar-premium .fc .fc-scrollgrid,
+.calendar-premium .fc .fc-timegrid,
+.calendar-premium .fc .fc-timegrid-axis,
+.calendar-premium .fc .fc-col-header-cell {
+  border-color: hsl(var(--border));
+}
+.calendar-premium .fc .fc-timegrid-now-indicator-line {
+  border-color: hsl(var(--foreground) / 0.35);
+}
+.calendar-premium .fc .fc-event {
+  border-radius: 14px;
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background) / 0.75);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+.calendar-premium .fc .fc-event .fc-event-inner {
+  padding: 10px 10px;
+}
+.calendar-premium .fc .fc-event .fc-event-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.1rem;
+}
+.calendar-premium .fc .fc-event .fc-event-sub {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: hsl(var(--muted-foreground));
+}
+
