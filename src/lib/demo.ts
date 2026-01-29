@@ -45,13 +45,3 @@ export const clients: Client[] = [
     createdAt: new Date().toISOString(),
   },
 ];
-
-export const escrow = [];
-
-export const invoices = [];
-
-export const jobs = [];
-
-export const team = [];
-
-export const settings = [];
