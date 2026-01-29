@@ -45,3 +45,5 @@ export const clients: Client[] = [
     createdAt: new Date().toISOString(),
   },
 ];
+
+export const escrow = [];
