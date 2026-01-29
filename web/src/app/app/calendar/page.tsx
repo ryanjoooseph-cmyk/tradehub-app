@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -8,90 +8,69 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
-type CalJob = {
+type Job = {
   id: string;
   title: string;
-  client: string;
+  clientName: string;
   site: string;
-  status: "Scheduled" | "In Progress" | "Done";
-  priority: "Low" | "Med" | "High";
+  status: string;
+  priority: string;
   value: number;
-  start: string;
-  end: string;
+  startAt?: string;
+  endAt?: string;
 };
-
-const seed: CalJob[] = [
-  {
-    id: "1001",
-    title: "Rope Access Repaint – Tower 2",
-    client: "ACME Strata",
-    site: "Southbank",
-    status: "Scheduled",
-    priority: "High",
-    value: 24500,
-    start: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-    end: new Date(Date.now() + 3.5 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "1002",
-    title: "Facade Touch-Ups + Photos",
-    client: "Lumina Body Corp",
-    site: "CBD",
-    status: "In Progress",
-    priority: "Med",
-    value: 4200,
-    start: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString(),
-    end: new Date(Date.now() + 0.5 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "1003",
-    title: "Balcony Rail Recoat",
-    client: "Vantage Strata",
-    site: "Docklands",
-    status: "Scheduled",
-    priority: "Low",
-    value: 6800,
-    start: new Date(Date.now() + 24 * 60 * 60 * 1000 + 10 * 60 * 60 * 1000).toISOString(),
-    end: new Date(Date.now() + 24 * 60 * 60 * 1000 + 12 * 60 * 60 * 1000).toISOString(),
-  },
-];
 
 function money(n: number) {
   return n.toLocaleString(undefined, { style: "currency", currency: "AUD", maximumFractionDigits: 0 });
 }
 
-function statusClass(status: CalJob["status"]) {
-  if (status === "In Progress") return "ev-inprogress";
-  if (status === "Done") return "ev-done";
+function statusClass(s: string) {
+  if (s === "In Progress") return "ev-inprogress";
+  if (s === "Done") return "ev-done";
+  if (s === "Blocked") return "ev-blocked";
   return "ev-scheduled";
 }
 
 export default function CalendarPage() {
   const router = useRouter();
   const calendarRef = React.useRef<any>(null);
-  const [jobs] = React.useState(seed);
+  const [jobs, setJobs] = React.useState<Job[]>([]);
+
+  React.useEffect(() => {
+    fetch("/api/jobs", { cache: "no-store" })
+      .then((r) => r.json())
+      .then(setJobs)
+      .catch(() => setJobs([]));
+  }, []);
+
+  const events = jobs
+    .filter((j) => j.startAt && j.endAt)
+    .map((j) => ({
+      id: j.id,
+      title: j.title,
+      start: j.startAt!,
+      end: j.endAt!,
+      extendedProps: j,
+    }));
 
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Calendar</h1>
-          <p className="text-sm text-muted-foreground">Click an event to open the job. Mini-month navigates the week.</p>
+          <p className="text-sm text-muted-foreground">Jobs render from /api/jobs (requires startAt/endAt). Click to open the job.</p>
         </div>
         <div className="flex gap-2">
-          <Button className="rounded-xl" type="button">New booking</Button>
-          <Button variant="outline" className="rounded-xl" type="button" onClick={() => calendarRef.current?.getApi().today()}>
-            Today
-          </Button>
+          <Button className="rounded-xl" type="button" onClick={() => calendarRef.current?.getApi().today()}>Today</Button>
+          <Button variant="outline" className="rounded-xl" type="button" onClick={() => calendarRef.current?.getApi().changeView("timeGridWeek")}>Week</Button>
+          <Button variant="outline" className="rounded-xl" type="button" onClick={() => calendarRef.current?.getApi().changeView("dayGridMonth")}>Month</Button>
         </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-12">
         <Card className="lg:col-span-3 rounded-2xl border bg-card/40 p-4">
           <div className="font-medium">Navigator</div>
-
           <div className="mt-3 rounded-2xl border bg-background/50 p-3">
             <div className="text-xs text-muted-foreground">Mini month</div>
             <div className="mt-2">
@@ -102,33 +81,25 @@ export default function CalendarPage() {
                 headerToolbar={{ left: "", center: "title", right: "" }}
                 fixedWeekCount={false}
                 showNonCurrentDates={false}
-                dayMaxEvents={true}
                 dateClick={(info) => calendarRef.current?.getApi().gotoDate(info.date)}
               />
             </div>
           </div>
 
           <div className="mt-4">
-            <div className="text-xs font-medium text-muted-foreground">Upcoming</div>
-            <div className="mt-3 space-y-3">
-              {jobs.slice(0, 4).map((j) => (
-                <button
-                  key={j.id}
-                  className="w-full text-left rounded-2xl border bg-background/60 p-3 hover:bg-accent/30"
-                  type="button"
-                  onClick={() => router.push(`/app/jobs/${j.id}`)}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="text-sm font-semibold leading-snug">{j.title}</div>
-                    <Badge variant="outline" className="rounded-full text-[11px]">{j.status}</Badge>
-                  </div>
-                  <div className="mt-1 text-xs text-muted-foreground">{j.client} • {j.site}</div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <Badge variant="outline" className="rounded-full text-[11px]">#{j.id}</Badge>
-                    <div className="text-xs font-semibold">{money(j.value)}</div>
-                  </div>
+            <div className="text-xs font-medium text-muted-foreground">Scheduled</div>
+            <div className="mt-3 space-y-2">
+              {events.slice(0, 6).map((e: any) => (
+                <button key={e.id} type="button" className="w-full text-left rounded-2xl border bg-background/60 p-3 hover:bg-accent/30" onClick={() => router.push(`/app/jobs/${e.id}`)}>
+                  <div className="text-sm font-semibold">#{e.id} {e.title}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{e.extendedProps.clientName} • {e.extendedProps.site} • {money(e.extendedProps.value)}</div>
                 </button>
               ))}
+              {events.length === 0 ? (
+                <div className="rounded-2xl border bg-background/60 p-3 text-xs text-muted-foreground">
+                  No jobs have start/end times yet. Fix /api/jobs to return startAt/endAt and events will appear.
+                </div>
+              ) : null}
             </div>
           </div>
         </Card>
@@ -141,28 +112,26 @@ export default function CalendarPage() {
               initialView="timeGridWeek"
               height="auto"
               nowIndicator={true}
-              editable={true}
-              droppable={true}
-              eventDurationEditable={true}
-              eventStartEditable={true}
+              eventDisplay="block"
               headerToolbar={{ left: "prev,next", center: "title", right: "timeGridDay,timeGridWeek,dayGridMonth" }}
               slotMinTime="06:00:00"
               slotMaxTime="20:00:00"
               slotDuration="00:30:00"
-              eventClick={(arg) => router.push(`/app/jobs/${arg.event.id}`)}
+              scrollTime="07:00:00"
+              events={events}
               eventClassNames={(arg) => {
                 const e: any = arg.event.extendedProps;
-                const cls: string[] = [statusClass(e?.status)];
-                if (e?.priority === "High") cls.push("ev-high");
-                return cls;
+                const out: string[] = [statusClass(e?.status)];
+                if (e?.priority === "High") out.push("ev-high");
+                return out;
               }}
-              events={jobs.map((j) => ({ id: j.id, title: j.title, start: j.start, end: j.end, extendedProps: j }))}
+              eventClick={(arg) => router.push(`/app/jobs/${arg.event.id}`)}
               eventContent={(arg) => {
                 const e: any = arg.event.extendedProps;
                 return (
                   <div className="fc-event-inner">
                     <div className="fc-event-title">{arg.event.title}</div>
-                    <div className="fc-event-sub">{e.client} • {e.site} • {money(e.value)}</div>
+                    <div className="fc-event-sub">{e.clientName} • {e.site} • {money(e.value)}</div>
                   </div>
                 );
               }}
