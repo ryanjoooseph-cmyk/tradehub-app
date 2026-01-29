@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { escrow } from "@/lib/demo";
+import { escrow } from "../../../lib/demo";
 
 export const dynamic = "force-dynamic";
 
