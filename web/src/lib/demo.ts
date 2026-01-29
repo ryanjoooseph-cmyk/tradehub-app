@@ -49,3 +49,9 @@ export const clients: Client[] = [
 export const escrow = [];
 
 export const invoices = [];
+
+export const jobs = [];
+
+export const team = [];
+
+export const settings = [];
