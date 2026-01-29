@@ -1,8 +1,10 @@
-import { LayoutDashboard, Calendar, Briefcase, Users, FileText, Settings, UsersRound } from "lucide-react";
+import { LayoutDashboard, Calendar, Briefcase, Users, FileText, Settings, UsersRound, Landmark, Kanban } from "lucide-react";
 
 export const navItems = [
   { href: "/app", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dispatch", label: "Dispatch", icon: Kanban },
   { href: "/app/calendar", label: "Calendar", icon: Calendar },
+  { href: "/escrow", label: "Escrow", icon: Landmark },
   { href: "/app/jobs", label: "Jobs", icon: Briefcase },
   { href: "/app/clients", label: "Clients", icon: Users },
   { href: "/app/invoices", label: "Invoices", icon: FileText },
