@@ -1,4 +1,9 @@
 name: agent-ci
+
+defaults:
+  run:
+    working-directory: web
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
