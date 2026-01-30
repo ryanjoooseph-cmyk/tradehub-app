@@ -18,11 +18,26 @@ jobs:
   orchestrate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (use GH_PAT)
+      - name: Checkout (github.token)
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ github.token }}
           fetch-depth: 0
+
+      - name: Verify GH_PAT exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${{ secrets.GH_PAT }}" ]; then
+            echo "GH_PAT secret is missing/empty"
+            exit 1
+          fi
+
+      - name: Configure GH_PAT for git + gh
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global url."https://x-access-token:${{ secrets.GH_PAT }}@github.com/".insteadOf "https://github.com/"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -43,10 +58,9 @@ jobs:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
         run: |
           set -euo pipefail
-          echo "Entrypoint: NONE"
-          if [ -n "" ] && [ -f "" ]; then
-            node ""
-          else
-            echo "No agent-orchestrator-v2 entrypoint found in repo. Keeping workflow green."
-            exit 0
-          fi
+          if [ -f scripts/agent-orchestrator-v2.mjs ]; then node scripts/agent-orchestrator-v2.mjs; exit 0; fi
+          if [ -f scripts/agent-orchestrator-v2.js ]; then node scripts/agent-orchestrator-v2.js; exit 0; fi
+          if [ -f agent-orchestrator-v2.mjs ]; then node agent-orchestrator-v2.mjs; exit 0; fi
+          if [ -f agent-orchestrator-v2.js ]; then node agent-orchestrator-v2.js; exit 0; fi
+          echo "No orchestrator entrypoint found; exiting green."
+          exit 0
