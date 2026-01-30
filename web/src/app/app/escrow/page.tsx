@@ -3,241 +3,389 @@
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shell/page-header";
 import { StatCard } from "@/components/premium/stat-card";
-import { DataTableShell } from "@/components/premium/data-table-shell";
-import { EmptyState } from "@/components/premium/empty-state";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 import {
-  ArrowUpRight,
   ShieldCheck,
-  CircleDollarSign,
   AlertTriangle,
   Search,
-  Scale,
+  ArrowUpRight,
   Lock,
-  Unlock,
-  FileWarning,
-  History,
+  CheckCircle2,
+  Clock,
+  Banknote,
+  Scale,
+  FileCheck2,
+  CreditCard,
+  Fingerprint,
+  Gavel,
+  Timer,
+  Zap,
+  TrendingUp,
+  RefreshCw,
 } from "lucide-react";
 
-type EscrowState = "Held" | "Releasing" | "Released" | "Disputed";
+type Stage = "Hold" | "Verify" | "Release";
+type Risk = "Low" | "Medium" | "High";
+type EscrowStatus = "Open" | "Pending" | "Released" | "Disputed";
 
-type Escrow = {
+type EscrowCase = {
   id: string;
   jobId: string;
   client: string;
-  state: EscrowState;
+  provider: string;
   amount: number;
-  lastEvent: string;
-  risk: "Low" | "Medium" | "High";
-  notes: string;
+  stage: Stage;
+  risk: Risk;
+  status: EscrowStatus;
+  slaMins: number;
+  ageMins: number;
+  flags: string[];
 };
 
-const seed: Escrow[] = [
-  { id: "ESC-9001", jobId: "J-187", client: "Arcadia Body Corporate", state: "Held", amount: 16800, lastEvent: "Evidence requested (milestone 1)", risk: "Medium", notes: "Release requires photo pack + signoff." },
-  { id: "ESC-9002", jobId: "J-188", client: "Northpoint Facilities", state: "Held", amount: 5200, lastEvent: "Invoice drafted", risk: "Low", notes: "Auto-release on completion signoff." },
-  { id: "ESC-8997", jobId: "J-190", client: "Meridian Property Group", state: "Released", amount: 0, lastEvent: "Closeout complete", risk: "Low", notes: "Archived." },
-  { id: "ESC-8999", jobId: "J-189", client: "Lakeside Owners Assoc", state: "Disputed", amount: 9200, lastEvent: "Deposit disputed / unpaid", risk: "High", notes: "Blocked. Requires ops intervention + communication log." },
+const money = (n: number) =>
+  n.toLocaleString("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 });
+
+const cases: EscrowCase[] = [
+  {
+    id: "ESC-1042",
+    jobId: "JOB-8121",
+    client: "Strata Group A",
+    provider: "Crew Alpha",
+    amount: 6400,
+    stage: "Hold",
+    risk: "High",
+    status: "Pending",
+    slaMins: 180,
+    ageMins: 152,
+    flags: ["New client", "Large amount", "Weekend"],
+  },
+  {
+    id: "ESC-1043",
+    jobId: "JOB-8122",
+    client: "Retail Fitout Co",
+    provider: "Ops Team 3",
+    amount: 2100,
+    stage: "Verify",
+    risk: "Medium",
+    status: "Open",
+    slaMins: 120,
+    ageMins: 44,
+    flags: ["Partial docs"],
+  },
+  {
+    id: "ESC-1044",
+    jobId: "JOB-8123",
+    client: "Body Corporate QLD",
+    provider: "Rope Access Unit",
+    amount: 9800,
+    stage: "Verify",
+    risk: "High",
+    status: "Disputed",
+    slaMins: 240,
+    ageMins: 198,
+    flags: ["Quality dispute", "Inspection required"],
+  },
+  {
+    id: "ESC-1045",
+    jobId: "JOB-8124",
+    client: "Office Tower Mgmt",
+    provider: "Crew Beta",
+    amount: 1550,
+    stage: "Release",
+    risk: "Low",
+    status: "Released",
+    slaMins: 60,
+    ageMins: 12,
+    flags: [],
+  },
+  {
+    id: "ESC-1046",
+    jobId: "JOB-8126",
+    client: "Facility Services Pty",
+    provider: "Ops Team 1",
+    amount: 3300,
+    stage: "Hold",
+    risk: "Medium",
+    status: "Open",
+    slaMins: 180,
+    ageMins: 81,
+    flags: ["First job"],
+  },
 ];
 
-function moneyAUD(n: number) {
-  try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(n);
-  } catch {
-    return `$${Math.round(n)}`;
-  }
-}
-
-function chipState(s: EscrowState) {
+function chipRisk(r: Risk) {
   const base = "rounded-full border px-2 py-0.5 text-xs";
-  if (s === "Held") return <span className={cn(base, "border-sky-300 bg-sky-50 text-sky-800")}>Held</span>;
-  if (s === "Releasing") return <span className={cn(base, "border-violet-300 bg-violet-50 text-violet-800")}>Releasing</span>;
-  if (s === "Released") return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Released</span>;
-  return <span className={cn(base, "border-rose-300 bg-rose-50 text-rose-800")}>Disputed</span>;
+  if (r === "High") return <span className={`${base} border-rose-300 bg-rose-50 text-rose-800`}>High risk</span>;
+  if (r === "Medium") return <span className={`${base} border-amber-300 bg-amber-50 text-amber-800`}>Medium</span>;
+  return <span className={`${base} border-emerald-300 bg-emerald-50 text-emerald-700`}>Low</span>;
 }
 
-function chipRisk(r: Escrow["risk"]) {
+function chipStatus(s: EscrowStatus) {
   const base = "rounded-full border px-2 py-0.5 text-xs";
-  if (r === "High") return <span className={cn(base, "border-rose-300 bg-rose-50 text-rose-800")}>High risk</span>;
-  if (r === "Medium") return <span className={cn(base, "border-amber-300 bg-amber-50 text-amber-800")}>Medium risk</span>;
-  return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Low risk</span>;
+  if (s === "Released") return <span className={`${base} border-emerald-300 bg-emerald-50 text-emerald-700`}>Released</span>;
+  if (s === "Pending") return <span className={`${base} border-sky-300 bg-sky-50 text-sky-800`}>Pending</span>;
+  if (s === "Disputed") return <span className={`${base} border-rose-300 bg-rose-50 text-rose-800`}>Disputed</span>;
+  return <span className={`${base} border-zinc-300 bg-zinc-50 text-zinc-700`}>Open</span>;
 }
 
-export default function EscrowPage() {
+function stagePill(stage: Stage) {
+  const base = "rounded-full border px-2 py-0.5 text-xs";
+  if (stage === "Hold") return <span className={`${base} border-zinc-300 bg-zinc-50 text-zinc-800`}>Hold</span>;
+  if (stage === "Verify") return <span className={`${base} border-indigo-300 bg-indigo-50 text-indigo-800`}>Verify</span>;
+  return <span className={`${base} border-emerald-300 bg-emerald-50 text-emerald-700`}>Release</span>;
+}
+
+function pct(a: number, b: number) {
+  if (b <= 0) return 0;
+  return Math.min(100, Math.max(0, Math.round((a / b) * 100)));
+}
+
+export default function EscrowCommandCenter() {
   const [q, setQ] = useState("");
-  const [scope, setScope] = useState<"all" | "held" | "disputed" | "released">("all");
-  const [selectedId, setSelectedId] = useState<string>(seed[0]?.id || "");
+  const [tab, setTab] = useState<"all" | "risk" | "disputes" | "released">("all");
+  const [selected, setSelected] = useState<string>(cases[0]?.id || "");
 
-  const filtered = useMemo(() => {
+  const rows = useMemo(() => {
     const s = q.trim().toLowerCase();
-    let rows = seed;
+    let out = cases;
 
-    if (scope === "held") rows = rows.filter((e) => e.state === "Held" || e.state === "Releasing");
-    if (scope === "disputed") rows = rows.filter((e) => e.state === "Disputed");
-    if (scope === "released") rows = rows.filter((e) => e.state === "Released");
+    if (tab === "risk") out = out.filter((c) => c.risk !== "Low" || c.flags.length > 0);
+    if (tab === "disputes") out = out.filter((c) => c.status === "Disputed");
+    if (tab === "released") out = out.filter((c) => c.status === "Released");
 
-    if (!s) return rows;
-    return rows.filter((e) => `${e.id} ${e.jobId} ${e.client} ${e.state} ${e.risk} ${e.lastEvent}`.toLowerCase().includes(s));
-  }, [q, scope]);
+    if (!s) return out;
+    return out.filter((c) => `${c.id} ${c.jobId} ${c.client} ${c.provider} ${c.stage} ${c.status}`.toLowerCase().includes(s));
+  }, [q, tab]);
 
-  const selected = useMemo(() => seed.find((e) => e.id === selectedId) || filtered[0] || seed[0], [selectedId, filtered]);
+  const focus = useMemo(() => cases.find((c) => c.id === selected) || rows[0] || cases[0], [selected, rows]);
 
-  const kpis = useMemo(() => {
-    const held = seed.filter((e) => e.state === "Held" || e.state === "Releasing").reduce((a, e) => a + e.amount, 0);
-    const disputed = seed.filter((e) => e.state === "Disputed").reduce((a, e) => a + e.amount, 0);
-    const total = seed.reduce((a, e) => a + e.amount, 0);
-    const riskHigh = seed.filter((e) => e.risk === "High").length;
-    return { held, disputed, total, riskHigh };
+  const totals = useMemo(() => {
+    const held = cases.filter((c) => c.stage === "Hold" && c.status !== "Released").reduce((a, c) => a + c.amount, 0);
+    const pending = cases.filter((c) => c.status === "Pending" || c.status === "Open").reduce((a, c) => a + c.amount, 0);
+    const disputed = cases.filter((c) => c.status === "Disputed").reduce((a, c) => a + c.amount, 0);
+    const released = cases.filter((c) => c.status === "Released").reduce((a, c) => a + c.amount, 0);
+    const high = cases.filter((c) => c.risk === "High").length;
+    return { held, pending, disputed, released, high };
   }, []);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Escrow"
-        subtitle="Funds control tower: holds, releases, disputes, and audit-grade traceability."
+        title="Escrow Command Center"
+        subtitle="Control escrow holds, verification, releases, and disputes with risk-grade operations."
         right={
           <>
-            <Button variant="outline" className="rounded-xl"><History className="mr-2 h-4 w-4" />Audit</Button>
-            <Button className="rounded-xl"><ShieldCheck className="mr-2 h-4 w-4" />New hold</Button>
+            <Button variant="outline" className="rounded-xl">
+              <RefreshCw className="mr-2 h-4 w-4" /> Refresh
+            </Button>
+            <Button className="rounded-xl">
+              <ShieldCheck className="mr-2 h-4 w-4" /> Run risk scan
+            </Button>
           </>
         }
       />
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-        <StatCard label="Total escrow" value={moneyAUD(kpis.total)} icon={<CircleDollarSign className="h-4 w-4" />} />
-        <StatCard label="Held" value={moneyAUD(kpis.held)} icon={<Lock className="h-4 w-4" />} />
-        <StatCard label="Disputed" value={moneyAUD(kpis.disputed)} icon={<Scale className="h-4 w-4" />} />
-        <StatCard label="High risk" value={String(kpis.riskHigh)} icon={<FileWarning className="h-4 w-4" />} />
-        <StatCard label="Cases" value={String(seed.length)} icon={<AlertTriangle className="h-4 w-4" />} />
+        <StatCard label="Held" value={money(totals.held)} icon={<Lock className="h-4 w-4" />} />
+        <StatCard label="Pending" value={money(totals.pending)} icon={<Clock className="h-4 w-4" />} />
+        <StatCard label="Disputed" value={money(totals.disputed)} icon={<Scale className="h-4 w-4" />} />
+        <StatCard label="Released" value={money(totals.released)} icon={<CheckCircle2 className="h-4 w-4" />} />
+        <StatCard label="High-risk cases" value={String(totals.high)} icon={<AlertTriangle className="h-4 w-4" />} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <DataTableShell
-          title="Escrow cases"
-          subtitle="Search, filter, open a case, and execute releases."
-          toolbar={
-            <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <div className="relative w-full md:w-[520px]">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search escrow…" className="h-10 rounded-2xl pl-9" />
-              </div>
-              <Tabs value={scope} onValueChange={(v) => setScope(v as any)} className="w-full md:w-auto">
-                <TabsList className="rounded-2xl">
-                  <TabsTrigger value="all" className="rounded-xl">All</TabsTrigger>
-                  <TabsTrigger value="held" className="rounded-xl">Held</TabsTrigger>
-                  <TabsTrigger value="disputed" className="rounded-xl">Disputed</TabsTrigger>
-                  <TabsTrigger value="released" className="rounded-xl">Released</TabsTrigger>
-                </TabsList>
-              </Tabs>
+        <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <div className="text-sm font-semibold">Queue</div>
+            <Badge variant="outline" className="rounded-full">Premium</Badge>
+          </div>
+
+          <div className="p-4 space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search escrow…" className="h-10 rounded-2xl pl-9" />
             </div>
-          }
-        >
-          {filtered.length === 0 ? (
-            <div className="p-6">
-              <EmptyState title="No escrow cases" subtitle="Try another filter or create a new hold." icon={<ShieldCheck className="h-5 w-5" />} actionLabel="New hold" onAction={() => {}} />
-            </div>
-          ) : (
-            <div className="p-3 space-y-2">
-              {filtered.map((e) => {
-                const active = selected?.id === e.id;
+
+            <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="w-full">
+              <TabsList className="w-full rounded-2xl grid grid-cols-4">
+                <TabsTrigger value="all" className="rounded-xl">All</TabsTrigger>
+                <TabsTrigger value="risk" className="rounded-xl">Risk</TabsTrigger>
+                <TabsTrigger value="disputes" className="rounded-xl">Disputes</TabsTrigger>
+                <TabsTrigger value="released" className="rounded-xl">Released</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <Separator />
+
+            <div className="space-y-2">
+              {rows.map((c) => {
+                const active = focus?.id === c.id;
+                const slaPct = pct(c.ageMins, c.slaMins);
+                const breach = slaPct >= 90 && c.status !== "Released";
                 return (
                   <button
-                    key={e.id}
-                    onClick={() => setSelectedId(e.id)}
-                    className={cn(
-                      "w-full text-left rounded-2xl border bg-background p-4 transition hover:bg-muted/30",
-                      active ? "border-zinc-400/70" : "border-border"
-                    )}
+                    key={c.id}
+                    onClick={() => setSelected(c.id)}
+                    className={`w-full text-left rounded-2xl border p-4 transition hover:bg-muted/30 ${active ? "border-zinc-400/70" : "border-border"}`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <div className="font-semibold truncate">{e.id}</div>
-                          {chipState(e.state)}
-                          {chipRisk(e.risk)}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="font-semibold">{c.id}</div>
+                          <span className="rounded-full border px-2 py-0.5 text-xs">{c.jobId}</span>
+                          {stagePill(c.stage)}
+                          {chipStatus(c.status)}
+                          {chipRisk(c.risk)}
+                          {breach ? (
+                            <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-xs text-amber-800 inline-flex items-center gap-1">
+                              <Timer className="h-3.5 w-3.5" /> SLA risk
+                            </span>
+                          ) : null}
                         </div>
-                        <div className="mt-1 text-xs text-muted-foreground truncate">{e.client} · {e.jobId}</div>
+                        <div className="mt-1 text-xs text-muted-foreground truncate">
+                          {c.client} → {c.provider}
+                        </div>
                       </div>
-                      <div className="shrink-0 flex flex-col items-end gap-1">
-                        <div className="text-sm font-semibold">{moneyAUD(e.amount)}</div>
-                        <div className="text-xs text-muted-foreground">{e.state === "Released" ? "Released" : "On hold"}</div>
+                      <div className="shrink-0 text-right">
+                        <div className="text-sm font-semibold">{money(c.amount)}</div>
+                        <div className="text-xs text-muted-foreground">{c.ageMins}m / {c.slaMins}m</div>
                       </div>
                     </div>
-                    <Separator className="my-3" />
-                    <div className="text-xs text-muted-foreground truncate">{e.lastEvent}</div>
+
+                    <div className="mt-3">
+                      <Progress value={slaPct} />
+                    </div>
                   </button>
                 );
               })}
             </div>
-          )}
-        </DataTableShell>
+          </div>
+        </Card>
 
         <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden lg:col-span-2">
           <div className="flex items-center justify-between border-b px-4 py-3">
-            <div className="text-sm font-semibold">Escrow record</div>
-            <Badge variant="outline" className="rounded-full">Premium</Badge>
+            <div className="text-sm font-semibold">Case dossier</div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="rounded-full">Ops</Badge>
+              <Button variant="outline" className="rounded-xl h-9">
+                <ArrowUpRight className="mr-2 h-4 w-4" /> Open job
+              </Button>
+            </div>
           </div>
 
-          {!selected ? (
-            <div className="p-8 text-sm text-muted-foreground">Select a case to view details.</div>
+          {!focus ? (
+            <div className="p-8 text-sm text-muted-foreground">Select an escrow case to view details.</div>
           ) : (
             <div className="p-5 space-y-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                <div className="min-w-0">
+                <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <div className="text-xl font-semibold truncate">{selected.id}</div>
-                    {chipState(selected.state)}
-                    {chipRisk(selected.risk)}
+                    <div className="text-xl font-semibold">{focus.id}</div>
+                    <span className="rounded-full border px-2 py-0.5 text-xs">{focus.jobId}</span>
+                    {stagePill(focus.stage)}
+                    {chipStatus(focus.status)}
+                    {chipRisk(focus.risk)}
                   </div>
-                  <div className="mt-1 text-xs text-muted-foreground">{selected.client} · {selected.jobId}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{focus.client} → {focus.provider}</div>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" className="rounded-xl"><Unlock className="mr-2 h-4 w-4" />Release</Button>
-                  <Button className="rounded-xl">Open <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
+                  <Button variant="outline" className="rounded-xl">
+                    <FileCheck2 className="mr-2 h-4 w-4" /> Verify docs
+                  </Button>
+                  <Button className="rounded-xl">
+                    <Banknote className="mr-2 h-4 w-4" /> Release
+                  </Button>
                 </div>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-4">
                 <div className="rounded-2xl border bg-background p-4">
                   <div className="text-xs text-muted-foreground">Amount</div>
-                  <div className="mt-2 text-lg font-semibold">{moneyAUD(selected.amount)}</div>
+                  <div className="mt-2 text-lg font-semibold">{money(focus.amount)}</div>
                 </div>
                 <div className="rounded-2xl border bg-background p-4">
-                  <div className="text-xs text-muted-foreground">State</div>
-                  <div className="mt-2 text-lg font-semibold">{selected.state}</div>
+                  <div className="text-xs text-muted-foreground">SLA</div>
+                  <div className="mt-2 text-lg font-semibold">{focus.slaMins}m</div>
+                </div>
+                <div className="rounded-2xl border bg-background p-4">
+                  <div className="text-xs text-muted-foreground">Age</div>
+                  <div className="mt-2 text-lg font-semibold">{focus.ageMins}m</div>
                 </div>
                 <div className="rounded-2xl border bg-background p-4">
                   <div className="text-xs text-muted-foreground">Risk</div>
-                  <div className="mt-2 text-lg font-semibold">{selected.risk}</div>
+                  <div className="mt-2 text-lg font-semibold">{focus.risk}</div>
                 </div>
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="rounded-2xl border bg-background p-4">
-                  <div className="text-sm font-semibold">Last event</div>
+                  <div className="text-sm font-semibold flex items-center gap-2">
+                    <Zap className="h-4 w-4" /> Risk engine
+                  </div>
                   <Separator className="my-3" />
-                  <div className="text-sm text-muted-foreground">{selected.lastEvent}</div>
+                  <div className="space-y-2 text-sm">
+                    <div className="rounded-xl border bg-muted/10 p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2"><Fingerprint className="h-4 w-4" /> Identity signal</div>
+                      <div className="font-semibold">{focus.risk === "High" ? "Weak" : "Strong"}</div>
+                    </div>
+                    <div className="rounded-xl border bg-muted/10 p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2"><CreditCard className="h-4 w-4" /> Funding source</div>
+                      <div className="font-semibold">{focus.flags.includes("Large amount") ? "Manual review" : "Normal"}</div>
+                    </div>
+                    <div className="rounded-xl border bg-muted/10 p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Behaviour</div>
+                      <div className="font-semibold">{focus.flags.length ? "Watch" : "Normal"}</div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="rounded-2xl border bg-background p-4">
-                  <div className="text-sm font-semibold">Controls</div>
+                  <div className="text-sm font-semibold flex items-center gap-2">
+                    <Gavel className="h-4 w-4" /> Dispute triage
+                  </div>
                   <Separator className="my-3" />
-                  <div className="grid gap-2">
-                    <Button variant="outline" className="rounded-xl"><ShieldCheck className="mr-2 h-4 w-4" />Require evidence</Button>
-                    <Button variant="outline" className="rounded-xl"><Scale className="mr-2 h-4 w-4" />Open dispute</Button>
-                    <Button className="rounded-xl"><Unlock className="mr-2 h-4 w-4" />Execute release</Button>
+                  <div className="space-y-2 text-sm">
+                    <div className="rounded-xl border bg-muted/10 p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2"><Scale className="h-4 w-4" /> Status</div>
+                      <div className="font-semibold">{focus.status === "Disputed" ? "Active dispute" : "Clear"}</div>
+                    </div>
+                    <div className="rounded-xl border bg-muted/10 p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2"><Clock className="h-4 w-4" /> SLA pressure</div>
+                      <div className="font-semibold">{pct(focus.ageMins, focus.slaMins)}%</div>
+                    </div>
+                    <div className="rounded-xl border bg-muted/10 p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2"><AlertTriangle className="h-4 w-4" /> Flags</div>
+                      <div className="font-semibold">{focus.flags.length ? focus.flags.length : 0}</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex gap-2">
+                    <Button variant="outline" className="rounded-xl w-full">Open dispute</Button>
+                    <Button className="rounded-xl w-full">Escalate</Button>
                   </div>
                 </div>
               </div>
 
               <div className="rounded-2xl border bg-background p-4">
-                <div className="text-sm font-semibold">Notes</div>
-                <div className="mt-2 text-sm text-muted-foreground">{selected.notes}</div>
+                <div className="text-sm font-semibold">Flags</div>
+                <Separator className="my-3" />
+                <div className="flex flex-wrap gap-2">
+                  {focus.flags.length ? (
+                    focus.flags.map((f) => (
+                      <span key={f} className="rounded-full border px-2 py-0.5 text-xs bg-muted/10">
+                        {f}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs text-muted-foreground">No flags.</span>
+                  )}
+                </div>
               </div>
             </div>
           )}
