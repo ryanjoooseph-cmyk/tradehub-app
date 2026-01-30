@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shell/page-header";
 import { StatCard } from "@/components/premium/stat-card";
 import { DataTableShell } from "@/components/premium/data-table-shell";
@@ -9,231 +9,240 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { ShieldCheck, AlertTriangle, CheckCircle2, Wallet, Plus, Search, ArrowUpRight, Scale } from "lucide-react";
+import {
+  ArrowUpRight,
+  ShieldCheck,
+  CircleDollarSign,
+  AlertTriangle,
+  Search,
+  Scale,
+  Lock,
+  Unlock,
+  FileWarning,
+  History,
+} from "lucide-react";
+
+type EscrowState = "Held" | "Releasing" | "Released" | "Disputed";
 
 type Escrow = {
   id: string;
-  status?: string | null;
-  amount?: number | null;
-  job_id?: string | null;
-  client_id?: string | null;
-  created_at?: string | null;
-  updated_at?: string | null;
+  jobId: string;
+  client: string;
+  state: EscrowState;
+  amount: number;
+  lastEvent: string;
+  risk: "Low" | "Medium" | "High";
+  notes: string;
 };
 
-async function getEscrow(): Promise<Escrow[]> {
-  const res = await fetch("/api/escrow", { cache: "no-store" });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((json as any)?.error || "Failed to load escrow");
-  return ((json as any)?.escrow || (json as any)?.rows || []) as Escrow[];
-}
+const seed: Escrow[] = [
+  { id: "ESC-9001", jobId: "J-187", client: "Arcadia Body Corporate", state: "Held", amount: 16800, lastEvent: "Evidence requested (milestone 1)", risk: "Medium", notes: "Release requires photo pack + signoff." },
+  { id: "ESC-9002", jobId: "J-188", client: "Northpoint Facilities", state: "Held", amount: 5200, lastEvent: "Invoice drafted", risk: "Low", notes: "Auto-release on completion signoff." },
+  { id: "ESC-8997", jobId: "J-190", client: "Meridian Property Group", state: "Released", amount: 0, lastEvent: "Closeout complete", risk: "Low", notes: "Archived." },
+  { id: "ESC-8999", jobId: "J-189", client: "Lakeside Owners Assoc", state: "Disputed", amount: 9200, lastEvent: "Deposit disputed / unpaid", risk: "High", notes: "Blocked. Requires ops intervention + communication log." },
+];
 
-function money(n?: number | null) {
-  const v = Number(n || 0);
+function moneyAUD(n: number) {
   try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(v);
+    return new Intl.NumberFormat(undefined, { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(n);
   } catch {
-    return `$${Math.round(v)}`;
+    return `$${Math.round(n)}`;
   }
 }
 
-function when(d?: string | null) {
-  if (!d) return "—";
-  const dt = new Date(d);
-  if (Number.isNaN(dt.getTime())) return "—";
-  return dt.toLocaleString();
+function chipState(s: EscrowState) {
+  const base = "rounded-full border px-2 py-0.5 text-xs";
+  if (s === "Held") return <span className={cn(base, "border-sky-300 bg-sky-50 text-sky-800")}>Held</span>;
+  if (s === "Releasing") return <span className={cn(base, "border-violet-300 bg-violet-50 text-violet-800")}>Releasing</span>;
+  if (s === "Released") return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Released</span>;
+  return <span className={cn(base, "border-rose-300 bg-rose-50 text-rose-800")}>Disputed</span>;
 }
 
-function keyStatus(s?: string | null) {
-  const v = (s || "created").toLowerCase();
-  if (v === "funded") return "funded";
-  if (v === "disputed") return "disputed";
-  if (v === "released") return "released";
-  return "created";
-}
-
-function statusChip(s?: string | null) {
-  const v = keyStatus(s);
-  if (v === "released") return <Badge variant="outline" className="rounded-full border-emerald-300 bg-emerald-50 text-emerald-700">Released</Badge>;
-  if (v === "funded") return <Badge variant="outline" className="rounded-full border-sky-300 bg-sky-50 text-sky-800">Funded</Badge>;
-  if (v === "disputed") return <Badge variant="outline" className="rounded-full border-amber-300 bg-amber-50 text-amber-800">Disputed</Badge>;
-  return <Badge variant="outline" className="rounded-full border-zinc-300 bg-zinc-50 text-zinc-700">Created</Badge>;
+function chipRisk(r: Escrow["risk"]) {
+  const base = "rounded-full border px-2 py-0.5 text-xs";
+  if (r === "High") return <span className={cn(base, "border-rose-300 bg-rose-50 text-rose-800")}>High risk</span>;
+  if (r === "Medium") return <span className={cn(base, "border-amber-300 bg-amber-50 text-amber-800")}>Medium risk</span>;
+  return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Low risk</span>;
 }
 
 export default function EscrowPage() {
-  const [view, setView] = useState<"table" | "board">("table");
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
-  const [rows, setRows] = useState<Escrow[]>([]);
   const [q, setQ] = useState("");
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        setLoading(true);
-        setErr(null);
-        const data = await getEscrow();
-        if (!mounted) return;
-        setRows(data);
-      } catch (e: any) {
-        if (mounted) setErr(e?.message || "Failed to load");
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => { mounted = false; };
-  }, []);
+  const [scope, setScope] = useState<"all" | "held" | "disputed" | "released">("all");
+  const [selectedId, setSelectedId] = useState<string>(seed[0]?.id || "");
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
+    let rows = seed;
+
+    if (scope === "held") rows = rows.filter((e) => e.state === "Held" || e.state === "Releasing");
+    if (scope === "disputed") rows = rows.filter((e) => e.state === "Disputed");
+    if (scope === "released") rows = rows.filter((e) => e.state === "Released");
+
     if (!s) return rows;
-    return rows.filter((r) =>
-      `${r.id} ${r.status || ""} ${r.job_id || ""} ${r.client_id || ""} ${r.amount || ""}`.toLowerCase().includes(s)
-    );
-  }, [rows, q]);
+    return rows.filter((e) => `${e.id} ${e.jobId} ${e.client} ${e.state} ${e.risk} ${e.lastEvent}`.toLowerCase().includes(s));
+  }, [q, scope]);
+
+  const selected = useMemo(() => seed.find((e) => e.id === selectedId) || filtered[0] || seed[0], [selectedId, filtered]);
 
   const kpis = useMemo(() => {
-    const total = rows.reduce((a, r) => a + Number(r.amount || 0), 0);
-    const funded = rows.filter(r => keyStatus(r.status) === "funded").length;
-    const disputed = rows.filter(r => keyStatus(r.status) === "disputed").length;
-    const released = rows.filter(r => keyStatus(r.status) === "released").length;
-    return { total, funded, disputed, released, count: rows.length };
-  }, [rows]);
-
-  const board = useMemo(() => {
-    const b = { created: [] as Escrow[], funded: [] as Escrow[], disputed: [] as Escrow[], released: [] as Escrow[] };
-    for (const r of filtered) b[keyStatus(r.status) as keyof typeof b].push(r);
-    return b;
-  }, [filtered]);
+    const held = seed.filter((e) => e.state === "Held" || e.state === "Releasing").reduce((a, e) => a + e.amount, 0);
+    const disputed = seed.filter((e) => e.state === "Disputed").reduce((a, e) => a + e.amount, 0);
+    const total = seed.reduce((a, e) => a + e.amount, 0);
+    const riskHigh = seed.filter((e) => e.risk === "High").length;
+    return { held, disputed, total, riskHigh };
+  }, []);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Escrow"
-        subtitle="TradeHub core. Funds flow, disputes, releases — audit-first UI."
+        subtitle="Funds control tower: holds, releases, disputes, and audit-grade traceability."
         right={
           <>
-            <Button variant="outline" className="rounded-xl">Policy</Button>
-            <Button className="rounded-xl"><Plus className="mr-2 h-4 w-4" />New escrow</Button>
+            <Button variant="outline" className="rounded-xl"><History className="mr-2 h-4 w-4" />Audit</Button>
+            <Button className="rounded-xl"><ShieldCheck className="mr-2 h-4 w-4" />New hold</Button>
           </>
         }
       />
 
-      {err ? <div className="rounded-2xl border border-red-200 bg-background p-6 text-sm text-red-700">{err}</div> : null}
-
       <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-        <StatCard label="Escrows" value={String(kpis.count)} icon={<Wallet className="h-4 w-4" />} />
-        <StatCard label="Total held" value={money(kpis.total)} icon={<ShieldCheck className="h-4 w-4" />} />
-        <StatCard label="Funded" value={String(kpis.funded)} icon={<ShieldCheck className="h-4 w-4" />} />
-        <StatCard label="Disputed" value={String(kpis.disputed)} icon={<AlertTriangle className="h-4 w-4" />} />
-        <StatCard label="Released" value={String(kpis.released)} icon={<CheckCircle2 className="h-4 w-4" />} />
+        <StatCard label="Total escrow" value={moneyAUD(kpis.total)} icon={<CircleDollarSign className="h-4 w-4" />} />
+        <StatCard label="Held" value={moneyAUD(kpis.held)} icon={<Lock className="h-4 w-4" />} />
+        <StatCard label="Disputed" value={moneyAUD(kpis.disputed)} icon={<Scale className="h-4 w-4" />} />
+        <StatCard label="High risk" value={String(kpis.riskHigh)} icon={<FileWarning className="h-4 w-4" />} />
+        <StatCard label="Cases" value={String(seed.length)} icon={<AlertTriangle className="h-4 w-4" />} />
       </div>
 
-      <DataTableShell
-        title="Escrow ledger"
-        subtitle="Search by escrow ID, job, client, status, amount."
-        toolbar={
-          <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div className="relative w-full md:w-[520px]">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search escrow…" className="h-10 rounded-2xl pl-9" />
+      <div className="grid gap-4 lg:grid-cols-3">
+        <DataTableShell
+          title="Escrow cases"
+          subtitle="Search, filter, open a case, and execute releases."
+          toolbar={
+            <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div className="relative w-full md:w-[520px]">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search escrow…" className="h-10 rounded-2xl pl-9" />
+              </div>
+              <Tabs value={scope} onValueChange={(v) => setScope(v as any)} className="w-full md:w-auto">
+                <TabsList className="rounded-2xl">
+                  <TabsTrigger value="all" className="rounded-xl">All</TabsTrigger>
+                  <TabsTrigger value="held" className="rounded-xl">Held</TabsTrigger>
+                  <TabsTrigger value="disputed" className="rounded-xl">Disputed</TabsTrigger>
+                  <TabsTrigger value="released" className="rounded-xl">Released</TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
-            <Tabs value={view} onValueChange={(v) => setView(v as any)} className="w-full md:w-auto">
-              <TabsList className="rounded-2xl">
-                <TabsTrigger value="table" className="rounded-xl">Table</TabsTrigger>
-                <TabsTrigger value="board" className="rounded-xl">Board</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        }
-      >
-        {loading ? (
-          <div className="p-10 text-sm text-muted-foreground">Loading…</div>
-        ) : filtered.length === 0 ? (
-          <div className="p-6">
-            <EmptyState title="No escrow records" subtitle="Create escrow from a job to hold funds, then release or dispute." icon={<Scale className="h-5 w-5" />} actionLabel="Create escrow" onAction={() => {}} />
-          </div>
-        ) : view === "table" ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-muted/40 text-xs text-muted-foreground">
-                <tr className="border-b">
-                  <th className="px-6 py-3 text-left font-medium">Escrow</th>
-                  <th className="px-6 py-3 text-left font-medium">Job</th>
-                  <th className="px-6 py-3 text-left font-medium">Client</th>
-                  <th className="px-6 py-3 text-left font-medium">Status</th>
-                  <th className="px-6 py-3 text-right font-medium">Amount</th>
-                  <th className="px-6 py-3 text-right font-medium">Updated</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {filtered.map((r) => (
-                  <tr key={r.id} className="hover:bg-muted/30">
-                    <td className="px-6 py-4">
-                      <div className="font-medium">{r.id}</div>
-                      <div className="text-xs text-muted-foreground">Created: {when(r.created_at)}</div>
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground">{r.job_id || "—"}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{r.client_id || "—"}</td>
-                    <td className="px-6 py-4">{statusChip(r.status)}</td>
-                    <td className="px-6 py-4 text-right font-medium">{money(r.amount)}</td>
-                    <td className="px-6 py-4 text-right text-muted-foreground">{when(r.updated_at || r.created_at)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="p-4">
-            <div className="grid gap-4 lg:grid-cols-4">
-              {([
-                ["Created", "created"] as const,
-                ["Funded", "funded"] as const,
-                ["Disputed", "disputed"] as const,
-                ["Released", "released"] as const,
-              ]).map(([label, key]) => (
-                <Card key={key} className="rounded-2xl border bg-background shadow-sm overflow-hidden">
-                  <div className="flex items-center justify-between border-b px-4 py-3">
-                    <div className="text-sm font-semibold">{label}</div>
-                    <Badge variant="outline" className="rounded-full">{board[key].length}</Badge>
-                  </div>
-                  <div className="p-3 space-y-3">
-                    {board[key].length === 0 ? (
-                      <div className="rounded-2xl border bg-muted/10 p-6 text-center text-xs text-muted-foreground">Empty</div>
-                    ) : (
-                      board[key].map((r) => (
-                        <div key={r.id} className="rounded-2xl border bg-background p-3 hover:bg-muted/30 transition">
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <div className="truncate text-sm font-semibold">{r.id}</div>
-                              <div className="mt-1 text-xs text-muted-foreground">
-                                {r.job_id ? `Job: ${r.job_id}` : "Job: —"} · {r.client_id ? `Client: ${r.client_id}` : "Client: —"}
-                              </div>
-                              <div className="mt-2 text-sm font-medium">{money(r.amount)}</div>
-                            </div>
-                            {statusChip(r.status)}
-                          </div>
-                          <Separator className="my-3" />
-                          <div className="flex flex-wrap gap-2">
-                            <Button size="sm" variant="outline" className="rounded-xl">Review</Button>
-                            <Button size="sm" variant="outline" className="rounded-xl">Fund</Button>
-                            <Button size="sm" variant="outline" className="rounded-xl">Dispute</Button>
-                            <Button size="sm" className="rounded-xl">Release <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
-                          </div>
-                        </div>
-                      ))
+          }
+        >
+          {filtered.length === 0 ? (
+            <div className="p-6">
+              <EmptyState title="No escrow cases" subtitle="Try another filter or create a new hold." icon={<ShieldCheck className="h-5 w-5" />} actionLabel="New hold" onAction={() => {}} />
+            </div>
+          ) : (
+            <div className="p-3 space-y-2">
+              {filtered.map((e) => {
+                const active = selected?.id === e.id;
+                return (
+                  <button
+                    key={e.id}
+                    onClick={() => setSelectedId(e.id)}
+                    className={cn(
+                      "w-full text-left rounded-2xl border bg-background p-4 transition hover:bg-muted/30",
+                      active ? "border-zinc-400/70" : "border-border"
                     )}
-                  </div>
-                </Card>
-              ))}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <div className="font-semibold truncate">{e.id}</div>
+                          {chipState(e.state)}
+                          {chipRisk(e.risk)}
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground truncate">{e.client} · {e.jobId}</div>
+                      </div>
+                      <div className="shrink-0 flex flex-col items-end gap-1">
+                        <div className="text-sm font-semibold">{moneyAUD(e.amount)}</div>
+                        <div className="text-xs text-muted-foreground">{e.state === "Released" ? "Released" : "On hold"}</div>
+                      </div>
+                    </div>
+                    <Separator className="my-3" />
+                    <div className="text-xs text-muted-foreground truncate">{e.lastEvent}</div>
+                  </button>
+                );
+              })}
             </div>
+          )}
+        </DataTableShell>
+
+        <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden lg:col-span-2">
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <div className="text-sm font-semibold">Escrow record</div>
+            <Badge variant="outline" className="rounded-full">Premium</Badge>
           </div>
-        )}
-      </DataTableShell>
+
+          {!selected ? (
+            <div className="p-8 text-sm text-muted-foreground">Select a case to view details.</div>
+          ) : (
+            <div className="p-5 space-y-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="text-xl font-semibold truncate">{selected.id}</div>
+                    {chipState(selected.state)}
+                    {chipRisk(selected.risk)}
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">{selected.client} · {selected.jobId}</div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="rounded-xl"><Unlock className="mr-2 h-4 w-4" />Release</Button>
+                  <Button className="rounded-xl">Open <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
+                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="rounded-2xl border bg-background p-4">
+                  <div className="text-xs text-muted-foreground">Amount</div>
+                  <div className="mt-2 text-lg font-semibold">{moneyAUD(selected.amount)}</div>
+                </div>
+                <div className="rounded-2xl border bg-background p-4">
+                  <div className="text-xs text-muted-foreground">State</div>
+                  <div className="mt-2 text-lg font-semibold">{selected.state}</div>
+                </div>
+                <div className="rounded-2xl border bg-background p-4">
+                  <div className="text-xs text-muted-foreground">Risk</div>
+                  <div className="mt-2 text-lg font-semibold">{selected.risk}</div>
+                </div>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-2">
+                <div className="rounded-2xl border bg-background p-4">
+                  <div className="text-sm font-semibold">Last event</div>
+                  <Separator className="my-3" />
+                  <div className="text-sm text-muted-foreground">{selected.lastEvent}</div>
+                </div>
+
+                <div className="rounded-2xl border bg-background p-4">
+                  <div className="text-sm font-semibold">Controls</div>
+                  <Separator className="my-3" />
+                  <div className="grid gap-2">
+                    <Button variant="outline" className="rounded-xl"><ShieldCheck className="mr-2 h-4 w-4" />Require evidence</Button>
+                    <Button variant="outline" className="rounded-xl"><Scale className="mr-2 h-4 w-4" />Open dispute</Button>
+                    <Button className="rounded-xl"><Unlock className="mr-2 h-4 w-4" />Execute release</Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border bg-background p-4">
+                <div className="text-sm font-semibold">Notes</div>
+                <div className="mt-2 text-sm text-muted-foreground">{selected.notes}</div>
+              </div>
+            </div>
+          )}
+        </Card>
+      </div>
     </div>
   );
 }

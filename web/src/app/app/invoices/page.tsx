@@ -14,32 +14,37 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import {
   ArrowUpRight,
-  Banknote,
-  CalendarDays,
   CircleDollarSign,
-  CreditCard,
-  FileText,
-  Plus,
-  Search,
   ShieldCheck,
+  Clock,
   AlertTriangle,
+  Search,
+  FileText,
   CheckCircle2,
+  Timer,
+  Receipt,
 } from "lucide-react";
 
-type InvoiceStatus = "Draft" | "Sent" | "Paid" | "Overdue";
+type InvStatus = "Draft" | "Sent" | "Overdue" | "Paid";
 
 type Invoice = {
   id: string;
+  jobId: string;
   client: string;
-  issueDate: string;
-  dueDate: string;
-  status: InvoiceStatus;
-  subtotal: number;
-  tax: number;
+  status: InvStatus;
+  issued: string;
+  due: string;
   total: number;
   escrowHold: number;
-  reference?: string | null;
+  notes: string;
 };
+
+const seed: Invoice[] = [
+  { id: "INV-2201", jobId: "J-187", client: "Arcadia Body Corporate", status: "Sent", issued: "2026-01-29", due: "2026-02-05", total: 16800, escrowHold: 16800, notes: "Milestone 1 — evidence required before release." },
+  { id: "INV-2202", jobId: "J-188", client: "Northpoint Facilities", status: "Draft", issued: "2026-01-30", due: "2026-02-06", total: 5200, escrowHold: 5200, notes: "Pending client approval." },
+  { id: "INV-2197", jobId: "J-190", client: "Meridian Property Group", status: "Paid", issued: "2026-01-20", due: "2026-01-27", total: 17800, escrowHold: 0, notes: "Closed out." },
+  { id: "INV-2199", jobId: "J-189", client: "Lakeside Owners Assoc", status: "Overdue", issued: "2026-01-22", due: "2026-01-26", total: 9200, escrowHold: 0, notes: "Deposit overdue — job blocked." },
+];
 
 function moneyAUD(n: number) {
   try {
@@ -49,25 +54,17 @@ function moneyAUD(n: number) {
   }
 }
 
-function chipStatus(s: InvoiceStatus) {
+function chipStatus(s: InvStatus) {
   const base = "rounded-full border px-2 py-0.5 text-xs";
   if (s === "Paid") return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Paid</span>;
+  if (s === "Overdue") return <span className={cn(base, "border-rose-300 bg-rose-50 text-rose-800")}>Overdue</span>;
   if (s === "Sent") return <span className={cn(base, "border-sky-300 bg-sky-50 text-sky-800")}>Sent</span>;
-  if (s === "Overdue") return <span className={cn(base, "border-amber-300 bg-amber-50 text-amber-800")}>Overdue</span>;
   return <span className={cn(base, "border-zinc-300 bg-zinc-50 text-zinc-700")}>Draft</span>;
 }
 
-const seed: Invoice[] = [
-  { id: "INV-2401", client: "Arcadia Body Corporate", issueDate: "2026-01-12", dueDate: "2026-01-19", status: "Sent", subtotal: 22000, tax: 2200, total: 24200, escrowHold: 7800, reference: "Stage 1 - Prep + access" },
-  { id: "INV-2402", client: "Northpoint Facilities", issueDate: "2026-01-14", dueDate: "2026-01-21", status: "Paid", subtotal: 14600, tax: 1460, total: 16060, escrowHold: 0, reference: "Rope access patch + seal" },
-  { id: "INV-2403", client: "Lakeside Owners Assoc", issueDate: "2026-01-06", dueDate: "2026-01-13", status: "Overdue", subtotal: 9200, tax: 920, total: 10120, escrowHold: 0, reference: "Quote deposit" },
-  { id: "INV-2404", client: "Meridian Property Group", issueDate: "2026-01-18", dueDate: "2026-01-25", status: "Draft", subtotal: 17800, tax: 1780, total: 19580, escrowHold: 6200, reference: "Interior refresh L12" },
-  { id: "INV-2405", client: "Arcadia Body Corporate", issueDate: "2026-01-20", dueDate: "2026-01-27", status: "Sent", subtotal: 26500, tax: 2650, total: 29150, escrowHold: 9800, reference: "Stage 2 - Prime + coat 1" },
-];
-
 export default function InvoicesPage() {
   const [q, setQ] = useState("");
-  const [scope, setScope] = useState<"all" | "draft" | "sent" | "paid" | "overdue">("all");
+  const [scope, setScope] = useState<"all" | "draft" | "sent" | "overdue" | "paid">("all");
   const [selectedId, setSelectedId] = useState<string>(seed[0]?.id || "");
 
   const filtered = useMemo(() => {
@@ -76,54 +73,48 @@ export default function InvoicesPage() {
 
     if (scope === "draft") rows = rows.filter((i) => i.status === "Draft");
     if (scope === "sent") rows = rows.filter((i) => i.status === "Sent");
-    if (scope === "paid") rows = rows.filter((i) => i.status === "Paid");
     if (scope === "overdue") rows = rows.filter((i) => i.status === "Overdue");
+    if (scope === "paid") rows = rows.filter((i) => i.status === "Paid");
 
     if (!s) return rows;
-    return rows.filter((i) => `${i.id} ${i.client} ${i.status} ${i.issueDate} ${i.dueDate} ${i.reference || ""}`.toLowerCase().includes(s));
+    return rows.filter((i) => `${i.id} ${i.jobId} ${i.client} ${i.status} ${i.issued} ${i.due}`.toLowerCase().includes(s));
   }, [q, scope]);
 
   const selected = useMemo(() => seed.find((i) => i.id === selectedId) || filtered[0] || seed[0], [selectedId, filtered]);
 
   const kpis = useMemo(() => {
     const total = seed.reduce((a, i) => a + i.total, 0);
-    const outstanding = seed.filter((i) => i.status === "Sent" || i.status === "Overdue").reduce((a, i) => a + i.total, 0);
-    const paid = seed.filter((i) => i.status === "Paid").reduce((a, i) => a + i.total, 0);
-    const escrowHold = seed.reduce((a, i) => a + i.escrowHold, 0);
-    const overdue = seed.filter((i) => i.status === "Overdue").length;
-    return { total, outstanding, paid, escrowHold, overdue };
+    const held = seed.reduce((a, i) => a + i.escrowHold, 0);
+    const overdue = seed.filter((i) => i.status === "Overdue").reduce((a, i) => a + i.total, 0);
+    const dso = "18d";
+    return { total, held, overdue, dso };
   }, []);
-
-  const risk = useMemo(() => {
-    if (kpis.overdue > 0) return { sev: "warn", title: "Overdue invoices require action", meta: `${kpis.overdue} invoice(s) overdue` };
-    return { sev: "ok", title: "Collections healthy", meta: "No overdue invoices" };
-  }, [kpis.overdue]);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Invoices"
-        subtitle="Finance-grade invoicing with escrow-aware controls and clear collections posture."
+        subtitle="Billing control: issuance, aging, escrow holds, and rapid closeout."
         right={
           <>
             <Button variant="outline" className="rounded-xl">Export</Button>
-            <Button className="rounded-xl"><Plus className="mr-2 h-4 w-4" />New invoice</Button>
+            <Button className="rounded-xl"><Receipt className="mr-2 h-4 w-4" />New invoice</Button>
           </>
         }
       />
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-        <StatCard label="Billed" value={moneyAUD(kpis.total)} icon={<FileText className="h-4 w-4" />} />
-        <StatCard label="Outstanding" value={moneyAUD(kpis.outstanding)} icon={<AlertTriangle className="h-4 w-4" />} />
-        <StatCard label="Paid" value={moneyAUD(kpis.paid)} icon={<CheckCircle2 className="h-4 w-4" />} />
-        <StatCard label="Escrow held" value={moneyAUD(kpis.escrowHold)} icon={<ShieldCheck className="h-4 w-4" />} />
-        <StatCard label="Collections" value={risk.sev === "warn" ? "Attention" : "OK"} icon={<CreditCard className="h-4 w-4" />} />
+        <StatCard label="Billed" value={moneyAUD(kpis.total)} icon={<CircleDollarSign className="h-4 w-4" />} />
+        <StatCard label="Escrow held" value={moneyAUD(kpis.held)} icon={<ShieldCheck className="h-4 w-4" />} />
+        <StatCard label="Overdue" value={moneyAUD(kpis.overdue)} icon={<AlertTriangle className="h-4 w-4" />} />
+        <StatCard label="DSO" value={kpis.dso} icon={<Timer className="h-4 w-4" />} />
+        <StatCard label="Invoices" value={String(seed.length)} icon={<FileText className="h-4 w-4" />} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <DataTableShell
-          title="Invoice register"
-          subtitle="Search and filter invoices. Open a record for a finance-grade summary."
+          title="Invoice registry"
+          subtitle="Search, filter, open an invoice, and act."
           toolbar={
             <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div className="relative w-full md:w-[520px]">
@@ -135,8 +126,8 @@ export default function InvoicesPage() {
                   <TabsTrigger value="all" className="rounded-xl">All</TabsTrigger>
                   <TabsTrigger value="draft" className="rounded-xl">Draft</TabsTrigger>
                   <TabsTrigger value="sent" className="rounded-xl">Sent</TabsTrigger>
-                  <TabsTrigger value="paid" className="rounded-xl">Paid</TabsTrigger>
                   <TabsTrigger value="overdue" className="rounded-xl">Overdue</TabsTrigger>
+                  <TabsTrigger value="paid" className="rounded-xl">Paid</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -144,13 +135,7 @@ export default function InvoicesPage() {
         >
           {filtered.length === 0 ? (
             <div className="p-6">
-              <EmptyState
-                title="No invoices found"
-                subtitle="Try a different search or create a new invoice."
-                icon={<FileText className="h-5 w-5" />}
-                actionLabel="New invoice"
-                onAction={() => {}}
-              />
+              <EmptyState title="No invoices found" subtitle="Try another filter or create a new invoice." icon={<FileText className="h-5 w-5" />} actionLabel="New invoice" onAction={() => {}} />
             </div>
           ) : (
             <div className="p-3 space-y-2">
@@ -171,18 +156,17 @@ export default function InvoicesPage() {
                           <div className="font-semibold truncate">{i.id}</div>
                           {chipStatus(i.status)}
                         </div>
-                        <div className="mt-1 text-xs text-muted-foreground truncate">{i.client}</div>
+                        <div className="mt-1 text-xs text-muted-foreground truncate">{i.client} · {i.jobId}</div>
                       </div>
                       <div className="shrink-0 flex flex-col items-end gap-1">
                         <div className="text-sm font-semibold">{moneyAUD(i.total)}</div>
-                        <div className="text-xs text-muted-foreground">Due {i.dueDate}</div>
+                        <div className="text-xs text-muted-foreground">Hold {moneyAUD(i.escrowHold)}</div>
                       </div>
                     </div>
                     <Separator className="my-3" />
                     <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                      <span className="rounded-full border px-2 py-0.5">Issued {i.issueDate}</span>
-                      <span className="rounded-full border px-2 py-0.5">Tax {moneyAUD(i.tax)}</span>
-                      <span className="rounded-full border px-2 py-0.5">Escrow {moneyAUD(i.escrowHold)}</span>
+                      <span className="rounded-full border px-2 py-0.5 flex items-center gap-1"><Clock className="h-3.5 w-3.5" />Issued {i.issued}</span>
+                      <span className="rounded-full border px-2 py-0.5 flex items-center gap-1"><Clock className="h-3.5 w-3.5" />Due {i.due}</span>
                     </div>
                   </button>
                 );
@@ -207,11 +191,11 @@ export default function InvoicesPage() {
                     <div className="text-xl font-semibold truncate">{selected.id}</div>
                     {chipStatus(selected.status)}
                   </div>
-                  <div className="mt-1 text-xs text-muted-foreground">{selected.client}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{selected.client} · {selected.jobId}</div>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" className="rounded-xl">PDF</Button>
-                  <Button className="rounded-xl">Open invoice <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
+                  <Button variant="outline" className="rounded-xl">Send</Button>
+                  <Button className="rounded-xl">Open <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
                 </div>
               </div>
 
@@ -226,58 +210,40 @@ export default function InvoicesPage() {
                 </div>
                 <div className="rounded-2xl border bg-background p-4">
                   <div className="text-xs text-muted-foreground">Status</div>
-                  <div className="mt-2">{chipStatus(selected.status)}</div>
+                  <div className="mt-2 text-lg font-semibold">{selected.status}</div>
                 </div>
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="rounded-2xl border bg-background p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-semibold">Dates</div>
-                    <Badge variant="outline" className="rounded-full">Schedule</Badge>
-                  </div>
+                  <div className="text-sm font-semibold">Dates</div>
                   <Separator className="my-3" />
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground flex items-center gap-2"><CalendarDays className="h-4 w-4" />Issued</span>
-                      <span className="font-semibold">{selected.issueDate}</span>
+                      <span className="text-muted-foreground flex items-center gap-2"><Clock className="h-4 w-4" />Issued</span>
+                      <span className="font-semibold">{selected.issued}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground flex items-center gap-2"><CalendarDays className="h-4 w-4" />Due</span>
-                      <span className="font-semibold">{selected.dueDate}</span>
+                      <span className="text-muted-foreground flex items-center gap-2"><Clock className="h-4 w-4" />Due</span>
+                      <span className="font-semibold">{selected.due}</span>
                     </div>
-                    <Separator />
-                    <div className="text-xs text-muted-foreground">Next: automated reminders + overdue escalation rules.</div>
                   </div>
                 </div>
 
                 <div className="rounded-2xl border bg-background p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-semibold">Breakdown</div>
-                    <Badge variant="outline" className="rounded-full">Finance</Badge>
-                  </div>
+                  <div className="text-sm font-semibold">Controls</div>
                   <Separator className="my-3" />
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground flex items-center gap-2"><Banknote className="h-4 w-4" />Subtotal</span>
-                      <span className="font-semibold">{moneyAUD(selected.subtotal)}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground flex items-center gap-2"><CircleDollarSign className="h-4 w-4" />Tax</span>
-                      <span className="font-semibold">{moneyAUD(selected.tax)}</span>
-                    </div>
-                    <Separator />
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground flex items-center gap-2"><CreditCard className="h-4 w-4" />Total</span>
-                      <span className="font-semibold">{moneyAUD(selected.total)}</span>
-                    </div>
+                  <div className="grid gap-2">
+                    <Button variant="outline" className="rounded-xl"><ShieldCheck className="mr-2 h-4 w-4" />Escrow actions</Button>
+                    <Button variant="outline" className="rounded-xl"><AlertTriangle className="mr-2 h-4 w-4" />Dispute</Button>
+                    <Button className="rounded-xl"><CheckCircle2 className="mr-2 h-4 w-4" />Mark paid</Button>
                   </div>
                 </div>
               </div>
 
               <div className="rounded-2xl border bg-background p-4">
-                <div className="text-sm font-semibold">Reference</div>
-                <div className="mt-2 text-sm text-muted-foreground">{selected.reference || "—"}</div>
+                <div className="text-sm font-semibold">Notes</div>
+                <div className="mt-2 text-sm text-muted-foreground">{selected.notes}</div>
               </div>
             </div>
           )}
