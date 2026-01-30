@@ -1,45 +1,43 @@
 "use client";
 
-import { Topbar } from "@/components/shell/topbar";
+import { useMemo, useState } from "react";
 import { demoJobs } from "@/lib/demo-data";
-import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import listPlugin from "@fullcalendar/list";
-import interactionPlugin from "@fullcalendar/interaction";
+import type { Job } from "@/lib/demo-data";
+import { DragDropWeek } from "@/components/calendar/drag-drop-week";
 
-export default function Page() {
-  const events = demoJobs.map((j) => ({
-    id: j.id,
-    title: `${j.title} • ${j.client}`,
-    start: j.start,
-    end: j.end,
-    extendedProps: { site: j.site, status: j.status },
-  }));
+export default function CalendarPage() {
+  const [jobs, setJobs] = useState<Job[]>(demoJobs);
+
+  const sorted = useMemo(
+    () => jobs.slice().sort((a, b) => a.start.localeCompare(b.start)),
+    [jobs]
+  );
+
+  function updateJobDate(jobId: string, dateISO: string) {
+    setJobs((prev) =>
+      prev.map((j) => {
+        if (j.id !== jobId) return j;
+        const start = new Date(j.start);
+        const end = new Date(j.end);
+        const startTime = start.toISOString().slice(11, 19);
+        const endTime = end.toISOString().slice(11, 19);
+        const newStart = new Date(`${dateISO}T${startTime}Z`).toISOString();
+        const newEnd = new Date(`${dateISO}T${endTime}Z`).toISOString();
+        return { ...j, start: newStart, end: newEnd, status: "Scheduled" };
+      })
+    );
+  }
 
   return (
-    <>
-      <Topbar title="Calendar" subtitle="Drag/drop scheduling (demo events from jobs)" />
-      <div className="p-6">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-          <FullCalendar
-            plugins={[timeGridPlugin, dayGridPlugin, listPlugin, interactionPlugin]}
-            initialView="timeGridWeek"
-            headerToolbar={{
-              left: "prev,next today",
-              center: "title",
-              right: "timeGridWeek,dayGridMonth,listWeek",
-            }}
-            height="auto"
-            editable={true}
-            selectable={true}
-            nowIndicator={true}
-            eventOverlap={true}
-            events={events}
-            eventTimeFormat={{ hour: "2-digit", minute: "2-digit", hour12: true }}
-          />
+    <div className="space-y-5">
+      <div>
+        <div className="text-2xl font-semibold tracking-tight">Calendar</div>
+        <div className="mt-1 text-sm text-neutral-600">
+          Drag jobs between days. This is demo-state now; next we persist to Supabase.
         </div>
       </div>
-    </>
+
+      <DragDropWeek jobs={sorted} onUpdateJobDates={updateJobDate} />
+    </div>
   );
 }
