@@ -1,20 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { InvoiceDrawer, type InvoiceRow } from "@/components/invoices/invoice-drawer";
+import { moneyAUD } from "@/lib/types/money";
 
-const now = Date.now();
-const demoInvoices: InvoiceRow[] = [
-  { id: "inv_001", number: "INV-0001", client: "ACME Body Corporate", status: "Paid", amountCents: 184500, createdAt: new Date(now - 86400000 * 18).toISOString(), dueAt: new Date(now - 86400000 * 6).toISOString(), note: "Paid via bank transfer." },
-  { id: "inv_002", number: "INV-0002", client: "Brightline Constructions", status: "Overdue", amountCents: 975000, createdAt: new Date(now - 86400000 * 20).toISOString(), dueAt: new Date(now - 86400000 * 3).toISOString(), note: "Overdue. Require escrow for next job." },
-  { id: "inv_003", number: "INV-0003", client: "Ryan Joseph", status: "Sent", amountCents: 262500, createdAt: new Date(now - 86400000 * 3).toISOString(), dueAt: new Date(now + 86400000 * 10).toISOString() },
-];
-
-function money(cents: number) {
-  return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(cents / 100);
-}
+type ApiInvoice = InvoiceRow;
 
 function tone(status: InvoiceRow["status"]) {
   if (status === "Paid") return "good";
@@ -26,12 +18,35 @@ function tone(status: InvoiceRow["status"]) {
 export default function InvoicesPage() {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<InvoiceRow["status"] | "All">("All");
-  const [selected, setSelected] = useState<InvoiceRow | null>(null);
+  const [selected, setSelected] = useState<ApiInvoice | null>(null);
   const [open, setOpen] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
+  const [invoices, setInvoices] = useState<ApiInvoice[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setErr(null);
+        const res = await fetch("/api/invoices", { cache: "no-store" });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json?.error || "Failed to load invoices");
+        if (mounted) setInvoices(json.invoices || []);
+      } catch (e: any) {
+        if (mounted) setErr(e?.message || "Failed to load invoices");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   const rows = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return demoInvoices
+    return (invoices || [])
       .filter((i) => (status === "All" ? true : i.status === status))
       .filter((i) => {
         if (!needle) return true;
@@ -39,11 +54,11 @@ export default function InvoicesPage() {
       })
       .slice()
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [q, status]);
+  }, [invoices, q, status]);
 
   const totals = useMemo(() => {
-    const total = rows.reduce((a, r) => a + r.amountCents, 0);
-    const overdue = rows.filter((r) => r.status === "Overdue").reduce((a, r) => a + r.amountCents, 0);
+    const total = rows.reduce((a, r) => a + (r.amountCents || 0), 0);
+    const overdue = rows.filter((r) => r.status === "Overdue").reduce((a, r) => a + (r.amountCents || 0), 0);
     return { total, overdue };
   }, [rows]);
 
@@ -52,16 +67,16 @@ export default function InvoicesPage() {
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="text-2xl font-semibold tracking-tight">Invoices</div>
-          <div className="mt-1 text-sm text-neutral-600">Collections control: aging, status, and actions.</div>
+          <div className="mt-1 text-sm text-neutral-600">Real data (quotes as invoices until dedicated table exists).</div>
         </div>
         <div className="flex flex-wrap gap-2">
           <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-3">
             <div className="text-[11px] text-neutral-500">Visible total</div>
-            <div className="text-sm font-semibold">{money(totals.total)}</div>
+            <div className="text-sm font-semibold">{moneyAUD(totals.total)}</div>
           </div>
           <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-3">
             <div className="text-[11px] text-neutral-500">Visible overdue</div>
-            <div className="text-sm font-semibold">{money(totals.overdue)}</div>
+            <div className="text-sm font-semibold">{moneyAUD(totals.overdue)}</div>
           </div>
           <button
             type="button"
@@ -100,53 +115,59 @@ export default function InvoicesPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="text-xs text-neutral-500 bg-neutral-50">
-              <tr className="border-b border-neutral-200">
-                <th className="px-4 py-3 text-left font-medium">Invoice</th>
-                <th className="px-4 py-3 text-left font-medium">Client</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-right font-medium">Amount</th>
-                <th className="px-4 py-3 text-right font-medium">Due</th>
-                <th className="px-4 py-3 text-right font-medium">Created</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {rows.map((i) => (
-                <tr
-                  key={i.id}
-                  className="hover:bg-neutral-50 cursor-pointer"
-                  onClick={() => {
-                    setSelected(i);
-                    setOpen(true);
-                  }}
-                >
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-neutral-900">{i.number}</div>
-                    <div className="mt-1 text-xs text-neutral-500">{i.id}</div>
-                  </td>
-                  <td className="px-4 py-3">{i.client}</td>
-                  <td className="px-4 py-3">
-                    <Badge tone={tone(i.status)}>{i.status}</Badge>
-                  </td>
-                  <td className="px-4 py-3 text-right font-semibold">{money(i.amountCents)}</td>
-                  <td className="px-4 py-3 text-right text-neutral-600">{new Date(i.dueAt).toLocaleDateString()}</td>
-                  <td className="px-4 py-3 text-right text-neutral-600">{new Date(i.createdAt).toLocaleDateString()}</td>
+      {loading ? (
+        <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-sm text-neutral-600">Loading…</div>
+      ) : err ? (
+        <div className="rounded-2xl border border-red-200 bg-white p-8 text-sm text-red-700">{err}</div>
+      ) : (
+        <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="text-xs text-neutral-500 bg-neutral-50">
+                <tr className="border-b border-neutral-200">
+                  <th className="px-4 py-3 text-left font-medium">Invoice</th>
+                  <th className="px-4 py-3 text-left font-medium">Client</th>
+                  <th className="px-4 py-3 text-left font-medium">Status</th>
+                  <th className="px-4 py-3 text-right font-medium">Amount</th>
+                  <th className="px-4 py-3 text-right font-medium">Due</th>
+                  <th className="px-4 py-3 text-right font-medium">Created</th>
                 </tr>
-              ))}
-              {rows.length === 0 ? (
-                <tr>
-                  <td className="px-4 py-10 text-sm text-neutral-500" colSpan={6}>
-                    No invoices match your filters.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-neutral-100">
+                {rows.map((i) => (
+                  <tr
+                    key={i.id}
+                    className="hover:bg-neutral-50 cursor-pointer"
+                    onClick={() => {
+                      setSelected(i);
+                      setOpen(true);
+                    }}
+                  >
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-neutral-900">{i.number}</div>
+                      <div className="mt-1 text-xs text-neutral-500">{i.id}</div>
+                    </td>
+                    <td className="px-4 py-3">{i.client}</td>
+                    <td className="px-4 py-3">
+                      <Badge tone={tone(i.status)}>{i.status}</Badge>
+                    </td>
+                    <td className="px-4 py-3 text-right font-semibold">{moneyAUD(i.amountCents)}</td>
+                    <td className="px-4 py-3 text-right text-neutral-600">{new Date(i.dueAt).toLocaleDateString()}</td>
+                    <td className="px-4 py-3 text-right text-neutral-600">{new Date(i.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+                {rows.length === 0 ? (
+                  <tr>
+                    <td className="px-4 py-10 text-sm text-neutral-500" colSpan={6}>
+                      No invoices match your filters.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       <InvoiceDrawer invoice={selected} open={open} onClose={() => setOpen(false)} />
     </div>
