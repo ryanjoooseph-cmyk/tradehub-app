@@ -1,143 +1,186 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { PageHeader } from "@/components/shell/page-header";
+import { StatCard } from "@/components/premium/stat-card";
+import { DataTableShell } from "@/components/premium/data-table-shell";
+import { EmptyState } from "@/components/premium/empty-state";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { Plus, Search, Users, Shield, Activity, UserCheck, Sparkles, ArrowUpRight } from "lucide-react";
 
 type Member = {
   id: string;
   name: string;
   email: string;
-  role: "Owner" | "Admin" | "Supervisor" | "Tech";
+  role: "Owner" | "Admin" | "Ops" | "Finance" | "Crew";
   status: "Active" | "Invited" | "Suspended";
-  createdAt: string;
+  lastSeen: string;
 };
 
-const demoTeam: Member[] = [
-  { id: "mem_001", name: "Ryan Joseph", email: "ryan.joooseph@icloud.com", role: "Owner", status: "Active", createdAt: new Date().toISOString() },
-  { id: "mem_002", name: "Ryan (Partner)", email: "ryan@example.com", role: "Admin", status: "Invited", createdAt: new Date(Date.now() - 86400000 * 2).toISOString() },
-  { id: "mem_003", name: "Site Supervisor", email: "supervisor@example.com", role: "Supervisor", status: "Active", createdAt: new Date(Date.now() - 86400000 * 30).toISOString() },
+const seed: Member[] = [
+  { id: "m1", name: "Ryan Joseph", email: "ryan.joooseph@icloud.com", role: "Owner", status: "Active", lastSeen: "Just now" },
+  { id: "m2", name: "Operations Lead", email: "ops@tradehub.com", role: "Ops", status: "Invited", lastSeen: "—" },
+  { id: "m3", name: "Accounts", email: "finance@tradehub.com", role: "Finance", status: "Active", lastSeen: "2h ago" },
+  { id: "m4", name: "Crew Member", email: "crew@tradehub.com", role: "Crew", status: "Active", lastSeen: "Yesterday" },
 ];
 
-function toneStatus(s: Member["status"]) {
-  if (s === "Active") return "good";
-  if (s === "Suspended") return "bad";
-  return "warn";
+function chipRole(role: Member["role"]) {
+  const base = "rounded-full border px-2 py-0.5 text-xs";
+  if (role === "Owner") return <span className={cn(base, "border-zinc-300 bg-zinc-50 text-zinc-800")}>Owner</span>;
+  if (role === "Admin") return <span className={cn(base, "border-sky-300 bg-sky-50 text-sky-800")}>Admin</span>;
+  if (role === "Ops") return <span className={cn(base, "border-violet-300 bg-violet-50 text-violet-800")}>Ops</span>;
+  if (role === "Finance") return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Finance</span>;
+  return <span className={cn(base, "border-amber-300 bg-amber-50 text-amber-800")}>Crew</span>;
 }
 
-function toneRole(r: Member["role"]) {
-  if (r === "Owner") return "info";
-  if (r === "Admin") return "neutral";
-  return "neutral";
+function chipStatus(s: Member["status"]) {
+  const base = "rounded-full border px-2 py-0.5 text-xs";
+  if (s === "Active") return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Active</span>;
+  if (s === "Invited") return <span className={cn(base, "border-sky-300 bg-sky-50 text-sky-800")}>Invited</span>;
+  return <span className={cn(base, "border-amber-300 bg-amber-50 text-amber-800")}>Suspended</span>;
 }
 
 export default function TeamPage() {
   const [q, setQ] = useState("");
-  const [open, setOpen] = useState(false);
+  const [view, setView] = useState<"members" | "audit">("members");
 
-  const rows = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    return demoTeam
-      .filter((m) => {
-        if (!needle) return true;
-        return m.name.toLowerCase().includes(needle) || m.email.toLowerCase().includes(needle) || m.role.toLowerCase().includes(needle);
-      })
-      .slice()
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [q]);
+  const members = seed;
+
+  const filtered = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return members;
+    return members.filter(m => `${m.name} ${m.email} ${m.role} ${m.status}`.toLowerCase().includes(s));
+  }, [q, members]);
+
+  const kpis = useMemo(() => {
+    const total = members.length;
+    const active = members.filter(m => m.status === "Active").length;
+    const invited = members.filter(m => m.status === "Invited").length;
+    const privileged = members.filter(m => m.role === "Owner" || m.role === "Admin").length;
+    return { total, active, invited, privileged };
+  }, [members]);
+
+  const audit = [
+    { at: "Just now", who: "Ryan Joseph", what: "Updated permissions policy", sev: "info" },
+    { at: "32m ago", who: "Accounts", what: "Exported payout report", sev: "info" },
+    { at: "2h ago", who: "System", what: "Blocked suspicious session", sev: "warn" },
+    { at: "Yesterday", who: "Ops Lead", what: "Accepted invite", sev: "info" },
+  ];
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div>
-          <div className="text-2xl font-semibold tracking-tight">Team</div>
-          <div className="mt-1 text-sm text-neutral-600">Roles, access, and operational permissions.</div>
-        </div>
-        <button
-          type="button"
-          className="rounded-xl bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
-          onClick={() => setOpen(true)}
-        >
-          Invite member
-        </button>
+    <div className="space-y-6">
+      <PageHeader
+        title="Team"
+        subtitle="Enterprise-grade access control, roles, and audit visibility."
+        right={
+          <>
+            <Button variant="outline" className="rounded-xl">Roles</Button>
+            <Button className="rounded-xl"><Plus className="mr-2 h-4 w-4" />Invite member</Button>
+          </>
+        }
+      />
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
+        <StatCard label="Members" value={String(kpis.total)} icon={<Users className="h-4 w-4" />} />
+        <StatCard label="Active" value={String(kpis.active)} icon={<UserCheck className="h-4 w-4" />} />
+        <StatCard label="Invited" value={String(kpis.invited)} icon={<Sparkles className="h-4 w-4" />} />
+        <StatCard label="Privileged" value={String(kpis.privileged)} icon={<Shield className="h-4 w-4" />} />
+        <StatCard label="Audit events" value={String(audit.length)} icon={<Activity className="h-4 w-4" />} />
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-        <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2">
-          <Search className="h-4 w-4 text-neutral-500" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search team..."
-            className="w-full bg-transparent text-sm outline-none placeholder:text-neutral-400"
-          />
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="text-xs text-neutral-500 bg-neutral-50">
-              <tr className="border-b border-neutral-200">
-                <th className="px-4 py-3 text-left font-medium">Member</th>
-                <th className="px-4 py-3 text-left font-medium">Role</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-right font-medium">Created</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {rows.map((m) => (
-                <tr key={m.id} className="hover:bg-neutral-50">
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-neutral-900">{m.name}</div>
-                    <div className="mt-1 text-xs text-neutral-500">{m.email}</div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge tone={toneRole(m.role)}>{m.role}</Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge tone={toneStatus(m.status)}>{m.status}</Badge>
-                  </td>
-                  <td className="px-4 py-3 text-right text-neutral-600">{new Date(m.createdAt).toLocaleDateString()}</td>
-                </tr>
-              ))}
-              {rows.length === 0 ? (
-                <tr>
-                  <td className="px-4 py-10 text-sm text-neutral-500" colSpan={4}>
-                    No team members match your search.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-w-xl"><DialogHeader><DialogTitle>Invite team member</DialogTitle></DialogHeader>
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-800">
-            Demo mode. Next step: invite flow via Supabase + RLS, role assignment, and audit logs.
+      <DataTableShell
+        title="Access & control"
+        subtitle="Search members or switch to audit mode."
+        toolbar={
+          <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div className="relative w-full md:w-[520px]">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search team…" className="h-10 rounded-2xl pl-9" />
+            </div>
+            <Tabs value={view} onValueChange={(v) => setView(v as any)} className="w-full md:w-auto">
+              <TabsList className="rounded-2xl">
+                <TabsTrigger value="members" className="rounded-xl">Members</TabsTrigger>
+                <TabsTrigger value="audit" className="rounded-xl">Audit</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
-          <div className="grid grid-cols-1 gap-3">
-            <button
-              type="button"
-              className="rounded-xl bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
-              onClick={() => setOpen(false)}
-            >
-              Confirm (demo)
-            </button>
-            <button
-              type="button"
-              className="rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
-              onClick={() => setOpen(false)}
-            >
-              Cancel
-            </button>
+        }
+      >
+        {view === "members" ? (
+          filtered.length === 0 ? (
+            <div className="p-6">
+              <EmptyState title="No members found" subtitle="Try another search or invite your first team member." icon={<Users className="h-5 w-5" />} actionLabel="Invite member" onAction={() => {}} />
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead className="bg-muted/40 text-xs text-muted-foreground">
+                  <tr className="border-b">
+                    <th className="px-6 py-3 text-left font-medium">Member</th>
+                    <th className="px-6 py-3 text-left font-medium">Role</th>
+                    <th className="px-6 py-3 text-left font-medium">Status</th>
+                    <th className="px-6 py-3 text-right font-medium">Last seen</th>
+                    <th className="px-6 py-3 text-right font-medium">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {filtered.map((m) => (
+                    <tr key={m.id} className="hover:bg-muted/30">
+                      <td className="px-6 py-4">
+                        <div className="font-medium">{m.name}</div>
+                        <div className="text-xs text-muted-foreground">{m.email}</div>
+                      </td>
+                      <td className="px-6 py-4">{chipRole(m.role)}</td>
+                      <td className="px-6 py-4">{chipStatus(m.status)}</td>
+                      <td className="px-6 py-4 text-right text-muted-foreground">{m.lastSeen}</td>
+                      <td className="px-6 py-4 text-right">
+                        <Button size="sm" variant="outline" className="rounded-xl">Manage</Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        ) : (
+          <div className="p-4">
+            <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between border-b px-4 py-3">
+                <div className="text-sm font-semibold">Audit timeline</div>
+                <Badge variant="outline" className="rounded-full">{audit.length}</Badge>
+              </div>
+              <div className="p-3 space-y-3">
+                {audit.map((a, i) => (
+                  <div key={i} className="rounded-2xl border bg-background p-3 hover:bg-muted/30 transition">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold">{a.what}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">{a.who} · {a.at}</div>
+                      </div>
+                      <span className={cn("rounded-full border px-2 py-0.5 text-xs",
+                        a.sev === "warn" ? "border-amber-300 bg-amber-50 text-amber-800" : "border-zinc-300 bg-zinc-50 text-zinc-700"
+                      )}>
+                        {a.sev === "warn" ? "Attention" : "Info"}
+                      </span>
+                    </div>
+                    <Separator className="my-3" />
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" className="rounded-xl">View</Button>
+                      <Button size="sm" className="rounded-xl">Investigate <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
           </div>
-        </div>
-      </DialogContent></Dialog>
-
+        )}
+      </DataTableShell>
     </div>
   );
 }
