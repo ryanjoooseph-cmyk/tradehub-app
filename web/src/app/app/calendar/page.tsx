@@ -4,9 +4,12 @@ import { useMemo, useState } from "react";
 import { demoJobs } from "@/lib/demo-data";
 import type { Job } from "@/lib/demo-data";
 import { DragDropWeek } from "@/components/calendar/drag-drop-week";
+import { JobDrawer } from "@/components/jobs/job-drawer";
 
 export default function CalendarPage() {
   const [jobs, setJobs] = useState<Job[]>(demoJobs);
+  const [selected, setSelected] = useState<Job | null>(null);
+  const [open, setOpen] = useState(false);
 
   const sorted = useMemo(
     () => jobs.slice().sort((a, b) => a.start.localeCompare(b.start)),
@@ -28,16 +31,45 @@ export default function CalendarPage() {
     );
   }
 
+  function openJobById(jobId: string) {
+    const j = jobs.find((x) => x.id === jobId) || null;
+    setSelected(j);
+    setOpen(true);
+  }
+
   return (
     <div className="space-y-5">
       <div>
         <div className="text-2xl font-semibold tracking-tight">Calendar</div>
         <div className="mt-1 text-sm text-neutral-600">
-          Drag jobs between days. This is demo-state now; next we persist to Supabase.
+          Drag jobs between days. Click a job to inspect details.
         </div>
       </div>
 
-      <DragDropWeek jobs={sorted} onUpdateJobDates={updateJobDate} />
+      <div onDoubleClick={() => {}}>
+        <DragDropWeek
+          jobs={sorted}
+          onUpdateJobDates={updateJobDate}
+        />
+      </div>
+
+      <div className="rounded-2xl border border-neutral-200 bg-white p-4">
+        <div className="text-sm font-semibold">Quick open</div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {sorted.slice(0, 8).map((j) => (
+            <button
+              key={j.id}
+              type="button"
+              className="rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm hover:bg-neutral-50"
+              onClick={() => openJobById(j.id)}
+            >
+              {j.title}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <JobDrawer job={selected} open={open} onClose={() => setOpen(false)} />
     </div>
   );
 }
