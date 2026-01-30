@@ -3,290 +3,276 @@
 import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shell/page-header";
 import { StatCard } from "@/components/premium/stat-card";
-import { DataTableShell } from "@/components/premium/data-table-shell";
-import { EmptyState } from "@/components/premium/empty-state";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import {
-  Activity,
   ArrowUpRight,
-  Banknote,
-  Briefcase,
-  CalendarDays,
-  CircleDollarSign,
   ShieldCheck,
-  TrendingUp,
-  Users,
-  Search,
   AlertTriangle,
+  CalendarDays,
+  ClipboardList,
+  Receipt,
+  Users,
+  Activity,
+  TrendingUp,
+  Timer,
   CheckCircle2,
+  Sparkles,
+  MapPin,
 } from "lucide-react";
 
-type Row = {
+type Severity = "info" | "warn" | "critical";
+type JobStatus = "New" | "Scheduled" | "In Progress" | "Blocked" | "Complete";
+
+type Alert = {
   id: string;
-  job: string;
-  client: string;
-  status: "Scheduled" | "In Progress" | "Blocked" | "Completed";
-  value: number;
+  title: string;
+  detail: string;
+  severity: Severity;
+  time: string;
 };
 
+type Job = {
+  id: string;
+  title: string;
+  client: string;
+  site: string;
+  status: JobStatus;
+  when: string;
+  value: number;
+  escrowHold: number;
+};
+
+type Invoice = {
+  id: string;
+  client: string;
+  due: string;
+  amount: number;
+  status: "Draft" | "Sent" | "Overdue" | "Paid";
+};
+
+const alertsSeed: Alert[] = [
+  { id: "A-09", title: "Escrow hold missing", detail: "J-189 is blocked but has $0 hold. Investigate deposit state.", severity: "critical", time: "Now" },
+  { id: "A-07", title: "Crew capacity tight", detail: "Tomorrow scheduled jobs exceed crew capacity by 1 tech.", severity: "warn", time: "12m" },
+  { id: "A-04", title: "Client portal invite pending", detail: "Northpoint Facilities hasn’t accepted the invite.", severity: "info", time: "2h" },
+];
+
+const jobsSeed: Job[] = [
+  { id: "J-187", title: "High-rise repaint — Stage 1", client: "Arcadia Body Corporate", site: "Brisbane CBD — Tower A", status: "In Progress", when: "Today 07:00–15:00", value: 16800, escrowHold: 16800 },
+  { id: "J-188", title: "Strata touch-ups + sealing", client: "Northpoint Facilities", site: "Newstead — Lot 14", status: "Scheduled", when: "Tomorrow 08:00–12:00", value: 5200, escrowHold: 5200 },
+  { id: "J-189", title: "Exterior washdown", client: "Lakeside Owners Assoc", site: "Southbank — Building C", status: "Blocked", when: "Today 09:00–13:00", value: 9200, escrowHold: 0 },
+  { id: "J-191", title: "Quote + site measure", client: "New Client Intake", site: "TBD", status: "New", when: "Mon 10:00–11:00", value: 0, escrowHold: 0 },
+];
+
+const invoicesSeed: Invoice[] = [
+  { id: "INV-3041", client: "Arcadia Body Corporate", due: "Feb 02", amount: 16800, status: "Sent" },
+  { id: "INV-3042", client: "Northpoint Facilities", due: "Feb 01", amount: 5200, status: "Overdue" },
+  { id: "INV-3040", client: "Meridian Property Group", due: "Jan 30", amount: 17800, status: "Paid" },
+];
+
 function moneyAUD(n: number) {
-  try { return new Intl.NumberFormat(undefined, { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(n); }
-  catch { return `$${Math.round(n)}`; }
+  try {
+    return new Intl.NumberFormat(undefined, { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(n);
+  } catch {
+    return `$${Math.round(n)}`;
+  }
 }
 
-function chipStatus(s: Row["status"]) {
+function pill(sev: Severity) {
   const base = "rounded-full border px-2 py-0.5 text-xs";
-  if (s === "Completed") return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Completed</span>;
-  if (s === "In Progress") return <span className={cn(base, "border-sky-300 bg-sky-50 text-sky-800")}>In progress</span>;
-  if (s === "Blocked") return <span className={cn(base, "border-amber-300 bg-amber-50 text-amber-800")}>Blocked</span>;
-  return <span className={cn(base, "border-violet-300 bg-violet-50 text-violet-800")}>Scheduled</span>;
+  if (sev === "critical") return <span className={cn(base, "border-rose-300 bg-rose-50 text-rose-800")}>Critical</span>;
+  if (sev === "warn") return <span className={cn(base, "border-amber-300 bg-amber-50 text-amber-800")}>Warning</span>;
+  return <span className={cn(base, "border-sky-300 bg-sky-50 text-sky-800")}>Info</span>;
 }
 
-export default function CommandCenter() {
-  const [tab, setTab] = useState<"overview" | "ops" | "finance" | "risk">("overview");
-  const [q, setQ] = useState("");
+function chipJob(s: JobStatus) {
+  const base = "rounded-full border px-2 py-0.5 text-xs";
+  if (s === "Complete") return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Complete</span>;
+  if (s === "In Progress") return <span className={cn(base, "border-violet-300 bg-violet-50 text-violet-800")}>In progress</span>;
+  if (s === "Scheduled") return <span className={cn(base, "border-sky-300 bg-sky-50 text-sky-800")}>Scheduled</span>;
+  if (s === "Blocked") return <span className={cn(base, "border-rose-300 bg-rose-50 text-rose-800")}>Blocked</span>;
+  return <span className={cn(base, "border-zinc-300 bg-zinc-50 text-zinc-700")}>New</span>;
+}
 
-  const rows: Row[] = [
-    { id: "J-187", job: "Strata facade repaint", client: "Arcadia Body Corp", status: "In Progress", value: 48500 },
-    { id: "J-188", job: "Rope access patch + seal", client: "Northpoint", status: "Scheduled", value: 14600 },
-    { id: "J-189", job: "Quote: balcony restoration", client: "Lakeside", status: "Blocked", value: 9200 },
-    { id: "J-190", job: "Interior refresh level 12", client: "Meridian", status: "Completed", value: 17800 },
-    { id: "J-191", job: "Pressure wash + prep", client: "Beacon", status: "Scheduled", value: 6600 },
-  ];
+function chipInvoice(s: Invoice["status"]) {
+  const base = "rounded-full border px-2 py-0.5 text-xs";
+  if (s === "Paid") return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Paid</span>;
+  if (s === "Overdue") return <span className={cn(base, "border-rose-300 bg-rose-50 text-rose-800")}>Overdue</span>;
+  if (s === "Sent") return <span className={cn(base, "border-sky-300 bg-sky-50 text-sky-800")}>Sent</span>;
+  return <span className={cn(base, "border-zinc-300 bg-zinc-50 text-zinc-700")}>Draft</span>;
+}
 
-  const filtered = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    if (!s) return rows;
-    return rows.filter(r => `${r.id} ${r.job} ${r.client} ${r.status} ${r.value}`.toLowerCase().includes(s));
-  }, [q]);
+export default function AppDashboard() {
+  const [lens, setLens] = useState<"today" | "week" | "month">("today");
 
   const kpis = useMemo(() => {
-    const pipeline = rows.reduce((a, r) => a + r.value, 0);
-    const escrowExposure = Math.round(pipeline * 0.62);
-    const cashHold = Math.round(pipeline * 0.28);
-    const released = Math.round(pipeline * 0.34);
-    const blocked = rows.filter(r => r.status === "Blocked").length;
-    const inProgress = rows.filter(r => r.status === "In Progress").length;
-    return { pipeline, escrowExposure, cashHold, released, blocked, inProgress, jobs: rows.length, clients: 18 };
+    const active = jobsSeed.filter((j) => j.status === "Scheduled" || j.status === "In Progress").length;
+    const blocked = jobsSeed.filter((j) => j.status === "Blocked").length;
+    const escrowHeld = jobsSeed.reduce((a, j) => a + j.escrowHold, 0);
+    const pipeline = jobsSeed.reduce((a, j) => a + j.value, 0);
+    const overdue = invoicesSeed.filter((i) => i.status === "Overdue").reduce((a, i) => a + i.amount, 0);
+    return { active, blocked, escrowHeld, pipeline, overdue };
   }, []);
-
-  const risk = useMemo(() => {
-    if (kpis.blocked > 0) return { sev: "warn", title: "Blocked jobs require escalation", meta: `${kpis.blocked} job(s) blocked` };
-    return { sev: "ok", title: "All systems normal", meta: "No elevated risk signals" };
-  }, [kpis.blocked]);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Command Center"
-        subtitle="Institutional-grade ops + finance cockpit. High-signal, audit-first."
+        subtitle="Institutional ops view: jobs, cash, risk, escrow, and execution—at a glance."
         right={
           <>
-            <Button variant="outline" className="rounded-xl">Export</Button>
-            <Button className="rounded-xl">New job <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
+            <Button variant="outline" className="rounded-xl"><Sparkles className="mr-2 h-4 w-4" />AI brief</Button>
+            <Button variant="outline" className="rounded-xl"><CalendarDays className="mr-2 h-4 w-4" />Schedule</Button>
+            <Button className="rounded-xl"><ClipboardList className="mr-2 h-4 w-4" />New job</Button>
           </>
         }
       />
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-        <StatCard label="Pipeline value" value={moneyAUD(kpis.pipeline)} icon={<TrendingUp className="h-4 w-4" />} />
-        <StatCard label="Escrow exposure" value={moneyAUD(kpis.escrowExposure)} icon={<ShieldCheck className="h-4 w-4" />} />
-        <StatCard label="Cash on hold" value={moneyAUD(kpis.cashHold)} icon={<Banknote className="h-4 w-4" />} />
-        <StatCard label="Released" value={moneyAUD(kpis.released)} icon={<CircleDollarSign className="h-4 w-4" />} />
-        <StatCard label="Clients" value={String(kpis.clients)} icon={<Users className="h-4 w-4" />} />
+      <div className="flex items-center justify-between gap-3">
+        <Tabs value={lens} onValueChange={(v) => setLens(v as any)}>
+          <TabsList className="rounded-2xl">
+            <TabsTrigger value="today" className="rounded-xl">Today</TabsTrigger>
+            <TabsTrigger value="week" className="rounded-xl">Week</TabsTrigger>
+            <TabsTrigger value="month" className="rounded-xl">Month</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <Badge variant="outline" className="rounded-full">Premium</Badge>
       </div>
 
-      <DataTableShell
-        title="Executive surfaces"
-        subtitle="Overview, Ops, Finance, Risk — UI-first. Wiring comes next."
-        toolbar={
-          <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div className="relative w-full md:w-[520px]">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search jobs…" className="h-10 rounded-2xl pl-9" />
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
+        <StatCard label="Active" value={String(kpis.active)} icon={<Timer className="h-4 w-4" />} />
+        <StatCard label="Blocked" value={String(kpis.blocked)} icon={<AlertTriangle className="h-4 w-4" />} />
+        <StatCard label="Escrow held" value={moneyAUD(kpis.escrowHeld)} icon={<ShieldCheck className="h-4 w-4" />} />
+        <StatCard label="Pipeline" value={moneyAUD(kpis.pipeline)} icon={<TrendingUp className="h-4 w-4" />} />
+        <StatCard label="Overdue" value={moneyAUD(kpis.overdue)} icon={<Receipt className="h-4 w-4" />} />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden lg:col-span-2">
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <div className="text-sm font-semibold flex items-center gap-2"><Activity className="h-4 w-4" />Live ops</div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" className="rounded-xl h-9">Dispatch</Button>
+              <Button className="rounded-xl h-9">Open jobs <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
             </div>
-            <Tabs value={tab} onValueChange={(v) => setTab(v as any)} className="w-full md:w-auto">
-              <TabsList className="rounded-2xl">
-                <TabsTrigger value="overview" className="rounded-xl">Overview</TabsTrigger>
-                <TabsTrigger value="ops" className="rounded-xl">Ops</TabsTrigger>
-                <TabsTrigger value="finance" className="rounded-xl">Finance</TabsTrigger>
-                <TabsTrigger value="risk" className="rounded-xl">Risk</TabsTrigger>
-              </TabsList>
-            </Tabs>
           </div>
-        }
-      >
-        {tab === "overview" ? (
-          <div className="p-4 grid gap-4 lg:grid-cols-3">
-            <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden lg:col-span-2">
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <div className="text-sm font-semibold">Operations snapshot</div>
-                <Badge variant="outline" className="rounded-full">Live</Badge>
-              </div>
-              <div className="p-4 grid gap-3 md:grid-cols-2">
-                <div className="rounded-2xl border bg-background p-4">
-                  <div className="text-xs text-muted-foreground">Jobs</div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <div className="text-2xl font-semibold">{kpis.jobs}</div>
-                    <CalendarDays className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <Separator className="my-3" />
-                  <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full border px-2 py-0.5 text-xs border-sky-300 bg-sky-50 text-sky-800">{kpis.inProgress} in progress</span>
-                    <span className="rounded-full border px-2 py-0.5 text-xs border-amber-300 bg-amber-50 text-amber-800">{kpis.blocked} blocked</span>
-                    <span className="rounded-full border px-2 py-0.5 text-xs border-emerald-300 bg-emerald-50 text-emerald-700">{rows.filter(r => r.status==="Completed").length} completed</span>
-                  </div>
-                </div>
 
-                <div className="rounded-2xl border bg-background p-4">
-                  <div className="text-xs text-muted-foreground">Escrow posture</div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <div className="text-2xl font-semibold">{moneyAUD(kpis.escrowExposure)}</div>
-                    <ShieldCheck className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <Separator className="my-3" />
-                  <div className="text-xs text-muted-foreground">Audit-first surface. Next: dual-approval thresholds + release controls.</div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {filtered.length === 0 ? (
-                <div className="p-6">
-                  <EmptyState
-                    title="No results"
-                    subtitle="Try a different search."
-                    icon={<Briefcase className="h-5 w-5" />}
-                    actionLabel="Clear search"
-                    onAction={() => setQ("")}
-                  />
-                </div>
-              ) : (
-                <div className="p-4 overflow-x-auto">
-                  <table className="min-w-full text-sm">
-                    <thead className="bg-muted/40 text-xs text-muted-foreground">
-                      <tr className="border-b">
-                        <th className="px-6 py-3 text-left font-medium">Job</th>
-                        <th className="px-6 py-3 text-left font-medium">Client</th>
-                        <th className="px-6 py-3 text-left font-medium">Status</th>
-                        <th className="px-6 py-3 text-right font-medium">Value</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {filtered.slice(0, 8).map((r) => (
-                        <tr key={r.id} className="hover:bg-muted/30">
-                          <td className="px-6 py-4">
-                            <div className="font-medium">{r.job}</div>
-                            <div className="text-xs text-muted-foreground">{r.id}</div>
-                          </td>
-                          <td className="px-6 py-4">{r.client}</td>
-                          <td className="px-6 py-4">{chipStatus(r.status)}</td>
-                          <td className="px-6 py-4 text-right font-medium">{moneyAUD(r.value)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Card>
-
-            <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <div className="text-sm font-semibold">System status</div>
-                <Badge variant="outline" className="rounded-full">Premium</Badge>
-              </div>
-              <div className="p-4 space-y-3">
-                <div className="rounded-2xl border bg-background p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-semibold">Build</div>
-                    <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="mt-1 text-xs text-muted-foreground">Green checks, auto-merge ready.</div>
-                </div>
-
-                <div className="rounded-2xl border bg-background p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-semibold">Risk</div>
-                    {risk.sev === "warn" ? <AlertTriangle className="h-4 w-4 text-muted-foreground" /> : <Activity className="h-4 w-4 text-muted-foreground" />}
-                  </div>
-                  <div className="mt-1 text-xs text-muted-foreground">{risk.title}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">{risk.meta}</div>
-                </div>
-
-                <Separator />
-
-                <div className="grid gap-2">
-                  <Button className="rounded-xl">Open Jobs <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
-                  <Button variant="outline" className="rounded-xl">Open Escrow</Button>
+          <div className="p-5 space-y-4">
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-2xl border bg-background p-4">
+                <div className="text-xs text-muted-foreground flex items-center gap-2"><ClipboardList className="h-4 w-4" />Jobs requiring attention</div>
+                <Separator className="my-3" />
+                <div className="space-y-2">
+                  {jobsSeed
+                    .filter((j) => j.status === "Blocked" || j.status === "In Progress" || j.status === "Scheduled")
+                    .slice(0, 3)
+                    .map((j) => (
+                      <div key={j.id} className="rounded-2xl border p-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold truncate">{j.title}</div>
+                            <div className="mt-1 text-xs text-muted-foreground truncate">{j.client}</div>
+                          </div>
+                          <div className="shrink-0 flex items-center gap-2">
+                            {chipJob(j.status)}
+                            <span className="text-xs rounded-full border px-2 py-0.5">{j.id}</span>
+                          </div>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                          <span className="rounded-full border px-2 py-0.5 flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" />{j.when}</span>
+                          <span className="rounded-full border px-2 py-0.5 flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{j.site}</span>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between text-sm">
+                          <div className="text-muted-foreground">Escrow</div>
+                          <div className="font-semibold">{moneyAUD(j.escrowHold)}</div>
+                        </div>
+                      </div>
+                    ))}
                 </div>
               </div>
-            </Card>
+
+              <div className="rounded-2xl border bg-background p-4">
+                <div className="text-xs text-muted-foreground flex items-center gap-2"><AlertTriangle className="h-4 w-4" />Risk & alerts</div>
+                <Separator className="my-3" />
+                <div className="space-y-2">
+                  {alertsSeed.map((a) => (
+                    <div key={a.id} className="rounded-2xl border p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold truncate">{a.title}</div>
+                          <div className="mt-1 text-xs text-muted-foreground">{a.detail}</div>
+                        </div>
+                        <div className="shrink-0 flex flex-col items-end gap-1">
+                          {pill(a.severity)}
+                          <span className="text-[11px] text-muted-foreground">{a.time}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-3 grid gap-2 md:grid-cols-2">
+                  <Button variant="outline" className="rounded-xl"><ShieldCheck className="mr-2 h-4 w-4" />Escrow review</Button>
+                  <Button className="rounded-xl"><CheckCircle2 className="mr-2 h-4 w-4" />Resolve blockers</Button>
+                </div>
+              </div>
+            </div>
           </div>
-        ) : tab === "ops" ? (
-          <div className="p-6 grid gap-4 lg:grid-cols-2">
-            <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <div className="text-sm font-semibold">Ops signals</div>
-                <Badge variant="outline" className="rounded-full">UI-first</Badge>
-              </div>
-              <div className="p-4 space-y-3">
-                <div className="rounded-2xl border bg-background p-4 text-xs text-muted-foreground">Next: calendar drag/drop + capacity load</div>
-                <div className="rounded-2xl border bg-background p-4 text-xs text-muted-foreground">Next: WIP limits + role-based dispatch</div>
-              </div>
-            </Card>
-            <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <div className="text-sm font-semibold">Dispatch readiness</div>
-                <Badge variant="outline" className="rounded-full">Premium</Badge>
-              </div>
-              <div className="p-4 space-y-3">
-                <div className="rounded-2xl border bg-background p-4 text-xs text-muted-foreground">Next: live job map + crew status</div>
-                <div className="rounded-2xl border bg-background p-4 text-xs text-muted-foreground">Next: SLA timers + escalation routing</div>
-              </div>
-            </Card>
+        </Card>
+
+        <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between border-b px-4 py-3">
+            <div className="text-sm font-semibold flex items-center gap-2"><Users className="h-4 w-4" />Cashflow & execution</div>
+            <Badge variant="outline" className="rounded-full">Premium</Badge>
           </div>
-        ) : tab === "finance" ? (
-          <div className="p-6 grid gap-4 lg:grid-cols-2">
-            <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <div className="text-sm font-semibold">Finance surface</div>
-                <Badge variant="outline" className="rounded-full">UI-first</Badge>
+
+          <div className="p-5 space-y-4">
+            <div className="rounded-2xl border p-4">
+              <div className="text-xs text-muted-foreground">Invoices</div>
+              <Separator className="my-3" />
+              <div className="space-y-2">
+                {invoicesSeed.map((i) => (
+                  <div key={i.id} className="rounded-2xl border p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold truncate">{i.id}</div>
+                        <div className="mt-1 text-xs text-muted-foreground truncate">{i.client}</div>
+                      </div>
+                      <div className="shrink-0 flex flex-col items-end gap-1">
+                        {chipInvoice(i.status)}
+                        <span className="text-[11px] text-muted-foreground">Due {i.due}</span>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between">
+                      <div className="text-xs text-muted-foreground">Amount</div>
+                      <div className="text-sm font-semibold">{moneyAUD(i.amount)}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="p-4 space-y-3">
-                <div className="rounded-2xl border bg-muted/10 p-10 text-center text-xs text-muted-foreground">Chart surface (wire invoices/payouts next)</div>
+
+              <div className="mt-3 grid gap-2">
+                <Button variant="outline" className="rounded-xl"><Receipt className="mr-2 h-4 w-4" />Open invoices</Button>
+                <Button className="rounded-xl"><ArrowUpRight className="mr-2 h-4 w-4" />Send statement</Button>
               </div>
-            </Card>
-            <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <div className="text-sm font-semibold">Controls</div>
-                <Badge variant="outline" className="rounded-full">Escrow</Badge>
+            </div>
+
+            <div className="rounded-2xl border p-4">
+              <div className="text-xs text-muted-foreground">Quick actions</div>
+              <Separator className="my-3" />
+              <div className="grid gap-2">
+                <Button variant="outline" className="rounded-xl"><CalendarDays className="mr-2 h-4 w-4" />Plan tomorrow</Button>
+                <Button variant="outline" className="rounded-xl"><ShieldCheck className="mr-2 h-4 w-4" />Escrow holds</Button>
+                <Button className="rounded-xl"><ClipboardList className="mr-2 h-4 w-4" />Create job</Button>
               </div>
-              <div className="p-4 space-y-3">
-                <div className="rounded-2xl border bg-background p-4 text-xs text-muted-foreground">Next: dual-approval releases + dispute holds</div>
-                <div className="rounded-2xl border bg-background p-4 text-xs text-muted-foreground">Next: immutable audit export</div>
-              </div>
-            </Card>
+            </div>
           </div>
-        ) : (
-          <div className="p-6">
-            <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between border-b px-4 py-3">
-                <div className="text-sm font-semibold">Risk surface</div>
-                <Badge variant="outline" className="rounded-full">Premium</Badge>
-              </div>
-              <div className="p-4 space-y-3">
-                <div className="rounded-2xl border bg-background p-4 text-xs text-muted-foreground">Next: anomaly engine + policy enforcement hooks</div>
-              </div>
-            </Card>
-          </div>
-        )}
-      </DataTableShell>
+        </Card>
+      </div>
     </div>
   );
 }
