@@ -1,28 +1,52 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { PageHeader } from "@/components/shell/page-header";
+import { StatCard } from "@/components/premium/stat-card";
+import { DataTableShell } from "@/components/premium/data-table-shell";
+import { EmptyState } from "@/components/premium/empty-state";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { EscrowDrawer, type EscrowRow } from "@/components/escrow/escrow-drawer";
-import { moneyAUD } from "@/lib/types/money";
+import { Input } from "@/components/ui/input";
+import { ShieldCheck, Plus, Search, Lock, Unlock, AlertTriangle, Scale } from "lucide-react";
 
-function tone(status: EscrowRow["status"]) {
-  if (status === "Released") return "good";
-  if (status === "Funded") return "info";
-  if (status === "On Hold") return "bad";
-  if (status === "Partially Released") return "warn";
-  return "neutral";
+type EscrowRow = {
+  id: string;
+  job_id?: string | null;
+  client_id?: string | null;
+  status?: string | null; // holding | released | disputed | cancelled
+  amount_cents?: number | null;
+  created_at?: string | null;
+};
+
+async function getEscrow(): Promise<EscrowRow[]> {
+  const res = await fetch("/api/escrow", { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json?.error || "Failed to load escrow");
+  return (json?.escrow || json?.rows || []) as EscrowRow[];
+}
+
+function money(cents?: number | null) {
+  if (!cents) return "$0.00";
+  return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "AUD" });
+}
+
+function chip(status?: string | null) {
+  const s = (status || "holding").toLowerCase();
+  if (s === "released")
+    return <Badge variant="outline" className="rounded-full border-emerald-300 bg-emerald-50 text-emerald-700">Released</Badge>;
+  if (s === "disputed")
+    return <Badge variant="outline" className="rounded-full border-amber-300 bg-amber-50 text-amber-800">Disputed</Badge>;
+  if (s === "cancelled")
+    return <Badge variant="outline" className="rounded-full border-zinc-300 bg-zinc-50 text-zinc-700">Cancelled</Badge>;
+  return <Badge variant="outline" className="rounded-full border-sky-300 bg-sky-50 text-sky-800">Holding</Badge>;
 }
 
 export default function EscrowPage() {
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState<EscrowRow["status"] | "All">("All");
-  const [selected, setSelected] = useState<EscrowRow | null>(null);
-  const [open, setOpen] = useState(false);
-
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [escrows, setEscrows] = useState<EscrowRow[]>([]);
+  const [rows, setRows] = useState<EscrowRow[]>([]);
+  const [q, setQ] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -30,12 +54,11 @@ export default function EscrowPage() {
       try {
         setLoading(true);
         setErr(null);
-        const res = await fetch("/api/escrow", { cache: "no-store" });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json?.error || "Failed to load escrows");
-        if (mounted) setEscrows(json.escrows || []);
+        const data = await getEscrow();
+        if (!mounted) return;
+        setRows(data);
       } catch (e: any) {
-        if (mounted) setErr(e?.message || "Failed to load escrows");
+        if (mounted) setErr(e?.message || "Failed to load");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -43,148 +66,114 @@ export default function EscrowPage() {
     return () => { mounted = false; };
   }, []);
 
-  const rows = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    return (escrows || [])
-      .filter((e) => (status === "All" ? true : e.status === status))
-      .filter((e) => {
-        if (!needle) return true;
-        return (
-          e.jobTitle.toLowerCase().includes(needle) ||
-          e.client.toLowerCase().includes(needle) ||
-          e.jobId.toLowerCase().includes(needle) ||
-          e.id.toLowerCase().includes(needle)
-        );
-      })
-      .slice()
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [escrows, q, status]);
+  const filtered = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return rows;
+    return rows.filter((r) =>
+      `${r.id} ${r.status || ""} ${r.job_id || ""} ${r.client_id || ""}`.toLowerCase().includes(s)
+    );
+  }, [rows, q]);
 
-  const totals = useMemo(() => {
-    const total = rows.reduce((a, r) => a + (r.totalCents || 0), 0);
-    const held = rows.reduce((a, r) => a + (r.heldCents || 0), 0);
-    const released = rows.reduce((a, r) => a + (r.releasedCents || 0), 0);
-    return { total, held, released };
-  }, [rows]);
+  const totalHeld = useMemo(() => rows.reduce((a, r) => a + ((r.status || "holding").toLowerCase() === "holding" ? (r.amount_cents || 0) : 0), 0), [rows]);
+  const totalReleased = useMemo(() => rows.reduce((a, r) => a + ((r.status || "").toLowerCase() === "released" ? (r.amount_cents || 0) : 0), 0), [rows]);
+  const disputes = useMemo(() => rows.filter(r => (r.status || "").toLowerCase() === "disputed").length, [rows]);
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div>
-          <div className="text-2xl font-semibold tracking-tight">Escrow</div>
-          <div className="mt-1 text-sm text-neutral-600">Real data (derived from jobs + disputes until escrow table exists).</div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-3">
-            <div className="text-[11px] text-neutral-500">Visible total</div>
-            <div className="text-sm font-semibold">{moneyAUD(totals.total)}</div>
-          </div>
-          <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-3">
-            <div className="text-[11px] text-neutral-500">Held</div>
-            <div className="text-sm font-semibold">{moneyAUD(totals.held)}</div>
-          </div>
-          <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-3">
-            <div className="text-[11px] text-neutral-500">Released</div>
-            <div className="text-sm font-semibold">{moneyAUD(totals.released)}</div>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Escrow"
+        subtitle="High-trust transaction control. Hold, release, or dispute with full audit trail."
+        right={
+          <>
+            <Button variant="outline" className="rounded-xl">Export</Button>
+            <Button className="rounded-xl"><Plus className="mr-2 h-4 w-4" />New escrow</Button>
+          </>
+        }
+      />
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+        <StatCard label="Total records" value={String(rows.length)} icon={<ShieldCheck className="h-4 w-4" />} />
+        <StatCard label="Held" value={money(totalHeld)} sub="Currently in escrow" icon={<Lock className="h-4 w-4" />} />
+        <StatCard label="Released" value={money(totalReleased)} sub="Completed payouts" icon={<Unlock className="h-4 w-4" />} />
+        <StatCard label="Disputes" value={String(disputes)} sub="Needs resolution" icon={<AlertTriangle className="h-4 w-4" />} />
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2">
-            <Search className="h-4 w-4 text-neutral-500" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search escrow..."
-              className="w-full bg-transparent text-sm outline-none placeholder:text-neutral-400"
+      {err ? (
+        <div className="rounded-2xl border border-red-200 bg-background p-6 text-sm text-red-700">{err}</div>
+      ) : null}
+
+      <DataTableShell
+        title="Escrow ledger"
+        subtitle="Search by record ID, job, client, or status."
+        toolbar={
+          <div className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center">
+            <div className="relative w-full md:w-[420px]">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search escrow ID, job, client, status…"
+                className="h-10 rounded-2xl pl-9"
+              />
+            </div>
+            <Button variant="outline" className="rounded-xl"><Scale className="mr-2 h-4 w-4" />Resolve</Button>
+          </div>
+        }
+      >
+        {loading ? (
+          <div className="p-10 text-sm text-muted-foreground">Loading…</div>
+        ) : filtered.length === 0 ? (
+          <div className="p-6">
+            <EmptyState
+              title="No escrow records yet"
+              subtitle="Create escrow from an accepted quote/invoice to hold funds safely."
+              icon={<ShieldCheck className="h-5 w-5" />}
+              actionLabel="Create escrow"
+              onAction={() => {}}
             />
           </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm">
-              <SlidersHorizontal className="h-4 w-4 text-neutral-500" />
-              <select className="bg-transparent outline-none" value={status} onChange={(e) => setStatus(e.target.value as any)}>
-                <option>All</option>
-                <option>Pending</option>
-                <option>Funded</option>
-                <option>Partially Released</option>
-                <option>On Hold</option>
-                <option>Released</option>
-              </select>
-            </div>
-
-            <button
-              type="button"
-              className="rounded-xl bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
-              onClick={() => alert("Next: create escrow from job quote (persist)")}
-            >
-              New escrow
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-sm text-neutral-600">Loading…</div>
-      ) : err ? (
-        <div className="rounded-2xl border border-red-200 bg-white p-8 text-sm text-red-700">{err}</div>
-      ) : (
-        <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
+        ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
-              <thead className="text-xs text-neutral-500 bg-neutral-50">
-                <tr className="border-b border-neutral-200">
-                  <th className="px-4 py-3 text-left font-medium">Escrow</th>
-                  <th className="px-4 py-3 text-left font-medium">Job</th>
-                  <th className="px-4 py-3 text-left font-medium">Client</th>
-                  <th className="px-4 py-3 text-left font-medium">Status</th>
-                  <th className="px-4 py-3 text-right font-medium">Held</th>
-                  <th className="px-4 py-3 text-right font-medium">Released</th>
-                  <th className="px-4 py-3 text-right font-medium">Created</th>
+              <thead className="bg-muted/40 text-xs text-muted-foreground">
+                <tr className="border-b">
+                  <th className="px-6 py-3 text-left font-medium">Record</th>
+                  <th className="px-6 py-3 text-left font-medium">Job</th>
+                  <th className="px-6 py-3 text-left font-medium">Client</th>
+                  <th className="px-6 py-3 text-left font-medium">Status</th>
+                  <th className="px-6 py-3 text-right font-medium">Amount</th>
+                  <th className="px-6 py-3 text-right font-medium">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100">
-                {rows.map((e) => (
-                  <tr
-                    key={e.id}
-                    className="hover:bg-neutral-50 cursor-pointer"
-                    onClick={() => {
-                      setSelected(e);
-                      setOpen(true);
-                    }}
-                  >
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-neutral-900">{e.id}</div>
-                      <div className="mt-1 text-xs text-neutral-500">{e.jobId}</div>
+              <tbody className="divide-y">
+                {filtered.map((r) => (
+                  <tr key={r.id} className="hover:bg-muted/30">
+                    <td className="px-6 py-4">
+                      <div className="font-medium">{r.id}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {r.created_at ? new Date(r.created_at).toLocaleString() : "—"}
+                      </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-neutral-900">{e.jobTitle}</div>
+                    <td className="px-6 py-4 text-muted-foreground">{r.job_id || "—"}</td>
+                    <td className="px-6 py-4 text-muted-foreground">{r.client_id || "—"}</td>
+                    <td className="px-6 py-4">{chip(r.status)}</td>
+                    <td className="px-6 py-4 text-right font-medium">{money(r.amount_cents)}</td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="sm" className="rounded-xl">Hold</Button>
+                        <Button variant="outline" size="sm" className="rounded-xl">Release</Button>
+                        <Button variant="outline" size="sm" className="rounded-xl border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100">
+                          Dispute
+                        </Button>
+                      </div>
                     </td>
-                    <td className="px-4 py-3">{e.client}</td>
-                    <td className="px-4 py-3">
-                      <Badge tone={tone(e.status)}>{e.status}</Badge>
-                    </td>
-                    <td className="px-4 py-3 text-right font-semibold">{moneyAUD(e.heldCents)}</td>
-                    <td className="px-4 py-3 text-right font-semibold">{moneyAUD(e.releasedCents)}</td>
-                    <td className="px-4 py-3 text-right text-neutral-600">{new Date(e.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
-                {rows.length === 0 ? (
-                  <tr>
-                    <td className="px-4 py-10 text-sm text-neutral-500" colSpan={7}>
-                      No escrow records match your filters.
-                    </td>
-                  </tr>
-                ) : null}
               </tbody>
             </table>
           </div>
-        </div>
-      )}
-
-      <EscrowDrawer escrow={selected} open={open} onClose={() => setOpen(false)} />
+        )}
+      </DataTableShell>
     </div>
   );
 }
