@@ -1,29 +1,48 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { PageHeader } from "@/components/shell/page-header";
+import { StatCard } from "@/components/premium/stat-card";
+import { DataTableShell } from "@/components/premium/data-table-shell";
+import { EmptyState } from "@/components/premium/empty-state";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { InvoiceDrawer, type InvoiceRow } from "@/components/invoices/invoice-drawer";
-import { moneyAUD } from "@/lib/types/money";
+import { Input } from "@/components/ui/input";
+import { Receipt, Plus, Search, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 
-type ApiInvoice = InvoiceRow;
+type Invoice = {
+  id: string;
+  client_id?: string | null;
+  status?: string | null;
+  total_cents?: number | null;
+  created_at?: string | null;
+};
 
-function tone(status: InvoiceRow["status"]) {
-  if (status === "Paid") return "good";
-  if (status === "Overdue") return "bad";
-  if (status === "Sent") return "info";
-  return "neutral";
+async function getInvoices(): Promise<Invoice[]> {
+  const res = await fetch("/api/invoices", { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json?.error || "Failed to load invoices");
+  return (json?.invoices || []) as Invoice[];
+}
+
+function money(cents?: number | null) {
+  if (!cents) return "$0.00";
+  return (cents / 100).toLocaleString(undefined, { style: "currency", currency: "AUD" });
+}
+
+function statusBadge(status?: string | null) {
+  const s = (status || "draft").toLowerCase();
+  if (s === "paid") return <Badge className="rounded-full">Paid</Badge>;
+  if (s === "sent") return <Badge variant="outline" className="rounded-full">Sent</Badge>;
+  if (s === "overdue") return <Badge variant="outline" className="rounded-full border-red-300 bg-red-50 text-red-700">Overdue</Badge>;
+  return <Badge variant="outline" className="rounded-full bg-muted/40 text-muted-foreground">Draft</Badge>;
 }
 
 export default function InvoicesPage() {
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState<InvoiceRow["status"] | "All">("All");
-  const [selected, setSelected] = useState<ApiInvoice | null>(null);
-  const [open, setOpen] = useState(false);
-
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [invoices, setInvoices] = useState<ApiInvoice[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [q, setQ] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -31,12 +50,11 @@ export default function InvoicesPage() {
       try {
         setLoading(true);
         setErr(null);
-        const res = await fetch("/api/invoices", { cache: "no-store" });
-        const json = await res.json();
-        if (!res.ok) throw new Error(json?.error || "Failed to load invoices");
-        if (mounted) setInvoices(json.invoices || []);
+        const data = await getInvoices();
+        if (!mounted) return;
+        setInvoices(data);
       } catch (e: any) {
-        if (mounted) setErr(e?.message || "Failed to load invoices");
+        if (mounted) setErr(e?.message || "Failed to load");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -44,132 +62,107 @@ export default function InvoicesPage() {
     return () => { mounted = false; };
   }, []);
 
-  const rows = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    return (invoices || [])
-      .filter((i) => (status === "All" ? true : i.status === status))
-      .filter((i) => {
-        if (!needle) return true;
-        return i.number.toLowerCase().includes(needle) || i.client.toLowerCase().includes(needle);
-      })
-      .slice()
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [invoices, q, status]);
+  const filtered = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return invoices;
+    return invoices.filter((i) =>
+      `${i.id} ${i.status || ""} ${i.client_id || ""}`.toLowerCase().includes(s)
+    );
+  }, [invoices, q]);
 
-  const totals = useMemo(() => {
-    const total = rows.reduce((a, r) => a + (r.amountCents || 0), 0);
-    const overdue = rows.filter((r) => r.status === "Overdue").reduce((a, r) => a + (r.amountCents || 0), 0);
-    return { total, overdue };
-  }, [rows]);
+  const totalValue = useMemo(() => invoices.reduce((a, i) => a + (i.total_cents || 0), 0), [invoices]);
+  const paid = useMemo(() => invoices.filter(i => (i.status || "").toLowerCase() === "paid").length, [invoices]);
+  const outstanding = useMemo(() => invoices.filter(i => (i.status || "").toLowerCase() !== "paid").length, [invoices]);
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div>
-          <div className="text-2xl font-semibold tracking-tight">Invoices</div>
-          <div className="mt-1 text-sm text-neutral-600">Real data (quotes as invoices until dedicated table exists).</div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-3">
-            <div className="text-[11px] text-neutral-500">Visible total</div>
-            <div className="text-sm font-semibold">{moneyAUD(totals.total)}</div>
-          </div>
-          <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-3">
-            <div className="text-[11px] text-neutral-500">Visible overdue</div>
-            <div className="text-sm font-semibold">{moneyAUD(totals.overdue)}</div>
-          </div>
-          <button
-            type="button"
-            className="rounded-xl bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
-            onClick={() => alert("Next: create invoice flow backed by Supabase + Stripe")}
-          >
-            New invoice
-          </button>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Invoices"
+        subtitle="Professional billing that looks expensive. Fast search, clean status, audit-ready."
+        right={
+          <>
+            <Button variant="outline" className="rounded-xl">Export</Button>
+            <Button className="rounded-xl"><Plus className="mr-2 h-4 w-4" />New invoice</Button>
+          </>
+        }
+      />
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+        <StatCard label="Total invoices" value={String(invoices.length)} icon={<Receipt className="h-4 w-4" />} />
+        <StatCard label="Total value" value={money(totalValue)} sub="All time" icon={<CheckCircle2 className="h-4 w-4" />} />
+        <StatCard label="Paid" value={String(paid)} sub="Completed" icon={<CheckCircle2 className="h-4 w-4" />} />
+        <StatCard label="Outstanding" value={String(outstanding)} sub="Unpaid / in-flight" icon={<Clock className="h-4 w-4" />} />
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2">
-            <Search className="h-4 w-4 text-neutral-500" />
-            <input
+      {err ? (
+        <div className="rounded-2xl border border-red-200 bg-background p-6 text-sm text-red-700">
+          <div className="flex items-center gap-2 font-medium">
+            <AlertCircle className="h-4 w-4" /> {err}
+          </div>
+        </div>
+      ) : null}
+
+      <DataTableShell
+        title="Billing ledger"
+        subtitle="Search invoices by ID, status, or client."
+        toolbar={
+          <div className="relative w-full md:w-[380px]">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search invoices..."
-              className="w-full bg-transparent text-sm outline-none placeholder:text-neutral-400"
+              placeholder="Search invoice ID, status, client…"
+              className="h-10 rounded-2xl pl-9"
             />
           </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm">
-              <SlidersHorizontal className="h-4 w-4 text-neutral-500" />
-              <select className="bg-transparent outline-none" value={status} onChange={(e) => setStatus(e.target.value as any)}>
-                <option>All</option>
-                <option>Draft</option>
-                <option>Sent</option>
-                <option>Paid</option>
-                <option>Overdue</option>
-              </select>
-            </div>
+        }
+      >
+        {loading ? (
+          <div className="p-10 text-sm text-muted-foreground">Loading…</div>
+        ) : filtered.length === 0 ? (
+          <div className="p-6">
+            <EmptyState
+              title="No invoices yet"
+              subtitle="Create invoices from jobs/quotes and keep your cashflow tight."
+              icon={<Receipt className="h-5 w-5" />}
+              actionLabel="Create invoice"
+              onAction={() => {}}
+            />
           </div>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-sm text-neutral-600">Loading…</div>
-      ) : err ? (
-        <div className="rounded-2xl border border-red-200 bg-white p-8 text-sm text-red-700">{err}</div>
-      ) : (
-        <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
+        ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
-              <thead className="text-xs text-neutral-500 bg-neutral-50">
-                <tr className="border-b border-neutral-200">
-                  <th className="px-4 py-3 text-left font-medium">Invoice</th>
-                  <th className="px-4 py-3 text-left font-medium">Client</th>
-                  <th className="px-4 py-3 text-left font-medium">Status</th>
-                  <th className="px-4 py-3 text-right font-medium">Amount</th>
-                  <th className="px-4 py-3 text-right font-medium">Due</th>
-                  <th className="px-4 py-3 text-right font-medium">Created</th>
+              <thead className="bg-muted/40 text-xs text-muted-foreground">
+                <tr className="border-b">
+                  <th className="px-6 py-3 text-left font-medium">Invoice</th>
+                  <th className="px-6 py-3 text-left font-medium">Client</th>
+                  <th className="px-6 py-3 text-left font-medium">Status</th>
+                  <th className="px-6 py-3 text-right font-medium">Total</th>
+                  <th className="px-6 py-3 text-right font-medium">Created</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100">
-                {rows.map((i) => (
-                  <tr
-                    key={i.id}
-                    className="hover:bg-neutral-50 cursor-pointer"
-                    onClick={() => {
-                      setSelected(i);
-                      setOpen(true);
-                    }}
-                  >
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-neutral-900">{i.number}</div>
-                      <div className="mt-1 text-xs text-neutral-500">{i.id}</div>
+              <tbody className="divide-y">
+                {filtered.map((i) => (
+                  <tr key={i.id} className="hover:bg-muted/30">
+                    <td className="px-6 py-4">
+                      <div className="font-medium">{i.id}</div>
+                      <div className="text-xs text-muted-foreground">Ledger entry</div>
                     </td>
-                    <td className="px-4 py-3">{i.client}</td>
-                    <td className="px-4 py-3">
-                      <Badge tone={tone(i.status)}>{i.status}</Badge>
+                    <td className="px-6 py-4">
+                      <span className="text-muted-foreground">{i.client_id || "—"}</span>
                     </td>
-                    <td className="px-4 py-3 text-right font-semibold">{moneyAUD(i.amountCents)}</td>
-                    <td className="px-4 py-3 text-right text-neutral-600">{new Date(i.dueAt).toLocaleDateString()}</td>
-                    <td className="px-4 py-3 text-right text-neutral-600">{new Date(i.createdAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-4">{statusBadge(i.status)}</td>
+                    <td className="px-6 py-4 text-right font-medium">{money(i.total_cents)}</td>
+                    <td className="px-6 py-4 text-right text-muted-foreground">
+                      {i.created_at ? new Date(i.created_at).toLocaleDateString() : "—"}
+                    </td>
                   </tr>
                 ))}
-                {rows.length === 0 ? (
-                  <tr>
-                    <td className="px-4 py-10 text-sm text-neutral-500" colSpan={6}>
-                      No invoices match your filters.
-                    </td>
-                  </tr>
-                ) : null}
               </tbody>
             </table>
           </div>
-        </div>
-      )}
-
-      <InvoiceDrawer invoice={selected} open={open} onClose={() => setOpen(false)} />
+        )}
+      </DataTableShell>
     </div>
   );
 }
