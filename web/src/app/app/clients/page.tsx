@@ -1,15 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ClientDrawer, type ClientRow } from "@/components/clients/client-drawer";
 
-const demoClients: ClientRow[] = [
-  { id: "cli_001", name: "Ryan Joseph", email: "ryan.joooseph@icloud.com", phone: "+61 4xx xxx xxx", status: "VIP", createdAt: new Date().toISOString(), notes: "High-value client. Priority scheduling." },
-  { id: "cli_002", name: "ACME Body Corporate", email: "ops@acme.com", status: "Active", createdAt: new Date(Date.now() - 86400000 * 9).toISOString() },
-  { id: "cli_003", name: "Brightline Constructions", email: "admin@brightline.com", status: "On Hold", createdAt: new Date(Date.now() - 86400000 * 23).toISOString(), notes: "Payment history flagged. Require escrow on all jobs." },
-];
+type ApiClient = { id: string; name: string; email: string; phone?: string; created_at: string; updated_at: string };
 
 function tone(status: ClientRow["status"]) {
   if (status === "VIP") return "info";
@@ -23,9 +19,42 @@ export default function ClientsPage() {
   const [selected, setSelected] = useState<ClientRow | null>(null);
   const [open, setOpen] = useState(false);
 
-  const rows = useMemo(() => {
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
+  const [clients, setClients] = useState<ApiClient[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setErr(null);
+        const res = await fetch("/api/clients", { cache: "no-store" });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json?.error || "Failed to load clients");
+        if (mounted) setClients(json.clients || []);
+      } catch (e: any) {
+        if (mounted) setErr(e?.message || "Failed to load clients");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const rows: ClientRow[] = useMemo(() => {
+    const mapped: ClientRow[] = (clients || []).map((c) => ({
+      id: c.id,
+      name: c.name || "Unnamed",
+      email: c.email || "—",
+      phone: c.phone,
+      status: "Active",
+      createdAt: c.created_at,
+      notes: "",
+    }));
+
     const needle = q.trim().toLowerCase();
-    return demoClients
+    return mapped
       .filter((c) => (status === "All" ? true : c.status === status))
       .filter((c) => {
         if (!needle) return true;
@@ -33,14 +62,14 @@ export default function ClientsPage() {
       })
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [q, status]);
+  }, [clients, q, status]);
 
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="text-2xl font-semibold tracking-tight">Clients</div>
-          <div className="mt-1 text-sm text-neutral-600">Institutional-grade CRM surface: search, segment, act.</div>
+          <div className="mt-1 text-sm text-neutral-600">Real data from Supabase (public.clients).</div>
         </div>
         <button
           type="button"
@@ -77,51 +106,57 @@ export default function ClientsPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="text-xs text-neutral-500 bg-neutral-50">
-              <tr className="border-b border-neutral-200">
-                <th className="px-4 py-3 text-left font-medium">Client</th>
-                <th className="px-4 py-3 text-left font-medium">Email</th>
-                <th className="px-4 py-3 text-left font-medium">Phone</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-right font-medium">Created</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {rows.map((c) => (
-                <tr
-                  key={c.id}
-                  className="hover:bg-neutral-50 cursor-pointer"
-                  onClick={() => {
-                    setSelected(c);
-                    setOpen(true);
-                  }}
-                >
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-neutral-900">{c.name}</div>
-                    <div className="mt-1 text-xs text-neutral-500">{c.id}</div>
-                  </td>
-                  <td className="px-4 py-3">{c.email}</td>
-                  <td className="px-4 py-3">{c.phone || "—"}</td>
-                  <td className="px-4 py-3">
-                    <Badge tone={tone(c.status)}>{c.status}</Badge>
-                  </td>
-                  <td className="px-4 py-3 text-right text-neutral-600">{new Date(c.createdAt).toLocaleDateString()}</td>
+      {loading ? (
+        <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-sm text-neutral-600">Loading…</div>
+      ) : err ? (
+        <div className="rounded-2xl border border-red-200 bg-white p-8 text-sm text-red-700">{err}</div>
+      ) : (
+        <div className="rounded-2xl border border-neutral-200 bg-white overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="text-xs text-neutral-500 bg-neutral-50">
+                <tr className="border-b border-neutral-200">
+                  <th className="px-4 py-3 text-left font-medium">Client</th>
+                  <th className="px-4 py-3 text-left font-medium">Email</th>
+                  <th className="px-4 py-3 text-left font-medium">Phone</th>
+                  <th className="px-4 py-3 text-left font-medium">Status</th>
+                  <th className="px-4 py-3 text-right font-medium">Created</th>
                 </tr>
-              ))}
-              {rows.length === 0 ? (
-                <tr>
-                  <td className="px-4 py-10 text-sm text-neutral-500" colSpan={5}>
-                    No clients match your filters.
-                  </td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-neutral-100">
+                {rows.map((c) => (
+                  <tr
+                    key={c.id}
+                    className="hover:bg-neutral-50 cursor-pointer"
+                    onClick={() => {
+                      setSelected(c);
+                      setOpen(true);
+                    }}
+                  >
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-neutral-900">{c.name}</div>
+                      <div className="mt-1 text-xs text-neutral-500">{c.id}</div>
+                    </td>
+                    <td className="px-4 py-3">{c.email}</td>
+                    <td className="px-4 py-3">{c.phone || "—"}</td>
+                    <td className="px-4 py-3">
+                      <Badge tone={tone(c.status)}>{c.status}</Badge>
+                    </td>
+                    <td className="px-4 py-3 text-right text-neutral-600">{new Date(c.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+                {rows.length === 0 ? (
+                  <tr>
+                    <td className="px-4 py-10 text-sm text-neutral-500" colSpan={5}>
+                      No clients match your filters.
+                    </td>
+                  </tr>
+                ) : null}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       <ClientDrawer client={selected} open={open} onClose={() => setOpen(false)} />
     </div>
