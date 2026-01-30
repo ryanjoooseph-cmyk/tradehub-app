@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navItems } from "./nav";
+import { NAV } from "./nav";
 import clsx from "clsx";
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
@@ -19,7 +19,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="px-3 pb-5">
-        {navItems.map((item) => {
+        {NAV.map((item) => {
           const active =
             pathname === item.href || (item.href !== "/app" && pathname.startsWith(item.href));
           const Icon = item.icon;
