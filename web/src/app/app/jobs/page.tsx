@@ -1,125 +1,83 @@
 "use client";
 
-import Link from "next/link";
+import { Topbar } from "@/components/shell/topbar";
+import { demoJobs, money, type Job } from "@/lib/demo-data";
 import { useMemo, useState } from "react";
-import { demoJobs, demoClients } from "@/lib/demo-data";
-import type { Job } from "@/lib/domain";
 
-function money(cents: number) {
-  return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(cents / 100);
+function Chip({ status }: { status: Job["status"] }) {
+  const map: Record<Job["status"], string> = {
+    Draft: "bg-neutral-100 text-neutral-800 border-neutral-200",
+    Scheduled: "bg-blue-50 text-blue-700 border-blue-200",
+    "In Progress": "bg-amber-50 text-amber-800 border-amber-200",
+    Completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    Disputed: "bg-rose-50 text-rose-700 border-rose-200",
+  };
+  return <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${map[status]}`}>{status}</span>;
 }
-function clientName(id: string) {
-  return demoClients.find((c) => c.id === id)?.name ?? "Unknown Client";
-}
 
-const STATUSES: Job["status"][] = ["Backlog", "Quoted", "Scheduled", "In Progress", "Blocked", "Completed"];
-
-export default function JobsPage() {
-  const [view, setView] = useState<"list" | "kanban">("list");
+export default function Page() {
   const [q, setQ] = useState("");
-  const [status, setStatus] = useState<Job["status"] | "All">("All");
 
-  const jobs = useMemo(() => {
-    return demoJobs
-      .filter((j) => (status === "All" ? true : j.status === status))
-      .filter((j) => {
-        const t = (j.title + " " + clientName(j.clientId) + " " + (j.location ?? "")).toLowerCase();
-        return t.includes(q.toLowerCase());
-      })
-      .slice()
-      .sort((a, b) => (b.priority.localeCompare(a.priority)) || (b.valueCents - a.valueCents));
-  }, [q, status]);
+  const rows = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return demoJobs;
+    return demoJobs.filter((j) =>
+      [j.title, j.client, j.site, j.status, j.id].some((v) => v.toLowerCase().includes(s))
+    );
+  }, [q]);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Jobs</h1>
-          <p className="text-sm text-muted-foreground">Operator view: status, priority, money, schedule. No fluff.</p>
+    <>
+      <Topbar title="Jobs" subtitle="Pipeline, scheduling, escrow status (demo data)" />
+      <div className="p-6">
+        <div className="flex items-center justify-between gap-4">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search jobs…"
+            className="w-full max-w-md rounded-xl border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-neutral-200"
+          />
+          <div className="text-xs text-neutral-500">{rows.length} jobs</div>
         </div>
-        <div className="flex gap-2 text-xs">
-          <button onClick={() => setView("list")} className={`rounded-md border px-3 py-1 hover:bg-muted ${view==="list"?"bg-muted":""}`}>List</button>
-          <button onClick={() => setView("kanban")} className={`rounded-md border px-3 py-1 hover:bg-muted ${view==="kanban"?"bg-muted":""}`}>Kanban</button>
-        </div>
-      </div>
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search jobs / clients / location" className="w-full md:max-w-md rounded-md border bg-background px-3 py-2 text-sm" />
-        <div className="flex gap-2 text-xs">
-          <select value={status} onChange={(e) => setStatus(e.target.value as any)} className="rounded-md border bg-background px-3 py-2">
-            <option value="All">All statuses</option>
-            {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <Link className="rounded-md border px-3 py-2 hover:bg-muted" href="/dispatch">Open Dispatch</Link>
-        </div>
-      </div>
-
-      {view === "list" ? (
-        <div className="rounded-xl border bg-card overflow-auto">
-          <div className="p-4 border-b">
-            <div className="font-semibold">Job Register</div>
-            <div className="text-xs text-muted-foreground">Click a job for the detail record.</div>
-          </div>
+        <div className="mt-4 overflow-hidden rounded-2xl border border-neutral-200 bg-white">
           <table className="w-full text-sm">
-            <thead className="text-xs text-muted-foreground">
-              <tr className="border-b">
-                <th className="text-left py-2 px-4">Job</th>
-                <th className="text-left py-2">Client</th>
-                <th className="text-left py-2">Status</th>
-                <th className="text-left py-2">Priority</th>
-                <th className="text-left py-2">Schedule</th>
-                <th className="text-right py-2 px-4">Value</th>
+            <thead className="bg-neutral-50 text-xs text-neutral-600">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium">Job</th>
+                <th className="px-4 py-3 text-left font-medium">Client</th>
+                <th className="px-4 py-3 text-left font-medium">Site</th>
+                <th className="px-4 py-3 text-left font-medium">When</th>
+                <th className="px-4 py-3 text-left font-medium">Value</th>
+                <th className="px-4 py-3 text-left font-medium">Escrow</th>
+                <th className="px-4 py-3 text-left font-medium">Status</th>
               </tr>
             </thead>
-            <tbody>
-              {jobs.map((j) => (
-                <tr key={j.id} className="border-b last:border-b-0 hover:bg-muted/40">
-                  <td className="py-3 px-4 font-medium">
-                    <Link className="hover:underline" href={`/app/jobs/${j.id}`}>{j.title}</Link>
-                    <div className="text-xs text-muted-foreground">{j.location ?? "—"}</div>
+            <tbody className="divide-y divide-neutral-200">
+              {rows.map((j) => (
+                <tr key={j.id} className="hover:bg-neutral-50">
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-neutral-900">{j.title}</div>
+                    <div className="mt-1 text-xs text-neutral-500">{j.id}</div>
                   </td>
-                  <td className="py-3">{clientName(j.clientId)}</td>
-                  <td className="py-3"><span className="rounded-full bg-muted px-2 py-1 text-xs">{j.status}</span></td>
-                  <td className="py-3"><span className="rounded-full bg-muted px-2 py-1 text-xs">{j.priority}</span></td>
-                  <td className="py-3 text-xs text-muted-foreground">
-                    {j.start && j.end ? `${new Date(j.start).toLocaleString()} → ${new Date(j.end).toLocaleTimeString()}` : "Unscheduled"}
+                  <td className="px-4 py-3">{j.client}</td>
+                  <td className="px-4 py-3">{j.site}</td>
+                  <td className="px-4 py-3">
+                    <div className="text-neutral-900">{new Date(j.start).toLocaleString()}</div>
+                    <div className="mt-1 text-xs text-neutral-500">{new Date(j.end).toLocaleString()}</div>
                   </td>
-                  <td className="py-3 px-4 text-right font-semibold">{money(j.valueCents)}</td>
+                  <td className="px-4 py-3 font-semibold">{money(j.valueCents)}</td>
+                  <td className="px-4 py-3">{money(j.escrowCents)}</td>
+                  <td className="px-4 py-3"><Chip status={j.status} /></td>
                 </tr>
               ))}
-              {jobs.length === 0 && (
-                <tr><td className="py-8 px-4 text-muted-foreground" colSpan={6}>No matching jobs.</td></tr>
-              )}
+              {rows.length === 0 ? (
+                <tr><td colSpan={7} className="px-4 py-10 text-center text-neutral-500">No jobs found.</td></tr>
+              ) : null}
             </tbody>
           </table>
         </div>
-      ) : (
-        <div className="grid grid-cols-12 gap-4">
-          {STATUSES.map((s) => (
-            <div key={s} className="col-span-12 md:col-span-6 xl:col-span-2 rounded-xl border bg-card">
-              <div className="p-3 border-b">
-                <div className="font-semibold text-sm">{s}</div>
-                <div className="text-xs text-muted-foreground">{demoJobs.filter(j=>j.status===s).length} jobs</div>
-              </div>
-              <div className="p-3 space-y-2">
-                {demoJobs.filter((j) => j.status === s).map((j) => (
-                  <Link key={j.id} href={`/app/jobs/${j.id}`} className="block rounded-lg border bg-background p-3 hover:bg-muted">
-                    <div className="font-medium text-sm truncate">{j.title}</div>
-                    <div className="text-xs text-muted-foreground truncate">{clientName(j.clientId)} • {j.location ?? "—"}</div>
-                    <div className="mt-2 flex items-center justify-between text-xs">
-                      <span className="rounded-full bg-muted px-2 py-0.5">{j.priority}</span>
-                      <span className="font-semibold">{money(j.valueCents)}</span>
-                    </div>
-                  </Link>
-                ))}
-                {demoJobs.filter((j) => j.status === s).length === 0 && (
-                  <div className="text-xs text-muted-foreground">Empty</div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 }

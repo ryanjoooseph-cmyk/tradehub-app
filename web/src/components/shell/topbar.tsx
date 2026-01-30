@@ -1,46 +1,47 @@
 "use client";
 
-import { Menu, Bell, Plus, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Search, Plus, Menu } from "lucide-react";
 
-export function Topbar({ onOpenMobileNav }: { onOpenMobileNav: () => void }) {
+export function Topbar({
+  title,
+  subtitle,
+  onOpenMobileNav,
+}: {
+  title: string;
+  subtitle?: string;
+  onOpenMobileNav?: () => void;
+}) {
   return (
-    <header className="h-16 border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/50">
-      <div className="h-full px-4 md:px-6 flex items-center gap-3">
+    <div className="flex items-center justify-between gap-4 border-b border-neutral-200 bg-white px-6 py-4">
+      <div className="flex items-center gap-3 min-w-0">
         <button
           type="button"
           onClick={onOpenMobileNav}
-          className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border bg-card/40 hover:bg-accent/50"
+          className="md:hidden inline-flex items-center justify-center rounded-lg border border-neutral-200 bg-white p-2 text-neutral-700"
           aria-label="Open navigation"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-4 w-4" />
         </button>
 
-        <div className="flex-1 max-w-[520px] relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9 rounded-xl bg-card/40" placeholder="Search jobs, clients, invoices…" />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button className="rounded-xl" type="button">
-            <Plus className="h-4 w-4" />
-            New
-          </Button>
-
-          <button
-            type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border bg-card/40 hover:bg-accent/50"
-            aria-label="Notifications"
-          >
-            <Bell className="h-5 w-5" />
-          </button>
-
-          <div className="h-10 w-10 rounded-xl border bg-card/40 flex items-center justify-center font-semibold">
-            R
-          </div>
+        <div className="min-w-0">
+          <div className="text-xl font-semibold tracking-tight truncate">{title}</div>
+          {subtitle ? <div className="mt-0.5 text-sm text-neutral-500 truncate">{subtitle}</div> : null}
         </div>
       </div>
-    </header>
+
+      <div className="flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-600">
+          <Search className="h-4 w-4" />
+          <span className="text-neutral-400">Search jobs, clients, invoices…</span>
+        </div>
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+        >
+          <Plus className="h-4 w-4" />
+          New
+        </button>
+      </div>
+    </div>
   );
 }

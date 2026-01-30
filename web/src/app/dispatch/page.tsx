@@ -7,7 +7,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import listPlugin from "@fullcalendar/list";
 import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
 import { demoJobs, demoClients } from "@/lib/demo-data";
-import type { Job } from "@/lib/domain";
+import type { Job } from "@/lib/demo-data";
 
 type CalEvent = {
   id: string;
@@ -132,19 +132,19 @@ export default function DispatchPage() {
                 const jobId = info.event.extendedProps?.jobId as string;
                 const start = info.event.start?.toISOString();
                 const end = info.event.end?.toISOString();
-                setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, start, end, status: "Scheduled" } : j)));
+                setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, start: start ?? j.start, end: end ?? j.end, status: "Scheduled" } : j)));
               }}
               eventDrop={(info) => {
                 const jobId = info.event.extendedProps?.jobId as string;
                 const start = info.event.start?.toISOString();
                 const end = info.event.end?.toISOString();
-                setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, start, end } : j)));
+                setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, start: start ?? j.start, end: end ?? j.end } : j)));
               }}
               eventResize={(info) => {
                 const jobId = info.event.extendedProps?.jobId as string;
                 const start = info.event.start?.toISOString();
                 const end = info.event.end?.toISOString();
-                setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, start, end } : j)));
+                setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, start: start ?? j.start, end: end ?? j.end } : j)));
               }}
             />
           </div>

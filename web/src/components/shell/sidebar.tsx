@@ -3,55 +3,47 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navItems } from "./nav";
-import { cn } from "@/lib/cn";
+import clsx from "clsx";
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <aside className="h-full w-[280px] border-r bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/50">
-      <div className="h-16 px-5 flex items-center gap-3 border-b">
-        <div className="h-9 w-9 rounded-xl border bg-card/50 flex items-center justify-center font-bold">TH</div>
-        <div className="leading-tight">
-          <div className="font-semibold tracking-tight">TradeHub</div>
-          <div className="text-xs text-muted-foreground">Operations OS</div>
+    <aside className="w-[280px] shrink-0 border-r border-neutral-200 bg-white">
+      <div className="px-5 py-5">
+        <div className="flex items-center justify-between">
+          <div className="text-lg font-semibold tracking-tight">TradeHub</div>
+          <div className="text-xs rounded-full border border-neutral-200 px-2 py-1 text-neutral-600">A++</div>
         </div>
+        <div className="mt-3 text-xs text-neutral-500">Ops OS for trade businesses</div>
       </div>
 
-      <div className="p-3">
-        <div className="px-2 pb-2 text-[11px] font-medium text-muted-foreground">Workspace</div>
-        <nav className="space-y-1">
-          {navItems.map((item) => {
-            const active = pathname === item.href || (item.href !== "/app" && pathname?.startsWith(item.href));
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onNavigate}
-                className={cn(
-                  "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition",
-                  active
-                    ? "bg-foreground text-background shadow-sm"
-                    : "text-foreground/80 hover:bg-muted/60 hover:text-foreground"
-                )}
-              >
-                <Icon className={cn("h-4 w-4", active ? "text-background" : "text-muted-foreground group-hover:text-foreground")} />
-                <span className="font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+      <nav className="px-3 pb-5">
+        {navItems.map((item) => {
+          const active =
+            pathname === item.href || (item.href !== "/app" && pathname.startsWith(item.href));
+          const Icon = item.icon;
 
-      <div className="mt-auto p-4">
-        <div className="rounded-2xl border bg-card/40 p-4">
-          <div className="text-sm font-medium">Upgrade</div>
-          <div className="mt-1 text-xs text-muted-foreground">Unlock advanced scheduling, automation, and analytics.</div>
-          <button className="mt-3 w-full rounded-xl bg-primary px-3 py-2 text-sm text-primary-foreground shadow hover:opacity-95">
-            Go Pro
-          </button>
-        </div>
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => onNavigate?.()}
+              className={clsx(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
+                active ? "bg-neutral-900 text-white" : "text-neutral-700 hover:bg-neutral-100"
+              )}
+            >
+              <Icon className="h-4 w-4" />
+              <span className="font-medium">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="mx-5 mt-auto mb-5 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+        <div className="text-xs font-medium text-neutral-700">Demo mode</div>
+        <div className="mt-1 text-xs text-neutral-500">Auth disabled. Showing seeded jobs.</div>
       </div>
     </aside>
   );

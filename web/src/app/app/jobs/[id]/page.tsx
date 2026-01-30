@@ -10,7 +10,7 @@ export default async function JobDetail({ params }: { params: Promise<{ id: stri
   const job = demoJobs.find((j) => j.id === id);
   if (!job) return <div className="p-6">Job not found.</div>;
 
-  const client = demoClients.find((c) => c.id === job.clientId);
+  const client = demoClients.find((c) => c.name === job.client);
   const invoice = demoInvoices.find((i) => i.jobId === job.id);
   const hold = demoEscrowHolds.find((h) => h.jobId === job.id);
 
@@ -22,7 +22,6 @@ export default async function JobDetail({ params }: { params: Promise<{ id: stri
           <h1 className="text-2xl font-semibold tracking-tight">{job.title}</h1>
           <div className="mt-2 flex flex-wrap gap-2 text-xs">
             <span className="rounded-full bg-muted px-2 py-1">{job.status}</span>
-            <span className="rounded-full bg-muted px-2 py-1">{job.priority}</span>
             {hold ? <span className="rounded-full bg-muted px-2 py-1">Escrow: {hold.status}</span> : <span className="rounded-full bg-muted px-2 py-1">Escrow: none</span>}
           </div>
         </div>
@@ -46,7 +45,7 @@ export default async function JobDetail({ params }: { params: Promise<{ id: stri
               <div>
                 <div className="text-xs text-muted-foreground">Value</div>
                 <div className="font-semibold text-lg">{money(job.valueCents)}</div>
-                <div className="text-xs text-muted-foreground">Location: {job.location ?? "—"}</div>
+                <div className="text-xs text-muted-foreground">Location: {job.site ?? "—"}</div>
               </div>
               <div className="col-span-2">
                 <div className="text-xs text-muted-foreground">Schedule</div>
@@ -56,7 +55,7 @@ export default async function JobDetail({ params }: { params: Promise<{ id: stri
               </div>
               <div className="col-span-2">
                 <div className="text-xs text-muted-foreground">Notes</div>
-                <div className="whitespace-pre-wrap">{job.notes ?? "—"}</div>
+                <div className="whitespace-pre-wrap">{job.site ?? "—"}</div>
               </div>
             </div>
           </div>

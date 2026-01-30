@@ -1,85 +1,114 @@
-import { demoJobs, demoClients, demoInvoices, demoEscrowHolds } from "@/lib/demo-data";
+import { Topbar } from "@/components/shell/topbar";
+import { demoJobs, demoInvoices, kpis, money } from "@/lib/demo-data";
 
-function money(cents: number) {
-  return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(cents / 100);
+function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="rounded-2xl border border-neutral-200 bg-white p-5">
+      <div className="text-xs font-medium text-neutral-500">{label}</div>
+      <div className="mt-2 text-2xl font-semibold tracking-tight">{value}</div>
+      {sub ? <div className="mt-2 text-xs text-neutral-500">{sub}</div> : null}
+    </div>
+  );
 }
 
-export default function Dashboard() {
-  const backlog = demoJobs.filter((j) => j.status === "Backlog").length;
-  const scheduled = demoJobs.filter((j) => j.status === "Scheduled").length;
-  const inProgress = demoJobs.filter((j) => j.status === "In Progress").length;
+function Chip({ text }: { text: string }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-xs font-medium text-neutral-700">
+      {text}
+    </span>
+  );
+}
 
-  const ar = demoInvoices.filter((i) => i.status !== "Paid").reduce((s, i) => s + i.amountCents, 0);
-  const escrowHeld = demoEscrowHolds.filter((h) => h.status === "Held").reduce((s, h) => s + h.amountCents, 0);
-  const escrowDisputed = demoEscrowHolds.filter((h) => h.status === "Disputed").reduce((s, h) => s + h.amountCents, 0);
+export default function Page() {
+  const { totalValue, escrowHeld, disputed, active } = kpis();
+  const upcoming = [...demoJobs]
+    .filter((j) => j.status === "Scheduled" || j.status === "In Progress")
+    .sort((a, b) => a.start.localeCompare(b.start))
+    .slice(0, 5);
+
+  const attention = demoJobs.filter((j) => j.status === "Disputed").slice(0, 3);
+  const latestInvoices = [...demoInvoices].sort((a, b) => b.issuedAt.localeCompare(a.issuedAt)).slice(0, 4);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Command Center</h1>
-          <p className="text-sm text-muted-foreground">Dispatch, cash, workload, risk — one screen.</p>
-        </div>
-        <div className="flex gap-2 text-xs">
-          <a className="rounded-md border px-3 py-1 hover:bg-muted" href="/dispatch">Open Dispatch</a>
-          <a className="rounded-md border px-3 py-1 hover:bg-muted" href="/escrow">Open Escrow</a>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-12 gap-4">
-        {[
-          { label: "Backlog", value: String(backlog), sub: "Jobs waiting to schedule" },
-          { label: "Scheduled", value: String(scheduled), sub: "Next 7 days" },
-          { label: "In Progress", value: String(inProgress), sub: "Active work" },
-          { label: "Accounts Receivable", value: money(ar), sub: "Unpaid invoices" },
-          { label: "Escrow Held", value: money(escrowHeld), sub: "Funds locked" },
-          { label: "Escrow Disputed", value: money(escrowDisputed), sub: "Risk exposure" },
-          { label: "Clients", value: String(demoClients.length), sub: "Active" },
-          { label: "Jobs", value: String(demoJobs.length), sub: "Total" },
-        ].map((k) => (
-          <div key={k.label} className="col-span-12 sm:col-span-6 xl:col-span-3 rounded-xl border bg-card p-4">
-            <div className="text-xs text-muted-foreground">{k.label}</div>
-            <div className="mt-1 text-2xl font-semibold tracking-tight">{k.value}</div>
-            <div className="mt-2 text-xs text-muted-foreground">{k.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 xl:col-span-7 rounded-xl border bg-card">
-          <div className="p-4 border-b">
-            <div className="font-semibold">Operational Focus</div>
-            <div className="text-xs text-muted-foreground">What matters today. No noise.</div>
-          </div>
-          <div className="p-4 space-y-3 text-sm">
-            <div className="rounded-lg border bg-background p-3">
-              <div className="font-medium">Dispatch Discipline</div>
-              <div className="text-xs text-muted-foreground">Keep backlog near-zero. Everything scheduled has owners.</div>
-            </div>
-            <div className="rounded-lg border bg-background p-3">
-              <div className="font-medium">Cash Control</div>
-              <div className="text-xs text-muted-foreground">Escrow reduces non-payment risk. AR shows reality.</div>
-            </div>
-            <div className="rounded-lg border bg-background p-3">
-              <div className="font-medium">Risk Radar</div>
-              <div className="text-xs text-muted-foreground">Disputes surface instantly. Audit trail prevents he-said/she-said.</div>
-            </div>
-          </div>
+    <>
+      <Topbar title="Dashboard" subtitle="Real-time ops overview (demo data)" />
+      <div className="p-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <Stat label="Active jobs" value={String(active)} sub="Scheduled + in progress" />
+          <Stat label="Escrow held" value={money(escrowHeld)} sub="Funds currently locked" />
+          <Stat label="Total job value" value={money(totalValue)} sub="All jobs (demo)" />
+          <Stat label="Disputes" value={String(disputed)} sub="Requires action" />
         </div>
 
-        <div className="col-span-12 xl:col-span-5 rounded-xl border bg-card">
-          <div className="p-4 border-b">
-            <div className="font-semibold">Next Actions</div>
-            <div className="text-xs text-muted-foreground">Operator moves.</div>
+        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2 rounded-2xl border border-neutral-200 bg-white">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-200">
+              <div className="text-sm font-semibold">Upcoming work</div>
+              <Chip text="Next 7 days" />
+            </div>
+            <div className="divide-y divide-neutral-200">
+              {upcoming.map((j) => (
+                <div key={j.id} className="px-5 py-4 flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <div className="font-medium text-neutral-900 truncate">{j.title}</div>
+                    <div className="mt-1 text-xs text-neutral-500">{j.client} • {j.site}</div>
+                    <div className="mt-2 text-xs text-neutral-600">{new Date(j.start).toLocaleString()}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold">{money(j.valueCents)}</div>
+                    <div className="mt-1 text-xs text-neutral-500">Escrow {money(j.escrowCents)}</div>
+                    <div className="mt-2">
+                      <Chip text={j.status} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {upcoming.length === 0 ? <div className="px-5 py-10 text-sm text-neutral-500">No upcoming jobs.</div> : null}
+            </div>
           </div>
-          <div className="p-4 grid gap-2 text-sm">
-            <a className="rounded-lg border bg-background p-3 hover:bg-muted" href="/dispatch">Schedule backlog → calendar</a>
-            <a className="rounded-lg border bg-background p-3 hover:bg-muted" href="/escrow">Review holds + disputes</a>
-            <a className="rounded-lg border bg-background p-3 hover:bg-muted" href="/app/invoices">Chase overdue invoices</a>
-            <a className="rounded-lg border bg-background p-3 hover:bg-muted" href="/app/clients">Review client health</a>
+
+          <div className="rounded-2xl border border-neutral-200 bg-white">
+            <div className="px-5 py-4 border-b border-neutral-200">
+              <div className="text-sm font-semibold">Attention</div>
+              <div className="mt-1 text-xs text-neutral-500">Disputes and overdue invoices</div>
+            </div>
+
+            <div className="px-5 py-4">
+              <div className="text-xs font-medium text-neutral-600">Disputes</div>
+              <div className="mt-3 space-y-3">
+                {attention.map((j) => (
+                  <div key={j.id} className="rounded-xl border border-neutral-200 p-3">
+                    <div className="text-sm font-medium text-neutral-900">{j.title}</div>
+                    <div className="mt-1 text-xs text-neutral-500">{j.client}</div>
+                    <div className="mt-2 flex items-center justify-between">
+                      <Chip text="Disputed" />
+                      <div className="text-xs font-semibold">{money(j.valueCents)}</div>
+                    </div>
+                  </div>
+                ))}
+                {attention.length === 0 ? <div className="text-sm text-neutral-500">No disputes.</div> : null}
+              </div>
+
+              <div className="mt-6 text-xs font-medium text-neutral-600">Latest invoices</div>
+              <div className="mt-3 space-y-2">
+                {latestInvoices.map((inv) => (
+                  <div key={inv.id} className="flex items-center justify-between rounded-xl border border-neutral-200 p-3">
+                    <div>
+                      <div className="text-sm font-medium">{inv.id}</div>
+                      <div className="mt-1 text-xs text-neutral-500">{inv.client}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold">{money(inv.amountCents)}</div>
+                      <div className="mt-1 text-xs text-neutral-500">{inv.status}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
