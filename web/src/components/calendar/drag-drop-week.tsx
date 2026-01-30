@@ -7,7 +7,13 @@ import { addDays, format, startOfWeek, isSameDay, parseISO } from "date-fns";
 import clsx from "clsx";
 import type { Job } from "@/lib/demo-data";
 
-function DraggableJob({ job }: { job: Job }) {
+function DraggableJob({
+  job,
+  onOpen,
+}: {
+  job: Job;
+  onOpen?: (jobId: string) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: job.id,
     data: { jobId: job.id },
@@ -18,14 +24,19 @@ function DraggableJob({ job }: { job: Job }) {
     : undefined;
 
   return (
-    <div
+    <button
+      type="button"
       ref={setNodeRef}
       style={style}
       {...listeners}
       {...attributes}
+      onClick={() => {
+        if (isDragging) return;
+        onOpen?.(job.id);
+      }}
       className={clsx(
-        "cursor-grab active:cursor-grabbing rounded-xl border px-3 py-2 text-sm shadow-sm",
-        isDragging ? "border-neutral-400 bg-white" : "border-neutral-200 bg-white hover:border-neutral-300"
+        "w-full text-left cursor-grab active:cursor-grabbing rounded-xl border px-3 py-2 text-sm shadow-sm",
+        isDragging ? "border-neutral-400 bg-white" : "border-neutral-200 bg-white hover:border-neutral-300 hover:bg-neutral-50"
       )}
     >
       <div className="flex items-center justify-between gap-2">
@@ -36,16 +47,18 @@ function DraggableJob({ job }: { job: Job }) {
       </div>
       <div className="mt-1 text-xs text-neutral-600 truncate">{job.client}</div>
       <div className="mt-1 text-xs text-neutral-500 truncate">{job.site}</div>
-    </div>
+    </button>
   );
 }
 
 function DayColumn({
   day,
   jobs,
+  onOpenJob,
 }: {
   day: Date;
   jobs: Job[];
+  onOpenJob?: (jobId: string) => void;
 }) {
   const id = `day:${day.toISOString().slice(0, 10)}`;
   const { setNodeRef, isOver } = useDroppable({
@@ -71,7 +84,7 @@ function DayColumn({
             Drop a job here
           </div>
         ) : (
-          jobs.map((j) => <DraggableJob key={j.id} job={j} />)
+          jobs.map((j) => <DraggableJob key={j.id} job={j} onOpen={onOpenJob} />)
         )}
       </div>
     </div>
@@ -81,9 +94,11 @@ function DayColumn({
 export function DragDropWeek({
   jobs,
   onUpdateJobDates,
+  onOpenJob,
 }: {
   jobs: Job[];
   onUpdateJobDates: (jobId: string, dateISO: string) => void;
+  onOpenJob?: (jobId: string) => void;
 }) {
   const [anchor] = useState(() => new Date());
   const weekStart = useMemo(() => startOfWeek(anchor, { weekStartsOn: 1 }), [anchor]);
@@ -129,7 +144,7 @@ export function DragDropWeek({
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-7">
         {days.map((d) => {
           const key = d.toISOString().slice(0, 10);
-          return <DayColumn key={key} day={d} jobs={jobsByDay.get(key) || []} />;
+          return <DayColumn key={key} day={d} jobs={jobsByDay.get(key) || []} onOpenJob={onOpenJob} />;
         })}
       </div>
     </DndContext>
