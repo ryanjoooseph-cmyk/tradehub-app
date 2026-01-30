@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { Briefcase, Plus, Search, Clock, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Briefcase, CalendarDays, Plus, Search, ShieldCheck, AlertTriangle, CheckCircle2, ArrowUpRight } from "lucide-react";
 
 type Job = {
   id: string;
@@ -19,9 +20,9 @@ type Job = {
   status?: string | null;
   client_id?: string | null;
   scheduled_start?: string | null;
-  scheduled_end?: string | null;
-  address?: string | null;
   created_at?: string | null;
+  updated_at?: string | null;
+  value?: number | null;
 };
 
 async function getJobs(): Promise<Job[]> {
@@ -31,22 +32,13 @@ async function getJobs(): Promise<Job[]> {
   return ((json as any)?.jobs || (json as any)?.rows || []) as Job[];
 }
 
-function prettyStatus(s?: string | null) {
-  const v = (s || "scheduled").toLowerCase();
-  if (v === "in_progress") return "In progress";
-  if (v === "completed") return "Completed";
-  if (v === "blocked") return "Blocked";
-  if (v === "cancelled") return "Cancelled";
-  return "Scheduled";
-}
-
-function statusChip(s?: string | null) {
-  const v = (s || "scheduled").toLowerCase();
-  if (v === "completed") return <Badge variant="outline" className="rounded-full border-emerald-300 bg-emerald-50 text-emerald-700">Completed</Badge>;
-  if (v === "in_progress") return <Badge variant="outline" className="rounded-full border-sky-300 bg-sky-50 text-sky-800">In progress</Badge>;
-  if (v === "blocked") return <Badge variant="outline" className="rounded-full border-amber-300 bg-amber-50 text-amber-800">Blocked</Badge>;
-  if (v === "cancelled") return <Badge variant="outline" className="rounded-full border-zinc-300 bg-zinc-50 text-zinc-700">Cancelled</Badge>;
-  return <Badge variant="outline" className="rounded-full border-violet-300 bg-violet-50 text-violet-800">Scheduled</Badge>;
+function money(n?: number | null) {
+  const v = Number(n || 0);
+  try {
+    return new Intl.NumberFormat(undefined, { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(v);
+  } catch {
+    return `$${Math.round(v)}`;
+  }
 }
 
 function when(d?: string | null) {
@@ -56,25 +48,57 @@ function when(d?: string | null) {
   return dt.toLocaleString();
 }
 
-function safeTitle(j: Job) {
-  return j.title?.trim() || `Job ${j.id}`;
+function dayKey(dt: Date) {
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, "0");
+  const d = String(dt.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
-function groupKey(s?: string | null) {
+function startOfWeek(d: Date) {
+  const x = new Date(d);
+  const day = x.getDay(); // 0 Sun
+  const diff = (day + 6) % 7; // Monday=0
+  x.setDate(x.getDate() - diff);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+
+function addDays(d: Date, n: number) {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+}
+
+function normStatus(s?: string | null) {
   const v = (s || "scheduled").toLowerCase();
   if (v === "in_progress") return "in_progress";
-  if (v === "completed") return "completed";
   if (v === "blocked") return "blocked";
-  if (v === "cancelled") return "cancelled";
+  if (v === "completed") return "completed";
   return "scheduled";
 }
 
+function statusChip(s?: string | null) {
+  const v = normStatus(s);
+  const base = "rounded-full border px-2 py-0.5 text-xs";
+  if (v === "completed") return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Completed</span>;
+  if (v === "in_progress") return <span className={cn(base, "border-sky-300 bg-sky-50 text-sky-800")}>In progress</span>;
+  if (v === "blocked") return <span className={cn(base, "border-amber-300 bg-amber-50 text-amber-800")}>Blocked</span>;
+  return <span className={cn(base, "border-violet-300 bg-violet-50 text-violet-800")}>Scheduled</span>;
+}
+
+function jobName(j: Job) {
+  return (j.title && j.title.trim()) ? j.title.trim() : `Job ${j.id}`;
+}
+
 export default function JobsPage() {
-  const [view, setView] = useState<"table" | "kanban">("table");
+  const [mode, setMode] = useState<"table" | "pipeline" | "calendar">("calendar");
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [rows, setRows] = useState<Job[]>([]);
   const [q, setQ] = useState("");
+
+  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
 
   useEffect(() => {
     let mounted = true;
@@ -84,7 +108,7 @@ export default function JobsPage() {
         setErr(null);
         const data = await getJobs();
         if (!mounted) return;
-        setJobs(data);
+        setRows(data);
       } catch (e: any) {
         if (mounted) setErr(e?.message || "Failed to load");
       } finally {
@@ -96,38 +120,82 @@ export default function JobsPage() {
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
-    if (!s) return jobs;
-    return jobs.filter((j) =>
-      `${j.id} ${j.title || ""} ${j.status || ""} ${j.client_id || ""} ${j.address || ""}`.toLowerCase().includes(s)
+    if (!s) return rows;
+    return rows.filter((r) =>
+      `${r.id} ${jobName(r)} ${r.status || ""} ${r.client_id || ""} ${r.value || ""}`.toLowerCase().includes(s)
     );
-  }, [jobs, q]);
+  }, [rows, q]);
 
   const kpis = useMemo(() => {
-    const total = jobs.length;
-    const scheduled = jobs.filter(j => groupKey(j.status) === "scheduled").length;
-    const inProgress = jobs.filter(j => groupKey(j.status) === "in_progress").length;
-    const blocked = jobs.filter(j => groupKey(j.status) === "blocked").length;
-    const completed = jobs.filter(j => groupKey(j.status) === "completed").length;
-    return { total, scheduled, inProgress, blocked, completed };
-  }, [jobs]);
+    const total = rows.length;
+    const inProgress = rows.filter(r => normStatus(r.status) === "in_progress").length;
+    const blocked = rows.filter(r => normStatus(r.status) === "blocked").length;
+    const completed = rows.filter(r => normStatus(r.status) === "completed").length;
+    const value = rows.reduce((a, r) => a + Number(r.value || 0), 0);
+    return { total, inProgress, blocked, completed, value };
+  }, [rows]);
 
-  const groups = useMemo(() => {
-    const base = { scheduled: [] as Job[], in_progress: [] as Job[], blocked: [] as Job[], completed: [] as Job[] };
-    for (const j of filtered) {
-      const k = groupKey(j.status);
-      if (k === "scheduled") base.scheduled.push(j);
-      else if (k === "in_progress") base.in_progress.push(j);
-      else if (k === "blocked") base.blocked.push(j);
-      else if (k === "completed") base.completed.push(j);
-    }
-    return base;
+  const pipeline = useMemo(() => {
+    const b = { scheduled: [] as Job[], in_progress: [] as Job[], blocked: [] as Job[], completed: [] as Job[] };
+    for (const r of filtered) b[normStatus(r.status) as keyof typeof b].push(r);
+    return b;
   }, [filtered]);
+
+  const calendar = useMemo(() => {
+    const map = new Map<string, Job[]>();
+    for (let i = 0; i < 7; i++) map.set(dayKey(addDays(weekStart, i)), []);
+    for (const r of filtered) {
+      const src = r.scheduled_start || r.created_at || r.updated_at;
+      if (!src) continue;
+      const dt = new Date(src);
+      if (Number.isNaN(dt.getTime())) continue;
+      const key = dayKey(dt);
+      if (map.has(key)) map.get(key)!.push(r);
+    }
+    return map;
+  }, [filtered, weekStart]);
+
+  function updateJob(id: string, patch: Partial<Job>) {
+    setRows((prev) => prev.map((j) => (j.id === id ? { ...j, ...patch, updated_at: new Date().toISOString() } : j)));
+  }
+
+  function onCardDragStart(e: React.DragEvent, id: string) {
+    e.dataTransfer.setData("text/plain", id);
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function allowDrop(e: React.DragEvent) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }
+
+  function dropToStatus(e: React.DragEvent, status: Job["status"]) {
+    e.preventDefault();
+    const id = e.dataTransfer.getData("text/plain");
+    if (!id) return;
+    updateJob(id, { status });
+  }
+
+  function dropToDay(e: React.DragEvent, day: Date) {
+    e.preventDefault();
+    const id = e.dataTransfer.getData("text/plain");
+    if (!id) return;
+    const dt = new Date(day);
+    dt.setHours(9, 0, 0, 0);
+    updateJob(id, { scheduled_start: dt.toISOString(), status: "scheduled" });
+  }
+
+  const days = useMemo(() => {
+    const d = [];
+    for (let i = 0; i < 7; i++) d.push(addDays(weekStart, i));
+    return d;
+  }, [weekStart]);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Jobs"
-        subtitle="The operational core. Track jobs, move work through stages, and trigger invoices/escrow."
+        subtitle="Premium execution UI: calendar, pipeline, and a clean operational ledger."
         right={
           <>
             <Button variant="outline" className="rounded-xl">Import</Button>
@@ -136,17 +204,21 @@ export default function JobsPage() {
         }
       />
 
+      {err ? (
+        <div className="rounded-2xl border border-red-200 bg-background p-6 text-sm text-red-700">{err}</div>
+      ) : null}
+
       <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-        <StatCard label="Total" value={String(kpis.total)} icon={<Briefcase className="h-4 w-4" />} />
-        <StatCard label="Scheduled" value={String(kpis.scheduled)} icon={<Clock className="h-4 w-4" />} />
+        <StatCard label="Jobs" value={String(kpis.total)} icon={<Briefcase className="h-4 w-4" />} />
         <StatCard label="In progress" value={String(kpis.inProgress)} icon={<ShieldCheck className="h-4 w-4" />} />
         <StatCard label="Blocked" value={String(kpis.blocked)} icon={<AlertTriangle className="h-4 w-4" />} />
         <StatCard label="Completed" value={String(kpis.completed)} icon={<CheckCircle2 className="h-4 w-4" />} />
+        <StatCard label="Total value" value={money(kpis.value)} icon={<CalendarDays className="h-4 w-4" />} />
       </div>
 
       <DataTableShell
-        title="Work pipeline"
-        subtitle="Premium table + Kanban. Search jobs by ID, title, client, address, or status."
+        title="Operations"
+        subtitle="Search jobs by id, title, client, status, or value."
         toolbar={
           <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div className="relative w-full md:w-[520px]">
@@ -154,35 +226,34 @@ export default function JobsPage() {
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search job ID, title, client, address, status…"
+                placeholder="Search jobs…"
                 className="h-10 rounded-2xl pl-9"
               />
             </div>
 
-            <Tabs value={view} onValueChange={(v) => setView(v as any)} className="w-full md:w-auto">
+            <Tabs value={mode} onValueChange={(v) => setMode(v as any)} className="w-full md:w-auto">
               <TabsList className="rounded-2xl">
+                <TabsTrigger value="calendar" className="rounded-xl">Calendar</TabsTrigger>
+                <TabsTrigger value="pipeline" className="rounded-xl">Pipeline</TabsTrigger>
                 <TabsTrigger value="table" className="rounded-xl">Table</TabsTrigger>
-                <TabsTrigger value="kanban" className="rounded-xl">Kanban</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
         }
       >
-        {err ? (
-          <div className="p-6 text-sm text-red-700">{err}</div>
-        ) : loading ? (
+        {loading ? (
           <div className="p-10 text-sm text-muted-foreground">Loading…</div>
         ) : filtered.length === 0 ? (
           <div className="p-6">
             <EmptyState
               title="No jobs yet"
-              subtitle="Create a job, assign a crew, then generate invoices and escrow from the workflow."
+              subtitle="Create jobs, schedule them on the calendar, and track progress in the pipeline."
               icon={<Briefcase className="h-5 w-5" />}
               actionLabel="Create job"
               onAction={() => {}}
             />
           </div>
-        ) : view === "table" ? (
+        ) : mode === "table" ? (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-muted/40 text-xs text-muted-foreground">
@@ -190,29 +261,27 @@ export default function JobsPage() {
                   <th className="px-6 py-3 text-left font-medium">Job</th>
                   <th className="px-6 py-3 text-left font-medium">Client</th>
                   <th className="px-6 py-3 text-left font-medium">Status</th>
-                  <th className="px-6 py-3 text-left font-medium">Address</th>
+                  <th className="px-6 py-3 text-right font-medium">Value</th>
                   <th className="px-6 py-3 text-right font-medium">Scheduled</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {filtered.map((j) => (
-                  <tr key={j.id} className="hover:bg-muted/30">
+                {filtered.map((r) => (
+                  <tr key={r.id} className="hover:bg-muted/30">
                     <td className="px-6 py-4">
-                      <div className="font-medium">{safeTitle(j)}</div>
-                      <div className="text-xs text-muted-foreground">{j.id}</div>
+                      <div className="font-medium">{jobName(r)}</div>
+                      <div className="text-xs text-muted-foreground">{r.id}</div>
                     </td>
-                    <td className="px-6 py-4 text-muted-foreground">{j.client_id || "—"}</td>
-                    <td className="px-6 py-4">{statusChip(j.status)}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{j.address || "—"}</td>
-                    <td className="px-6 py-4 text-right text-muted-foreground">
-                      {j.scheduled_start ? when(j.scheduled_start) : "—"}
-                    </td>
+                    <td className="px-6 py-4 text-muted-foreground">{r.client_id || "—"}</td>
+                    <td className="px-6 py-4">{statusChip(r.status)}</td>
+                    <td className="px-6 py-4 text-right font-medium">{money(r.value)}</td>
+                    <td className="px-6 py-4 text-right text-muted-foreground">{r.scheduled_start ? when(r.scheduled_start) : "—"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        ) : (
+        ) : mode === "pipeline" ? (
           <div className="p-4">
             <div className="grid gap-4 lg:grid-cols-4">
               {([
@@ -221,42 +290,41 @@ export default function JobsPage() {
                 ["Blocked", "blocked"] as const,
                 ["Completed", "completed"] as const,
               ]).map(([label, key]) => (
-                <Card key={key} className="rounded-2xl border bg-background shadow-sm">
+                <Card
+                  key={key}
+                  className="rounded-2xl border bg-background shadow-sm overflow-hidden"
+                  onDragOver={allowDrop}
+                  onDrop={(e) => dropToStatus(e, key)}
+                >
                   <div className="flex items-center justify-between border-b px-4 py-3">
                     <div className="text-sm font-semibold">{label}</div>
-                    <Badge variant="outline" className="rounded-full">{groups[key].length}</Badge>
+                    <Badge variant="outline" className="rounded-full">{pipeline[key].length}</Badge>
                   </div>
-                  <div className="p-3 space-y-3">
-                    {groups[key].length === 0 ? (
+                  <div className="p-3 space-y-3 min-h-[240px]">
+                    {pipeline[key].length === 0 ? (
                       <div className="rounded-2xl border bg-muted/10 p-6 text-center text-xs text-muted-foreground">
-                        No jobs
+                        Drag jobs here
                       </div>
                     ) : (
-                      groups[key].map((j) => (
+                      pipeline[key].map((r) => (
                         <div
-                          key={j.id}
-                          className={cn(
-                            "rounded-2xl border bg-background p-3 shadow-sm transition hover:bg-muted/30"
-                          )}
+                          key={r.id}
+                          draggable
+                          onDragStart={(e) => onCardDragStart(e, r.id)}
+                          className="rounded-2xl border bg-background p-3 hover:bg-muted/30 transition cursor-grab active:cursor-grabbing"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <div className="truncate text-sm font-semibold">{safeTitle(j)}</div>
-                              <div className="mt-1 text-xs text-muted-foreground">
-                                {j.client_id ? `Client: ${j.client_id}` : "Client: —"} · {prettyStatus(j.status)}
-                              </div>
-                              <div className="mt-2 text-xs text-muted-foreground">
-                                {j.address || "—"}
-                              </div>
+                              <div className="truncate text-sm font-semibold">{jobName(r)}</div>
+                              <div className="mt-1 text-xs text-muted-foreground">{r.client_id ? `Client: ${r.client_id}` : "Client: —"}</div>
+                              <div className="mt-2 text-sm font-medium">{money(r.value)}</div>
                             </div>
-                            <div className="shrink-0">{statusChip(j.status)}</div>
+                            {statusChip(r.status)}
                           </div>
-
-                          <div className="mt-3 flex flex-wrap gap-2">
+                          <Separator className="my-3" />
+                          <div className="flex flex-wrap gap-2">
                             <Button size="sm" variant="outline" className="rounded-xl">Open</Button>
-                            <Button size="sm" variant="outline" className="rounded-xl">Assign</Button>
-                            <Button size="sm" variant="outline" className="rounded-xl">Invoice</Button>
-                            <Button size="sm" variant="outline" className="rounded-xl">Escrow</Button>
+                            <Button size="sm" className="rounded-xl">Next <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
                           </div>
                         </div>
                       ))
@@ -265,9 +333,64 @@ export default function JobsPage() {
                 </Card>
               ))}
             </div>
+          </div>
+        ) : (
+          <div className="p-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="text-sm font-semibold">Week calendar</div>
+              <div className="flex gap-2">
+                <Button variant="outline" className="rounded-xl" onClick={() => setWeekStart((d) => addDays(d, -7))}>Prev</Button>
+                <Button variant="outline" className="rounded-xl" onClick={() => setWeekStart(startOfWeek(new Date()))}>Today</Button>
+                <Button variant="outline" className="rounded-xl" onClick={() => setWeekStart((d) => addDays(d, 7))}>Next</Button>
+              </div>
+            </div>
 
-            <div className="mt-4 text-xs text-muted-foreground">
-              Drag & drop Kanban comes next (UI-first, then interactions).
+            <div className="mt-3 grid gap-3 lg:grid-cols-7">
+              {days.map((d) => {
+                const key = dayKey(d);
+                const list = calendar.get(key) || [];
+                const label = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+                return (
+                  <Card
+                    key={key}
+                    className="rounded-2xl border bg-background shadow-sm overflow-hidden"
+                    onDragOver={allowDrop}
+                    onDrop={(e) => dropToDay(e, d)}
+                  >
+                    <div className="flex items-center justify-between border-b px-3 py-2">
+                      <div className="text-xs font-semibold">{label}</div>
+                      <Badge variant="outline" className="rounded-full">{list.length}</Badge>
+                    </div>
+                    <div className="p-3 space-y-3 min-h-[240px]">
+                      {list.length === 0 ? (
+                        <div className="rounded-2xl border bg-muted/10 p-6 text-center text-xs text-muted-foreground">
+                          Drop jobs here
+                        </div>
+                      ) : (
+                        list.map((r) => (
+                          <div
+                            key={r.id}
+                            draggable
+                            onDragStart={(e) => onCardDragStart(e, r.id)}
+                            className="rounded-2xl border bg-background p-3 hover:bg-muted/30 transition cursor-grab active:cursor-grabbing"
+                          >
+                            <div className="truncate text-sm font-semibold">{jobName(r)}</div>
+                            <div className="mt-1 text-xs text-muted-foreground">{r.client_id ? `Client: ${r.client_id}` : "Client: —"}</div>
+                            <div className="mt-2 flex items-center justify-between gap-2">
+                              <div className="text-xs font-medium">{money(r.value)}</div>
+                              {statusChip(r.status)}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+
+            <div className="mt-3 text-xs text-muted-foreground">
+              Drag/drop is UI-first (local state). Next step: wire updates to Supabase.
             </div>
           </div>
         )}
