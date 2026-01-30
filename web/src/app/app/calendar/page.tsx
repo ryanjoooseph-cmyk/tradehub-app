@@ -11,10 +11,7 @@ export default function CalendarPage() {
   const [selected, setSelected] = useState<Job | null>(null);
   const [open, setOpen] = useState(false);
 
-  const sorted = useMemo(
-    () => jobs.slice().sort((a, b) => a.start.localeCompare(b.start)),
-    [jobs]
-  );
+  const sorted = useMemo(() => jobs.slice().sort((a, b) => a.start.localeCompare(b.start)), [jobs]);
 
   function updateJobDate(jobId: string, dateISO: string) {
     setJobs((prev) =>
@@ -41,22 +38,15 @@ export default function CalendarPage() {
     <div className="space-y-5">
       <div>
         <div className="text-2xl font-semibold tracking-tight">Calendar</div>
-        <div className="mt-1 text-sm text-neutral-600">
-          Drag jobs between days. Click a job to inspect details.
-        </div>
+        <div className="mt-1 text-sm text-neutral-600">Drag jobs between days. Click a job to open details.</div>
       </div>
 
-      <div onDoubleClick={() => {}}>
-        <DragDropWeek
-          jobs={sorted}
-          onUpdateJobDates={updateJobDate}
-        />
-      </div>
+      <DragDropWeek jobs={sorted} onUpdateJobDates={updateJobDate} onOpenJob={openJobById} />
 
       <div className="rounded-2xl border border-neutral-200 bg-white p-4">
         <div className="text-sm font-semibold">Quick open</div>
         <div className="mt-2 flex flex-wrap gap-2">
-          {sorted.slice(0, 8).map((j) => (
+          {sorted.slice(0, 10).map((j) => (
             <button
               key={j.id}
               type="button"
