@@ -1,15 +1,28 @@
-import type { LucideIcon } from "lucide-react";
-import { LayoutDashboard, Briefcase, CalendarDays, Users, Receipt, UsersRound, ShieldCheck, Settings } from "lucide-react";
+import {
+  LayoutGrid,
+  Briefcase,
+  CalendarDays,
+  Users,
+  Receipt,
+  ShieldCheck,
+  Users2,
+  Settings2,
+} from "lucide-react";
 
-export type NavItem = { href: string; label: string; icon: LucideIcon };
+export type NavItem = {
+  href: string;
+  label: string;
+  icon: any;
+  group: "Core" | "Operations";
+};
 
-export const navItems: NavItem[] = [
-  { href: "/app", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/app/jobs", label: "Jobs", icon: Briefcase },
-  { href: "/app/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/app/clients", label: "Clients", icon: Users },
-  { href: "/app/invoices", label: "Invoices", icon: Receipt },
-  { href: "/app/team", label: "Team", icon: UsersRound },
-  { href: "/app/escrow", label: "Escrow", icon: ShieldCheck },
-  { href: "/app/settings", label: "Settings", icon: Settings },
+export const NAV: NavItem[] = [
+  { href: "/app", label: "Dashboard", icon: LayoutGrid, group: "Core" },
+  { href: "/app/jobs", label: "Jobs", icon: Briefcase, group: "Core" },
+  { href: "/app/calendar", label: "Calendar", icon: CalendarDays, group: "Core" },
+  { href: "/app/clients", label: "Clients", icon: Users, group: "Core" },
+  { href: "/app/invoices", label: "Invoices", icon: Receipt, group: "Core" },
+  { href: "/app/escrow", label: "Escrow", icon: ShieldCheck, group: "Operations" },
+  { href: "/app/team", label: "Team", icon: Users2, group: "Operations" },
+  { href: "/app/settings", label: "Settings", icon: Settings2, group: "Operations" },
 ];

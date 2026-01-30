@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Dialog } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 type Member = {
   id: string;
@@ -114,7 +114,7 @@ export default function TeamPage() {
         </div>
       </div>
 
-      <Dialog open={open} onClose={() => setOpen(false)} title="Invite team member" widthClass="max-w-xl">
+      <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-w-xl"><DialogHeader><DialogTitle>Invite team member</DialogTitle></DialogHeader>
         <div className="space-y-4">
           <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-800">
             Demo mode. Next step: invite flow via Supabase + RLS, role assignment, and audit logs.
@@ -136,7 +136,8 @@ export default function TeamPage() {
             </button>
           </div>
         </div>
-      </Dialog>
+      </DialogContent></Dialog>
+
     </div>
   );
 }
