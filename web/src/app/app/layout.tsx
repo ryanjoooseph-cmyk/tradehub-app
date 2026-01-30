@@ -1,6 +1,5 @@
-import "../globals.css";
-import { AppShell } from "@/components/shell/app-shell";
+import { Shell } from "@/components/shell/shell";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
-  return <AppShell>{children}</AppShell>;
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <Shell>{children}</Shell>;
 }

@@ -1,30 +1,184 @@
-import { Client, Job, Invoice, EscrowHold, LedgerEntry } from "./domain";
+export type JobStatus = "Draft" | "Scheduled" | "In Progress" | "Completed" | "Disputed";
+export type JobPriority = "Low" | "Medium" | "High";
+
+export type Job = {
+  id: string;
+  title: string;
+
+  clientId: string;
+  client: string;
+
+  site: string;
+  location?: string;
+
+  start: string;
+  end: string;
+
+  status: JobStatus;
+  priority: JobPriority;
+
+  valueCents: number;
+  escrowCents: number;
+
+  notes?: string;
+};
+
+export type Client = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+};
+
+export type Invoice = {
+  id: string;
+  jobId: string;
+  client: string;
+  amountCents: number;
+  status: "Draft" | "Sent" | "Paid" | "Overdue";
+  issuedAt: string;
+};
+
+export type EscrowHold = {
+  id: string;
+  jobId: string;
+  amountCents: number;
+  status: "Held" | "Released" | "Refunded" | "Disputed";
+  createdAt: string;
+};
+
+export type LedgerEntry = {
+  id: string;
+  jobId: string;
+  type: "Hold" | "Release" | "Refund" | "Fee";
+  amountCents: number;
+  createdAt: string;
+  note?: string;
+};
+
+const now = new Date();
+const iso = (d: Date) => d.toISOString();
+const addHours = (base: Date, h: number) => new Date(base.getTime() + h * 60 * 60 * 1000);
+const addDays = (base: Date, days: number) => new Date(base.getTime() + days * 24 * 60 * 60 * 1000);
 
 export const demoClients: Client[] = [
-  { id: "c_001", name: "Oceanview Body Corp", email: "admin@oceanview.com", phone: "0400 111 222", tags: ["Strata","High-rise"] },
-  { id: "c_002", name: "Riverside Developments", email: "ops@riverside.dev", phone: "0400 333 444", tags: ["Builder"] },
-  { id: "c_003", name: "Harbour Facilities", email: "facilities@harbour.com", phone: "0400 555 666", tags: ["Facilities"] },
+  { id: "c_001", name: "Harbourview Body Corp", email: "admin@harbourview.com", phone: "+61 400 000 001", address: "1 Ocean Ave, Brisbane QLD" },
+  { id: "c_002", name: "Skyline Facilities", email: "ops@skylinefacilities.au", phone: "+61 400 000 002", address: "88 Queen St, Brisbane QLD" },
+  { id: "c_003", name: "Eastpoint Commercial", email: "accounts@eastpoint.com.au", phone: "+61 400 000 003", address: "12 Wharf Rd, Brisbane QLD" }
 ];
 
+const clientIdByName = new Map(demoClients.map((c) => [c.name, c.id] as const));
+
 export const demoJobs: Job[] = [
-  { id: "j_1001", title: "Level 22 Balcony Repaint", clientId: "c_001", status: "Backlog", priority: "High", valueCents: 680000, location: "Brisbane CBD", notes: "Access: rope. Need 2 techs." },
-  { id: "j_1002", title: "Facade Crack Seal + Touch-up", clientId: "c_001", status: "Quoted", priority: "Med", valueCents: 420000, location: "Brisbane CBD" },
-  { id: "j_1003", title: "Stairwell Epoxy Refresh", clientId: "c_003", status: "Scheduled", priority: "Med", valueCents: 310000, location: "Southbank", start: "2026-01-30T15:45:43Z", end: "2026-01-30T19:45:43Z", assignees: ["T1","T2"] },
-  { id: "j_1004", title: "Strata Lobby Feature Wall", clientId: "c_001", status: "In Progress", priority: "High", valueCents: 520000, location: "Brisbane CBD", start: "2026-01-27T16:45:43Z", end: "2026-01-27T22:45:43Z", assignees: ["T3"] },
+  {
+    id: "j_1001",
+    title: "High-rise façade wash + touch-ups",
+    client: "Harbourview Body Corp",
+    clientId: clientIdByName.get("Harbourview Body Corp") || "c_001",
+    site: "Harbourview Tower",
+    location: "Brisbane QLD",
+    start: iso(addDays(addHours(now, 2), 1)),
+    end: iso(addDays(addHours(now, 5), 1)),
+    status: "Scheduled",
+    priority: "High",
+    valueCents: 245000,
+    escrowCents: 245000,
+    notes: "Access plan confirmed. Notify residents 24h prior."
+  },
+  {
+    id: "j_1002",
+    title: "Rope access repaint – balcony rails",
+    client: "Skyline Facilities",
+    clientId: clientIdByName.get("Skyline Facilities") || "c_002",
+    site: "Aurora Apartments",
+    location: "Brisbane CBD",
+    start: iso(addDays(addHours(now, 1), 2)),
+    end: iso(addDays(addHours(now, 7), 2)),
+    status: "In Progress",
+    priority: "Medium",
+    valueCents: 890000,
+    escrowCents: 450000,
+    notes: "Stage 1 underway. QA photos required end of day."
+  },
+  {
+    id: "j_1003",
+    title: "Commercial strata inspection + scope",
+    client: "Eastpoint Commercial",
+    clientId: clientIdByName.get("Eastpoint Commercial") || "c_003",
+    site: "Eastpoint Plaza",
+    location: "Fortitude Valley",
+    start: iso(addDays(addHours(now, 3), 3)),
+    end: iso(addDays(addHours(now, 4), 3)),
+    status: "Draft",
+    priority: "Low",
+    valueCents: 120000,
+    escrowCents: 0,
+    notes: "Awaiting client confirmation for inspection window."
+  },
+  {
+    id: "j_1004",
+    title: "Defect rectification – water ingress",
+    client: "Harbourview Body Corp",
+    clientId: clientIdByName.get("Harbourview Body Corp") || "c_001",
+    site: "Harbourview Tower",
+    location: "Brisbane QLD",
+    start: iso(addDays(addHours(now, 2), -1)),
+    end: iso(addDays(addHours(now, 6), -1)),
+    status: "Disputed",
+    priority: "High",
+    valueCents: 360000,
+    escrowCents: 360000,
+    notes: "Client dispute opened. Awaiting independent inspection."
+  },
+  {
+    id: "j_1005",
+    title: "End-of-lease commercial repaint",
+    client: "Eastpoint Commercial",
+    clientId: clientIdByName.get("Eastpoint Commercial") || "c_003",
+    site: "Eastpoint Plaza",
+    location: "Brisbane QLD",
+    start: iso(addDays(addHours(now, 2), 5)),
+    end: iso(addDays(addHours(now, 9), 5)),
+    status: "Scheduled",
+    priority: "Medium",
+    valueCents: 540000,
+    escrowCents: 540000,
+    notes: "Paint spec locked. Prep crew day before."
+  }
 ];
 
 export const demoInvoices: Invoice[] = [
-  { id: "inv_9001", clientId: "c_001", jobId: "j_1004", status: "Sent", amountCents: 260000, issuedDate: "2026-01-23T06:45:43Z", dueDate: "2026-02-06T06:45:43Z" },
-  { id: "inv_9002", clientId: "c_003", jobId: "j_1003", status: "Draft", amountCents: 310000, issuedDate: "2026-01-28T06:45:43Z", dueDate: "2026-02-12T06:45:43Z" },
+  { id: "inv_7001", jobId: "j_1001", client: "Harbourview Body Corp", amountCents: 245000, status: "Sent", issuedAt: iso(addDays(now, -2)) },
+  { id: "inv_7002", jobId: "j_1002", client: "Skyline Facilities", amountCents: 890000, status: "Paid", issuedAt: iso(addDays(now, -6)) },
+  { id: "inv_7003", jobId: "j_1004", client: "Harbourview Body Corp", amountCents: 360000, status: "Overdue", issuedAt: iso(addDays(now, -10)) }
 ];
 
-export const demoEscrowHolds: EscrowHold[] = [
-  { id: "eh_7001", jobId: "j_1003", clientId: "c_003", amountCents: 310000, status: "Held", createdAt: "2026-01-27T06:45:43Z", updatedAt: "2026-01-27T06:45:43Z" },
-  { id: "eh_7002", jobId: "j_1004", clientId: "c_001", amountCents: 520000, status: "Disputed", createdAt: "2026-01-17T06:45:43Z", updatedAt: "2026-01-28T06:45:43Z" },
-];
+export const demoEscrowHolds: EscrowHold[] = demoJobs
+  .filter((j) => j.escrowCents > 0)
+  .map((j, idx) => ({
+    id: `eh_${idx + 1}`,
+    jobId: j.id,
+    amountCents: j.escrowCents,
+    status: j.status === "Disputed" ? "Disputed" : "Held",
+    createdAt: j.start
+  }));
 
-export const demoLedger: LedgerEntry[] = [
-  { id: "le_1", holdId: "eh_7001", type: "Hold Created", amountCents: 310000, createdAt: "2026-01-27T06:45:43Z", note: "Client paid into escrow" },
-  { id: "le_2", holdId: "eh_7002", type: "Hold Created", amountCents: 520000, createdAt: "2026-01-17T06:45:43Z" },
-  { id: "le_3", holdId: "eh_7002", type: "Dispute Opened", amountCents: 0, createdAt: "2026-01-28T06:45:43Z", note: "Quality dispute - inspection requested" },
-];
+export const demoLedger: LedgerEntry[] = demoEscrowHolds.flatMap((h, idx) => {
+  const fee = Math.round(h.amountCents * 0.008);
+  return [
+    { id: `le_${idx + 1}_1`, jobId: h.jobId, type: "Hold", amountCents: h.amountCents, createdAt: h.createdAt, note: "Client funded escrow" },
+    { id: `le_${idx + 1}_2`, jobId: h.jobId, type: "Fee", amountCents: fee, createdAt: h.createdAt, note: "Platform fee" }
+  ];
+});
+
+export const money = (cents: number) =>
+  new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(cents / 100);
+
+export const kpis = () => {
+  const totalValue = demoJobs.reduce((a, j) => a + j.valueCents, 0);
+  const escrowHeld = demoJobs.reduce((a, j) => a + j.escrowCents, 0);
+  const disputed = demoJobs.filter((j) => j.status === "Disputed").length;
+  const active = demoJobs.filter((j) => j.status === "Scheduled" || j.status === "In Progress").length;
+  return { totalValue, escrowHeld, disputed, active };
+};

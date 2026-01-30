@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="md:pl-[280px]">
-        <Topbar onOpenMobileNav={() => setOpen(true)} />
+        <Topbar title="TradeHub" />
 
         <main className="px-4 md:px-6 py-6">
           <div className="mx-auto w-full max-w-[1200px]">
