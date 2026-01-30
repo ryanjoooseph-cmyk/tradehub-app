@@ -1,5 +1,8 @@
-// app/page.tsx
-import { redirect } from 'next/navigation';
-export default function Home() {
-  redirect('/login'); // or '/dashboard' if you handle session in that route
+import { redirect } from "next/navigation";
+
+export default function Page() {
+  if (process.env.NEXT_PUBLIC_DISABLE_AUTH === "true") {
+    redirect("/dashboard");
+  }
+  redirect("/login");
 }
