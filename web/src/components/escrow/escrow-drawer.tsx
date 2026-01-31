@@ -1,9 +1,11 @@
 "use client";
 
 
-const s = (status: string) => String(status || "").toLowerCase();
 import { Dialog } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+
+const lower = (v: unknown) => String(v ?? "").toLowerCase();
+
 
 export type EscrowRow = {
   id: string;
@@ -31,7 +33,7 @@ const tone = (status: string): "default" | "success" | "warn" | "danger" => {
   return "default";
 };
 const toneM = (s: EscrowRow["milestones"][number]["status"]): "default" | "warn" | "success" | "danger" => {
-  const t = String(status || "").toLowerCase();
+  const t = lower(status);
   if (/(released|paid|complete|completed|success|approved)/.test(t)) return "success";
   if (/(failed|fail|blocked|dispute|cancel|cancelled|rejected|error|bad)/.test(t)) return "danger";
   if (/(pending|await|awaiting|hold|review|processing|in progress)/.test(t)) return "warn";
