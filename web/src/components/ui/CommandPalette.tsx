@@ -78,7 +78,7 @@ export default function CommandPalette() {
         if (!it) return
         setOpen(false)
         setQ('')
-        setActive(0)
+        setTimeout(() => setActive(0), 0)
         router.push(it.href)
       }
     }
@@ -88,7 +88,7 @@ export default function CommandPalette() {
 
   useEffect(() => {
     if (!open) return
-    setActive(0)
+    setTimeout(() => setActive(0), 0)
     const t = setTimeout(() => {
       const el = document.getElementById('cmdk-input') as HTMLInputElement | null
       el?.focus()
@@ -145,7 +145,7 @@ export default function CommandPalette() {
                     onSelect={(href) => {
                       setOpen(false)
                       setQ('')
-                      setActive(0)
+                      setTimeout(() => setActive(0), 0)
                       router.push(href)
                     }}
                   />
@@ -160,7 +160,7 @@ export default function CommandPalette() {
                     onSelect={(href) => {
                       setOpen(false)
                       setQ('')
-                      setActive(0)
+                      setTimeout(() => setActive(0), 0)
                       router.push(href)
                     }}
                   />
