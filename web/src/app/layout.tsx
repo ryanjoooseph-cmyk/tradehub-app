@@ -17,13 +17,15 @@ const themeScript = `
   } catch (e) {}
 })();`;
 
+import ThemeProvider from "@/components/app/ThemeProvider";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body>{children}</body>
+      <body><ThemeProvider>{children}</ThemeProvider></body>
     </html>
   );
 }
