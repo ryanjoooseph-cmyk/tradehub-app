@@ -1,288 +1,190 @@
-"use client";
+'use client'
 
-import { useMemo, useState } from "react";
-import { PageHeader } from "@/components/shell/page-header";
-import { StatCard } from "@/components/premium/stat-card";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
-import {
-  ArrowUpRight,
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  ClipboardList,
-  Clock,
-  HardHat,
-  ShieldCheck,
-  AlertTriangle,
-  MapPin,
-} from "lucide-react";
+import { useMemo, useState } from 'react'
 
-type JobStatus = "New" | "Scheduled" | "In Progress" | "Blocked" | "Complete";
-type Job = {
-  id: string;
-  title: string;
-  client: string;
-  site: string;
-  status: JobStatus;
-  start: string;
-  end: string;
-  escrowHold: number;
-};
+const cn = (...a: Array<string | false | undefined | null>) => a.filter(Boolean).join(' ')
+const pad = (n: number) => String(n).padStart(2, '0')
 
-const seed: Job[] = [
-  { id: "J-187", title: "High-rise repaint — Stage 1", client: "Arcadia Body Corporate", site: "Brisbane CBD — Tower A", status: "In Progress", start: "2026-01-31 07:00", end: "2026-01-31 15:00", escrowHold: 16800 },
-  { id: "J-188", title: "Strata touch-ups + sealing", client: "Northpoint Facilities", site: "Newstead — Lot 14", status: "Scheduled", start: "2026-02-01 08:00", end: "2026-02-01 12:00", escrowHold: 5200 },
-  { id: "J-189", title: "Exterior washdown", client: "Lakeside Owners Assoc", site: "Southbank — Building C", status: "Blocked", start: "2026-01-31 09:00", end: "2026-01-31 13:00", escrowHold: 0 },
-  { id: "J-190", title: "Balcony restoration closeout", client: "Meridian Property Group", site: "Hamilton — Riverfront", status: "Complete", start: "2026-01-29 08:00", end: "2026-01-29 16:00", escrowHold: 0 },
-  { id: "J-191", title: "Quote + site measure", client: "New Client Intake", site: "TBD", status: "New", start: "2026-02-02 10:00", end: "2026-02-02 11:00", escrowHold: 0 },
-];
+type CalJob = {
+  id: string
+  title: string
+  client: string
+  start: string
+  end: string
+  lane: 'CREW A' | 'CREW B' | 'CREW C'
+  tone: 'emerald' | 'amber' | 'violet' | 'rose'
+}
 
-function moneyAUD(n: number) {
-  try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(n);
-  } catch {
-    return `$${Math.round(n)}`;
+function Pill(props: { tone: 'emerald' | 'amber' | 'rose' | 'violet' | 'slate'; children: React.ReactNode }) {
+  const map: Record<string, string> = {
+    emerald: 'bg-emerald-900/35 text-emerald-200 ring-emerald-700/60',
+    amber: 'bg-amber-900/35 text-amber-200 ring-amber-700/60',
+    rose: 'bg-rose-900/35 text-rose-200 ring-rose-700/60',
+    violet: 'bg-violet-900/35 text-violet-200 ring-violet-700/60',
+    slate: 'bg-slate-900/60 text-slate-200 ring-slate-700/70',
   }
+  return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs ring-1 ${map[props.tone]}`}>{props.children}</span>
 }
 
-function chipStatus(s: JobStatus) {
-  const base = "rounded-full border px-2 py-0.5 text-xs";
-  if (s === "Complete") return <span className={cn(base, "border-emerald-300 bg-emerald-50 text-emerald-700")}>Complete</span>;
-  if (s === "In Progress") return <span className={cn(base, "border-violet-300 bg-violet-50 text-violet-800")}>In progress</span>;
-  if (s === "Scheduled") return <span className={cn(base, "border-sky-300 bg-sky-50 text-sky-800")}>Scheduled</span>;
-  if (s === "Blocked") return <span className={cn(base, "border-rose-300 bg-rose-50 text-rose-800")}>Blocked</span>;
-  return <span className={cn(base, "border-zinc-300 bg-zinc-50 text-zinc-700")}>New</span>;
-}
-
-function toMinutes(t: string) {
-  const m = t.trim().split(" ").pop() || "00:00";
-  const [hh, mm] = m.split(":").map((x) => parseInt(x, 10));
-  return (isNaN(hh) ? 0 : hh) * 60 + (isNaN(mm) ? 0 : mm);
-}
-
-function dayKey(dt: string) {
-  return dt.trim().split(" ")[0] || "";
+function Card(props: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className={cn('rounded-3xl bg-slate-950/35 ring-1 ring-slate-800/80 backdrop-blur p-5', props.className)}>
+      {props.children}
+    </div>
+  )
 }
 
 export default function CalendarPage() {
-  const [mode, setMode] = useState<"week" | "day">("week");
-  const [selectedId, setSelectedId] = useState<string>(seed[0]?.id || "");
-  const selected = useMemo(() => seed.find((j) => j.id === selectedId) || seed[0], [selectedId]);
+  const [day, setDay] = useState(31)
+  const jobs: CalJob[] = useMemo(
+    () => [
+      { id: 'job_3921', title: 'Rope access – façade repair', client: 'Aria Facilities', start: '07:00', end: '16:00', lane: 'CREW A', tone: 'amber' },
+      { id: 'job_3920', title: 'Strata repaint – Tower A', client: 'Bayside Owners Corp', start: '06:30', end: '15:30', lane: 'CREW B', tone: 'violet' },
+      { id: 'job_3919', title: 'Emergency leak – Unit 34', client: 'S. Nguyen', start: '09:00', end: '11:00', lane: 'CREW C', tone: 'emerald' },
+      { id: 'job_3918', title: 'Ceiling patch + paint (dispute)', client: 'M. Chen', start: '12:00', end: '13:30', lane: 'CREW C', tone: 'rose' },
+    ],
+    []
+  )
 
-  const days = useMemo(() => {
-    const uniq = Array.from(new Set(seed.map((j) => dayKey(j.start)))).sort();
-    const start = uniq[0] || "2026-01-31";
-    const base = new Date(start + "T00:00:00");
-    const out: string[] = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(base);
-      d.setDate(base.getDate() + i);
-      const iso = d.toISOString().slice(0, 10);
-      out.push(iso);
-    }
-    return out;
-  }, []);
+  const lanes: Array<CalJob['lane']> = ['CREW A', 'CREW B', 'CREW C']
+  const hours = Array.from({ length: 12 }, (_, i) => 6 + i)
 
-  const hours = useMemo(() => Array.from({ length: 12 }, (_, i) => 6 + i), []);
+  const byLane = useMemo(() => {
+    const m: Record<string, CalJob[]> = { 'CREW A': [], 'CREW B': [], 'CREW C': [] }
+    for (const j of jobs) m[j.lane].push(j)
+    return m
+  }, [jobs])
 
-  const byDay = useMemo(() => {
-    const map: Record<string, Job[]> = {};
-    for (const d of days) map[d] = [];
-    for (const j of seed) {
-      const dk = dayKey(j.start);
-      if (!map[dk]) map[dk] = [];
-      map[dk].push(j);
-    }
-    for (const d of Object.keys(map)) map[d].sort((a, b) => toMinutes(a.start) - toMinutes(b.start));
-    return map;
-  }, [days]);
+  const toneClass = (t: CalJob['tone']) =>
+    t === 'emerald'
+      ? 'bg-emerald-500/12 ring-emerald-500/25 hover:bg-emerald-500/18'
+      : t === 'amber'
+      ? 'bg-amber-500/12 ring-amber-500/25 hover:bg-amber-500/18'
+      : t === 'violet'
+      ? 'bg-violet-500/12 ring-violet-500/25 hover:bg-violet-500/18'
+      : 'bg-rose-500/12 ring-rose-500/25 hover:bg-rose-500/18'
 
-  const kpis = useMemo(() => {
-    const scheduled = seed.filter((j) => j.status === "Scheduled" || j.status === "In Progress").length;
-    const blocked = seed.filter((j) => j.status === "Blocked").length;
-    const held = seed.reduce((a, j) => a + j.escrowHold, 0);
-    const total = seed.length;
-    return { scheduled, blocked, held, total };
-  }, []);
+  const topPct = (t: string) => {
+    const [h, m] = t.split(':').map(Number)
+    const mins = (h - 6) * 60 + m
+    return (mins / (12 * 60)) * 100
+  }
+
+  const heightPct = (s: string, e: string) => {
+    const [sh, sm] = s.split(':').map(Number)
+    const [eh, em] = e.split(':').map(Number)
+    const mins = (eh * 60 + em) - (sh * 60 + sm)
+    return (mins / (12 * 60)) * 100
+  }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Calendar"
-        subtitle="Jobs are first-class events. Dispatch-grade visibility."
-        right={
-          <>
-            <Button variant="outline" className="rounded-xl"><ChevronLeft className="h-4 w-4" /></Button>
-            <Button variant="outline" className="rounded-xl"><ChevronRight className="h-4 w-4" /></Button>
-            <Button className="rounded-xl"><ClipboardList className="mr-2 h-4 w-4" />New job</Button>
-          </>
-        }
-      />
-
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
-        <StatCard label="Scheduled" value={String(kpis.scheduled)} icon={<Clock className="h-4 w-4" />} />
-        <StatCard label="Blocked" value={String(kpis.blocked)} icon={<AlertTriangle className="h-4 w-4" />} />
-        <StatCard label="Escrow held" value={moneyAUD(kpis.held)} icon={<ShieldCheck className="h-4 w-4" />} />
-        <StatCard label="Jobs" value={String(kpis.total)} icon={<HardHat className="h-4 w-4" />} />
-        <StatCard label="View" value={mode === "week" ? "Week" : "Day"} icon={<CalendarDays className="h-4 w-4" />} />
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden lg:col-span-2">
-          <div className="flex items-center justify-between border-b px-4 py-3">
-            <div className="text-sm font-semibold">Schedule</div>
-            <div className="flex items-center gap-2">
-              <Tabs value={mode} onValueChange={(v) => setMode(v as any)}>
-                <TabsList className="rounded-2xl">
-                  <TabsTrigger value="week" className="rounded-xl">Week</TabsTrigger>
-                  <TabsTrigger value="day" className="rounded-xl">Day</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              <Badge variant="outline" className="rounded-full">Premium</Badge>
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-slate-900/60 px-3 py-1 text-xs ring-1 ring-slate-800">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_18px_rgba(16,185,129,0.8)]" />
+              Scheduling
             </div>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight">Drag-drop calendar (v1)</h1>
+            <p className="mt-2 text-sm text-slate-300">Lane-based crew scheduling with job cards. v2 adds true drag/drop + persistence.</p>
           </div>
 
-          <div className="p-4">
-            <div className={cn("grid gap-3", mode === "week" ? "grid-cols-1 xl:grid-cols-7" : "grid-cols-1")}>
-              {(mode === "week" ? days : [days[0]]).map((d) => (
-                <div key={d} className="rounded-2xl border bg-background overflow-hidden">
-                  <div className="px-3 py-2 border-b flex items-center justify-between">
-                    <div className="text-xs font-semibold">{d}</div>
-                    <Badge variant="outline" className="rounded-full">{(byDay[d] || []).length}</Badge>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setDay((d) => Math.max(1, d - 1))} className="rounded-xl bg-slate-900/55 px-3 py-2 text-sm ring-1 ring-slate-800 hover:bg-slate-900/80">
+              Prev
+            </button>
+            <div className="rounded-xl bg-slate-900/55 px-4 py-2 text-sm ring-1 ring-slate-800">Jan {day}, 2026</div>
+            <button onClick={() => setDay((d) => Math.min(31, d + 1))} className="rounded-xl bg-slate-900/55 px-3 py-2 text-sm ring-1 ring-slate-800 hover:bg-slate-900/80">
+              Next
+            </button>
+            <button className="rounded-xl bg-emerald-500/15 px-4 py-2 text-sm ring-1 ring-emerald-500/30 hover:bg-emerald-500/20">
+              New job block
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_2fr]">
+          <Card>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-semibold">Crew lanes</div>
+                <div className="mt-1 text-xs text-slate-400">Operational view — allocation & conflicts</div>
+              </div>
+              <Pill tone="violet">AUTO</Pill>
+            </div>
+
+            <div className="mt-4 grid gap-2">
+              {lanes.map((l) => (
+                <div key={l} className="rounded-2xl bg-slate-900/45 p-4 ring-1 ring-slate-800">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold">{l}</div>
+                    <Pill tone="slate">{(byLane[l] || []).length} jobs</Pill>
+                  </div>
+                  <div className="mt-2 text-xs text-slate-400">Focus: schedule density + travel minimisation</div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-semibold">Day timeline</div>
+                <div className="mt-1 text-xs text-slate-400">6:00 → 18:00 (v1 visual lanes)</div>
+              </div>
+              <div className="text-xs text-slate-400">Timezone: Australia/Melbourne</div>
+            </div>
+
+            <div className="mt-4 grid gap-3">
+              {lanes.map((lane) => (
+                <div key={lane} className="rounded-3xl bg-slate-950/40 ring-1 ring-slate-800 overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3 bg-slate-900/60">
+                    <div className="text-sm font-semibold">{lane}</div>
+                    <div className="text-xs text-slate-400">{(byLane[lane] || []).length} scheduled</div>
                   </div>
 
-                  <div className="p-3 space-y-2">
-                    {(byDay[d] || []).length === 0 ? (
-                      <div className="text-xs text-muted-foreground p-3 rounded-xl border bg-muted/20">No jobs</div>
-                    ) : (
-                      (byDay[d] || []).map((j) => (
-                        <button
+                  <div className="relative grid grid-cols-[80px_1fr]">
+                    <div className="border-r border-slate-800 bg-slate-950/20">
+                      {hours.map((h) => (
+                        <div key={h} className="h-12 px-4 py-2 text-xs text-slate-500">
+                          {pad(h)}:00
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="relative">
+                      {hours.map((h) => (
+                        <div key={h} className="h-12 border-b border-slate-900/50" />
+                      ))}
+
+                      {(byLane[lane] || []).map((j) => (
+                        <div
                           key={j.id}
-                          onClick={() => setSelectedId(j.id)}
                           className={cn(
-                            "w-full text-left rounded-2xl border bg-background p-3 transition hover:bg-muted/30",
-                            selected?.id === j.id ? "border-zinc-400/70" : "border-border"
+                            'absolute left-3 right-3 rounded-2xl p-3 ring-1 cursor-pointer',
+                            toneClass(j.tone)
                           )}
+                          style={{ top: `${topPct(j.start)}%`, height: `${heightPct(j.start, j.end)}%` }}
+                          title={`${j.start}–${j.end}`}
                         >
-                          <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <div className="text-sm font-semibold truncate">{j.title}</div>
-                              <div className="mt-1 text-xs text-muted-foreground truncate">{j.client}</div>
+                              <div className="truncate text-sm font-semibold">{j.title}</div>
+                              <div className="mt-1 truncate text-xs text-slate-400">{j.client}</div>
                             </div>
-                            <div className="text-xs rounded-full border px-2 py-0.5 shrink-0">{j.id}</div>
+                            <Pill tone="slate">{j.start}–{j.end}</Pill>
                           </div>
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {chipStatus(j.status)}
-                            <span className="rounded-full border px-2 py-0.5 text-xs">{j.start.split(" ")[1]}–{j.end.split(" ")[1]}</span>
-                            {j.escrowHold > 0 ? <span className="rounded-full border px-2 py-0.5 text-xs">Escrow</span> : null}
-                          </div>
-                        </button>
-                      ))
-                    )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-
-            <div className="mt-4 rounded-2xl border overflow-hidden">
-              <div className="px-4 py-3 border-b text-sm font-semibold">Day timeline (visual)</div>
-              <div className="p-4">
-                <div className="grid grid-cols-12 gap-2 text-xs text-muted-foreground">
-                  {hours.map((h) => (
-                    <div key={h} className="col-span-1 text-center">{String(h).padStart(2, "0")}:00</div>
-                  ))}
-                </div>
-                <Separator className="my-3" />
-                <div className="relative h-16 rounded-2xl border bg-muted/15 overflow-hidden">
-                  {seed
-                    .filter((j) => dayKey(j.start) === days[0])
-                    .map((j) => {
-                      const s = toMinutes(j.start) - 360;
-                      const e = toMinutes(j.end) - 360;
-                      const leftPct = Math.max(0, Math.min(100, (s / (12 * 60)) * 100));
-                      const widthPct = Math.max(4, Math.min(100 - leftPct, ((e - s) / (12 * 60)) * 100));
-                      return (
-                        <button
-                          key={j.id}
-                          onClick={() => setSelectedId(j.id)}
-                          className={cn(
-                            "absolute top-2 bottom-2 rounded-2xl border bg-background px-3 py-2 text-left shadow-sm hover:bg-muted/30 transition",
-                            selected?.id === j.id ? "border-zinc-400/70" : "border-border"
-                          )}
-                          style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-                        >
-                          <div className="text-xs font-semibold truncate">{j.id} · {j.title}</div>
-                          <div className="mt-1 text-[11px] text-muted-foreground truncate">{j.start.split(" ")[1]}–{j.end.split(" ")[1]}</div>
-                        </button>
-                      );
-                    })}
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="rounded-2xl border bg-background shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between border-b px-4 py-3">
-            <div className="text-sm font-semibold">Job details</div>
-            <Badge variant="outline" className="rounded-full">Premium</Badge>
-          </div>
-
-          {!selected ? (
-            <div className="p-8 text-sm text-muted-foreground">Select a job to view details.</div>
-          ) : (
-            <div className="p-5 space-y-4">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="text-lg font-semibold truncate">{selected.title}</div>
-                  <span className="rounded-full border px-2 py-0.5 text-xs">{selected.id}</span>
-                  {chipStatus(selected.status)}
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">{selected.client}</div>
-              </div>
-
-              <div className="rounded-2xl border p-4">
-                <div className="text-xs text-muted-foreground flex items-center gap-2"><CalendarDays className="h-4 w-4" />Schedule</div>
-                <div className="mt-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Start</span>
-                    <span className="font-semibold">{selected.start}</span>
-                  </div>
-                  <div className="mt-1 flex items-center justify-between">
-                    <span className="text-muted-foreground">End</span>
-                    <span className="font-semibold">{selected.end}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border p-4">
-                <div className="text-xs text-muted-foreground flex items-center gap-2"><MapPin className="h-4 w-4" />Site</div>
-                <div className="mt-2 text-sm font-semibold">{selected.site}</div>
-              </div>
-
-              <div className="rounded-2xl border p-4">
-                <div className="text-xs text-muted-foreground flex items-center gap-2"><ShieldCheck className="h-4 w-4" />Escrow</div>
-                <div className="mt-2 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Hold</span>
-                    <span className="font-semibold">{moneyAUD(selected.escrowHold)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-2">
-                <Button variant="outline" className="rounded-xl">Dispatch</Button>
-                <Button className="rounded-xl">Open <ArrowUpRight className="ml-2 h-4 w-4" /></Button>
-              </div>
-            </div>
-          )}
-        </Card>
+          </Card>
+        </div>
       </div>
     </div>
-  );
+  )
 }
