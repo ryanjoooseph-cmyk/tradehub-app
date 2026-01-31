@@ -1,4 +1,4 @@
 import { redirect } from "next/navigation";
 export default function Page() {
-  redirect("/app/app/escrow-ops");
+  redirect("/app/escrow-ops");
 }
