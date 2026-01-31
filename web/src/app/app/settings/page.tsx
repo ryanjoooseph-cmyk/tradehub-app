@@ -1,46 +1,46 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+import PageHeader from "../../../components/ops/shell/PageHeader";
+
+const settings = [
+  { k: "Supabase", v: "Connected" },
+  { k: "Render", v: "Auto deploy: On" },
+  { k: "GitHub", v: "Auto merge: On" },
+  { k: "OpenAI", v: "Ready" },
+];
 
 export default function SettingsPage() {
   return (
-    <div className="space-y-4">
-      <div>
-        <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Admin</div>
-        <div className="mt-1 text-xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">Settings</div>
-        <div className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Brand, org, and system preferences.</div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader title="Settings" subtitle="Integrations + environment + security posture." />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="rounded-2xl border bg-background/60 p-5 shadow-sm">
+          <div className="text-sm font-semibold">Integrations</div>
+          <div className="mt-4 space-y-3">
+            {settings.map((s) => (
+              <div key={s.k} className="flex items-center justify-between rounded-xl border bg-background p-3">
+                <div className="text-sm font-semibold">{s.k}</div>
+                <div className="text-xs text-muted-foreground">{s.v}</div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <Card className="rounded-3xl">
-          <CardContent className="p-5 space-y-3">
-            <div className="text-sm font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">Organization</div>
-            <div className="space-y-2">
-              <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Company name</div>
-              <Input defaultValue="TradeHub" />
+        <div className="rounded-2xl border bg-background/60 p-5 shadow-sm">
+          <div className="text-sm font-semibold">Security</div>
+          <div className="mt-1 text-xs text-muted-foreground">Hardening comes next: RLS, audit logs, approvals.</div>
+          <div className="mt-4 space-y-3">
+            <div className="rounded-xl border bg-background p-3">
+              <div className="text-sm font-semibold">Role-based access</div>
+              <div className="mt-1 text-xs text-muted-foreground">Owner / Admin / Ops / Field</div>
             </div>
-            <div className="space-y-2">
-              <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Timezone</div>
-              <Input defaultValue="Australia/Melbourne" />
+            <div className="rounded-xl border bg-background p-3">
+              <div className="text-sm font-semibold">Escrow approvals</div>
+              <div className="mt-1 text-xs text-muted-foreground">Two-step release workflow</div>
             </div>
-            <Button className="rounded-2xl">Save</Button>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-3xl">
-          <CardContent className="p-5 space-y-3">
-            <div className="text-sm font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100">Security</div>
-            <div className="space-y-2">
-              <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Session policy</div>
-              <Input defaultValue="Strict" />
-            </div>
-            <div className="space-y-2">
-              <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">2FA</div>
-              <Input defaultValue="Enabled" />
-            </div>
-            <Button variant="secondary" className="rounded-2xl">Rotate keys</Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
