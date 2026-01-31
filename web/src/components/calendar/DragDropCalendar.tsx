@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin, { DateClickArg, EventClickArg, EventDropArg, EventResizeDoneArg } from "@fullcalendar/interaction";
+import interactionPlugin from "@fullcalendar/interaction";
 
 type CalEvent = {
   id: string;
@@ -14,49 +14,50 @@ type CalEvent = {
   allDay?: boolean;
 };
 
-function iso(d: Date) {
-  return d.toISOString();
+function uid() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return Math.random().toString(16).slice(2) + Math.random().toString(16).slice(2);
 }
 
 export default function DragDropCalendar() {
-  const seed = useMemo<CalEvent[]>(
-    () => [
-      { id: "1", title: "Strata repaint · Tower A", start: iso(new Date(Date.now() + 86400000 * 1 + 3600000 * 9)) },
-      { id: "2", title: "Rope access patch", start: iso(new Date(Date.now() + 86400000 * 2 + 3600000 * 7)) },
-      { id: "3", title: "Client walkthrough", start: iso(new Date(Date.now() + 86400000 * 4 + 3600000 * 15)) },
-    ],
-    []
-  );
-
-  const [events, setEvents] = useState<CalEvent[]>(seed);
+  const [events, setEvents] = useState<CalEvent[]>([
+    { id: "1", title: "Strata repaint · Tower A", start: "2026-02-02T09:00:00" },
+    { id: "2", title: "Rope access patch", start: "2026-02-03T07:00:00" },
+    { id: "3", title: "Client walkthrough", start: "2026-02-05T15:00:00" },
+  ]);
 
   function upsert(id: string, patch: Partial<CalEvent>) {
     setEvents((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e)));
   }
 
-  function onDateClick(arg: DateClickArg) {
+  function onDateClick(arg: any) {
     const title = prompt("New job title");
     if (!title) return;
-    const id = crypto.randomUUID();
+    const id = uid();
     setEvents((prev) => [...prev, { id, title, start: arg.dateStr, allDay: arg.allDay }]);
   }
 
-  function onEventClick(arg: EventClickArg) {
-    const id = arg.event.id;
-    const next = prompt("Rename job", arg.event.title);
+  function onEventClick(arg: any) {
+    const id = arg.event.id as string;
+    const next = prompt("Rename job", arg.event.title as string);
     if (next === null) return;
-    if (next.trim() === "") return;
-    upsert(id, { title: next.trim() });
+    const t = next.trim();
+    if (!t) return;
+    upsert(id, { title: t });
   }
 
-  function onEventDrop(arg: EventDropArg) {
-    const id = arg.event.id;
-    upsert(id, { start: arg.event.startStr, end: arg.event.endStr || undefined, allDay: arg.event.allDay });
+  function onEventDrop(arg: any) {
+    const id = arg.event.id as string;
+    upsert(id, {
+      start: arg.event.startStr as string,
+      end: (arg.event.endStr as string) || undefined,
+      allDay: !!arg.event.allDay,
+    });
   }
 
-  function onEventResize(arg: EventResizeDoneArg) {
-    const id = arg.event.id;
-    upsert(id, { start: arg.event.startStr, end: arg.event.endStr || undefined });
+  function onEventResize(arg: any) {
+    const id = arg.event.id as string;
+    upsert(id, { start: arg.event.startStr as string, end: (arg.event.endStr as string) || undefined });
   }
 
   return (
