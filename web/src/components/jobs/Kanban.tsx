@@ -5,7 +5,7 @@ import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "
 import { useDroppable, useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
