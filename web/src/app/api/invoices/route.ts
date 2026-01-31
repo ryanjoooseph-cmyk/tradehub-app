@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/server/supabase-admin";
 
@@ -16,7 +17,7 @@ export async function GET() {
     }
 
     const clientIds = Array.from(new Set((quotes || []).map((q: any) => q.client_id).filter(Boolean)));
-    let clientsById: Record<string, any> = {};
+    const clientsById: Record<string, any> = {};
     if (clientIds.length) {
       const { data: clients } = await supabaseAdmin.from("clients").select("id,name,email").in("id", clientIds);
       (clients || []).forEach((c: any) => (clientsById[c.id] = c));
