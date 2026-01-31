@@ -1,15 +1,19 @@
-import CalendarBoard from "@/components/calendar/CalendarBoard";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export default function Page() {
+import DragDropCalendar from "../../../components/calendar/DragDropCalendar";
+
+export default function CalendarPage() {
   return (
-    <div>
-      <div className="mb-4">
-        <div className="text-lg font-semibold">Calendar</div>
-        <div className="text-sm text-muted-foreground">
-          Drag jobs onto the calendar • Move & resize events • Plan the week like a real ops platform.
+    <div className="space-y-6">
+      <div className="rounded-2xl border bg-background/60 p-6 shadow-sm">
+        <div className="text-3xl font-extrabold tracking-tight">Calendar</div>
+        <div className="mt-1 text-sm text-muted-foreground">
+          Drag-and-drop scheduling. Click to create jobs. Click events to rename.
         </div>
       </div>
-      <CalendarBoard />
+
+      <DragDropCalendar />
     </div>
   );
 }
