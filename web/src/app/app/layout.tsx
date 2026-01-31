@@ -1,5 +1,5 @@
-import { AppShell } from "@/components/app/AppShell";
+import AppShell from "@/components/app/AppShell";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return <AppShell>{children}</AppShell>;
 }
