@@ -63,7 +63,7 @@ function JobCard({ job }: { job: Job }) {
     : "bg-emerald-500/15 text-emerald-500 border-emerald-500/20";
 
   return (
-    <Card
+    <div
       ref={setNodeRef}
       style={style}
       className={[
@@ -82,7 +82,7 @@ function JobCard({ job }: { job: Job }) {
 
       <div className="mt-3 flex items-center justify-between">
         <div className="text-sm font-semibold">{money(job.value)}</div>
-        <Badge variant="outline" className="rounded-full text-[11px]">{job.due}</Badge>
+        <Badge variant="default" className="rounded-full text-[11px]">{job.due}</Badge>
       </div>
 
       <div className="mt-3">
@@ -90,7 +90,7 @@ function JobCard({ job }: { job: Job }) {
           Open job
         </Link>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -126,7 +126,7 @@ export default function Kanban() {
         </div>
         <div className="flex gap-2">
           <Button className="rounded-xl" type="button">New Job</Button>
-          <Button variant="outline" className="rounded-xl" type="button">Import</Button>
+          <Button variant="default" className="rounded-xl" type="button">Import</Button>
         </div>
       </div>
 

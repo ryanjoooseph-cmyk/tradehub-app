@@ -18,13 +18,13 @@ function money(cents: number) {
   return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(cents / 100);
 }
 
-function tone(status: InvoiceRow["status"]) {
-  if (status === "Paid") return "good";
-  if (status === "Overdue") return "bad";
-  if (status === "Sent") return "info";
-  return "neutral";
-}
-
+const tone = (status: string): "default" | "success" | "warn" | "danger" => {
+  const t = (status || "").toLowerCase();
+  if (/(complete|completed|done|paid|success|approved|active)/.test(t)) return "success";
+  if (/(dispute|overdue|failed|fail|cancel|cancelled|rejected|error|blocked)/.test(t)) return "danger";
+  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing|draft)/.test(t)) return "warn";
+  return "default";
+};
 export function InvoiceDrawer({
   invoice,
   open,
@@ -46,8 +46,8 @@ export function InvoiceDrawer({
     <Dialog open={open} onClose={onClose} title={`Invoice ${invoice.number}`} widthClass="max-w-2xl">
       <div className="space-y-5">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={tone(invoice.status)}>{invoice.status}</Badge>
-          <Badge tone="neutral">{invoice.id}</Badge>
+          <Badge variant={tone(invoice.status)}>{invoice.status}</Badge>
+          <Badge variant="default">{invoice.id}</Badge>
         </div>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">

@@ -1,22 +1,21 @@
 "use client";
 
 import * as React from "react";
-import { jobs as demoJobs } from "./demoData";
-import type { Job } from "./demoData";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { jobs as demoJobs} from "./demoData";
 
-function toneFor(status: Job["status"]) {
-  if (status === "Complete") return "success";
-  if (status === "In Progress") return "info";
-  if (status === "Awaiting Payment") return "warning";
-  if (status === "Dispute") return "destructive";
+import { Card} from "@/components/ui/card";
+import { Badge} from "@/components/ui/badge";
+import { Button} from "@/components/ui/button";
+import { Input} from "@/components/ui/input";
+import { cn} from "@/lib/utils";
+
+const toneFor = (status: string): "default" | "success" | "warn" | "danger" => {
+  const t = (status || "").toLowerCase();
+  if (/(complete|completed|done|paid|success)/.test(t)) return "success";
+  if (/(dispute|overdue|failed|cancel|cancelled|rejected|error)/.test(t)) return "danger";
+  if (/(await|awaiting|in progress|scheduled|pending|hold|review)/.test(t)) return "warn";
   return "default";
-}
-
+};
 export function JobsTable(props: { className?: string }) {
   const [q, setQ] = React.useState("");
   const rows = React.useMemo(() => {
@@ -33,7 +32,7 @@ export function JobsTable(props: { className?: string }) {
         </div>
         <div className="flex items-center gap-2">
           <Button className="rounded-2xl">New job</Button>
-          <Button variant="secondary" className="rounded-2xl">Filters</Button>
+          <Button variant="default" className="rounded-2xl">Filters</Button>
         </div>
       </div>
 
@@ -61,7 +60,7 @@ export function JobsTable(props: { className?: string }) {
                 <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Assignee: {j.assignee}</div>
               </div>
               <div className="col-span-2 flex items-center">
-                <Badge tone={toneFor(j.status)} className="rounded-full px-3 py-1 text-xs font-semibold">{j.status}</Badge>
+                <Badge variant={toneFor(j.status)} className="rounded-full px-3 py-1 text-xs font-semibold">{j.status}</Badge>
               </div>
               <div className="col-span-1 flex items-center text-sm font-semibold">{j.due}</div>
               <div className="col-span-2 flex items-center justify-end text-sm font-extrabold tracking-tight">${j.value.toLocaleString()}</div>

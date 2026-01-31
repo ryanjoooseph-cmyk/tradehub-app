@@ -19,14 +19,13 @@ const days: Day[] = [
   { label: "Sun", key: "Sun" },
 ];
 
-function tone(status: string) {
-  if (status === "Complete") return "success";
-  if (status === "In Progress") return "info";
-  if (status === "Awaiting Payment") return "warning";
-  if (status === "Dispute") return "destructive";
+const tone = (status: string): "default" | "success" | "warn" | "danger" => {
+  const t = (status || "").toLowerCase();
+  if (/(complete|completed|done|paid|success|approved|active)/.test(t)) return "success";
+  if (/(dispute|overdue|failed|fail|cancel|cancelled|rejected|error|blocked)/.test(t)) return "danger";
+  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing|draft)/.test(t)) return "warn";
   return "default";
-}
-
+};
 export function CalendarV2() {
   const [hoverId, setHoverId] = React.useState<string | null>(null);
   const [selectedId, setSelectedId] = React.useState<string | null>(jobs[0]?.id || null);
@@ -54,9 +53,9 @@ export function CalendarV2() {
             <div className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">A week view that actually shows jobs and status.</div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="secondary" className="rounded-2xl">Today</Button>
-            <Button variant="secondary" className="rounded-2xl">Week</Button>
-            <Button variant="secondary" className="rounded-2xl">Month</Button>
+            <Button variant="default" className="rounded-2xl">Today</Button>
+            <Button variant="default" className="rounded-2xl">Week</Button>
+            <Button variant="default" className="rounded-2xl">Month</Button>
             <Button className="rounded-2xl">New booking</Button>
           </div>
         </div>
@@ -90,7 +89,7 @@ export function CalendarV2() {
                         <div className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">{j.id}</div>
                       </div>
                       <div className="mt-2 flex items-center justify-between gap-2">
-                        <Badge tone={tone(j.status)} className="rounded-full px-3 py-1 text-xs font-semibold">{j.status}</Badge>
+                        <Badge variant={tone(j.status) as "default" | "success" | "warn" | "danger"} className="rounded-full px-3 py-1 text-xs font-semibold">{j.status}</Badge>
                         <div className="text-xs text-zinc-500 dark:text-zinc-400">{j.assignee}</div>
                       </div>
                     </button>
@@ -119,7 +118,7 @@ export function CalendarV2() {
             <div className="mt-4 space-y-3">
               <div className="flex items-center justify-between rounded-2xl bg-zinc-900/5 px-3 py-2 ring-1 ring-zinc-200 dark:bg-zinc-50/5 dark:ring-zinc-800">
                 <div className="text-sm font-semibold">Status</div>
-                <Badge tone={tone(selected.status)}>{selected.status}</Badge>
+                <Badge variant={tone(selected.status)}>{selected.status}</Badge>
               </div>
               <div className="flex items-center justify-between rounded-2xl bg-zinc-900/5 px-3 py-2 ring-1 ring-zinc-200 dark:bg-zinc-50/5 dark:ring-zinc-800">
                 <div className="text-sm font-semibold">Milestone</div>
@@ -131,9 +130,9 @@ export function CalendarV2() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <Button className="rounded-2xl">Open job</Button>
-                <Button variant="secondary" className="rounded-2xl">Message</Button>
-                <Button variant="secondary" className="rounded-2xl">Invoice</Button>
-                <Button variant="secondary" className="rounded-2xl">Escrow</Button>
+                <Button variant="default" className="rounded-2xl">Message</Button>
+                <Button variant="default" className="rounded-2xl">Invoice</Button>
+                <Button variant="default" className="rounded-2xl">Escrow</Button>
               </div>
             </div>
           ) : null}

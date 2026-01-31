@@ -7,17 +7,17 @@ import { money } from "@/lib/demo-data";
 import { CalendarDays, MapPin, User2, Shield, FileText } from "lucide-react";
 
 function toneForStatus(s: Job["status"]) {
-  if (s === "Completed") return "good";
-  if (s === "In Progress") return "info";
-  if (s === "Scheduled") return "neutral";
-  if (s === "Disputed") return "bad";
+  if (s === "Completed") return "success";
+  if (s === "In Progress") return "default";
+  if (s === "Scheduled") return "default";
+  if (s === "Disputed") return "danger";
   return "warn";
 }
 
 function toneForPriority(p: Job["priority"]) {
-  if (p === "High") return "bad";
+  if (p === "High") return "danger";
   if (p === "Medium") return "warn";
-  return "neutral";
+  return "default";
 }
 
 export function JobDrawer({
@@ -37,9 +37,9 @@ export function JobDrawer({
     <Dialog open={open} onClose={onClose} title={job.title} widthClass="max-w-2xl">
       <div className="space-y-5">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={toneForStatus(job.status)}>{job.status}</Badge>
-          <Badge tone={toneForPriority(job.priority)}>{job.priority} priority</Badge>
-          <Badge tone={job.escrowCents > 0 ? "good" : "neutral"}>{job.escrowCents > 0 ? "Escrow enabled" : "No escrow"}</Badge>
+          <Badge variant={toneForStatus(job.status)}>{job.status}</Badge>
+          <Badge variant={toneForPriority(job.priority)}>{job.priority} priority</Badge>
+          <Badge variant={job.escrowCents > 0 ? "success" : "default"}>{job.escrowCents > 0 ? "Escrow enabled" : "No escrow"}</Badge>
         </div>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">

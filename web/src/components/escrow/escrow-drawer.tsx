@@ -21,20 +21,20 @@ function money(cents: number) {
   return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(cents / 100);
 }
 
-function tone(status: EscrowRow["status"]) {
-  if (status === "Released") return "good";
-  if (status === "Funded") return "info";
-  if (status === "On Hold") return "bad";
-  if (status === "Partially Released") return "warn";
-  return "neutral";
-}
-
-function toneM(s: EscrowRow["milestones"][number]["status"]) {
-  if (s === "Released") return "good";
-  if (s === "Disputed") return "bad";
-  return "neutral";
-}
-
+const tone = (status: string): "default" | "success" | "warn" | "danger" => {
+  const t = (status || "").toLowerCase();
+  if (/(complete|completed|done|paid|success|approved|active)/.test(t)) return "success";
+  if (/(dispute|overdue|failed|fail|cancel|cancelled|rejected|error|blocked)/.test(t)) return "danger";
+  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing|draft)/.test(t)) return "warn";
+  return "default";
+};
+const toneM = (s: EscrowRow["milestones"][number]["status"]): "default" | "warn" | "success" | "danger" => {
+  const t = String(status || "").toLowerCase();
+  if (/(released|paid|complete|completed|success|approved)/.test(t)) return "success";
+  if (/(failed|fail|blocked|dispute|cancel|cancelled|rejected|error|bad)/.test(t)) return "danger";
+  if (/(pending|await|awaiting|hold|review|processing|in progress)/.test(t)) return "warn";
+  return "default";
+};
 export function EscrowDrawer({
   escrow,
   open,
@@ -56,10 +56,10 @@ export function EscrowDrawer({
     <Dialog open={open} onClose={onClose} title={`Escrow • ${escrow.jobTitle}`} widthClass="max-w-4xl">
       <div className="space-y-6">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={tone(escrow.status)}>{escrow.status}</Badge>
-          <Badge tone="neutral">{escrow.id}</Badge>
-          <Badge tone="neutral">{escrow.jobId}</Badge>
-          <Badge tone="neutral">{escrow.client}</Badge>
+          <Badge variant={tone(escrow.status)}>{escrow.status}</Badge>
+          <Badge variant="default">{escrow.id}</Badge>
+          <Badge variant="default">{escrow.jobId}</Badge>
+          <Badge variant="default">{escrow.client}</Badge>
         </div>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -95,7 +95,7 @@ export function EscrowDrawer({
                 <div key={m.id} className="rounded-2xl border border-neutral-200 p-3">
                   <div className="flex items-center justify-between gap-2">
                     <div className="font-medium">{m.name}</div>
-                    <Badge tone={toneM(m.status)}>{m.status}</Badge>
+                    <Badge variant={toneM(m.status)}>{m.status}</Badge>
                   </div>
                   <div className="mt-1 text-sm text-neutral-600">{money(m.amountCents)}</div>
                   <div className="mt-3 flex flex-wrap gap-2">

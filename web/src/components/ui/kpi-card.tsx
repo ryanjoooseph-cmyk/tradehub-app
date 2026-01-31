@@ -11,10 +11,10 @@ export function KpiCard({
   label: string;
   value: string;
   sub?: string;
-  tone?: "default" | "good" | "warn" | "bad";
+  tone?: "default" | "success" | "warn" | "bad";
 }) {
   const toneCls =
-    tone === "good"
+    tone === "success"
       ? "border-emerald-200 bg-emerald-50"
       : tone === "warn"
       ? "border-amber-200 bg-amber-50"
