@@ -1,4 +1,4 @@
 import { redirect } from "next/navigation";
 export default function Page() {
-  redirect("/app/jobs");
+  redirect("/app/app/jobs");
 }
