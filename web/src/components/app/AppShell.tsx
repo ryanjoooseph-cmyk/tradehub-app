@@ -1,143 +1,208 @@
-/* eslint-disable react-hooks/set-state-in-effect */
+\
 "use client";
 
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { useTheme } from "next-themes";
 
-function cx(...xs: Array<string | false | null | undefined>) {
-  return xs.filter(Boolean).join(" ");
-}
+function cn(*xs: (str | None)):
+  return " ".join([x for x in xs if x])
 
-const NAV = [
-  { href: "/app/dashboard", label: "Dashboard" },
-  { href: "/app/jobs", label: "Jobs" },
-  { href: "/app/calendar", label: "Calendar" },
-  { href: "/app/clients", label: "Clients" },
-  { href: "/app/invoices", label: "Invoices" },
-  { href: "/app/escrow", label: "Escrow" },
-  { href: "/app/team", label: "Team" },
-  { href: "/app/settings", label: "Settings" },
-  { href: "/dispatch", label: "Dispatch" },
-  { href: "/escrow", label: "Escrow Ops" },
+type NavItem = { label: string; href: string; kbd?: string };
+
+const NAV: NavItem[] = [
+  { label: "Dashboard", href: "/app/dashboard", kbd: "D" },
+  { label: "Jobs", href: "/app/jobs", kbd: "J" },
+  { label: "Calendar", href: "/app/calendar", kbd: "C" },
+  { label: "Clients", href: "/app/clients", kbd: "C" },
+  { label: "Invoices", href: "/app/invoices", kbd: "I" },
+  { label: "Escrow", href: "/app/escrow", kbd: "E" },
+  { label: "Team", href: "/app/team", kbd: "T" },
+  { label: "Settings", href: "/app/settings", kbd: "S" },
 ];
 
-function ThemeToggle({ mounted }: { mounted: boolean }) {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const current = (theme === "system" ? resolvedTheme : theme) ?? "light";
+function getStoredTheme(): "light" | "dark" {
+  if (typeof window === "undefined") return "light";
+  const v = window.localStorage.getItem("theme");
+  return v === "dark" ? "dark" : "light";
+}
 
-  if (!mounted) return <div className="h-9 w-[74px]" />;
+function applyTheme(theme: "light" | "dark") {
+  const root = document.documentElement;
+  if (theme === "dark") root.classList.add("dark");
+  else root.classList.remove("dark");
+  window.localStorage.setItem("theme", theme);
+}
+
+function ThemeToggle() {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const t = getStoredTheme();
+    setTheme(t);
+    applyTheme(t);
+  }, []);
 
   return (
     <button
       type="button"
-      onClick={() => setTheme(current === "dark" ? "light" : "dark")}
-      className="inline-flex items-center justify-center rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"
+      onClick={() => {
+        const next = theme === "dark" ? "light" : "dark";
+        setTheme(next);
+        applyTheme(next);
+      }}
+      className={cn(
+        "inline-flex items-center rounded-full border px-3 py-1.5 text-sm font-medium",
+        "bg-white/70 hover:bg-white transition",
+        "dark:bg-zinc-900/60 dark:hover:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-100"
+      )}
+      aria-label="Toggle theme"
     >
-      {current === "dark" ? "Light" : "Dark"}
+      {theme === "dark" ? "Light" : "Dark"}
     </button>
   );
 }
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const activeHref = useMemo(() => {
-    const hit = NAV.find((n) => pathname === n.href);
-    return hit?.href ?? "";
-  }, [pathname]);
-
-  const title = useMemo(() => {
-    const hit = NAV.find((n) => pathname === n.href);
-    return hit?.label ?? "TradeHub";
+  const active = useMemo(() => {
+    const found = NAV.find((n) => pathname?.startsWith(n.href));
+    return found?.label ?? "Command Center";
   }, [pathname]);
 
   return (
-    <div className="min-h-dvh bg-background text-foreground">
-      <div className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-3 px-4">
-          <button
-            type="button"
-            onClick={() => setCollapsed((v) => !v)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border hover:bg-muted"
-            aria-label="Toggle sidebar"
-          >
-            ≡
-          </button>
-
-          <Link href="/app/dashboard" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-md bg-foreground" />
-            <div className="leading-tight">
-              <div className="text-sm font-semibold">TradeHub</div>
-              <div className="text-[11px] text-muted-foreground">Ops Platform</div>
-            </div>
-          </Link>
-
-          <div className="ml-auto flex items-center gap-2">
-            <ThemeToggle mounted={mounted} />
-            <div className="hidden sm:block rounded-md border px-3 py-2 text-sm text-muted-foreground">
-              {title}
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-zinc-50 text-zinc-950 dark:bg-zinc-950 dark:text-zinc-50">
+      {/* premium background */}
+      <div className="pointer-events-none fixed inset-0 opacity-60">
+        <div className="absolute -top-32 left-1/2 h-[520px] w-[820px] -translate-x-1/2 rounded-full blur-3xl bg-gradient-to-b from-zinc-200 to-transparent dark:from-zinc-800" />
       </div>
 
-      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-0 px-0 md:grid-cols-[auto_1fr]">
-        <aside
-          className={cx(
-            "border-r bg-background",
-            "md:sticky md:top-14 md:h-[calc(100dvh-56px)]",
-            collapsed ? "md:w-[72px]" : "md:w-[260px]"
-          )}
-        >
-          <div className="px-2 py-3">
-            <div className={cx("mb-2 px-3 text-xs font-semibold text-muted-foreground", collapsed && "sr-only")}>
-              Workspace
-            </div>
+      <div className="relative mx-auto max-w-[1400px] px-4 py-4">
+        <div className="grid grid-cols-12 gap-4">
+          {/* sidebar */}
+          <aside className={cn("col-span-12 md:col-span-3 lg:col-span-2", (not sidebarOpen) and "hidden md:block")}>
+            <div className="rounded-3xl border bg-white/70 backdrop-blur p-4 shadow-sm dark:bg-zinc-900/60 dark:border-zinc-800">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-2xl bg-zinc-200 dark:bg-zinc-800" />
+                  <div className="leading-tight">
+                    <div className="font-semibold">TradeHub</div>
+                    <div className="text-xs text-zinc-600 dark:text-zinc-400">Institutional Ops</div>
+                  </div>
+                </div>
 
-            <nav className="flex flex-col gap-1">
-              {NAV.map((item) => {
-                const active = activeHref === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cx(
-                      "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
-                      active ? "bg-muted" : "hover:bg-muted/60"
-                    )}
+                <button
+                  type="button"
+                  className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border bg-white/70 dark:bg-zinc-900/60 dark:border-zinc-700"
+                  onClick={() => setSidebarOpen(false)}
+                  aria-label="Close sidebar"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="mt-4 space-y-1">
+                <div className="px-2 pt-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                  Workspace
+                </div>
+
+                {NAV.map((item) => {
+                  const isActive = pathname?.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "flex items-center justify-between rounded-2xl px-3 py-2 text-sm font-medium transition",
+                        isActive
+                          ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950"
+                          : "text-zinc-800 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800/60"
+                      )}
+                    >
+                      <span className="flex items-center gap-3">
+                        <span
+                          className={cn(
+                            "inline-flex h-7 w-7 items-center justify-center rounded-xl border text-[11px]",
+                            isActive
+                              ? "border-white/20 bg-white/10"
+                              : "border-zinc-200 bg-white/60 dark:border-zinc-700 dark:bg-zinc-900/40"
+                          )}
+                        >
+                          {item.kbd ?? item.label[0]}
+                        </span>
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 rounded-3xl border bg-white/60 p-4 text-sm text-zinc-700 dark:bg-zinc-900/40 dark:border-zinc-800 dark:text-zinc-300">
+                <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Today</div>
+                <div className="mt-1 text-2xl font-bold">5</div>
+                <div className="text-xs">active jobs</div>
+                <div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  Keep pipeline moving. Escrow reduces disputes and guarantees cashflow.
+                </div>
+              </div>
+
+              <div className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+                Premium shell locked across /app/*
+              </div>
+            </div>
+          </aside>
+
+          {/* main */}
+          <main className="col-span-12 md:col-span-9 lg:col-span-10">
+            <div className="rounded-3xl border bg-white/70 backdrop-blur shadow-sm dark:bg-zinc-900/60 dark:border-zinc-800">
+              {/* top bar */}
+              <div className="flex items-center justify-between gap-3 border-b px-5 py-4 dark:border-zinc-800">
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border bg-white/70 dark:bg-zinc-900/60 dark:border-zinc-700"
+                    onClick={() => setSidebarOpen((v) => !v)}
+                    aria-label="Toggle sidebar"
                   >
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-md border text-xs">
-                      {item.label.slice(0, 1)}
-                    </span>
-                    <span className={cx("truncate", collapsed && "sr-only")}>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
+                    ≡
+                  </button>
 
-            <div className={cx("mt-4 px-3 text-xs text-muted-foreground", collapsed && "sr-only")}>
-              Premium shell locked across app.
-            </div>
-          </div>
-        </aside>
+                  <div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400">TradeHub Console</div>
+                    <div className="text-2xl font-semibold leading-tight">
+                      {active === "Dashboard" ? "Command Center" : active}
+                    </div>
+                    <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                      Jobs, clients, invoices, team and escrow — unified into one operational timeline.
+                    </div>
+                  </div>
+                </div>
 
-        <main className="min-h-[calc(100dvh-56px)] px-4 py-6 md:px-8">
-          <div className="mb-6 flex items-start justify-between gap-3">
-            <div>
-              <div className="text-2xl font-semibold tracking-tight">{title}</div>
-              <div className="text-sm text-muted-foreground">Premium shell active</div>
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
+                  <button
+                    type="button"
+                    className="hidden sm:inline-flex items-center rounded-full border px-3 py-1.5 text-sm font-medium bg-white/70 hover:bg-white transition dark:bg-zinc-900/60 dark:hover:bg-zinc-900 dark:border-zinc-700"
+                    onClick={() => alert("Search coming next.")}
+                  >
+                    Search
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex items-center rounded-full border px-3 py-1.5 text-sm font-semibold bg-zinc-950 text-white hover:bg-zinc-900 transition dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200 dark:border-white/20"
+                    onClick={() => alert("Quick create coming next.")}
+                  >
+                    New
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-5">{children}</div>
             </div>
-          </div>
-          {children}
-        </main>
+          </main>
+        </div>
       </div>
     </div>
   );
