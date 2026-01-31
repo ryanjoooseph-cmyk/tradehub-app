@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 const cn = (...a: Array<string | false | undefined | null>) => a.filter(Boolean).join(' ')
+const money = (n: number) => n.toLocaleString(undefined, { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 })
 
 function Pill(props: { tone: 'emerald' | 'amber' | 'rose' | 'violet' | 'slate'; children: React.ReactNode }) {
   const map: Record<string, string> = {
@@ -17,184 +18,170 @@ function Pill(props: { tone: 'emerald' | 'amber' | 'rose' | 'violet' | 'slate'; 
 }
 
 function Card(props: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={cn('rounded-3xl bg-slate-950/35 ring-1 ring-slate-800/80 backdrop-blur p-5', props.className)}>
-      {props.children}
-    </div>
-  )
+  return <div className={cn('rounded-3xl bg-slate-950/35 ring-1 ring-slate-800/80 backdrop-blur p-5', props.className)}>{props.children}</div>
 }
 
-type Job = {
+type JobRow = {
   id: string
   title: string
   client: string
-  status: 'SCHEDULED' | 'IN PROGRESS' | 'COMPLETED' | 'DISPUTE'
+  address: string
+  status: 'IN PROGRESS' | 'DISPUTE' | 'COMPLETED'
   priority: 'P0' | 'P1' | 'P2'
-  updated: string
+  scheduled: string
   value: number
-  tone: 'emerald' | 'amber' | 'rose' | 'violet'
 }
 
-const money = (n: number) =>
-  n.toLocaleString(undefined, { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 })
+function toneForStatus(s: JobRow['status']) {
+  if (s === 'COMPLETED') return 'emerald' as const
+  if (s === 'DISPUTE') return 'rose' as const
+  return 'amber' as const
+}
+
+function toneForPriority(p: JobRow['priority']) {
+  if (p === 'P0') return 'rose' as const
+  if (p === 'P1') return 'amber' as const
+  return 'slate' as const
+}
 
 export default function JobsPage() {
   const [q, setQ] = useState('')
-  const [status, setStatus] = useState<'ALL' | Job['status']>('ALL')
-  const [priority, setPriority] = useState<'ALL' | Job['priority']>('ALL')
 
-  const jobs: Job[] = useMemo(
+  const jobs = useMemo<JobRow[]>(
     () => [
-      { id: 'job_3921', title: 'Rope access – façade repair', client: 'Aria Facilities', status: 'IN PROGRESS', priority: 'P0', updated: 'Today 12:22', value: 26750, tone: 'amber' },
-      { id: 'job_3920', title: 'Strata repaint – Tower A', client: 'Bayside Owners Corp', status: 'SCHEDULED', priority: 'P1', updated: 'Today 09:41', value: 18400, tone: 'violet' },
-      { id: 'job_3919', title: 'Emergency leak – Unit 34', client: 'S. Nguyen', status: 'COMPLETED', priority: 'P2', updated: 'Yesterday', value: 890, tone: 'emerald' },
-      { id: 'job_3918', title: 'Ceiling patch + paint', client: 'M. Chen', status: 'DISPUTE', priority: 'P0', updated: 'Yesterday', value: 1350, tone: 'rose' },
-      { id: 'job_3917', title: 'Bond clean', client: 'L. O’Brien', status: 'COMPLETED', priority: 'P2', updated: '2d ago', value: 620, tone: 'emerald' },
-      { id: 'job_3916', title: 'Kitchen reno stage 1', client: 'Harper Group', status: 'COMPLETED', priority: 'P1', updated: '3d ago', value: 15200, tone: 'emerald' },
+      {
+        id: 'job_3921',
+        title: 'Rope access – façade repair',
+        client: 'Aria Facilities',
+        address: 'Brisbane CBD • Tower A',
+        status: 'IN PROGRESS',
+        priority: 'P1',
+        scheduled: 'Today 7:00am → 4:00pm',
+        value: 26750,
+      },
+      {
+        id: 'job_3918',
+        title: 'Water ingress investigation',
+        client: 'Strata Group QLD',
+        address: 'New Farm • Building C',
+        status: 'DISPUTE',
+        priority: 'P0',
+        scheduled: 'Today 10:30am',
+        value: 15200,
+      },
+      {
+        id: 'job_3919',
+        title: 'Balcony repaint stage 2',
+        client: 'Harbour Body Corporate',
+        address: 'South Bank • Level 12',
+        status: 'COMPLETED',
+        priority: 'P2',
+        scheduled: 'Yesterday',
+        value: 8800,
+      },
     ],
     []
   )
 
   const filtered = useMemo(() => {
-    const qq = q.trim().toLowerCase()
-    return jobs.filter((j) => {
-      const hit =
-        !qq ||
-        j.id.toLowerCase().includes(qq) ||
-        j.title.toLowerCase().includes(qq) ||
-        j.client.toLowerCase().includes(qq)
-      const st = status === 'ALL' ? true : j.status === status
-      const pr = priority === 'ALL' ? true : j.priority === priority
-      return hit && st && pr
-    })
-  }, [jobs, q, status, priority])
+    const s = q.trim().toLowerCase()
+    if (!s) return jobs
+    return jobs.filter((j) => `${j.id} ${j.title} ${j.client} ${j.address} ${j.status} ${j.priority}`.toLowerCase().includes(s))
+  }, [q, jobs])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
       <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-slate-900/60 px-3 py-1 text-xs ring-1 ring-slate-800">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_18px_rgba(16,185,129,0.8)]" />
-              Job Ops
-            </div>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight">Jobs</h1>
-            <p className="mt-2 text-sm text-slate-300">Institutional-grade job tracking: priority, risk, value, and workflow status.</p>
-          </div>
-
-          <div className="flex flex-col gap-2 md:flex-row md:items-center">
-            <div className="relative">
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search job id, title, client…"
-                className="w-full md:w-[360px] rounded-xl bg-slate-900/60 px-4 py-2.5 text-sm text-slate-100 ring-1 ring-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-              />
-              <div className="pointer-events-none absolute right-3 top-2.5 text-slate-500">⌘K</div>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Pill tone="violet">Jobs</Pill>
+                <Pill tone="slate">{filtered.length} visible</Pill>
+              </div>
+              <h1 className="mt-3 text-3xl font-semibold tracking-tight">Operations board</h1>
+              <div className="mt-2 text-sm text-slate-300">High-signal list. Click any row to open the job command center.</div>
             </div>
 
-            <div className="flex gap-2">
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as any)}
-                className="rounded-xl bg-slate-900/60 px-3 py-2.5 text-sm ring-1 ring-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-              >
-                <option value="ALL">All status</option>
-                <option value="SCHEDULED">Scheduled</option>
-                <option value="IN PROGRESS">In progress</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="DISPUTE">Dispute</option>
-              </select>
-
-              <select
-                value={priority}
-                onChange={(e) => setPriority(e.target.value as any)}
-                className="rounded-xl bg-slate-900/60 px-3 py-2.5 text-sm ring-1 ring-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-              >
-                <option value="ALL">All priority</option>
-                <option value="P0">P0</option>
-                <option value="P1">P1</option>
-                <option value="P2">P2</option>
-              </select>
-
-              <button className="rounded-xl bg-emerald-500/15 px-4 py-2.5 text-sm ring-1 ring-emerald-500/30 hover:bg-emerald-500/20">
+            <div className="flex flex-wrap gap-2">
+              <Link href="/app/calendar" className="rounded-xl bg-slate-900/55 px-4 py-2.5 text-sm ring-1 ring-slate-800 hover:bg-slate-900/80">
+                Open calendar
+              </Link>
+              <Link href="/app/escrow" className="rounded-xl bg-emerald-500/15 px-4 py-2.5 text-sm ring-1 ring-emerald-500/30 hover:bg-emerald-500/20">
+                Escrow center
+              </Link>
+              <button className="rounded-xl bg-slate-900/55 px-4 py-2.5 text-sm ring-1 ring-slate-800 hover:bg-slate-900/80">
                 New job
               </button>
             </div>
           </div>
-        </div>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-[1.7fr_1fr]">
-          <Card>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-sm font-semibold">Job list</div>
-                <div className="mt-1 text-xs text-slate-400">{filtered.length} items</div>
-              </div>
-              <Pill tone="violet">A++ UI</Pill>
+          <Card className="p-4">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="text-sm font-semibold">Filter</div>
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search jobs, clients, status…"
+                className="w-full md:w-[420px] rounded-2xl bg-slate-950/60 px-4 py-3 text-sm ring-1 ring-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              />
+            </div>
+          </Card>
+
+          <div className="overflow-hidden rounded-3xl ring-1 ring-slate-800 bg-slate-950/35 backdrop-blur">
+            <div className="grid grid-cols-12 gap-2 bg-slate-900/55 px-4 py-3 text-xs text-slate-400">
+              <div className="col-span-5">Job</div>
+              <div className="col-span-2">Status</div>
+              <div className="col-span-2">Priority</div>
+              <div className="col-span-2">Scheduled</div>
+              <div className="col-span-1 text-right">Value</div>
             </div>
 
-            <div className="mt-4 overflow-hidden rounded-2xl ring-1 ring-slate-800">
-              <div className="grid grid-cols-12 gap-2 bg-slate-900/70 px-4 py-3 text-xs text-slate-400">
-                <div className="col-span-4">Job</div>
-                <div className="col-span-3">Client</div>
-                <div className="col-span-2">Status</div>
-                <div className="col-span-1">Priority</div>
-                <div className="col-span-2 text-right">Value</div>
-              </div>
-              <div className="divide-y divide-slate-800 bg-slate-950/40">
-                {filtered.map((j) => (
-                  <Link key={j.id} href={`/app/jobs/${encodeURIComponent(j.id)}`} className="grid grid-cols-12 gap-2 px-4 py-3 text-sm hover:bg-slate-900/40">
-                    <div className="col-span-4 min-w-0">
-                      <div className="truncate font-medium text-slate-100">{j.title}</div>
-                      <div className="mt-1 text-xs text-slate-500">{j.id} • updated {j.updated}</div>
+            <div className="divide-y divide-slate-800">
+              {filtered.map((j) => (
+                <Link
+                  key={j.id}
+                  href={`/app/jobs/${encodeURIComponent(j.id)}`}
+                  className="grid grid-cols-12 gap-2 px-4 py-3 text-sm hover:bg-slate-900/40 transition"
+                >
+                  <div className="col-span-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="font-semibold">{j.title}</div>
+                        <div className="mt-1 text-xs text-slate-400">
+                          <span className="text-slate-200 font-semibold">{j.client}</span> • {j.address} • <span className="text-slate-500">{j.id}</span>
+                        </div>
+                      </div>
+                      <span className="hidden md:inline-flex rounded-xl bg-slate-900/55 px-3 py-1.5 text-xs ring-1 ring-slate-800">Open</span>
                     </div>
-                    <div className="col-span-3 truncate text-slate-300">{j.client}</div>
-                    <div className="col-span-2"><Pill tone={j.tone}>{j.status}</Pill></div>
-                    <div className="col-span-1"><Pill tone={j.priority === 'P0' ? 'rose' : j.priority === 'P1' ? 'amber' : 'slate'}>{j.priority}</Pill></div>
-                    <div className="col-span-2 text-right font-semibold">{money(j.value)}</div>
-                  </Link>
-                ))}
-              </div>
+                  </div>
+                  <div className="col-span-2"><Pill tone={toneForStatus(j.status)}>{j.status}</Pill></div>
+                  <div className="col-span-2"><Pill tone={toneForPriority(j.priority)}>{j.priority}</Pill></div>
+                  <div className="col-span-2 text-slate-300">{j.scheduled}</div>
+                  <div className="col-span-1 text-right font-semibold">{money(j.value)}</div>
+                </Link>
+              ))}
             </div>
-          </Card>
+          </div>
 
-          <Card>
-            <div className="text-sm font-semibold">Ops intelligence</div>
-            <div className="mt-1 text-xs text-slate-400">What needs attention right now</div>
-
-            <div className="mt-4 grid gap-3">
-              <div className="rounded-2xl bg-slate-900/45 p-4 ring-1 ring-slate-800">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold">Priority P0</div>
-                  <Pill tone="rose">2 items</Pill>
-                </div>
-                <div className="mt-1 text-xs text-slate-400">Dispute + rope access compliance docs</div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="p-4">
+              <div className="text-sm font-semibold">Next: command-center parity</div>
+              <div className="mt-2 text-xs text-slate-400">
+                Jobs list + calendar now route to /app/jobs/[id]. Next pass: persist jobs/events from Supabase.
               </div>
+            </Card>
 
-              <div className="rounded-2xl bg-slate-900/45 p-4 ring-1 ring-slate-800">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold">Scheduling load</div>
-                  <Pill tone="amber">High</Pill>
-                </div>
-                <div className="mt-1 text-xs text-slate-400">Crew B is overallocated next Monday</div>
+            <Card className="p-4">
+              <div className="text-sm font-semibold">Fast actions</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link href="/app/dashboard" className="rounded-xl bg-slate-900/55 px-4 py-2 text-sm ring-1 ring-slate-800 hover:bg-slate-900/80">Dashboard</Link>
+                <Link href="/app/clients" className="rounded-xl bg-slate-900/55 px-4 py-2 text-sm ring-1 ring-slate-800 hover:bg-slate-900/80">Clients</Link>
+                <Link href="/app/invoices" className="rounded-xl bg-slate-900/55 px-4 py-2 text-sm ring-1 ring-slate-800 hover:bg-slate-900/80">Invoices</Link>
+                <Link href="/app/team" className="rounded-xl bg-slate-900/55 px-4 py-2 text-sm ring-1 ring-slate-800 hover:bg-slate-900/80">Team</Link>
               </div>
-
-              <div className="rounded-2xl bg-slate-900/45 p-4 ring-1 ring-slate-800">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold">Invoice leakage</div>
-                  <Pill tone="violet">1 draft</Pill>
-                </div>
-                <div className="mt-1 text-xs text-slate-400">Milestone invoice not issued (job_3921)</div>
-              </div>
-            </div>
-
-            <div className="mt-4 rounded-2xl bg-slate-900/45 p-4 ring-1 ring-slate-800">
-              <div className="text-xs text-slate-400">Next</div>
-              <div className="mt-2 text-sm font-semibold">Jobs detail page upgrades</div>
-              <div className="mt-1 text-xs text-slate-400">Milestones, notes, photos, change orders, invoice timeline.</div>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
