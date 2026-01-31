@@ -2,45 +2,31 @@
 
 import { useEffect, useState } from "react";
 
-const KEY = "th_theme";
-type Theme = "light" | "dark";
-
-function getInitialTheme(): Theme {
-  try {
-    const saved = localStorage.getItem(KEY);
-    if (saved === "dark" || saved === "light") return saved;
-    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
-    return "light";
-  } catch {
-    return "light";
-  }
-}
-
-function applyTheme(t: Theme) {
-  const root = document.documentElement;
-  if (t === "dark") root.classList.add("dark");
-  else root.classList.remove("dark");
-  root.style.colorScheme = t;
+function getInitialDark(): boolean {
+  if (typeof window === "undefined") return false;
+  const saved = window.localStorage.getItem("theme");
+  if (saved === "dark") return true;
+  if (saved === "light") return false;
+  return document.documentElement.classList.contains("dark");
 }
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
+  const [dark, setDark] = useState<boolean>(() => getInitialDark());
 
   useEffect(() => {
-    applyTheme(theme);
-    try {
-      localStorage.setItem(KEY, theme);
-    } catch {}
-  }, [theme]);
+    if (dark) document.documentElement.classList.add("dark");
+    else document.documentElement.classList.remove("dark");
+    window.localStorage.setItem("theme", dark ? "dark" : "light");
+  }, [dark]);
 
   return (
     <button
       type="button"
-      onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
-      className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium hover:bg-muted"
       aria-label="Toggle theme"
+      onClick={() => setDark((v) => !v)}
+      className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
     >
-      {theme === "dark" ? "Dark" : "Light"}
+      {dark ? "Dark" : "Light"}
     </button>
   );
 }
