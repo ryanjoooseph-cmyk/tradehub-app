@@ -1,64 +1,63 @@
-import Link from 'next/link'
-import Topbar from '@/components/ui/Topbar'
-import CommandPalette from '@/components/ui/CommandPalette'
+import Link from "next/link";
+import Topbar from "../../components/ui/Topbar";
+import { ThemeProvider } from "../../components/ui/ThemeProvider";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
-      <CommandPalette />
-      <div className="mx-auto max-w-7xl px-4">
-        <div className="grid grid-cols-12 gap-4">
-          <aside className="col-span-12 md:col-span-3 lg:col-span-2 py-6">
-            <div className="rounded-3xl bg-slate-950/35 ring-1 ring-slate-800/80 backdrop-blur p-4 sticky top-6">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-2xl bg-emerald-500/15 ring-1 ring-emerald-500/25 flex items-center justify-center font-semibold">
-                  TH
-                </div>
-                <div>
-                  <div className="text-sm font-semibold leading-tight">TradeHub</div>
-                  <div className="text-xs text-slate-400 leading-tight">Ops Suite</div>
-                </div>
+    <ThemeProvider>
+      <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+        <Topbar />
+        <div className="mx-auto flex w-full">
+          <aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-64 flex-none border-r border-zinc-200 bg-white/70 px-4 py-6 backdrop-blur dark:border-zinc-900 dark:bg-zinc-950/40 md:block">
+            <div className="mb-6 flex items-center justify-between">
+              <div className="text-xs font-semibold tracking-wide text-zinc-500 dark:text-zinc-400">
+                Navigation
               </div>
+              <span className="rounded-full border border-zinc-200 bg-white px-2 py-0.5 text-[11px] text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300">
+                A++
+              </span>
+            </div>
 
-              <div className="mt-4 space-y-2">
-                <Nav href="/app/dashboard" label="Dashboard" />
-                <Nav href="/app/jobs" label="Jobs" />
-                <Nav href="/app/calendar" label="Calendar" />
-                <Nav href="/app/clients" label="Clients" />
-                <Nav href="/app/invoices" label="Invoices" />
-                <Nav href="/app/escrow" label="Escrow" />
-                <Nav href="/app/team" label="Team" />
-                <Nav href="/app/settings" label="Settings" />
+            <nav className="space-y-1">
+              <Nav href="/app" label="Dashboard" />
+              <Nav href="/app/jobs" label="Jobs" />
+              <Nav href="/app/calendar" label="Calendar" />
+              <Nav href="/app/clients" label="Clients" />
+              <Nav href="/app/invoices" label="Invoices" />
+              <Nav href="/app/team" label="Team" />
+              <Nav href="/app/escrow" label="Escrow" />
+              <Nav href="/app/settings" label="Settings" />
+            </nav>
+
+            <div className="mt-8 rounded-xl border border-zinc-200 bg-white/60 p-3 text-xs text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950/30 dark:text-zinc-400">
+              <div className="font-semibold text-zinc-700 dark:text-zinc-200">
+                Demo mode
               </div>
-
-              <div className="mt-4 rounded-2xl bg-slate-950/60 ring-1 ring-slate-800 p-4">
-                <div className="text-sm font-semibold">Command Palette</div>
-                <div className="mt-2 text-xs text-slate-400">Press ⌘K anytime</div>
+              <div className="mt-1">
+                Auth disabled. Showing seeded jobs.
               </div>
             </div>
           </aside>
 
-          <main className="col-span-12 md:col-span-9 lg:col-span-10 py-6">
-            <div className="rounded-3xl bg-slate-950/25 ring-1 ring-slate-800/60 overflow-hidden">
-              <Topbar />
-              <div className="p-4 md:p-6">
-                {children}
-              </div>
-            </div>
+          <main className="min-w-0 flex-1 px-4 py-6 md:px-8">
+            {children}
           </main>
         </div>
       </div>
-    </div>
-  )
+    </ThemeProvider>
+  );
 }
 
 function Nav({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="block rounded-2xl bg-slate-900/40 px-4 py-3 text-sm ring-1 ring-slate-800 hover:bg-slate-900/60 transition"
+      className="group flex items-center justify-between rounded-xl px-3 py-2 text-sm text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-900/40 dark:hover:text-zinc-100"
     >
-      {label}
+      <span className="font-medium">{label}</span>
+      <span className="text-xs text-zinc-400 opacity-0 transition group-hover:opacity-100 dark:text-zinc-500">
+        →
+      </span>
     </Link>
-  )
+  );
 }
