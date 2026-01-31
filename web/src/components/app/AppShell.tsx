@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import TopbarActions from "./TopbarActions";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
@@ -81,7 +82,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <div className="ml-auto flex items-center gap-2">
-            <ThemeToggle mounted={mounted} />
+            <TopbarActions />
+          <ThemeToggle mounted={mounted} />
             <div className="hidden sm:block rounded-md border px-3 py-2 text-sm text-muted-foreground">
               {title}
             </div>

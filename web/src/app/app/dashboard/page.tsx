@@ -1,116 +1,111 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+import Link from "next/link";
+
+import PageHeader from "../../../components/ops/shell/PageHeader";
+import KpiCard from "../../../components/ops/shell/KpiCard";
+import RevenueMini from "../../../components/ops/charts/RevenueMini";
+import DataTable from "../../../components/ops/table/DataTable";
+import type { ColumnDef } from "@tanstack/react-table";
+import { Briefcase, Users, Receipt, ShieldCheck } from "lucide-react";
+
+type Row = { id: string; col1: string; col2: string; col3: string; col4: string };
+
+const revenue = [
+  { x: "Mon", y: 12 },
+  { x: "Tue", y: 18 },
+  { x: "Wed", y: 14 },
+  { x: "Thu", y: 22 },
+  { x: "Fri", y: 28 },
+  { x: "Sat", y: 24 },
+  { x: "Sun", y: 31 },
+];
+
+const rows: Row[] = [
+  { id: "j1", col1: "Tower A repaint", col2: "In progress", col3: "Ryan J", col4: "This week" },
+  { id: "j2", col1: "Balcony patch", col2: "Scheduled", col3: "Team A", col4: "Tue" },
+  { id: "j3", col1: "Invoice follow-up", col2: "Blocked", col3: "Ops", col4: "Today" },
+  { id: "j4", col1: "Escrow release", col2: "Review", col3: "Admin", col4: "Today" },
+];
+
+const cols: ColumnDef<Row, unknown>[] = [
+  { header: "Work item", accessorKey: "col1" },
+  { header: "Status", accessorKey: "col2" },
+  { header: "Owner", accessorKey: "col3" },
+  { header: "Due", accessorKey: "col4" },
+];
+
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border bg-background/60 p-6 shadow-sm">
-        <div className="text-3xl font-extrabold tracking-tight">Command Center</div>
-        <div className="mt-1 text-sm text-muted-foreground">
-          Jobs, cashflow, escrow, disputes — live operational view.
-        </div>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Institutional-grade ops console. Fast overview of jobs, cashflow and risk."
+        right={
+          <div className="inline-flex items-center gap-2">
+            <Link
+              className="inline-flex h-10 items-center justify-center rounded-xl border bg-background px-4 text-sm font-semibold hover:bg-muted/40"
+              href="/app/jobs"
+            >
+              View jobs
+            </Link>
+            <Link
+              className="inline-flex h-10 items-center justify-center rounded-xl border bg-foreground px-4 text-sm font-semibold text-background hover:opacity-90"
+              href="/app/calendar"
+            >
+              Schedule
+            </Link>
+          </div>
+        }
+      />
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <KpiCard label="Open jobs" value="24" delta="+3 this week" icon={<Briefcase className="h-5 w-5" />} />
+        <KpiCard label="Active clients" value="18" delta="+2 this month" icon={<Users className="h-5 w-5" />} />
+        <KpiCard label="Invoices due" value="$42.8k" delta="7 overdue" icon={<Receipt className="h-5 w-5" />} />
+        <KpiCard label="Escrow protected" value="$96.4k" delta="0 disputes" icon={<ShieldCheck className="h-5 w-5" />} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-2xl border bg-background/60 p-5 shadow-sm">
-          <div className="text-xs font-semibold text-muted-foreground">Open Jobs</div>
-          <div className="mt-2 text-3xl font-extrabold">12</div>
-          <div className="mt-1 text-xs text-muted-foreground">
-            6 scheduled · 4 in progress · 2 blocked
-          </div>
-        </div>
-
-        <div className="rounded-2xl border bg-background/60 p-5 shadow-sm">
-          <div className="text-xs font-semibold text-muted-foreground">Escrow Held</div>
-          <div className="mt-2 text-3xl font-extrabold">$18,420</div>
-          <div className="mt-1 text-xs text-muted-foreground">Active milestones</div>
-        </div>
-
-        <div className="rounded-2xl border bg-background/60 p-5 shadow-sm">
-          <div className="text-xs font-semibold text-muted-foreground">Invoices Due</div>
-          <div className="mt-2 text-3xl font-extrabold">$7,950</div>
-          <div className="mt-1 text-xs text-muted-foreground">3 overdue · 5 pending</div>
-        </div>
-
-        <div className="rounded-2xl border bg-background/60 p-5 shadow-sm">
-          <div className="text-xs font-semibold text-muted-foreground">Disputes</div>
-          <div className="mt-2 text-3xl font-extrabold">1</div>
-          <div className="mt-1 text-xs text-muted-foreground">Awaiting inspector</div>
-        </div>
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-3">
-        <div className="rounded-2xl border bg-background/60 p-5 shadow-sm xl:col-span-2">
-          <div className="flex items-center justify-between">
-            <div className="text-sm font-semibold">Live Workload</div>
-            <div className="text-xs text-muted-foreground">Next 14 days</div>
-          </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <div className="rounded-xl border bg-background p-4">
-              <div className="text-xs font-semibold text-muted-foreground">Upcoming Jobs</div>
-              <div className="mt-2 space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <div className="font-medium">Strata repaint · Tower A</div>
-                  <div className="text-xs text-muted-foreground">Mon 9:00</div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="font-medium">Rope access patch</div>
-                  <div className="text-xs text-muted-foreground">Tue 7:00</div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="font-medium">Client walkthrough</div>
-                  <div className="text-xs text-muted-foreground">Thu 15:00</div>
-                </div>
-              </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="rounded-2xl border bg-background/60 p-5 shadow-sm lg:col-span-2">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-sm font-semibold">Revenue velocity</div>
+              <div className="mt-1 text-xs text-muted-foreground">Trailing 7 days. Visual sanity check.</div>
             </div>
-
-            <div className="rounded-xl border bg-background p-4">
-              <div className="text-xs font-semibold text-muted-foreground">Cashflow Alerts</div>
-              <div className="mt-2 space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <div className="font-medium">Invoice #1042 overdue</div>
-                  <div className="text-xs text-muted-foreground">$1,240</div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="font-medium">Milestone release pending</div>
-                  <div className="text-xs text-muted-foreground">$6,500</div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="font-medium">Quote accepted</div>
-                  <div className="text-xs text-muted-foreground">$3,780</div>
-                </div>
-              </div>
-            </div>
+            <div className="rounded-xl border bg-background px-3 py-2 text-xs text-muted-foreground">This week</div>
           </div>
+          <RevenueMini data={revenue} />
         </div>
 
         <div className="rounded-2xl border bg-background/60 p-5 shadow-sm">
-          <div className="text-sm font-semibold">Escrow Console</div>
-          <div className="mt-1 text-xs text-muted-foreground">
-            Milestones, releases, disputes.
-          </div>
+          <div className="text-sm font-semibold">Today</div>
+          <div className="mt-1 text-xs text-muted-foreground">Ops focus and risk.</div>
           <div className="mt-4 space-y-3">
-            <div className="rounded-xl border bg-background p-4">
-              <div className="flex items-center justify-between text-sm">
-                <div className="font-medium">Tower A · Milestone 2</div>
-                <div className="text-xs text-muted-foreground">$8,000</div>
-              </div>
-              <div className="mt-2 text-xs text-muted-foreground">
-                Awaiting client approval
-              </div>
+            <div className="rounded-xl border bg-background p-3">
+              <div className="text-sm font-semibold">2 jobs need materials</div>
+              <div className="mt-1 text-xs text-muted-foreground">Procurement blocked</div>
             </div>
-            <div className="rounded-xl border bg-background p-4">
-              <div className="flex items-center justify-between text-sm">
-                <div className="font-medium">Patch · Scope change</div>
-                <div className="text-xs text-muted-foreground">$1,200</div>
-              </div>
-              <div className="mt-2 text-xs text-muted-foreground">
-                Inspector recommended: release 70%
-              </div>
+            <div className="rounded-xl border bg-background p-3">
+              <div className="text-sm font-semibold">1 invoice overdue</div>
+              <div className="mt-1 text-xs text-muted-foreground">Escalate to escrow</div>
+            </div>
+            <div className="rounded-xl border bg-background p-3">
+              <div className="text-sm font-semibold">0 disputes</div>
+              <div className="mt-1 text-xs text-muted-foreground">System healthy</div>
             </div>
           </div>
         </div>
       </div>
+
+      <DataTable
+        columns={cols}
+        data={rows}
+        emptyTitle="No activity"
+        emptySubtitle="Once jobs flow in, this becomes your command table."
+        height={420}
+      />
     </div>
   );
 }
