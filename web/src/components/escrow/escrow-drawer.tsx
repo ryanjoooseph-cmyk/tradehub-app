@@ -1,5 +1,7 @@
 "use client";
 
+
+const s = (status: string) => String(status || "").toLowerCase();
 import { Dialog } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 
