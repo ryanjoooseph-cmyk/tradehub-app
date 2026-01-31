@@ -2,21 +2,24 @@ name: web-build
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
   push:
-    branches: [ main ]
+    branches: [ "main" ]
+
+permissions:
+  contents: read
 
 concurrency:
   group: web-build-${{ github.ref }}
   cancel-in-progress: true
 
-defaults:
-  run:
-    working-directory: web
-
 jobs:
   web-build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: web
     steps:
       - uses: actions/checkout@v4
 
@@ -27,4 +30,5 @@ jobs:
           cache-dependency-path: web/package-lock.json
 
       - run: npm ci
+      - run: npm run lint
       - run: npm run build
