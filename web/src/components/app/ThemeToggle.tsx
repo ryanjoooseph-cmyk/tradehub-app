@@ -1,49 +1,32 @@
 "use client";
 
-import * as React from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
-const KEY = "th_theme";
-
-function getInitial(): "dark" | "light" {
-  if (typeof window === "undefined") return "light";
-  const saved = window.localStorage.getItem(KEY);
-  if (saved === "dark" || saved === "light") return saved;
-  const mq = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  return mq ? "dark" : "light";
+function getInitialDark(): boolean {
+  if (typeof window === "undefined") return false;
+  const saved = window.localStorage.getItem("theme");
+  if (saved === "dark") return true;
+  if (saved === "light") return false;
+  return document.documentElement.classList.contains("dark");
 }
 
-function applyTheme(next: "dark" | "light") {
-  const root = document.documentElement;
-  if (next === "dark") root.classList.add("dark");
-  else root.classList.remove("dark");
-  window.localStorage.setItem(KEY, next);
-}
+export default function ThemeToggle() {
+  const [dark, setDark] = useState<boolean>(() => getInitialDark());
 
-export function ThemeToggle() {
-  const [theme, setTheme] = React.useState<"dark" | "light">("light");
-
-  React.useEffect(() => {
-    const t = getInitial();
-    setTheme(t);
-    applyTheme(t);
-  }, []);
-
-  const next = theme === "dark" ? "light" : "dark";
+  useEffect(() => {
+    if (dark) document.documentElement.classList.add("dark");
+    else document.documentElement.classList.remove("dark");
+    window.localStorage.setItem("theme", dark ? "dark" : "light");
+  }, [dark]);
 
   return (
-    <Button
+    <button
       type="button"
-      variant="secondary"
-      className="rounded-2xl"
-      onClick={() => {
-        setTheme(next);
-        applyTheme(next);
-      }}
       aria-label="Toggle theme"
-      title="Toggle theme"
+      onClick={() => setDark((v) => !v)}
+      className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
     >
-      {theme === "dark" ? "Light" : "Dark"}
-    </Button>
+      {dark ? "Dark" : "Light"}
+    </button>
   );
 }
