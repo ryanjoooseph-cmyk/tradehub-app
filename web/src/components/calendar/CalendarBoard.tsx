@@ -26,6 +26,28 @@ function cx(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(" ");
 }
 
+
+
+async function persistSchedule(id: string, start?: string, end?: string) {
+  try {
+    const r = await fetch("/api/jobs", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        id,
+        start_at: start ?? null,
+        end_at: end ?? null,
+      }),
+    });
+    if (!r.ok) {
+      // best effort: don't crash UI
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
 export default function CalendarBoard() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [events, setEvents] = useState<CalEvent[]>([]);
@@ -161,13 +183,17 @@ export default function CalendarBoard() {
           eventResizableFromStart
           events={events}
           drop={(info) => {
-            // External drop creates an event at the drop date/time
-            const id = info.draggedEl.getAttribute("data-id") || crypto.randomUUID();
+            const id =
+              info.draggedEl.getAttribute("data-id") || crypto.randomUUID();
             const title = info.draggedEl.getAttribute("data-title") || "Job";
+            const start = info.dateStr;
+
             setEvents((prev) => [
               ...prev.filter((e) => e.id !== id),
-              { id, title, start: info.dateStr },
+              { id, title, start },
             ]);
+
+            void persistSchedule(id, new Date(start).toISOString(), undefined);
           }}
           eventDrop={(info) => {
             const id = String(info.event.id);
