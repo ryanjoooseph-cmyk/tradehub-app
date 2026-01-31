@@ -14,9 +14,25 @@ type CalEvent = {
   allDay?: boolean;
 };
 
-function uid() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
-  return Math.random().toString(16).slice(2) + Math.random().toString(16).slice(2);
+type DateClickArgLike = {
+  dateStr: string;
+  allDay: boolean;
+};
+
+type EventLike = {
+  id: string;
+  title: string;
+  startStr: string;
+  endStr?: string;
+  allDay: boolean;
+};
+
+type EventArgLike = {
+  event: EventLike;
+};
+
+function uid(): string {
+  return `${Math.random().toString(16).slice(2)}${Math.random().toString(16).slice(2)}`;
 }
 
 export default function DragDropCalendar() {
@@ -30,34 +46,34 @@ export default function DragDropCalendar() {
     setEvents((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e)));
   }
 
-  function onDateClick(arg: any) {
+  function onDateClick(arg: DateClickArgLike) {
     const title = prompt("New job title");
     if (!title) return;
     const id = uid();
     setEvents((prev) => [...prev, { id, title, start: arg.dateStr, allDay: arg.allDay }]);
   }
 
-  function onEventClick(arg: any) {
-    const id = arg.event.id as string;
-    const next = prompt("Rename job", arg.event.title as string);
+  function onEventClick(arg: EventArgLike) {
+    const next = prompt("Rename job", arg.event.title);
     if (next === null) return;
     const t = next.trim();
     if (!t) return;
-    upsert(id, { title: t });
+    upsert(arg.event.id, { title: t });
   }
 
-  function onEventDrop(arg: any) {
-    const id = arg.event.id as string;
-    upsert(id, {
-      start: arg.event.startStr as string,
-      end: (arg.event.endStr as string) || undefined,
-      allDay: !!arg.event.allDay,
+  function onEventDrop(arg: EventArgLike) {
+    upsert(arg.event.id, {
+      start: arg.event.startStr,
+      end: arg.event.endStr || undefined,
+      allDay: arg.event.allDay,
     });
   }
 
-  function onEventResize(arg: any) {
-    const id = arg.event.id as string;
-    upsert(id, { start: arg.event.startStr as string, end: (arg.event.endStr as string) || undefined });
+  function onEventResize(arg: EventArgLike) {
+    upsert(arg.event.id, {
+      start: arg.event.startStr,
+      end: arg.event.endStr || undefined,
+    });
   }
 
   return (
