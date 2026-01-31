@@ -2,31 +2,49 @@
 
 import { useEffect, useState } from "react";
 
-function getInitialDark(): boolean {
-  if (typeof window === "undefined") return false;
-  const saved = window.localStorage.getItem("theme");
-  if (saved === "dark") return true;
-  if (saved === "light") return false;
-  return document.documentElement.classList.contains("dark");
+type ThemeMode = "light" | "dark";
+
+function getInitialTheme(): ThemeMode {
+  if (typeof window === "undefined") return "light";
+  try {
+    const saved = localStorage.getItem("th_theme");
+    if (saved === "dark" || saved === "light") return saved;
+  } catch {}
+  const prefersDark =
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  return prefersDark ? "dark" : "light";
+}
+
+function persistAndApply(mode: ThemeMode) {
+  try {
+    localStorage.setItem("th_theme", mode);
+  } catch {}
+  const root = document.documentElement;
+  if (mode === "dark") root.classList.add("dark");
+  else root.classList.remove("dark");
 }
 
 export default function ThemeToggle() {
-  const [dark, setDark] = useState<boolean>(() => getInitialDark());
+  const [mode, setMode] = useState<ThemeMode>(getInitialTheme);
 
   useEffect(() => {
-    if (dark) document.documentElement.classList.add("dark");
-    else document.documentElement.classList.remove("dark");
-    window.localStorage.setItem("theme", dark ? "dark" : "light");
-  }, [dark]);
+    persistAndApply(mode);
+  }, [mode]);
 
   return (
     <button
       type="button"
       aria-label="Toggle theme"
-      onClick={() => setDark((v) => !v)}
-      className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+      className="inline-flex h-9 items-center justify-center gap-2 rounded-md border px-3 text-sm font-medium hover:bg-muted"
+      onClick={() => setMode((m) => (m === "dark" ? "light" : "dark"))}
     >
-      {dark ? "Dark" : "Light"}
+      <span className="text-xs font-semibold tracking-tight">
+        {mode === "dark" ? "Dark" : "Light"}
+      </span>
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-md border text-[11px]">
+        {mode === "dark" ? "🌙" : "☀️"}
+      </span>
     </button>
   );
 }
