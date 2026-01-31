@@ -13,12 +13,13 @@ export type ClientRow = {
   notes?: string;
 };
 
-function tone(status: ClientRow["status"]) {
-  if (status === "VIP") return "info";
-  if (status === "On Hold") return "warn";
-  return "good";
-}
-
+const tone = (status: string): "default" | "success" | "warn" | "danger" => {
+  const t = (status || "").toLowerCase();
+  if (/(complete|completed|done|paid|success|approved|active)/.test(t)) return "success";
+  if (/(dispute|overdue|failed|fail|cancel|cancelled|rejected|error|blocked)/.test(t)) return "danger";
+  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing|draft)/.test(t)) return "warn";
+  return "default";
+};
 export function ClientDrawer({
   client,
   open,
@@ -40,8 +41,8 @@ export function ClientDrawer({
     <Dialog open={open} onClose={onClose} title={client.name} widthClass="max-w-2xl">
       <div className="space-y-5">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={tone(client.status)}>{client.status}</Badge>
-          <Badge tone="neutral">{client.id}</Badge>
+          <Badge variant={tone(client.status)}>{client.status}</Badge>
+          <Badge variant="default">{client.id}</Badge>
         </div>
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">

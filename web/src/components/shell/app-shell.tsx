@@ -84,7 +84,7 @@ function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="h-10 rounded-2xl px-3">
+        <Button variant="default" className="h-10 rounded-2xl px-3">
           <span className="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-xl bg-muted text-xs font-semibold">RJ</span>
           <span className="hidden max-w-[220px] truncate text-left text-sm font-medium md:block">ryan.joooseph@icloud.com</span>
           <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
@@ -113,7 +113,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <aside className="hidden w-[292px] shrink-0 border-r bg-background md:block">
             <div className="flex h-16 items-center justify-between px-5">
               <Brand />
-              <Badge variant="outline" className="rounded-full">A++</Badge>
+              <Badge variant="default" className="rounded-full">A++</Badge>
             </div>
             <Separator />
             <ScrollArea className="h-[calc(100vh-8rem)] px-3 py-4">
@@ -132,14 +132,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="flex h-16 items-center gap-3 px-4 md:px-7">
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-10 w-10 rounded-2xl md:hidden">
+                    <Button variant="default" size="icon" className="h-10 w-10 rounded-2xl md:hidden">
                       <Menu className="h-4 w-4" />
                     </Button>
                   </SheetTrigger>
                   <SheetContent side="left" className="w-[320px] p-0">
                     <div className="flex h-16 items-center justify-between px-5">
                       <Brand />
-                      <Badge variant="outline" className="rounded-full">A++</Badge>
+                      <Badge variant="default" className="rounded-full">A++</Badge>
                     </div>
                     <Separator />
                     <div className="px-3 py-4">
@@ -153,7 +153,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <div className="ml-auto flex items-center gap-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" className="h-10 w-10 rounded-2xl">
+                      <Button variant="default" size="icon" className="h-10 w-10 rounded-2xl">
                         <Bell className="h-4 w-4" />
                       </Button>
                     </TooltipTrigger>

@@ -14,7 +14,7 @@ function Card({ title, value, sub }: { title: string; value: string; sub: string
   );
 }
 
-function Pill({ text, tone }: { text: string; tone: "live" | "warn" | "bad" | "neutral" }) {
+function Pill({ text, tone }: { text: string; tone: "live" | "warn" | "bad" | "default" }) {
   const cls =
     tone === "live"
       ? "bg-sky-500/10 text-sky-700 ring-sky-500/20 dark:text-sky-200 dark:bg-sky-400/10"
@@ -121,7 +121,7 @@ export default function DashboardPage() {
               <Row
                 title="Common area repaint"
                 meta="Body Corp • Docklands • Crew 3"
-                pill={<Pill text="Scheduled" tone="neutral" />}
+                pill={<Pill text="Scheduled" tone="default" />}
                 amount="$9,100"
               />
               <Row
