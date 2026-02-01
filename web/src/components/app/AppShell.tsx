@@ -5,7 +5,6 @@ import Link from "next/link";
 import TopbarActions from "./TopbarActions";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { useTheme } from "next-themes";
 
 function cx(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(" ");

@@ -1,4 +1,4 @@
-import { Topbar } from "@/components/app/topbar";
+import Topbar from "@/components/app/topbar";
 import { Sidenav } from "@/components/app/sidenav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {

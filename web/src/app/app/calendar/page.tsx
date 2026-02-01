@@ -44,8 +44,6 @@ export default function CalendarPage() {
     { id: "J-1407", title: "Balcony sealing package", client: "Bayside Strata", site: "St Kilda", day: 2, startMin: 12 * 60 + 30, durMin: 150, lane: "Crew A" },
   ]);
 
-  const lanes = ["Crew A", "Crew B", "QA", "Unassigned"];
-
   const gridDays = view === "week" ? days.map((_, i) => i) : [focusDay];
 
   const rows = Math.ceil((endDayMin - startDayMin) / stepMin);
