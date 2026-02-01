@@ -3,8 +3,8 @@
 import Link from "next/link";
 import TopbarActions from "./TopbarActions";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 function cx(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(" ");
@@ -27,7 +27,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
-const activeHref = useMemo(() => {
+  const activeHref = useMemo(() => {
+  const [collapsed, setCollapsed] = useState(false);
+
+  const activeHref = useMemo(() => {
     const hit = NAV.find((n) => pathname === n.href);
     return hit?.href ?? "";
   }, [pathname]);
