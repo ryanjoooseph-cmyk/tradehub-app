@@ -1,9 +1,21 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-const path = require("path");
+// @ts-check
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  outputFileTracingRoot: path.join(__dirname, ".."),
-};
+  experimental: {
+    // Matches `next build --debug-prerender` behavior:
+    // - disables server minification
+    // - disables turbopack minify
+    // - enables server source maps
+    // - prevents early-exit on first prerender error
+    serverMinification: false,
+    turbopackMinify: false,
+    serverSourceMaps: true,
+    prerenderEarlyExit: false,
+  },
 
-module.exports = nextConfig;
+  // Enables source map consumption in prerender worker processes
+  enablePrerenderSourceMaps: true,
+}
+
+module.exports = nextConfig
