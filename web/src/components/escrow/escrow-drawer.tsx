@@ -32,7 +32,7 @@ const tone = (status: string): "default" | "success" | "warn" | "danger" => {
   if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing|draft)/.test(t)) return "warn";
   return "default";
 };
-const toneM = (s: EscrowRow["milestones"][number]["status"]): "default" | "warn" | "success" | "danger" => {
+const toneM = (status: EscrowRow["milestones"][number]["status"]): "default" | "warn" | "success" | "danger" => {
   const t = lower(status);
   if (/(released|paid|complete|completed|success|approved)/.test(t)) return "success";
   if (/(failed|fail|blocked|dispute|cancel|cancelled|rejected|error|bad)/.test(t)) return "danger";
