@@ -4,7 +4,6 @@ import Link from "next/link";
 import TopbarActions from "./TopbarActions";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
-import { useMemo, useState } from "react";
 
 function cx(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(" ");
@@ -25,9 +24,6 @@ const NAV = [
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
-
-  const activeHref = useMemo(() => {
   const [collapsed, setCollapsed] = useState(false);
 
 const activeHref = useMemo(() => {
