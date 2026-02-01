@@ -1,3 +1,4 @@
+import AppShell from '../components/app/AppShell'
 import "./globals.css";
 import type { Metadata } from "next";
 
@@ -21,11 +22,8 @@ import ThemeProvider from "@/components/app/ThemeProvider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
-      <body><ThemeProvider>{children}</ThemeProvider></body>
-    </html>
+    <AppShell>
+      {children}
+    </AppShell>
   );
 }
