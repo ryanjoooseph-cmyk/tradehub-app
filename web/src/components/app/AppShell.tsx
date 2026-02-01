@@ -30,7 +30,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const activeHref = useMemo(() => {
   const [collapsed, setCollapsed] = useState(false);
 
-  const activeHref = useMemo(() => {
+const activeHref = useMemo(() => {
     const hit = NAV.find((n) => pathname === n.href);
     return hit?.href ?? "";
   }, [pathname]);
