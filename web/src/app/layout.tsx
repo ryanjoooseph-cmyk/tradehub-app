@@ -22,8 +22,8 @@ import ThemeProvider from "@/components/app/ThemeProvider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <AppShell>
-      {children}
-    </AppShell>
+    <html lang="en">
+      <body>{children}</body>
+    </html>
   );
 }
