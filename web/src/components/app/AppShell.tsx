@@ -3,7 +3,8 @@
 import Link from "next/link";
 import TopbarActions from "./TopbarActions";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 function cx(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(" ");
