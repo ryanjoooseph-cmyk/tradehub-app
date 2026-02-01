@@ -1,11 +1,9 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import Link from "next/link";
 import TopbarActions from "./TopbarActions";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { useTheme } from "next-themes";
+import { useMemo, useState } from "react";
 
 function cx(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(" ");
@@ -24,33 +22,11 @@ const NAV = [
   { href: "/escrow", label: "Escrow Ops" },
 ];
 
-function ThemeToggle({ mounted }: { mounted: boolean }) {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const current = (theme === "system" ? resolvedTheme : theme) ?? "light";
-
-  if (!mounted) return <div className="h-9 w-[74px]" />;
-
-  return (
-    <button
-      type="button"
-      onClick={() => setTheme(current === "dark" ? "light" : "dark")}
-      className="inline-flex items-center justify-center rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"
-    >
-      {current === "dark" ? "Light" : "Dark"}
-    </button>
-  );
-}
-
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const activeHref = useMemo(() => {
+const activeHref = useMemo(() => {
     const hit = NAV.find((n) => pathname === n.href);
     return hit?.href ?? "";
   }, [pathname]);
@@ -83,7 +59,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           <div className="ml-auto flex items-center gap-2">
             <TopbarActions />
-          <ThemeToggle mounted={mounted} />
             <div className="hidden sm:block rounded-md border px-3 py-2 text-sm text-muted-foreground">
               {title}
             </div>
