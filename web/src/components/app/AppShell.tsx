@@ -24,23 +24,6 @@ const NAV = [
   { href: "/escrow", label: "Escrow Ops" },
 ];
 
-function ThemeToggle({ mounted }: { mounted: boolean }) {
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const current = (theme === "system" ? resolvedTheme : theme) ?? "light";
-
-  if (!mounted) return <div className="h-9 w-[74px]" />;
-
-  return (
-    <button
-      type="button"
-      onClick={() => setTheme(current === "dark" ? "light" : "dark")}
-      className="inline-flex items-center justify-center rounded-md border px-3 py-2 text-sm font-medium hover:bg-muted"
-    >
-      {current === "dark" ? "Light" : "Dark"}
-    </button>
-  );
-}
-
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
@@ -83,7 +66,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
           <div className="ml-auto flex items-center gap-2">
             <TopbarActions />
-          <ThemeToggle mounted={mounted} />
             <div className="hidden sm:block rounded-md border px-3 py-2 text-sm text-muted-foreground">
               {title}
             </div>

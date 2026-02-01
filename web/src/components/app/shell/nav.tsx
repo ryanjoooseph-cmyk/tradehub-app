@@ -21,22 +21,6 @@ function cx(...a: Array<string | false | undefined | null>) {
   return a.filter(Boolean).join(" ");
 }
 
-function ThemeIconToggle() {
-  const { theme, resolvedTheme, setTheme } = useTheme();
-  const current = (theme === "system" ? resolvedTheme : theme) ?? "light";
-  const isDark = current === "dark";
-  return (
-    <button
-      type="button"
-      aria-label="Toggle theme"
-      className="inline-flex items-center justify-center rounded-lg border px-3 py-2 text-xs hover:bg-accent/40"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-    >
-      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-    </button>
-  );
-}
-
 export function Sidebar() {
   const p = usePathname() || "";
   return (
@@ -101,7 +85,6 @@ export function Topbar() {
         <div className="hidden md:block text-xs text-muted-foreground">Institutional-grade ops for trades.</div>
       </div>
       <div className="flex items-center gap-2">
-        <ThemeIconToggle />
         <Link href="/app/settings" className="rounded-lg border px-3 py-2 text-xs hover:bg-accent/40">
           Settings
         </Link>

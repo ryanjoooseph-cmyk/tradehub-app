@@ -1,32 +1,36 @@
 "use client";
 
-import Link from "next/link";
 import { ThemeToggle } from "@/components/app/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { Bell, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Bell, Bolt, Plus, Search } from "lucide-react";
 
-export function Topbar() {
+export default function Topbar() {
   return (
-    <div className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-3 px-4">
-        <Link href="/app/dashboard" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-foreground text-background">TH</span>
-          <span className="hidden sm:block">TradeHub</span>
-        </Link>
+    <div className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-2 px-4">
+        <div className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+          TradeHub <span className="text-muted-foreground font-medium">Ops Platform</span>
+        </div>
 
-        <div className="ml-2 hidden flex-1 items-center gap-2 md:flex">
-          <div className="flex h-10 w-full max-w-xl items-center gap-2 rounded-xl border border-border/60 bg-muted/40 px-3">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <input
-              className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              placeholder="Search jobs, clients, invoices…"
-            />
-          </div>
+        <div className="ml-4 hidden w-[520px] max-w-[52vw] items-center gap-2 rounded-md border bg-background px-2 sm:flex">
+          <Search className="h-4 w-4 text-muted-foreground" />
+          <Input
+            className="h-9 border-0 bg-transparent px-0 focus-visible:ring-0"
+            placeholder="Search jobs, clients, invoices, escrow…"
+          />
+          <div className="text-xs text-muted-foreground">⌘K</div>
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          <Button size="icon" variant="default" className="rounded-xl" aria-label="Notifications">
+          <Button variant="outline" size="icon" aria-label="Quick actions">
+            <Bolt className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" aria-label="Notifications">
             <Bell className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" aria-label="Create">
+            <Plus className="h-4 w-4" />
           </Button>
           <ThemeToggle />
         </div>
