@@ -1,0 +1,26 @@
+# TradeHub Core Rules (non-negotiable)
+
+## Scope control
+- Only implement the current PR from docs/development-roadmap.md.
+- Only touch the Allowed Files for that PR.
+- If more files are needed, STOP and split into a new PR.
+
+## No-regression constraints
+- Do not regress AppShell / Topbar / Sidebar / Theme behavior.
+- Do not rename routes unless explicitly required by the PR.
+
+## Tooling lock
+- Do not change build tooling, workflows, pnpm/workspace, lockfiles, Next build modes, or deployment scripts unless the PR explicitly targets them.
+
+## Required gates (must pass before push)
+- pnpm lint
+- pnpm typecheck
+- pnpm build
+
+## PR requirements
+- PR description must include:
+  - Goal (1 sentence)
+  - Allowed files list (copy/paste)
+  - Commands run (lint/typecheck/build)
+  - Routes tested
+  - Screenshots (before/after for UI changes)
