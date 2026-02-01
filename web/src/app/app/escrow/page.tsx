@@ -1,4 +1,71 @@
-import { Card, GhostButton, PageHeader, PageWrap, Pill, PrimaryButton, SearchBar, SimpleTable, StatGrid } from "@/components/app/filled/page";
+import {
+  Card,
+  GhostButton,
+  PageHeader,
+  PageWrap,
+  Pill,
+  PrimaryButton,
+  SearchBar,
+  SimpleTable,
+  StatGrid,
+} from "@/components/app/filled/page";
+
+type EscrowRow = {
+  job: string;
+  client: string;
+  milestone: string;
+  status: "Awaiting QA" | "Release ready" | "On hold" | "Dispute";
+  next: string;
+  amount: string;
+};
+
+const rows: EscrowRow[] = [
+  {
+    job: "J-1402 Tower A repaint",
+    client: "Acme Body Corp",
+    milestone: "3 complete",
+    status: "Awaiting QA",
+    next: "Upload progress photos (Today)",
+    amount: "$6,450",
+  },
+  {
+    job: "J-1405 QA inspection",
+    client: "Riverside Mgmt",
+    milestone: "2 complete",
+    status: "Release ready",
+    next: "Release milestone #2 (Now)",
+    amount: "$2,980",
+  },
+  {
+    job: "J-1407 Balcony sealing",
+    client: "Bayside Strata",
+    milestone: "0 complete",
+    status: "On hold",
+    next: "Scope approval (Client)",
+    amount: "$8,900",
+  },
+  {
+    job: "J-1411 Roof touch-ups",
+    client: "Southbank Commercial",
+    milestone: "1 complete",
+    status: "Dispute",
+    next: "Inspector booking (48h)",
+    amount: "$1,860",
+  },
+];
+
+function statusPill(s: EscrowRow["status"]) {
+  switch (s) {
+    case "Release ready":
+      return <Pill tone="good">Release ready</Pill>;
+    case "Awaiting QA":
+      return <Pill tone="warn">Awaiting QA</Pill>;
+    case "On hold":
+      return <Pill tone="neutral">On hold</Pill>;
+    case "Dispute":
+      return <Pill tone="bad">Dispute</Pill>;
+  }
+}
 
 export default function EscrowPage() {
   return (
@@ -13,148 +80,66 @@ export default function EscrowPage() {
           </>
         }
       />
+
       <StatGrid
         items={[
           { label: "Funds Held", value: "$28,900", hint: "Across active jobs" },
           { label: "Ready to Release", value: "$6,450", hint: "QA complete" },
           { label: "On Hold", value: "$8,900", hint: "Pending approval" },
-          { label: "Disputes", value: "0", hint: "Active cases" },
+          { label: "Disputes", value: "1", hint: "Needs review" },
         ]}
       />
-      <SearchBar placeholder="Search by job, client, milestone, reference…" />
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-4">
-          <Card title="Active Escrows" subtitle="Seed structure — wire to DB next">
-            <SimpleTable
-              cols={["Job", "Client", "Milestones", "Status", "Next action", "Held"]}
-              rows={[
-                [
-                  <div key="a">
-                    <div className="font-semibold">J-1402</div>
-                    <div className="text-xs text-muted-foreground">Tower A repaint</div>
-                  </div>,
-                  <div key="b">
-                    <div className="font-medium">Acme Body Corp</div>
-                    <div className="text-xs text-muted-foreground">12 buildings</div>
-                  </div>,
-                  <div key="c">
-                    <div className="font-medium">3</div>
-                    <div className="text-xs text-muted-foreground">1 complete</div>
-                  </div>,
-                  <Pill key="d" tone="warn">Awaiting QA</Pill>,
-                  <div key="e">
-                    <div className="font-medium">Upload progress photos</div>
-                    <div className="text-xs text-muted-foreground">Today</div>
-                  </div>,
-                  <div key="f" className="font-semibold">$18,900</div>,
-                ],
-                [
-                  <div key="a">
-                    <div className="font-semibold">J-1405</div>
-                    <div className="text-xs text-muted-foreground">QA inspection</div>
-                  </div>,
-                  <div key="b">
-                    <div className="font-medium">Riverside Mgmt</div>
-                    <div className="text-xs text-muted-foreground">Docklands</div>
-                  </div>,
-                  <div key="c">
-                    <div className="font-medium">2</div>
-                    <div className="text-xs text-muted-foreground">2 complete</div>
-                  </div>,
-                  <Pill key="d" tone="good">Release ready</Pill>,
-                  <div key="e">
-                    <div className="font-medium">Release milestone #2</div>
-                    <div className="text-xs text-muted-foreground">Now</div>
-                  </div>,
-                  <div key="f" className="font-semibold">$6,450</div>,
-                ],
-                [
-                  <div key="a">
-                    <div className="font-semibold">J-1407</div>
-                    <div className="text-xs text-muted-foreground">Balcony sealing</div>
-                  </div>,
-                  <div key="b">
-                    <div className="font-medium">Bayside Strata</div>
-                    <div className="text-xs text-muted-foreground">St Kilda</div>
-                  </div>,
-                  <div key="c">
-                    <div className="font-medium">4</div>
-                    <div className="text-xs text-muted-foreground">0 complete</div>
-                  </div>,
-                  <Pill key="d" tone="bad">On hold</Pill>,
-                  <div key="e">
-                    <div className="font-medium">Scope approval</div>
-                    <div className="text-xs text-muted-foreground">Overdue</div>
-                  </div>,
-                  <div key="f" className="font-semibold">$8,900</div>,
-                ],
-              ]}
-            />
-          </Card>
+      <Card title="Search">
+        <SearchBar placeholder="Search by job, client, milestone, reference…" />
+      </Card>
 
-          <Card title="Audit Trail" subtitle="Immutable record (seed)">
-            <div className="space-y-2">
-              <div className="rounded-xl border bg-muted/10 p-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">Milestone created</div>
-                  <div className="text-xs text-muted-foreground">Today 10:14</div>
-                </div>
-                <div className="text-xs text-muted-foreground">J-1402 • Milestone #2 • $9,450</div>
-              </div>
-              <div className="rounded-xl border bg-muted/10 p-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">QA evidence uploaded</div>
-                  <div className="text-xs text-muted-foreground">Yesterday 16:02</div>
-                </div>
-                <div className="text-xs text-muted-foreground">J-1405 • 14 photos • report.pdf</div>
-              </div>
-              <div className="rounded-xl border bg-muted/10 p-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">Milestone released</div>
-                  <div className="text-xs text-muted-foreground">Yesterday 16:08</div>
-                </div>
-                <div className="text-xs text-muted-foreground">J-1405 • $6,450 • payout initiated</div>
-              </div>
-            </div>
-          </Card>
-        </div>
+      <Card title="Escrow Activity" subtitle="Hold/release pipeline across jobs and milestones.">
+        <SimpleTable
+          cols={["Job","Client","Milestones","Status","Next action","Amount"]}
+          rows={rows.map((r) => [
+            r.job,
+            r.client,
+            r.milestone,
+            statusPill(r.status),
+            r.next,
+            r.amount,
+          ])}
+        />
+      </Card>
 
-        <div className="space-y-4">
-          <Card title="Release Engine" subtitle="Rules that protect both sides" right={<GhostButton>Configure</GhostButton>}>
-            <div className="space-y-3">
-              <div className="rounded-2xl border bg-muted/10 p-4">
-                <div className="font-semibold">Auto-release when</div>
-                <div className="mt-1 text-xs text-muted-foreground">QA evidence + client sign-off present.</div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card
+          title="Release Engine"
+          subtitle="Rules that protect trades + clients without slowing cashflow."
+          right={<GhostButton>Rules</GhostButton>}>
+          <div className="grid gap-3">
+            <Card title="Evidence gates" subtitle="Proof + acknowledgement before release.">
+              <div className="text-sm opacity-80">
+                Photo proof + client acknowledgement before milestone release.
               </div>
-              <div className="rounded-2xl border bg-muted/10 p-4">
-                <div className="font-semibold">Auto-hold when</div>
-                <div className="mt-1 text-xs text-muted-foreground">Scope disputes, failed inspection, overdue approvals.</div>
+            </Card>
+            <Card title="Dispute window" subtitle="Configurable hold before escalation.">
+              <div className="text-sm opacity-80">
+                24–72h configurable hold before dispute escalation.
               </div>
-              <div className="rounded-2xl border bg-muted/10 p-4">
-                <div className="font-semibold">Dispute pathway</div>
-                <div className="mt-1 text-xs text-muted-foreground">Triage → inspector → resolution → release or refund.</div>
+            </Card>
+            <Card title="Audit trail" subtitle="Immutable event stream.">
+              <div className="text-sm opacity-80">
+                created → held → released → disputed (timestamped).
               </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
+        </Card>
 
-          <Card title="Quick actions" subtitle="Immediate ops">
-            <div className="grid gap-2">
-              <button className="rounded-xl border bg-background px-3 py-3 text-left hover:bg-accent/40">
-                <div className="text-sm font-semibold">Create milestone plan</div>
-                <div className="text-xs text-muted-foreground">From quote stages</div>
-              </button>
-              <button className="rounded-xl border bg-background px-3 py-3 text-left hover:bg-accent/40">
-                <div className="text-sm font-semibold">Request inspection</div>
-                <div className="text-xs text-muted-foreground">3rd-party QA</div>
-              </button>
-              <button className="rounded-xl border bg-background px-3 py-3 text-left hover:bg-accent/40">
-                <div className="text-sm font-semibold">Start dispute</div>
-                <div className="text-xs text-muted-foreground">Lock funds + log evidence</div>
-              </button>
-            </div>
-          </Card>
-        </div>
+        <Card title="Actions" subtitle="Fast ops moves (UI now, DB wiring next).">
+          <div className="grid gap-3">
+            <PrimaryButton>Release next milestone</PrimaryButton>
+            <GhostButton>Put escrow on hold</GhostButton>
+            <GhostButton>Open dispute</GhostButton>
+            <GhostButton>Book inspector</GhostButton>
+          </div>
+        </Card>
       </div>
     </PageWrap>
   );
