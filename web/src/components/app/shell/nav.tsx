@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
+import { Moon, Sun } from "lucide-react";
 import React from "react";
 
 const items = [
   { href: "/app/dashboard", label: "Dashboard" },
   { href: "/app/jobs", label: "Jobs" },
+  { href: "/app/calendar", label: "Calendar" },
   { href: "/app/clients", label: "Clients" },
   { href: "/app/invoices", label: "Invoices" },
   { href: "/app/escrow", label: "Escrow" },
@@ -18,38 +21,18 @@ function cx(...a: Array<string | false | undefined | null>) {
   return a.filter(Boolean).join(" ");
 }
 
-function ThemeToggle() {
-  const [mounted, setMounted] = React.useState(false);
-  const [isDark, setIsDark] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem("theme") || "";
-    const dark = saved === "dark" || document.documentElement.classList.contains("dark");
-    setIsDark(dark);
-    if (dark) document.documentElement.classList.add("dark");
-    else document.documentElement.classList.remove("dark");
-  }, []);
-
-  if (!mounted) return null;
-
+function ThemeIconToggle() {
+  const { theme, resolvedTheme, setTheme } = useTheme();
+  const current = (theme === "system" ? resolvedTheme : theme) ?? "light";
+  const isDark = current === "dark";
   return (
     <button
       type="button"
-      className="rounded-lg border px-3 py-2 text-xs hover:bg-accent/40"
-      onClick={() => {
-        const next = !isDark;
-        setIsDark(next);
-        if (next) {
-          document.documentElement.classList.add("dark");
-          localStorage.setItem("theme", "dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-          localStorage.setItem("theme", "light");
-        }
-      }}
+      aria-label="Toggle theme"
+      className="inline-flex items-center justify-center rounded-lg border px-3 py-2 text-xs hover:bg-accent/40"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
     >
-      {isDark ? "Light" : "Dark"}
+      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </button>
   );
 }
@@ -111,16 +94,14 @@ export function Sidebar() {
 export function Topbar() {
   const p = usePathname() || "";
   const title = items.find((i) => p === i.href || p.startsWith(i.href + "/"))?.label ?? "App";
-
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b bg-background/80 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex items-center gap-3">
-        <div className="hidden lg:block text-sm font-semibold tracking-tight">{title}</div>
+        <div className="text-sm font-semibold tracking-tight">{title}</div>
         <div className="hidden md:block text-xs text-muted-foreground">Institutional-grade ops for trades.</div>
       </div>
-
       <div className="flex items-center gap-2">
-        <ThemeToggle />
+        <ThemeIconToggle />
         <Link href="/app/settings" className="rounded-lg border px-3 py-2 text-xs hover:bg-accent/40">
           Settings
         </Link>

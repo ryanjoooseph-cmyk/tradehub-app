@@ -3,16 +3,14 @@
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
-type Props = React.ComponentProps<typeof NextThemesProvider>;
-
-export function ThemeProvider({ children, ...props }: Props) {
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
   return (
     <NextThemesProvider
       attribute="class"
       defaultTheme="system"
       enableSystem
       disableTransitionOnChange
-      {...props}
+      storageKey="th_theme"
     >
       {children}
     </NextThemesProvider>
