@@ -1,93 +1,139 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { SectionTitle } from "@/components/app/filled/section";
-
-const clients = [
-  { name: "Acme Body Corp", tier: "A", jobs: 12, ar: 14800, health: "Good" },
-  { name: "Bayside Strata", tier: "A", jobs: 8, ar: 7600, health: "Good" },
-  { name: "Northpoint OC", tier: "B", jobs: 5, ar: 4200, health: "Watch" },
-  { name: "Riverside Mgmt", tier: "B", jobs: 4, ar: 6100, health: "Good" },
-];
-
-const tone = (h: string): "default" | "success" | "warn" | "danger" => {
-  const t = h.toLowerCase();
-  if (t.includes("good")) return "success";
-  if (t.includes("watch")) return "warn";
-  if (t.includes("bad")) return "danger";
-  return "default";
-};
+import { Card, GhostButton, PageHeader, PageWrap, Pill, PrimaryButton, SearchBar, SimpleTable, StatGrid } from "@/components/app/filled/page";
 
 export default function ClientsPage() {
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <SectionTitle title="Clients" subtitle="CRM-grade directory + profile surface." />
-        <Badge variant="default">Active: {clients.length}</Badge>
-      </div>
+    <PageWrap>
+      <PageHeader
+        title="Clients"
+        subtitle="Owners, strata managers, builders — all relationships, one view."
+        right={
+          <>
+            <GhostButton>Segments</GhostButton>
+            <PrimaryButton>New Client</PrimaryButton>
+          </>
+        }
+      />
+      <StatGrid
+        items={[
+          { label: "Total Clients", value: "124", hint: "Active + archived" },
+          { label: "High Value", value: "19", hint: ">$50k lifetime" },
+          { label: "New This Month", value: "7", hint: "Inbound + referrals" },
+          { label: "Avg. Response", value: "2h 14m", hint: "Email + calls" },
+        ]}
+      />
+      <SearchBar placeholder="Search clients by name, email, company, building…" />
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-4">
+          <Card title="Client Directory" subtitle="Seed UI with structure ready for Supabase wiring">
+            <SimpleTable
+              cols={["Client", "Type", "Portfolio", "Status", "Notes"]}
+              rows={[
+                [
+                  <div key="a">
+                    <div className="font-semibold">Acme Body Corp</div>
+                    <div className="text-xs text-muted-foreground">lchen@acme.com</div>
+                  </div>,
+                  <Pill key="b">Strata</Pill>,
+                  <div key="c">
+                    <div className="font-medium">12 buildings</div>
+                    <div className="text-xs text-muted-foreground">Southbank / Docklands</div>
+                  </div>,
+                  <Pill key="d" tone="good">Active</Pill>,
+                  <div key="e" className="text-sm">Prefers staged invoicing + progress photos.</div>,
+                ],
+                [
+                  <div key="a">
+                    <div className="font-semibold">Bayside Strata</div>
+                    <div className="text-xs text-muted-foreground">ops@bayside.com</div>
+                  </div>,
+                  <Pill key="b">Strata</Pill>,
+                  <div key="c">
+                    <div className="font-medium">6 buildings</div>
+                    <div className="text-xs text-muted-foreground">St Kilda / Elwood</div>
+                  </div>,
+                  <Pill key="d" tone="warn">Warm</Pill>,
+                  <div key="e" className="text-sm">Awaiting scope clarification on balcony package.</div>,
+                ],
+                [
+                  <div key="a">
+                    <div className="font-semibold">Riverside Mgmt</div>
+                    <div className="text-xs text-muted-foreground">apatel@riverside.com</div>
+                  </div>,
+                  <Pill key="b">Management</Pill>,
+                  <div key="c">
+                    <div className="font-medium">3 sites</div>
+                    <div className="text-xs text-muted-foreground">Docklands</div>
+                  </div>,
+                  <Pill key="d" tone="good">Active</Pill>,
+                  <div key="e" className="text-sm">Fast approvals when QA evidence is attached.</div>,
+                ],
+              ]}
+            />
+          </Card>
 
-      <div className="grid gap-4 xl:grid-cols-3">
-        <Card className="xl:col-span-2">
-          <CardHeader>
-            <CardTitle>Client Directory</CardTitle>
-            <CardDescription>Segmented list + activity + jobs + invoices.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/40 text-xs text-muted-foreground">
-                  <tr>
-                    <th className="px-3 py-2 text-left">Client</th>
-                    <th className="px-3 py-2 text-left">Tier</th>
-                    <th className="px-3 py-2 text-right">Jobs</th>
-                    <th className="px-3 py-2 text-right">A/R</th>
-                    <th className="px-3 py-2 text-left">Health</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {clients.map((c) => (
-                    <tr key={c.name} className="border-t">
-                      <td className="px-3 py-2 font-medium">{c.name}</td>
-                      <td className="px-3 py-2">
-                        <Badge variant="default">{c.tier}</Badge>
-                      </td>
-                      <td className="px-3 py-2 text-right">{c.jobs}</td>
-                      <td className="px-3 py-2 text-right">${c.ar.toLocaleString()}</td>
-                      <td className="px-3 py-2">
-                        <Badge variant={tone(c.health)}>{c.health}</Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Client Profile</CardTitle>
-            <CardDescription>Selected: {clients[0].name}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm">
-            <div className="rounded-lg border bg-muted/10 p-3">
-              <div className="text-xs text-muted-foreground">Credit / Risk</div>
-              <div className="mt-1 flex items-center justify-between">
-                <div className="font-semibold">Healthy</div>
-                <Badge variant="success">Approved</Badge>
+          <Card title="Relationship Intelligence" subtitle="The stuff that makes you money (seed)">
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="rounded-2xl border bg-muted/10 p-4">
+                <div className="text-sm font-semibold">Portfolio heatmap</div>
+                <div className="mt-1 text-xs text-muted-foreground">Which buildings are due for repaint cycles.</div>
+              </div>
+              <div className="rounded-2xl border bg-muted/10 p-4">
+                <div className="text-sm font-semibold">Referral engine</div>
+                <div className="mt-1 text-xs text-muted-foreground">Auto-identify managers connected across buildings.</div>
+              </div>
+              <div className="rounded-2xl border bg-muted/10 p-4">
+                <div className="text-sm font-semibold">Risk flags</div>
+                <div className="mt-1 text-xs text-muted-foreground">Payment friction, scope creep, dispute frequency.</div>
               </div>
             </div>
-            <div className="rounded-lg border bg-muted/10 p-3">
-              <div className="text-xs text-muted-foreground">Next action</div>
-              <div className="mt-1 font-medium">Follow up on INV-1042</div>
-              <div className="text-xs text-muted-foreground">Due in 3 days</div>
+          </Card>
+        </div>
+
+        <div className="space-y-4">
+          <Card title="Client Health" subtitle="Operational signals">
+            <div className="space-y-3">
+              <div className="rounded-2xl border bg-muted/10 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">Payment reliability</div>
+                  <Pill tone="good">High</Pill>
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">Track average days to pay and claim disputes.</div>
+              </div>
+              <div className="rounded-2xl border bg-muted/10 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">Approval speed</div>
+                  <Pill tone="warn">Medium</Pill>
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">Measure quote acceptance time by manager.</div>
+              </div>
+              <div className="rounded-2xl border bg-muted/10 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold">Scope volatility</div>
+                  <Pill tone="neutral">Low</Pill>
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">Detect variations & change requests.</div>
+              </div>
             </div>
-            <div className="rounded-lg border bg-muted/10 p-3">
-              <div className="text-xs text-muted-foreground">Notes</div>
-              <div className="mt-1 text-muted-foreground">Preferred crew: Crew 2. QA requires photo evidence.</div>
+          </Card>
+
+          <Card title="Quick Actions" subtitle="Make it move" right={<GhostButton>Configure</GhostButton>}>
+            <div className="grid gap-2">
+              <button className="rounded-xl border bg-background px-3 py-3 text-left hover:bg-accent/40">
+                <div className="text-sm font-semibold">Send proposal pack</div>
+                <div className="text-xs text-muted-foreground">Scope, inclusions, timeline</div>
+              </button>
+              <button className="rounded-xl border bg-background px-3 py-3 text-left hover:bg-accent/40">
+                <div className="text-sm font-semibold">Request site access</div>
+                <div className="text-xs text-muted-foreground">Permits, keys, hoist bookings</div>
+              </button>
+              <button className="rounded-xl border bg-background px-3 py-3 text-left hover:bg-accent/40">
+                <div className="text-sm font-semibold">Create escrow plan</div>
+                <div className="text-xs text-muted-foreground">Milestones + release rules</div>
+              </button>
             </div>
-          </CardContent>
-        </Card>
+          </Card>
+        </div>
       </div>
-    </div>
+    </PageWrap>
   );
 }
