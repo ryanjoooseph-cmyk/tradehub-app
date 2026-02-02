@@ -3,7 +3,7 @@
 import Link from "next/link";
 import TopbarActions from "./TopbarActions";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, startTransition } from "react";
 
 function cx(...xs: Array<string | false | null | undefined>) {
   return xs.filter(Boolean).join(" ");
@@ -26,8 +26,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
-const activeHref = useMemo(() => {
-    const hit = NAV.find((n) => pathname === n.href);
+  // Auto-close sidebar on mobile navigation
+  useEffect(() => {
+    const isMobileViewport = window.innerWidth < 768;
+    if (isMobileViewport) {
+      startTransition(() => {
+        setCollapsed(true);
+      });
+    }
+  }, [pathname]);
+
+  const activeHref = useMemo(() => {
+    // Sort by longest path first to avoid false matches
+    const sorted = [...NAV].sort((a, b) => b.href.length - a.href.length);
+    const hit = sorted.find((n) => pathname.startsWith(n.href));
     return hit?.href ?? "";
   }, [pathname]);
 
