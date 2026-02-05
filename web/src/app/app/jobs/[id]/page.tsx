@@ -2,294 +2,402 @@
 
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
+import { Upload, Edit, Send, FileText, Calendar, CheckCircle } from 'lucide-react'
 
 const cn = (...a: Array<string | false | undefined | null>) => a.filter(Boolean).join(' ')
-const money = (n: number) => n.toLocaleString(undefined, { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 })
+const money = (n: number) => n.toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 
-function Pill(props: { tone: 'emerald' | 'amber' | 'rose' | 'violet' | 'slate'; children: React.ReactNode }) {
+function Pill(props: { tone: 'blue' | 'yellow' | 'orange' | 'green' | 'red' | 'slate' | 'violet'; children: React.ReactNode }) {
   const map: Record<string, string> = {
-    emerald: 'bg-emerald-900/35 text-emerald-200 ring-emerald-700/60',
-    amber: 'bg-amber-900/35 text-amber-200 ring-amber-700/60',
-    rose: 'bg-rose-900/35 text-rose-200 ring-rose-700/60',
-    violet: 'bg-violet-900/35 text-violet-200 ring-violet-700/60',
-    slate: 'bg-slate-900/60 text-slate-200 ring-slate-700/70',
+    blue: 'bg-blue-500/10 text-blue-600 dark:bg-blue-950 dark:text-blue-400 ring-blue-500/20',
+    yellow: 'bg-yellow-500/10 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-400 ring-yellow-500/20',
+    orange: 'bg-orange-500/10 text-orange-600 dark:bg-orange-950 dark:text-orange-400 ring-orange-500/20',
+    green: 'bg-green-500/10 text-green-600 dark:bg-green-950 dark:text-green-400 ring-green-500/20',
+    red: 'bg-red-500/10 text-red-600 dark:bg-red-950 dark:text-red-400 ring-red-500/20',
+    violet: 'bg-violet-500/10 text-violet-600 dark:bg-violet-950 dark:text-violet-400 ring-violet-500/20',
+    slate: 'bg-slate-500/10 text-slate-600 dark:bg-slate-800 dark:text-slate-400 ring-slate-500/20',
   }
-  return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs ring-1 ${map[props.tone]}`}>{props.children}</span>
+  return <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${map[props.tone]}`}>{props.children}</span>
 }
 
 function Card(props: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn('rounded-3xl bg-slate-950/35 ring-1 ring-slate-800/80 backdrop-blur p-5', props.className)}>
+    <div className={cn('rounded-2xl border bg-card p-5', props.className)}>
       {props.children}
     </div>
   )
 }
 
-function SectionTitle(props: { title: string; sub?: string; right?: React.ReactNode }) {
+function SectionTitle(props: { title: string; sub?: string }) {
   return (
-    <div className="flex items-start justify-between gap-3">
-      <div>
-        <div className="text-sm font-semibold">{props.title}</div>
-        {props.sub ? <div className="mt-1 text-xs text-slate-400">{props.sub}</div> : null}
-      </div>
-      {props.right}
+    <div>
+      <div className="text-lg font-semibold">{props.title}</div>
+      {props.sub ? <div className="mt-1 text-sm text-muted-foreground">{props.sub}</div> : null}
     </div>
   )
 }
 
-type Milestone = { id: string; title: string; amount: number; status: 'DRAFT' | 'APPROVED' | 'RELEASED' | 'BLOCKED'; tone: 'slate' | 'amber' | 'emerald' | 'rose' }
-type Timeline = { at: string; title: string; meta: string; tone: 'slate' | 'amber' | 'emerald' | 'rose' | 'violet' }
+type MilestoneState = 'DRAFT' | 'FUNDED' | 'WORK_SUBMITTED' | 'EVIDENCE_REVIEW' | 'RELEASED' | 'DISPUTED'
+
+// Seeded data from PR4 checklist
+const jobDetail = {
+  id: 'J-1402',
+  number: 'J-1402',
+  status: 'in_progress',
+  client: { name: 'Acme Body Corp', contact: 'L. Chen' },
+  site: { address: 'Southbank - Tower A', level: '12-32' },
+  team: [{ name: 'Ryan J', role: 'Lead' }, { name: 'Crew A', role: 'Team' }],
+  scopeOfWork: 'High-rise façade repair and painting. Includes rope access, safety compliance, and staged milestone releases with photo evidence.',
+  totalValue: 18900,
+  scheduledStart: '2026-02-06',
+  milestones: [
+    { title: 'Initial deposit', amount: 6450, state: 'RELEASED' as MilestoneState, dueDate: '2026-01-29' },
+    { title: 'Progress claim #1', amount: 9450, state: 'FUNDED' as MilestoneState, dueDate: '2026-02-10' },
+    { title: 'Final completion', amount: 3000, state: 'DRAFT' as MilestoneState, dueDate: '2026-02-20' }
+  ],
+  timeline: [
+    { event: 'Job created', timestamp: '2026-01-28', actor: 'Ryan J' },
+    { event: 'Milestone #1 funded', timestamp: '2026-01-29', actor: 'Client' },
+    { event: 'Work started', timestamp: '2026-02-01', actor: 'Ryan J' }
+  ],
+  files: [] as string[]
+}
 
 export default function JobDetailPage() {
   const params = useParams<{ id: string }>()
-  const jobId = decodeURIComponent(params?.id ?? 'job_unknown')
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const jobId = decodeURIComponent(params?.id ?? 'unknown')
+  
+  const tabParam = searchParams?.get('tab') || 'overview'
+  const validTabs = ['overview', 'milestones', 'timeline', 'files'] as const
+  const [tab, setTab] = useState<'overview' | 'milestones' | 'timeline' | 'files'>(
+    validTabs.includes(tabParam as typeof validTabs[number]) ? (tabParam as typeof validTabs[number]) : 'overview'
+  )
 
-  const [tab, setTab] = useState<'overview' | 'milestones' | 'notes' | 'media'>('overview')
+  const handleTabChange = (newTab: 'overview' | 'milestones' | 'timeline' | 'files') => {
+    setTab(newTab)
+    const url = new URL(window.location.href)
+    url.searchParams.set('tab', newTab)
+    router.push(url.pathname + url.search, { scroll: false })
+  }
 
-  const job = useMemo(
-    () => ({
+  const job = useMemo(() => {
+    if (jobId === jobDetail.id) {
+      return jobDetail
+    }
+    // Fallback for other job IDs
+    return {
+      ...jobDetail,
       id: jobId,
-      title: jobId === 'job_3921' ? 'Rope access – façade repair' : 'Job command center',
-      client: jobId === 'job_3921' ? 'Aria Facilities' : 'Client',
-      address: 'Brisbane CBD • Tower A',
-      status: jobId === 'job_3918' ? 'DISPUTE' : jobId === 'job_3919' ? 'COMPLETED' : 'IN PROGRESS',
-      priority: jobId === 'job_3918' ? 'P0' : 'P1',
-      value: jobId === 'job_3921' ? 26750 : 15200,
-      crew: ['Crew A', 'J. Smith', 'R. Patel'],
-      window: 'Today 7:00am → 4:00pm',
-      escrowRef: 'esc_10088',
-      disputeRef: jobId === 'job_3918' ? 'dsp_2200' : (null as string | null),
-    }),
-    [jobId]
-  )
+      number: jobId,
+    }
+  }, [jobId])
 
-  const statusTone =
-    job.status === 'COMPLETED' ? ('emerald' as const) : job.status === 'DISPUTE' ? ('rose' as const) : ('amber' as const)
+  const getMilestoneColor = (state: MilestoneState): 'blue' | 'yellow' | 'orange' | 'green' | 'red' | 'slate' => {
+    const map: Record<MilestoneState, 'blue' | 'yellow' | 'orange' | 'green' | 'red' | 'slate'> = {
+      FUNDED: 'blue',
+      WORK_SUBMITTED: 'yellow',
+      EVIDENCE_REVIEW: 'orange',
+      RELEASED: 'green',
+      DISPUTED: 'red',
+      DRAFT: 'slate',
+    }
+    return map[state]
+  }
 
-  const milestones: Milestone[] = useMemo(
-    () => [
-      { id: 'ms_01', title: 'Deposit / booking', amount: Math.round(job.value * 0.25), status: 'RELEASED', tone: 'emerald' },
-      { id: 'ms_02', title: 'Milestone 1', amount: Math.round(job.value * 0.40), status: 'APPROVED', tone: 'amber' },
-      { id: 'ms_03', title: 'Final / handover', amount: Math.round(job.value * 0.35), status: job.disputeRef ? 'BLOCKED' : 'DRAFT', tone: job.disputeRef ? 'rose' : 'slate' },
-    ],
-    [job.value, job.disputeRef]
-  )
-
-  const timeline: Timeline[] = useMemo(
-    () => [
-      { at: 'Today 06:12', title: 'Crew scheduled', meta: 'Crew A allocated • travel optimized', tone: 'violet' },
-      { at: 'Today 07:03', title: 'Job started', meta: 'On-site check-in logged', tone: 'amber' },
-      { at: 'Today 10:24', title: 'Milestone 1 requested', meta: `${money(Math.round(job.value * 0.40))} • evidence attached`, tone: 'amber' },
-      ...(job.disputeRef ? [{ at: 'Today 12:02', title: 'Dispute opened', meta: `${job.disputeRef} • requires inspector`, tone: 'rose' as const }] : []),
-      { at: 'Yesterday', title: 'Client approved scope', meta: 'Signed digitally • audit trail stored', tone: 'emerald' },
-    ],
-    [job.value, job.disputeRef]
-  )
+  const totalEscrow = job.milestones.reduce((sum, m) => sum + m.amount, 0)
+  const releasedAmount = job.milestones.filter(m => m.state === 'RELEASED').reduce((sum, m) => sum + m.amount, 0)
+  const pendingReleases = job.milestones.filter(m => m.state === 'FUNDED' || m.state === 'WORK_SUBMITTED' || m.state === 'EVIDENCE_REVIEW').length
+  const disputes = job.milestones.filter(m => m.state === 'DISPUTED').length
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900 text-slate-100">
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Link href="/app/jobs" className="rounded-xl bg-slate-900/55 px-3 py-1.5 text-xs ring-1 ring-slate-800 hover:bg-slate-900/80">
-                  ← Jobs
-                </Link>
-                <Pill tone={statusTone}>{job.status}</Pill>
-                <Pill tone={job.priority === 'P0' ? 'rose' : job.priority === 'P1' ? 'amber' : 'slate'}>{job.priority}</Pill>
-                <Pill tone="slate">{job.id}</Pill>
-              </div>
-
-              <h1 className="mt-3 text-3xl font-semibold tracking-tight">{job.title}</h1>
-              <div className="mt-2 text-sm text-slate-300">
-                <span className="font-semibold text-slate-100">{job.client}</span> • {job.address} • {job.window}
-              </div>
+    <div className="relative min-h-screen">
+      {/* Escrow Status Badge - Sticky */}
+      <div className="sticky top-16 z-30 mb-4 flex justify-end">
+        <button
+          onClick={() => handleTabChange('milestones')}
+          className="rounded-2xl border bg-card/95 px-4 py-3 shadow-lg backdrop-blur transition-transform hover:scale-105"
+        >
+          <div className="flex items-center gap-3">
+            <div className="text-left">
+              <div className="text-xs text-muted-foreground">Escrow Total</div>
+              <div className="text-lg font-semibold">{money(totalEscrow)}</div>
             </div>
-
-            <div className="flex flex-wrap gap-2">
-              <Link href="/app/calendar" className="rounded-xl bg-slate-900/55 px-4 py-2.5 text-sm ring-1 ring-slate-800 hover:bg-slate-900/80">
-                Open calendar
-              </Link>
-              <Link href="/app/invoices" className="rounded-xl bg-slate-900/55 px-4 py-2.5 text-sm ring-1 ring-slate-800 hover:bg-slate-900/80">
-                Invoice
-              </Link>
-              <Link href="/app/escrow" className="rounded-xl bg-emerald-500/15 px-4 py-2.5 text-sm ring-1 ring-emerald-500/30 hover:bg-emerald-500/20">
-                Escrow
-              </Link>
-              {job.disputeRef ? (
-                <Link href="/app/escrow" className="rounded-xl bg-rose-500/12 px-4 py-2.5 text-sm ring-1 ring-rose-500/25 hover:bg-rose-500/18">
-                  Dispute
-                </Link>
-              ) : null}
+            <div className="h-8 w-px bg-border" />
+            <div className="text-left">
+              <div className="text-xs text-muted-foreground">Pending</div>
+              <div className="text-sm font-semibold">{pendingReleases} releases</div>
             </div>
+            {disputes > 0 && (
+              <>
+                <div className="h-8 w-px bg-border" />
+                <div className="text-left">
+                  <div className="text-xs text-red-600 dark:text-red-400">Disputes</div>
+                  <div className="text-sm font-semibold text-red-600 dark:text-red-400">{disputes}</div>
+                </div>
+              </>
+            )}
           </div>
+        </button>
+      </div>
 
-          <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr]">
-            <Card>
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex flex-wrap gap-2">
-                  <button onClick={() => setTab('overview')} className={cn('rounded-xl px-4 py-2 text-sm ring-1', tab === 'overview' ? 'bg-slate-900/80 ring-slate-700' : 'bg-slate-900/45 ring-slate-800 hover:bg-slate-900/70')}>Overview</button>
-                  <button onClick={() => setTab('milestones')} className={cn('rounded-xl px-4 py-2 text-sm ring-1', tab === 'milestones' ? 'bg-slate-900/80 ring-slate-700' : 'bg-slate-900/45 ring-slate-800 hover:bg-slate-900/70')}>Milestones</button>
-                  <button onClick={() => setTab('notes')} className={cn('rounded-xl px-4 py-2 text-sm ring-1', tab === 'notes' ? 'bg-slate-900/80 ring-slate-700' : 'bg-slate-900/45 ring-slate-800 hover:bg-slate-900/70')}>Notes</button>
-                  <button onClick={() => setTab('media')} className={cn('rounded-xl px-4 py-2 text-sm ring-1', tab === 'media' ? 'bg-slate-900/80 ring-slate-700' : 'bg-slate-900/45 ring-slate-800 hover:bg-slate-900/70')}>Photos</button>
-                </div>
-                <Pill tone="violet">Command Center</Pill>
-              </div>
-
-              {tab === 'overview' ? (
-                <div className="mt-5 grid gap-4 md:grid-cols-3">
-                  <Metric label="Job value" value={money(job.value)} tone="emerald" />
-                  <Metric label="Escrow ref" value={job.escrowRef} tone="amber" />
-                  <Metric label="Crew" value={`${job.crew.length} assigned`} tone="violet" />
-
-                  <div className="md:col-span-3 rounded-3xl bg-slate-950/40 ring-1 ring-slate-800 overflow-hidden">
-                    <div className="px-4 py-3 bg-slate-900/60 text-sm font-semibold">Timeline</div>
-                    <div className="divide-y divide-slate-800">
-                      {timeline.map((t, idx) => (
-                        <div key={idx} className="px-4 py-3">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <div className="text-sm font-semibold">{t.title}</div>
-                              <div className="mt-1 text-xs text-slate-400">{t.meta}</div>
-                            </div>
-                            <Pill tone={t.tone === 'violet' ? 'violet' : t.tone === 'emerald' ? 'emerald' : t.tone === 'rose' ? 'rose' : 'amber'}>{t.at}</Pill>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-3 grid gap-3 md:grid-cols-2">
-                    <Card className="p-4">
-                      <SectionTitle title="Scope" sub="What we’re delivering" right={<Pill tone="slate">v1</Pill>} />
-                      <div className="mt-3 text-sm text-slate-300">
-                        High-rise works with safety compliance, access plan, and staged approvals. Evidence is attached per milestone.
-                      </div>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <Pill tone="emerald">Audit trail</Pill>
-                        <Pill tone="amber">Release gates</Pill>
-                        <Pill tone="violet">Scheduling lanes</Pill>
-                      </div>
-                    </Card>
-
-                    <Card className="p-4">
-                      <SectionTitle title="Risk & compliance" sub="Guardrails that prevent bad releases" right={<Pill tone="amber">ON</Pill>} />
-                      <div className="mt-3 grid gap-2 text-sm">
-                        <div className="flex items-center justify-between rounded-2xl bg-slate-900/45 px-4 py-3 ring-1 ring-slate-800">
-                          <div className="font-semibold">Evidence required</div>
-                          <Pill tone="emerald">PASS</Pill>
-                        </div>
-                        <div className="flex items-center justify-between rounded-2xl bg-slate-900/45 px-4 py-3 ring-1 ring-slate-800">
-                          <div className="font-semibold">Client approval</div>
-                          <Pill tone="emerald">PASS</Pill>
-                        </div>
-                        <div className="flex items-center justify-between rounded-2xl bg-slate-900/45 px-4 py-3 ring-1 ring-slate-800">
-                          <div className="font-semibold">Dispute state</div>
-                          <Pill tone={job.disputeRef ? 'rose' : 'emerald'}>{job.disputeRef ? 'BLOCKED' : 'CLEAR'}</Pill>
-                        </div>
-                      </div>
-                    </Card>
-                  </div>
-                </div>
-              ) : null}
-
-              {tab === 'milestones' ? (
-                <div className="mt-5">
-                  <SectionTitle title="Milestones" sub="Escrow control surface" right={<Pill tone="amber">Escrow-linked</Pill>} />
-                  <div className="mt-4 overflow-hidden rounded-3xl ring-1 ring-slate-800 bg-slate-950/40">
-                    <div className="grid grid-cols-12 gap-2 bg-slate-900/60 px-4 py-3 text-xs text-slate-400">
-                      <div className="col-span-6">Milestone</div>
-                      <div className="col-span-3">Status</div>
-                      <div className="col-span-3 text-right">Amount</div>
-                    </div>
-                    <div className="divide-y divide-slate-800">
-                      {milestones.map((m) => (
-                        <div key={m.id} className="grid grid-cols-12 gap-2 px-4 py-3 text-sm hover:bg-slate-900/40">
-                          <div className="col-span-6">
-                            <div className="font-semibold">{m.title}</div>
-                            <div className="mt-1 text-xs text-slate-500">{m.id}</div>
-                          </div>
-                          <div className="col-span-3"><Pill tone={m.tone}>{m.status}</Pill></div>
-                          <div className="col-span-3 text-right font-semibold">{money(m.amount)}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              {tab === 'notes' ? (
-                <div className="mt-5">
-                  <SectionTitle title="Notes" sub="v3 adds persistence" right={<Pill tone="slate">Local</Pill>} />
-                  <div className="mt-4 grid gap-3">
-                    <div className="rounded-3xl bg-slate-900/45 ring-1 ring-slate-800 p-4">
-                      <div className="text-sm font-semibold">Add note</div>
-                      <textarea className="mt-3 w-full rounded-2xl bg-slate-950/60 px-4 py-3 text-sm ring-1 ring-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/40" placeholder="Write a note…" rows={4} />
-                      <div className="mt-3 flex justify-end">
-                        <button className="rounded-xl bg-emerald-500/15 px-4 py-2 text-sm ring-1 ring-emerald-500/30 hover:bg-emerald-500/20">Save</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              {tab === 'media' ? (
-                <div className="mt-5">
-                  <SectionTitle title="Photos & evidence" sub="v3 adds upload" right={<Pill tone="violet">Roadmap</Pill>} />
-                  <div className="mt-4 grid gap-3 md:grid-cols-3">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className="rounded-3xl bg-slate-950/40 ring-1 ring-slate-800 overflow-hidden">
-                        <div className="aspect-[4/3] bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900" />
-                        <div className="p-4">
-                          <div className="text-sm font-semibold">Evidence {i + 1}</div>
-                          <div className="mt-1 text-xs text-slate-400">Attach to milestone • audit stamp</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </Card>
-
-            <Card>
-              <SectionTitle title="Controls" sub="High-signal actions only" right={<Pill tone="amber">Guarded</Pill>} />
-              <div className="mt-4 grid gap-2">
-                <div className="rounded-2xl bg-slate-900/45 p-4 ring-1 ring-slate-800">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <div className="text-sm font-semibold">Escrow</div>
-                      <div className="mt-1 text-xs text-slate-400">{job.escrowRef}</div>
-                    </div>
-                    <Link href="/app/escrow" className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs ring-1 ring-emerald-500/30 hover:bg-emerald-500/20">Open</Link>
-                  </div>
-                </div>
-              </div>
-            </Card>
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/app/jobs" className="rounded-lg border bg-background px-3 py-1.5 text-xs hover:bg-muted">
+              ← Jobs
+            </Link>
+            <Pill tone={job.status === 'in_progress' ? 'blue' : 'slate'}>{job.status.toUpperCase()}</Pill>
+            <Pill tone="slate">{job.number}</Pill>
+          </div>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight">Job Detail</h1>
+          <div className="mt-2 text-sm text-muted-foreground">
+            {job.client.name} • {job.site.address}
           </div>
         </div>
+
+        {/* Quick Actions Toolbar */}
+        <div className="flex flex-wrap gap-2">
+          <button className="inline-flex items-center gap-2 rounded-lg border bg-background px-4 py-2 text-sm hover:bg-muted">
+            <Edit className="h-4 w-4" />
+            Edit job
+          </button>
+          <button className="inline-flex items-center gap-2 rounded-lg border bg-background px-4 py-2 text-sm hover:bg-muted">
+            <Send className="h-4 w-4" />
+            Send update
+          </button>
+          <button className="inline-flex items-center gap-2 rounded-lg border bg-background px-4 py-2 text-sm hover:bg-muted">
+            <FileText className="h-4 w-4" />
+            Add note
+          </button>
+          <button className="inline-flex items-center gap-2 rounded-lg border bg-background px-4 py-2 text-sm hover:bg-muted">
+            <Calendar className="h-4 w-4" />
+            Schedule
+          </button>
+          <button className="inline-flex items-center gap-2 rounded-lg border bg-green-500/10 px-4 py-2 text-sm text-green-600 hover:bg-green-500/20 dark:text-green-400">
+            <CheckCircle className="h-4 w-4" />
+            Complete
+          </button>
+        </div>
       </div>
-    </div>
-  )
-}
 
-function Metric(props: { label: string; value: string; tone: 'emerald' | 'amber' | 'rose' | 'violet' | 'slate' }) {
-  const t =
-    props.tone === 'emerald'
-      ? 'bg-emerald-500/10 ring-emerald-500/20'
-      : props.tone === 'amber'
-      ? 'bg-amber-500/10 ring-amber-500/20'
-      : props.tone === 'rose'
-      ? 'bg-rose-500/10 ring-rose-500/20'
-      : props.tone === 'violet'
-      ? 'bg-violet-500/10 ring-violet-500/20'
-      : 'bg-slate-500/10 ring-slate-500/20'
+      {/* Tab Navigation */}
+      <Card className="mb-6">
+        <div className="flex flex-wrap gap-2 border-b pb-4">
+          <button
+            onClick={() => handleTabChange('overview')}
+            className={cn(
+              'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
+              tab === 'overview' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+            )}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => handleTabChange('milestones')}
+            className={cn(
+              'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
+              tab === 'milestones' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+            )}
+          >
+            Milestones
+          </button>
+          <button
+            onClick={() => handleTabChange('timeline')}
+            className={cn(
+              'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
+              tab === 'timeline' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+            )}
+          >
+            Timeline
+          </button>
+          <button
+            onClick={() => handleTabChange('files')}
+            className={cn(
+              'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
+              tab === 'files' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+            )}
+          >
+            Files
+          </button>
+        </div>
 
-  return (
-    <div className={cn('rounded-3xl p-4 ring-1', t)}>
-      <div className="text-xs text-slate-400">{props.label}</div>
-      <div className="mt-2 text-2xl font-semibold tracking-tight">{props.value}</div>
+        {/* Overview Tab */}
+        {tab === 'overview' && (
+          <div className="mt-6 space-y-6">
+            <div className="grid gap-4 md:grid-cols-3">
+              <Card>
+                <div className="text-sm text-muted-foreground">Client</div>
+                <div className="mt-2 text-lg font-semibold">{job.client.name}</div>
+                <div className="mt-1 text-sm text-muted-foreground">Contact: {job.client.contact}</div>
+              </Card>
+              <Card>
+                <div className="text-sm text-muted-foreground">Site</div>
+                <div className="mt-2 text-lg font-semibold">{job.site.address}</div>
+                <div className="mt-1 text-sm text-muted-foreground">Level: {job.site.level}</div>
+              </Card>
+              <Card>
+                <div className="text-sm text-muted-foreground">Team</div>
+                <div className="mt-2 space-y-1">
+                  {job.team.map((member, i) => (
+                    <div key={i} className="text-sm">
+                      <span className="font-semibold">{member.name}</span> - {member.role}
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+
+            <Card>
+              <SectionTitle title="Scope of Work" />
+              <div className="mt-3 text-sm text-muted-foreground">{job.scopeOfWork}</div>
+            </Card>
+
+            <Card>
+              <SectionTitle title="Timeline Summary" />
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs text-muted-foreground">Scheduled Start</div>
+                  <div className="mt-1 font-semibold">{job.scheduledStart}</div>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs text-muted-foreground">Status</div>
+                  <div className="mt-1 font-semibold capitalize">{job.status.replace('_', ' ')}</div>
+                </div>
+              </div>
+            </Card>
+
+            <Card>
+              <SectionTitle title="Budget Breakdown" />
+              <div className="mt-3 space-y-2">
+                <div className="flex justify-between border-b pb-2">
+                  <span className="text-sm text-muted-foreground">Total Job Value</span>
+                  <span className="font-semibold">{money(job.totalValue)}</span>
+                </div>
+                <div className="flex justify-between border-b pb-2">
+                  <span className="text-sm text-muted-foreground">Escrowed Amount</span>
+                  <span className="font-semibold">{money(totalEscrow)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Released to Date</span>
+                  <span className="font-semibold text-green-600 dark:text-green-400">{money(releasedAmount)}</span>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Milestones Tab */}
+        {tab === 'milestones' && (
+          <div className="mt-6">
+            <SectionTitle title="Milestones" sub="Escrow-linked payment milestones" />
+            <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {job.milestones.map((milestone, i) => (
+                <Card key={i} className="transition-transform hover:scale-[1.02]">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="font-semibold">{milestone.title}</div>
+                      <div className="mt-1 text-2xl font-bold">{money(milestone.amount)}</div>
+                    </div>
+                    <Pill tone={getMilestoneColor(milestone.state)}>{milestone.state}</Pill>
+                  </div>
+                  {milestone.dueDate && (
+                    <div className="mt-3 text-xs text-muted-foreground">Due: {milestone.dueDate}</div>
+                  )}
+                  {milestone.state === 'FUNDED' && (
+                    <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+                      <div className="h-full w-0 bg-blue-500" />
+                    </div>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Timeline Tab */}
+        {tab === 'timeline' && (
+          <div className="mt-6">
+            <SectionTitle title="Timeline" sub="Audit events and job history" />
+            <div className="mt-4 space-y-4">
+              {job.timeline.map((event, i) => (
+                <div key={i} className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      {i + 1}
+                    </div>
+                    {i < job.timeline.length - 1 && <div className="mt-2 h-full w-px bg-border" />}
+                  </div>
+                  <div className="flex-1 pb-8">
+                    <div className="rounded-lg border p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="font-semibold">{event.event}</div>
+                          <div className="mt-1 text-sm text-muted-foreground">by {event.actor}</div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">{event.timestamp}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Files Tab */}
+        {tab === 'files' && (
+          <div className="mt-6">
+            <SectionTitle title="Files" sub="Photos, PDFs, and documents" />
+            
+            {/* Upload Zone */}
+            <div className="mt-4 rounded-2xl border-2 border-dashed p-8 text-center transition-colors hover:border-primary/50 hover:bg-muted/50">
+              <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
+              <div className="mt-3 text-sm font-medium">Drop files here or click to upload</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                Supports: JPG, PNG, PDF, DOC (max 10MB)
+              </div>
+              <button className="mt-4 rounded-lg border bg-background px-4 py-2 text-sm hover:bg-muted">
+                Browse Files
+              </button>
+            </div>
+
+            {/* Files Grid */}
+            {job.files.length > 0 ? (
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                {job.files.map((file, i) => (
+                  <Card key={i}>
+                    <div className="aspect-video rounded-lg bg-muted" />
+                    <div className="mt-3">
+                      <div className="text-sm font-semibold">{file}</div>
+                      <div className="mt-1 flex items-center gap-2">
+                        <button className="text-xs text-blue-600 hover:underline dark:text-blue-400">
+                          Download
+                        </button>
+                        <span className="text-xs text-muted-foreground">•</span>
+                        <button className="text-xs text-red-600 hover:underline dark:text-red-400">
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-6 rounded-2xl border bg-muted/20 py-12 text-center">
+                <div className="text-4xl opacity-20">📁</div>
+                <div className="mt-3 font-semibold">No files yet</div>
+                <div className="mt-1 text-sm text-muted-foreground">
+                  Upload photos and documents to attach to this job
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
     </div>
   )
 }
