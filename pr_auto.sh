@@ -3,6 +3,7 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
+REPO="ryanjoooseph-cmyk/tradehub-app"
 BRANCH="$(git branch --show-current)"
 if [[ "$BRANCH" == "main" ]]; then
   echo "ERROR: You are on main. Checkout a feature branch first."
@@ -34,10 +35,13 @@ echo "Pushing..."
 git push -u origin "$BRANCH"
 
 echo "Creating or finding PR..."
-PR_URL="$(gh pr view --head "$BRANCH" --json url -q .url 2>/dev/null || true)"
-if [[ -z "$PR_URL" ]]; then
-  gh pr create --base main --head "$BRANCH" --title "$TITLE" --body "Automated PR from $BRANCH. Gates: pnpm lint, pnpm typecheck, pnpm build."
-  PR_URL="$(gh pr view --head "$BRANCH" --json url -q .url)"
+PR_URL=$(gh pr list --repo "$REPO" --state open --head "$BRANCH" --base "main" --json url --jq '.[0].url' 2>/dev/null || true)
+if [[ -z "${PR_URL}" ]]; then
+  PR_URL=$(gh pr create --repo "$REPO" --head "$BRANCH" --base "main" --title "$TITLE" --body "Automated PR from ${BRANCH}. Gates: pnpm lint, pnpm typecheck, pnpm build." 2>/dev/null | tail -n 1)
+fi
+if [[ -z "${PR_URL}" ]]; then
+  echo "ERROR: Could not create or locate PR for branch: ${BRANCH}"
+  exit 1
 fi
 
 echo "PR: $PR_URL"
