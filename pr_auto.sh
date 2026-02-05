@@ -36,7 +36,8 @@ git push -u origin "$BRANCH"
 echo "Creating or finding PR..."
 PR_URL="$(gh pr view --head "$BRANCH" --json url -q .url 2>/dev/null || true)"
 if [[ -z "$PR_URL" ]]; then
-  PR_URL="$(gh pr create --base main --head "$BRANCH" --title "$TITLE" --body "Automated PR from $BRANCH. Gates run: pnpm lint, pnpm typecheck, pnpm build." --json url -q .url)"
+  gh pr create --base main --head "$BRANCH" --title "$TITLE" --body "Automated PR from $BRANCH. Gates: pnpm lint, pnpm typecheck, pnpm build."
+  PR_URL="$(gh pr view --head "$BRANCH" --json url -q .url)"
 fi
 
 echo "PR: $PR_URL"
