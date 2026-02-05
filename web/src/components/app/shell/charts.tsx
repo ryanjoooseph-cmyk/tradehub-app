@@ -34,20 +34,36 @@ export function Sparkline({ data, height = 72 }: { data: Pt[]; height?: number }
   );
 }
 
-export function Bars({ values }: { values: number[] }) {
+export function Bars({ values, colors, targetLine }: { values: number[]; colors?: string[]; targetLine?: number }) {
   const w = 320;
   const h = 72;
   const pad = 8;
-  const max = Math.max(...values, 1);
+  const max = Math.max(...values, targetLine || 1, 1);
   const bw = (w - 2 * pad) / values.length;
 
   return (
     <svg width="100%" viewBox={`0 0 ${w} ${h}`}>
+      {targetLine !== undefined && (
+        <>
+          <line
+            x1={pad}
+            y1={h - pad - ((h - 2 * pad) * targetLine) / max}
+            x2={w - pad}
+            y2={h - pad - ((h - 2 * pad) * targetLine) / max}
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeDasharray="4 2"
+            opacity="0.3"
+          />
+        </>
+      )}
       {values.map((v, i) => {
         const bh = ((h - 2 * pad) * v) / max;
         const x = pad + i * bw;
         const y = h - pad - bh;
-        return <rect key={i} x={x + 3} y={y} width={bw - 6} height={bh} rx="4" fill="currentColor" opacity="0.22" />;
+        const color = colors?.[i] || "currentColor";
+        const opacity = colors?.[i] ? "0.8" : "0.22";
+        return <rect key={i} x={x + 3} y={y} width={bw - 6} height={bh} rx="4" fill={color} opacity={opacity} />;
       })}
     </svg>
   );
