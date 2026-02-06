@@ -11,7 +11,7 @@ if [[ "$BRANCH" == "main" ]]; then
 fi
 
 # If nothing changed, exit cleanly
-if git diff --quiet && git diff --cached --quiet; then
+if [[ -z "$(git status --porcelain)" ]]; then
   echo "No changes detected. Nothing to do."
   exit 0
 fi
