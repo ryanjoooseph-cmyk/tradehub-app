@@ -66,22 +66,43 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Normalize checks into array format
+    // Normalize checks into array format - STRICT
     let checks: Array<{ name: string; status: string }> = [];
-    if (input.checks) {
-      if (Array.isArray(input.checks)) {
-        checks = input.checks;
-      } else {
-        // Convert object format { lint: true, build: false } to array format
-        checks = Object.entries(input.checks).map(([name, passed]) => ({
-          name,
-          status: passed ? 'success' : 'failure',
-        }));
-      }
+    let checksUnknown = false;
+    
+    if (!input.checks) {
+      // No checks provided at all - treat as UNKNOWN
+      checksUnknown = true;
+    } else if (typeof input.checks === 'string') {
+      // String input - do not parse, treat as UNKNOWN
+      checksUnknown = true;
+    } else if (Array.isArray(input.checks)) {
+      // Array format: use items as {name, status} after string coercion
+      checks = input.checks.map(c => ({
+        name: String(c.name || ''),
+        status: String(c.status || ''),
+      }));
+    } else if (typeof input.checks === 'object') {
+      // Object format: convert { lint: true, build: false } to array
+      checks = Object.entries(input.checks).map(([name, passed]) => ({
+        name,
+        status: passed ? 'success' : 'failure',
+      }));
+    } else {
+      // Unknown format - treat as UNKNOWN
+      checksUnknown = true;
     }
 
-    // Analyze checks
-    const allChecksPassed = checks.length === 0 || checks.every(c => c.status === 'success' || c.status === 'completed');
+    // Analyze checks STRICTLY
+    const hasChecks = !checksUnknown && checks.length > 0;
+    const allChecksPassed = hasChecks && checks.every(c => c.status === 'success');
+    
+    // Find web-build check specifically (case-insensitive)
+    const webBuildCheck = hasChecks 
+      ? checks.find(c => c.name.toLowerCase().includes('web-build'))
+      : null;
+    const webBuildPassed = webBuildCheck?.status === 'success';
+    const webBuildExists = !!webBuildCheck;
 
     // Analyze changed files for risk
     const changedFiles = input.changedFiles || [];
@@ -97,16 +118,28 @@ export async function POST(req: NextRequest) {
       risk = 'MED';
     }
 
-    // Build checklist
+    // Build checklist - STRICT
     const checklist = {
       passed: [] as string[],
       missing: [] as string[],
     };
 
-    if (allChecksPassed) {
-      checklist.passed.push('All CI checks passed');
-    } else {
+    // Check status
+    if (checksUnknown || !hasChecks) {
+      checklist.missing.push('CI checks unknown (no completed checks found)');
+    } else if (!allChecksPassed) {
       checklist.missing.push('CI checks failing');
+    } else {
+      checklist.passed.push('All CI checks passed');
+    }
+
+    // web-build specific check
+    if (!webBuildExists) {
+      checklist.missing.push('web-build check missing');
+    } else if (!webBuildPassed) {
+      checklist.missing.push('web-build failing');
+    } else {
+      checklist.passed.push('web-build passed');
     }
 
     if (input.body && input.body.includes('- [x]')) {
@@ -144,12 +177,19 @@ export async function POST(req: NextRequest) {
 
     // Call LLM for analysis
     const llmSystem = 'You are a PR review assistant. Analyze the PR and provide a brief risk assessment and recommendations.';
-    const llmUser = `PR: ${input.title || 'Untitled'}\nFiles changed: ${changedFiles.length}\nRisky files: ${hasRiskyChanges ? 'YES' : 'NO'}\nChecks: ${allChecksPassed ? 'PASSED' : 'FAILED'}`;
+    const llmUser = `PR: ${input.title || 'Untitled'}\nFiles changed: ${changedFiles.length}\nRisky files: ${hasRiskyChanges ? 'YES' : 'NO'}\nChecks: ${allChecksPassed ? 'PASSED' : 'FAILED'}\nweb-build: ${webBuildPassed ? 'PASSED' : 'FAILED/MISSING'}`;
     
     const llmNotes = await callLLM({ system: llmSystem, user: llmUser });
 
-    // Determine recommendation
-    const recommendation: 'APPROVE' | 'BLOCK' = allChecksPassed && risk !== 'HIGH' ? 'APPROVE' : 'BLOCK';
+    // Determine recommendation - STRICT
+    // Only APPROVE if:
+    // (a) checks array exists AND every check has status === "success"
+    // (b) there is a check whose name includes "web-build" AND its status === "success"
+    // (c) risk !== "HIGH"
+    const recommendation: 'APPROVE' | 'BLOCK' = 
+      hasChecks && allChecksPassed && webBuildExists && webBuildPassed && risk !== 'HIGH'
+        ? 'APPROVE'
+        : 'BLOCK';
 
     const output: ReleaseManagerOutput = {
       ok: true,
