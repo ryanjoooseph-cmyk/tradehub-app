@@ -1,63 +1,151 @@
 name: Agent - Release Manager
 
 on:
-  pull_request:
-    types: [opened, synchronize]
+  workflow_run:
+    workflows: ["web-build"]
+    types: [completed]
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   release-manager:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v44
-        with:
-          files: |
-            **/*.ts
-            **/*.tsx
-            **/*.js
-            **/*.jsx
-
-      - name: Get check-runs for PR
-        id: check-runs
+      - name: Get PR info from workflow run
+        id: pr-info
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const headSha = context.payload.pull_request.head.sha;
+            const workflowRun = context.payload.workflow_run;
+            const headSha = workflowRun.head_sha;
+            const runUrl = workflowRun.html_url;
+            const repoOwner = workflowRun.repository.owner.login;
+            const repoName = workflowRun.repository.name;
             
-            const { data: checkRuns } = await github.rest.checks.listForRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+            // Get PR from workflow_run
+            const pullRequests = workflowRun.pull_requests || [];
+            if (pullRequests.length === 0) {
+              console.log('No pull requests associated with this workflow run');
+              core.setOutput('has_pr', 'false');
+              return;
+            }
+            
+            const pr = pullRequests[0];
+            console.log(`Found PR #${pr.number}: ${pr.url}`);
+            
+            // Get full PR details
+            const { data: prData } = await github.rest.pulls.get({
+              owner: repoOwner,
+              repo: repoName,
+              pull_number: pr.number,
+            });
+            
+            core.setOutput('has_pr', 'true');
+            core.setOutput('pr_number', pr.number.toString());
+            core.setOutput('pr_url', prData.html_url);
+            core.setOutput('pr_title', prData.title);
+            core.setOutput('pr_body', prData.body || '');
+            core.setOutput('head_sha', headSha);
+            core.setOutput('run_url', runUrl);
+            core.setOutput('repo_owner', repoOwner);
+            core.setOutput('repo_name', repoName);
+
+      - name: Get changed files
+        id: changed-files
+        if: steps.pr-info.outputs.has_pr == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = parseInt('${{ steps.pr-info.outputs.pr_number }}');
+            const owner = '${{ steps.pr-info.outputs.repo_owner }}';
+            const repo = '${{ steps.pr-info.outputs.repo_name }}';
+            
+            let allFiles = [];
+            let page = 1;
+            let hasMore = true;
+            
+            while (hasMore && page <= 10) {
+              const { data: files } = await github.rest.pulls.listFiles({
+                owner,
+                repo,
+                pull_number: prNumber,
+                per_page: 100,
+                page,
+              });
+              
+              allFiles = allFiles.concat(files.map(f => f.filename));
+              hasMore = files.length === 100;
+              page++;
+            }
+            
+            console.log(`Found ${allFiles.length} changed files`);
+            core.setOutput('files', JSON.stringify(allFiles));
+
+      - name: Get check-runs for head SHA
+        id: check-runs
+        if: steps.pr-info.outputs.has_pr == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const headSha = '${{ steps.pr-info.outputs.head_sha }}';
+            const owner = '${{ steps.pr-info.outputs.repo_owner }}';
+            const repo = '${{ steps.pr-info.outputs.repo_name }}';
+            
+            const { data } = await github.rest.checks.listForRef({
+              owner,
+              repo,
               ref: headSha,
+              per_page: 100,
             });
 
-            const checks = checkRuns.check_runs.map(run => ({
-              name: run.name,
-              status: run.conclusion === 'success' ? 'success' : 'failure'
-            }));
+            let checks = (data.check_runs || [])
+              .filter(run => run.status === 'completed')
+              .filter(run => run.name && !run.name.toLowerCase().includes('agent - release manager'))
+              .map(run => ({
+                name: run.name,
+                status: run.conclusion === 'success' ? 'success' : 'failure',
+              }));
+            
+            // If no checks found, add synthetic failure check
+            if (checks.length === 0) {
+              console.log('No completed checks found, adding synthetic failure check');
+              checks = [{ name: 'web-build', status: 'failure' }];
+            }
 
             console.log(`Found ${checks.length} checks`);
             core.setOutput('checks', JSON.stringify(checks));
 
       - name: Call Release Manager Agent
         id: agent
+        if: steps.pr-info.outputs.has_pr == 'true'
         run: |
+          PR_URL='${{ steps.pr-info.outputs.pr_url }}'
+          PR_TITLE='${{ steps.pr-info.outputs.pr_title }}'
+          PR_BODY='${{ steps.pr-info.outputs.pr_body }}'
+          CHANGED_FILES='${{ steps.changed-files.outputs.files }}'
           CHECKS='${{ steps.check-runs.outputs.checks }}'
+          
+          # Safely encode PR body as JSON
+          PR_BODY_JSON=$(echo "$PR_BODY" | jq -Rs .)
+          
+          # Build payload
+          PAYLOAD=$(jq -n \
+            --arg prUrl "$PR_URL" \
+            --arg title "$PR_TITLE" \
+            --argjson body "$PR_BODY_JSON" \
+            --argjson changedFiles "$CHANGED_FILES" \
+            --argjson checks "$CHECKS" \
+            '{prUrl:$prUrl,title:$title,body:$body,changedFiles:$changedFiles,checks:$checks}')
           
           RESPONSE=$(curl -s -X POST "${{ secrets.AGENT_ENDPOINT_URL }}/api/agent/release-manager" \
             -H "Content-Type: application/json" \
             -H "x-agent-secret: ${{ secrets.AGENT_SECRET }}" \
-            -d "{
-              \"prUrl\": \"${{ github.event.pull_request.html_url }}\",
-              \"title\": \"${{ github.event.pull_request.title }}\",
-              \"body\": $(echo '${{ github.event.pull_request.body }}' | jq -Rs .),
-              \"changedFiles\": $(echo '${{ steps.changed-files.outputs.all_changed_files }}' | jq -Rs 'split(" ")'),
-              \"checks\": ${CHECKS}
-            }" || echo '{"ok":false,"error":"curl failed"}')
+            -d "$PAYLOAD" || echo '{"ok":false,"error":"curl failed"}')
           
           echo "response=$RESPONSE" >> $GITHUB_OUTPUT
           echo "$RESPONSE" | jq . || echo "$RESPONSE"
@@ -65,7 +153,8 @@ jobs:
           # Always exit 0 to not fail the workflow
           exit 0
 
-      - name: Post PR Comment
+      - name: Update or Create PR Comment
+        if: steps.pr-info.outputs.has_pr == 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -85,11 +174,15 @@ jobs:
               }
 
               const { recommendation, risk, checklist, notes, changelog } = response;
+              const prNumber = parseInt('${{ steps.pr-info.outputs.pr_number }}');
+              const owner = '${{ steps.pr-info.outputs.repo_owner }}';
+              const repo = '${{ steps.pr-info.outputs.repo_name }}';
               
               const emoji = recommendation === 'APPROVE' ? '✅' : '⚠️';
               const riskEmoji = risk === 'LOW' ? '🟢' : risk === 'MED' ? '🟡' : '🔴';
+              const marker = '<!-- AGENT_RELEASE_MANAGER -->';
               
-              let comment = `## ${emoji} Release Manager Analysis\n\n`;
+              let comment = `${marker}\n## ${emoji} Release Manager Analysis\n\n`;
               comment += `**Recommendation:** ${recommendation}\n`;
               comment += `**Risk Level:** ${riskEmoji} ${risk}\n\n`;
               
@@ -111,13 +204,33 @@ jobs:
               comment += `\n### Agent Notes\n${notes}\n\n`;
               comment += `---\n*This is an advisory comment. Manual review is still required.*`;
 
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: comment
+              // Check if a previous Release Manager comment exists
+              const { data: comments } = await github.rest.issues.listComments({
+                owner,
+                repo,
+                issue_number: prNumber,
               });
+
+              const existingComment = comments.find(c => c.body && c.body.includes(marker));
+
+              if (existingComment) {
+                console.log(`Updating existing comment ${existingComment.id}`);
+                await github.rest.issues.updateComment({
+                  owner,
+                  repo,
+                  comment_id: existingComment.id,
+                  body: comment
+                });
+              } else {
+                console.log('Creating new comment');
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: prNumber,
+                  body: comment
+                });
+              }
             } catch (error) {
-              console.error('Failed to post comment:', error);
+              console.error('Failed to post/update comment:', error);
               // Don't fail the workflow
             }
