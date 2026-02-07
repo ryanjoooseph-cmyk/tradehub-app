@@ -1,26 +1,62 @@
 name: Agent - CI Triage
 
 on:
-  pull_request:
-    types: [opened, synchronize]
+  workflow_run:
+    workflows: ["web-build"]
+    types: [completed]
 
 jobs:
   ci-triage:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Get check-runs for this PR
-        id: check-runs
+      - name: Get PR info from workflow run
+        id: pr-info
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const runId = context.payload.workflow_run.id;
+            const headSha = context.payload.workflow_run.head_sha;
+            const repo = context.payload.workflow_run.repository.full_name;
+            const runUrl = context.payload.workflow_run.html_url;
+            
+            // Get PR associated with this workflow run
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:${context.payload.workflow_run.head_branch}`,
+            });
+            
+            if (prs.length === 0) {
+              console.log('No open PR found for this workflow run');
+              core.setOutput('has_pr', 'false');
+              return;
+            }
+            
+            const pr = prs[0];
+            console.log(`Found PR #${pr.number}: ${pr.html_url}`);
+            
+            core.setOutput('has_pr', 'true');
+            core.setOutput('pr_number', pr.number.toString());
+            core.setOutput('pr_url', pr.html_url);
+            core.setOutput('head_sha', headSha);
+            core.setOutput('repo', repo);
+            core.setOutput('run_url', runUrl);
+
+      - name: Get check-runs for head SHA
+        id: check-runs
+        if: steps.pr-info.outputs.has_pr == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const headSha = '${{ steps.pr-info.outputs.head_sha }}';
+            
             const { data: checkRuns } = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: context.payload.pull_request.head.sha,
+              ref: headSha,
             });
 
             const failedChecks = checkRuns.check_runs
@@ -45,10 +81,10 @@ jobs:
             -H "Content-Type: application/json" \
             -H "x-agent-secret: ${{ secrets.AGENT_SECRET }}" \
             -d "{
-              \"prUrl\": \"${{ github.event.pull_request.html_url }}\",
-              \"sha\": \"${{ github.event.pull_request.head.sha }}\",
-              \"repo\": \"${{ github.repository }}\",
-              \"runUrl\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+              \"prUrl\": \"${{ steps.pr-info.outputs.pr_url }}\",
+              \"sha\": \"${{ steps.pr-info.outputs.head_sha }}\",
+              \"repo\": \"${{ steps.pr-info.outputs.repo }}\",
+              \"runUrl\": \"${{ steps.pr-info.outputs.run_url }}\",
               \"failedChecks\": ${FAILED_CHECKS}
             }" || echo '{"ok":false,"error":"curl failed"}')
           
@@ -58,7 +94,7 @@ jobs:
           # Always exit 0 to not fail the workflow
           exit 0
 
-      - name: Post PR Comment
+      - name: Update or Create PR Comment
         if: steps.check-runs.outputs.has_failures == 'true'
         uses: actions/github-script@v7
         with:
@@ -79,6 +115,7 @@ jobs:
               }
 
               const { headline, classification, likelyCause, commands, nextActions, notes } = response;
+              const prNumber = parseInt('${{ steps.pr-info.outputs.pr_number }}');
               
               const classEmoji = {
                 'LINT': '🔍',
@@ -90,8 +127,9 @@ jobs:
               };
               
               const emoji = classEmoji[classification] || '❓';
+              const marker = '<!-- AGENT_CI_TRIAGE -->';
               
-              let comment = `## ${emoji} CI Triage: ${headline}\n\n`;
+              let comment = `${marker}\n## ${emoji} CI Triage: ${headline}\n\n`;
               comment += `**Classification:** ${classification}\n\n`;
               comment += `### Likely Cause\n${likelyCause}\n\n`;
               
@@ -111,13 +149,33 @@ jobs:
               
               comment += `---\n*Automated triage by CI Agent. Review logs for details.*`;
 
-              await github.rest.issues.createComment({
+              // Check if a previous CI Triage comment exists
+              const { data: comments } = await github.rest.issues.listComments({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: comment
+                issue_number: prNumber,
               });
+
+              const existingComment = comments.find(c => c.body && c.body.includes(marker));
+
+              if (existingComment) {
+                console.log(`Updating existing comment ${existingComment.id}`);
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existingComment.id,
+                  body: comment
+                });
+              } else {
+                console.log('Creating new comment');
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: comment
+                });
+              }
             } catch (error) {
-              console.error('Failed to post comment:', error);
+              console.error('Failed to post/update comment:', error);
               // Don't fail the workflow
             }

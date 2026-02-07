@@ -21,9 +21,33 @@ jobs:
             **/*.js
             **/*.jsx
 
+      - name: Get check-runs for PR
+        id: check-runs
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const headSha = context.payload.pull_request.head.sha;
+            
+            const { data: checkRuns } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: headSha,
+            });
+
+            const checks = checkRuns.check_runs.map(run => ({
+              name: run.name,
+              status: run.conclusion === 'success' ? 'success' : 'failure'
+            }));
+
+            console.log(`Found ${checks.length} checks`);
+            core.setOutput('checks', JSON.stringify(checks));
+
       - name: Call Release Manager Agent
         id: agent
         run: |
+          CHECKS='${{ steps.check-runs.outputs.checks }}'
+          
           RESPONSE=$(curl -s -X POST "${{ secrets.AGENT_ENDPOINT_URL }}/api/agent/release-manager" \
             -H "Content-Type: application/json" \
             -H "x-agent-secret: ${{ secrets.AGENT_SECRET }}" \
@@ -31,54 +55,69 @@ jobs:
               \"prUrl\": \"${{ github.event.pull_request.html_url }}\",
               \"title\": \"${{ github.event.pull_request.title }}\",
               \"body\": $(echo '${{ github.event.pull_request.body }}' | jq -Rs .),
-              \"changedFiles\": $(echo '${{ steps.changed-files.outputs.all_changed_files }}' | jq -Rs 'split(" ")')
-            }")
+              \"changedFiles\": $(echo '${{ steps.changed-files.outputs.all_changed_files }}' | jq -Rs 'split(" ")'),
+              \"checks\": ${CHECKS}
+            }" || echo '{"ok":false,"error":"curl failed"}')
           
           echo "response=$RESPONSE" >> $GITHUB_OUTPUT
-          echo "$RESPONSE" | jq .
+          echo "$RESPONSE" | jq . || echo "$RESPONSE"
+          
+          # Always exit 0 to not fail the workflow
+          exit 0
 
       - name: Post PR Comment
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const response = ${{ steps.agent.outputs.response }};
-            
-            if (!response || !response.ok) {
-              console.log('Agent call failed or returned error');
-              return;
-            }
+            try {
+              const responseStr = `${{ steps.agent.outputs.response }}`;
+              if (!responseStr) {
+                console.log('No response from agent');
+                return;
+              }
 
-            const { recommendation, risk, checklist, notes, changelog } = response;
-            
-            const emoji = recommendation === 'APPROVE' ? '✅' : '⚠️';
-            const riskEmoji = risk === 'LOW' ? '🟢' : risk === 'MED' ? '🟡' : '🔴';
-            
-            let comment = `## ${emoji} Release Manager Analysis\n\n`;
-            comment += `**Recommendation:** ${recommendation}\n`;
-            comment += `**Risk Level:** ${riskEmoji} ${risk}\n\n`;
-            
-            comment += `### Checklist Status\n`;
-            if (checklist.passed.length > 0) {
-              comment += `**Passed:**\n`;
-              checklist.passed.forEach(item => comment += `- ✅ ${item}\n`);
-            }
-            if (checklist.missing.length > 0) {
-              comment += `**Missing:**\n`;
-              checklist.missing.forEach(item => comment += `- ❌ ${item}\n`);
-            }
-            
-            if (changelog.length > 0) {
-              comment += `\n### Changelog\n`;
-              changelog.forEach(item => comment += `- ${item}\n`);
-            }
-            
-            comment += `\n### Agent Notes\n${notes}\n\n`;
-            comment += `---\n*This is an advisory comment. Manual review is still required.*`;
+              const response = JSON.parse(responseStr);
+              
+              if (!response || !response.ok) {
+                console.log('Agent call failed or returned error:', response);
+                return;
+              }
 
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: comment
-            });
+              const { recommendation, risk, checklist, notes, changelog } = response;
+              
+              const emoji = recommendation === 'APPROVE' ? '✅' : '⚠️';
+              const riskEmoji = risk === 'LOW' ? '🟢' : risk === 'MED' ? '🟡' : '🔴';
+              
+              let comment = `## ${emoji} Release Manager Analysis\n\n`;
+              comment += `**Recommendation:** ${recommendation}\n`;
+              comment += `**Risk Level:** ${riskEmoji} ${risk}\n\n`;
+              
+              comment += `### Checklist Status\n`;
+              if (checklist.passed.length > 0) {
+                comment += `**Passed:**\n`;
+                checklist.passed.forEach(item => comment += `- ✅ ${item}\n`);
+              }
+              if (checklist.missing.length > 0) {
+                comment += `**Missing:**\n`;
+                checklist.missing.forEach(item => comment += `- ❌ ${item}\n`);
+              }
+              
+              if (changelog.length > 0) {
+                comment += `\n### Changelog\n`;
+                changelog.forEach(item => comment += `- ${item}\n`);
+              }
+              
+              comment += `\n### Agent Notes\n${notes}\n\n`;
+              comment += `---\n*This is an advisory comment. Manual review is still required.*`;
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            } catch (error) {
+              console.error('Failed to post comment:', error);
+              // Don't fail the workflow
+            }
