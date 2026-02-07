@@ -1,0 +1,84 @@
+name: Agent - Release Manager
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  release-manager:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            **/*.ts
+            **/*.tsx
+            **/*.js
+            **/*.jsx
+
+      - name: Call Release Manager Agent
+        id: agent
+        run: |
+          RESPONSE=$(curl -s -X POST "${{ secrets.AGENT_ENDPOINT_URL }}/api/agent/release-manager" \
+            -H "Content-Type: application/json" \
+            -H "x-agent-secret: ${{ secrets.AGENT_SECRET }}" \
+            -d "{
+              \"prUrl\": \"${{ github.event.pull_request.html_url }}\",
+              \"title\": \"${{ github.event.pull_request.title }}\",
+              \"body\": $(echo '${{ github.event.pull_request.body }}' | jq -Rs .),
+              \"changedFiles\": $(echo '${{ steps.changed-files.outputs.all_changed_files }}' | jq -Rs 'split(" ")')
+            }")
+          
+          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
+          echo "$RESPONSE" | jq .
+
+      - name: Post PR Comment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const response = ${{ steps.agent.outputs.response }};
+            
+            if (!response || !response.ok) {
+              console.log('Agent call failed or returned error');
+              return;
+            }
+
+            const { recommendation, risk, checklist, notes, changelog } = response;
+            
+            const emoji = recommendation === 'APPROVE' ? '✅' : '⚠️';
+            const riskEmoji = risk === 'LOW' ? '🟢' : risk === 'MED' ? '🟡' : '🔴';
+            
+            let comment = `## ${emoji} Release Manager Analysis\n\n`;
+            comment += `**Recommendation:** ${recommendation}\n`;
+            comment += `**Risk Level:** ${riskEmoji} ${risk}\n\n`;
+            
+            comment += `### Checklist Status\n`;
+            if (checklist.passed.length > 0) {
+              comment += `**Passed:**\n`;
+              checklist.passed.forEach(item => comment += `- ✅ ${item}\n`);
+            }
+            if (checklist.missing.length > 0) {
+              comment += `**Missing:**\n`;
+              checklist.missing.forEach(item => comment += `- ❌ ${item}\n`);
+            }
+            
+            if (changelog.length > 0) {
+              comment += `\n### Changelog\n`;
+              changelog.forEach(item => comment += `- ${item}\n`);
+            }
+            
+            comment += `\n### Agent Notes\n${notes}\n\n`;
+            comment += `---\n*This is an advisory comment. Manual review is still required.*`;
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
