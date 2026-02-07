@@ -9,7 +9,7 @@ type ReleaseManagerInput = {
   title?: string;
   body?: string;
   changedFiles?: string[];
-  checks?: Array<{ name: string; status: string }>;
+  checks?: Array<{ name: string; status: string }> | Record<string, boolean>;
 };
 
 type ReleaseManagerOutput = {
@@ -66,8 +66,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Normalize checks into array format
+    let checks: Array<{ name: string; status: string }> = [];
+    if (input.checks) {
+      if (Array.isArray(input.checks)) {
+        checks = input.checks;
+      } else {
+        // Convert object format { lint: true, build: false } to array format
+        checks = Object.entries(input.checks).map(([name, passed]) => ({
+          name,
+          status: passed ? 'success' : 'failure',
+        }));
+      }
+    }
+
     // Analyze checks
-    const checks = input.checks || [];
     const allChecksPassed = checks.length === 0 || checks.every(c => c.status === 'success' || c.status === 'completed');
 
     // Analyze changed files for risk
