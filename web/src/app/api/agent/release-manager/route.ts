@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
     let checks: Array<{ name: string; status: string }> = [];
     const raw = input.checks;
 
-    const toStr = (v: unknown): string => {
+    const toStr = (v: unknown) => {
       if (typeof v === 'string') return v;
       if (v === null || v === undefined) return '';
       return String(v);
