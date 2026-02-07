@@ -20,4 +20,3 @@ export function requireAuth(req: NextRequest): NextResponse | null {
 
   return null; // Auth passed
 }
-
