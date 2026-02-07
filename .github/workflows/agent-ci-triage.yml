@@ -1,0 +1,123 @@
+name: Agent - CI Triage
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  ci-triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get check-runs for this PR
+        id: check-runs
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: checkRuns } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.payload.pull_request.head.sha,
+            });
+
+            const failedChecks = checkRuns.check_runs
+              .filter(run => ['failure', 'cancelled', 'timed_out', 'action_required'].includes(run.conclusion))
+              .map(run => ({
+                name: run.name,
+                conclusion: run.conclusion,
+                detailsUrl: run.details_url,
+              }));
+
+            console.log(`Found ${failedChecks.length} failing checks`);
+            core.setOutput('failed_checks', JSON.stringify(failedChecks));
+            core.setOutput('has_failures', failedChecks.length > 0 ? 'true' : 'false');
+
+      - name: Call CI Triage Agent
+        id: agent
+        if: steps.check-runs.outputs.has_failures == 'true'
+        run: |
+          FAILED_CHECKS='${{ steps.check-runs.outputs.failed_checks }}'
+          
+          RESPONSE=$(curl -s -X POST "${{ secrets.AGENT_ENDPOINT_URL }}/api/agent/ci-triage" \
+            -H "Content-Type: application/json" \
+            -H "x-agent-secret: ${{ secrets.AGENT_SECRET }}" \
+            -d "{
+              \"prUrl\": \"${{ github.event.pull_request.html_url }}\",
+              \"sha\": \"${{ github.event.pull_request.head.sha }}\",
+              \"repo\": \"${{ github.repository }}\",
+              \"runUrl\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+              \"failedChecks\": ${FAILED_CHECKS}
+            }" || echo '{"ok":false,"error":"curl failed"}')
+          
+          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
+          echo "$RESPONSE" | jq . || echo "$RESPONSE"
+          
+          # Always exit 0 to not fail the workflow
+          exit 0
+
+      - name: Post PR Comment
+        if: steps.check-runs.outputs.has_failures == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              const responseStr = `${{ steps.agent.outputs.response }}`;
+              if (!responseStr) {
+                console.log('No response from agent');
+                return;
+              }
+
+              const response = JSON.parse(responseStr);
+              
+              if (!response || !response.ok) {
+                console.log('Agent call failed or returned error:', response);
+                return;
+              }
+
+              const { headline, classification, likelyCause, commands, nextActions, notes } = response;
+              
+              const classEmoji = {
+                'LINT': '🔍',
+                'TYPECHECK': '📘',
+                'BUILD': '🔨',
+                'TEST': '🧪',
+                'DEPLOY': '🚀',
+                'UNKNOWN': '❓'
+              };
+              
+              const emoji = classEmoji[classification] || '❓';
+              
+              let comment = `## ${emoji} CI Triage: ${headline}\n\n`;
+              comment += `**Classification:** ${classification}\n\n`;
+              comment += `### Likely Cause\n${likelyCause}\n\n`;
+              
+              if (commands && commands.length > 0) {
+                comment += `### Commands to Run\n\`\`\`bash\n${commands.join('\n')}\n\`\`\`\n\n`;
+              }
+              
+              if (nextActions && nextActions.length > 0) {
+                comment += `### Next Actions\n`;
+                nextActions.forEach(action => comment += `- ${action}\n`);
+                comment += `\n`;
+              }
+              
+              if (notes) {
+                comment += `### Notes\n${notes}\n\n`;
+              }
+              
+              comment += `---\n*Automated triage by CI Agent. Review logs for details.*`;
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            } catch (error) {
+              console.error('Failed to post comment:', error);
+              // Don't fail the workflow
+            }
