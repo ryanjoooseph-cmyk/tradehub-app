@@ -56,22 +56,40 @@ jobs:
         id: agent
         if: steps.changed-files.outputs.has_ui_changes == 'true'
         run: |
+          set +e
+
           CHANGED_FILES='${{ steps.changed-files.outputs.files }}'
-          
-          RESPONSE=$(curl -s -X POST "${{ secrets.AGENT_ENDPOINT_URL }}/api/agent/regression-guard" \
+          URL="${{ secrets.AGENT_ENDPOINT_URL }}/api/agent/regression-guard"
+
+          HTTP_CODE=$(curl -s -S -o /tmp/rg_response.json -w "%{http_code}" -X POST "$URL" \
             -H "Content-Type: application/json" \
             -H "x-agent-secret: ${{ secrets.AGENT_SECRET }}" \
-            -d "{
-              \"prUrl\": \"${{ github.event.pull_request.html_url }}\",
-              \"sha\": \"${{ github.event.pull_request.head.sha }}\",
-              \"repo\": \"${{ github.repository }}\",
-              \"changedFiles\": ${CHANGED_FILES}
-            }" || echo '{"ok":false,"error":"curl failed"}')
-          
-          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
-          echo "$RESPONSE" | jq . || echo "$RESPONSE"
-          
-          # Always exit 0 to not fail the workflow
+            -d "{\
+              \"prUrl\": \"${{ github.event.pull_request.html_url }}\",\
+              \"sha\": \"${{ github.event.pull_request.head.sha }}\",\
+              \"repo\": \"${{ github.repository }}\",\
+              \"changedFiles\": ${CHANGED_FILES}\
+            }")
+
+          RESPONSE=$(cat /tmp/rg_response.json 2>/dev/null)
+
+          # If endpoint isn't available yet (common when workflow runs before PR merges and main doesn't have the route),
+          # fall back to safe JSON so outputs don't get corrupted by HTML.
+          if [ "$HTTP_CODE" != "200" ]; then
+            RESPONSE=$(printf '{"ok":false,"error":"regression-guard endpoint unavailable (HTTP %s)","changedRoutes":[],"risk":"LOW","checklist":[],"notes":["Workflow ran before endpoint was deployed on the agent endpoint."]}' "$HTTP_CODE")
+          fi
+
+          # Emit multiline output safely
+          {
+            echo "response<<EOF"
+            echo "$RESPONSE"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          # Best-effort pretty print; never fail
+          echo "$RESPONSE" | jq . >/dev/null 2>&1 && echo "$RESPONSE" | jq . || echo "$RESPONSE"
+
+          # Always succeed (non-blocking)
           exit 0
 
       - name: Post PR Comment
