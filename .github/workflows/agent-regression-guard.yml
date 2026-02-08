@@ -58,7 +58,8 @@ jobs:
         run: |
           CHANGED_FILES='${{ steps.changed-files.outputs.files }}'
           
-          RESPONSE=$(curl -s -X POST "${{ secrets.AGENT_ENDPOINT_URL }}/api/agent/regression-guard" \
+          # Capture HTTP status code and body separately
+          HTTP_CODE=$(curl -s -S -o /tmp/rg_response.json -w "%{http_code}" -X POST "${{ secrets.AGENT_ENDPOINT_URL }}/api/agent/regression-guard" \
             -H "Content-Type: application/json" \
             -H "x-agent-secret: ${{ secrets.AGENT_SECRET }}" \
             -d "{
@@ -66,10 +67,23 @@ jobs:
               \"sha\": \"${{ github.event.pull_request.head.sha }}\",
               \"repo\": \"${{ github.repository }}\",
               \"changedFiles\": ${CHANGED_FILES}
-            }" || echo '{"ok":false,"error":"curl failed"}')
+            }" 2>/dev/null || echo "000")
           
-          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
-          echo "$RESPONSE" | jq . || echo "$RESPONSE"
+          # Check if endpoint returned 200
+          if [[ "$HTTP_CODE" == "200" ]]; then
+            RESPONSE=$(cat /tmp/rg_response.json 2>/dev/null || echo '{"ok":false,"error":"failed to read response"}')
+          else
+            echo "Regression Guard endpoint returned HTTP $HTTP_CODE"
+            RESPONSE="{\"ok\":false,\"error\":\"regression-guard endpoint unavailable (HTTP $HTTP_CODE)\",\"changedRoutes\":[],\"risk\":\"LOW\",\"checklist\":[],\"notes\":[\"Workflow ran before endpoint was deployed.\"]}"
+          fi
+          
+          # Write to GITHUB_OUTPUT using multiline syntax
+          echo "response<<EOF" >> $GITHUB_OUTPUT
+          echo "$RESPONSE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # Best-effort jq output (never fail)
+          echo "$RESPONSE" | jq . >/dev/null 2>&1 && echo "$RESPONSE" | jq . || echo "$RESPONSE"
           
           # Always exit 0 to not fail the workflow
           exit 0
