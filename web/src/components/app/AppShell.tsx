@@ -17,6 +17,7 @@ const NAV = [
   { href: "/app/invoices", label: "Invoices" },
   { href: "/app/escrow", label: "Escrow" },
   { href: "/app/team", label: "Team" },
+  { href: "/app/agents", label: "Agents" },
   { href: "/app/settings", label: "Settings" },
   { href: "/dispatch", label: "Dispatch" },
   { href: "/escrow", label: "Escrow Ops" },
