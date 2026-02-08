@@ -36,13 +36,19 @@ jobs:
                     return;
                   }
                   
-                  // Only proceed if comment is from an agent
+                  // Only proceed if comment looks like an agent risk output (markers OR risk-level content)
                   const commentBody = comment.body || '';
-                  const isAgentComment = commentBody.includes('<!-- AGENT_RELEASE_MANAGER -->') || 
-                                        commentBody.includes('<!-- AGENT_REGRESSION_GUARD -->');
-                  
+                  const isAgentComment =
+                    commentBody.includes('<!-- AGENT_RELEASE_MANAGER -->') ||
+                    commentBody.includes('<!-- AGENT_REGRESSION_GUARD -->') ||
+                    commentBody.includes('Risk Level:') ||
+                    commentBody.includes('**Risk Level:**') ||
+                    commentBody.includes('🔴') ||
+                    commentBody.includes('🟡') ||
+                    commentBody.includes('🟢');
+
                   if (!isAgentComment) {
-                    console.log('Comment is not from Release Manager or Regression Guard, skipping');
+                    console.log('Comment is not an agent risk signal, skipping');
                     return;
                   }
                   
@@ -154,15 +160,29 @@ jobs:
                 
                 if (context.eventName === 'issue_comment') {
                   const triggerBody = context.payload.comment.body || '';
-                  
-                  console.log('Checking triggering comment for markers...');
+
+                  console.log('Checking triggering comment for markers and risk...');
+                  const triggerRisk = extractRisk(triggerBody);
+                  console.log(`Triggering comment extracted risk: ${triggerRisk}`);
+
                   if (triggerBody.includes(RM_MARKER)) {
-                    rmRisk = extractRisk(triggerBody);
+                    rmRisk = triggerRisk;
                     console.log(`✓ Triggering comment has RM_MARKER, risk: ${rmRisk}`);
                   }
                   if (triggerBody.includes(RG_MARKER)) {
-                    rgRisk = extractRisk(triggerBody);
+                    rgRisk = triggerRisk;
                     console.log(`✓ Triggering comment has RG_MARKER, risk: ${rgRisk}`);
+                  }
+
+                  // If no markers but risk exists, treat it as agent risk signal and fill missing slot(s)
+                  if (!triggerBody.includes(RM_MARKER) && !triggerBody.includes(RG_MARKER) && triggerRisk) {
+                    if (rmRisk === null) {
+                      rmRisk = triggerRisk;
+                      console.log(`✓ Filled rmRisk from unmarked trigger risk: ${rmRisk}`);
+                    } else if (rgRisk === null) {
+                      rgRisk = triggerRisk;
+                      console.log(`✓ Filled rgRisk from unmarked trigger risk: ${rgRisk}`);
+                    }
                   }
                 }
 
@@ -215,7 +235,7 @@ jobs:
                     const body = comment.body || '';
                     if (isGatekeeperComment(body)) continue;
                     
-                    if (body.includes('Risk Level:') || body.includes('**Risk Level:**')) {
+                    if (body.includes('Risk Level:') || body.includes('**Risk Level:**') || body.includes('🔴') || body.includes('🟡') || body.includes('🟢')) {
                       const foundRisk = extractRisk(body);
                       if (foundRisk) {
                         console.log(`✓ Found risk via "Risk Level:" scan: ${foundRisk}`);
@@ -318,6 +338,10 @@ jobs:
                 out += autoMergeDisabled
                   ? `---\nAuto-merge was disabled because this PR is BLOCKED or HIGH risk.\n`
                   : `---\nAuto-merge unchanged.\n`;
+
+                if (comments.length === 0) {
+                  comments = await loadCommentsWithRetry(1);
+                }
 
                 const existing = comments.find(c => (c.body || '').includes(GK_MARKER));
                 if (existing) {
