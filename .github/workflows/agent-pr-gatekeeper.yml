@@ -13,6 +13,7 @@ permissions:
   contents: read
   pull-requests: write
   issues: write
+  checks: read
 
 jobs:
   gatekeeper:
@@ -24,8 +25,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             try {
-                const owner = context.repo.owner;
-                const repo = context.repo.repo;
+              const owner = context.repo.owner;
+              const repo = context.repo.repo;
                 
                 // Early exit for push/workflow_dispatch - no PR context
                 if (context.eventName === 'push' || context.eventName === 'workflow_dispatch') {
@@ -331,19 +332,28 @@ jobs:
                 
                 console.log(`Final risk after override: ${finalRisk}`);
 
-                const { data: checkRuns } = await github.rest.checks.listForRef({
-                  owner,
-                  repo,
-                  ref: sha,
-                  per_page: 100,
-                });
+                let failing = [];
+                let hasFailingChecks = false;
 
-                const badConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required']);
-                const failing = (checkRuns.check_runs || [])
-                  .filter(cr => cr.conclusion && badConclusions.has(cr.conclusion))
-                  .map(cr => cr.name);
+                try {
+                  const { data: checkRuns } = await github.rest.checks.listForRef({
+                    owner,
+                    repo,
+                    ref: sha,
+                    per_page: 100,
+                  });
 
-                const hasFailingChecks = failing.length > 0;
+                  const badConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required']);
+                  failing = (checkRuns.check_runs || [])
+                    .filter(cr => cr.conclusion && badConclusions.has(cr.conclusion))
+                    .map(cr => cr.name);
+
+                  hasFailingChecks = failing.length > 0;
+                } catch (err) {
+                  console.error('⚠️ Unable to read check-runs for ref (continuing without failing-check detection):', err);
+                  failing = [];
+                  hasFailingChecks = false;
+                }
 
                 const isWorkflowOnlyChange =
                   Array.isArray(changedFiles) &&
@@ -374,31 +384,36 @@ jobs:
 
                 let autoMergeDisabled = false;
                 if (hasFailingChecks || finalRisk === 'HIGH') {
-                  const q = await github.graphql(
-                    `query($owner:String!, $repo:String!, $number:Int!) {
-                      repository(owner:$owner, name:$repo) {
-                        pullRequest(number:$number) {
-                          id
-                          autoMergeRequest { enabledAt }
-                        }
-                      }
-                    }`,
-                    { owner, repo, number: prNumber }
-                  );
-
-                  const prId = q?.repository?.pullRequest?.id;
-                  const autoMergeEnabled = !!q?.repository?.pullRequest?.autoMergeRequest;
-
-                  if (prId && autoMergeEnabled) {
-                    await github.graphql(
-                      `mutation($pullRequestId: ID!) {
-                        disablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId }) {
-                          pullRequest { number }
+                  try {
+                    const q = await github.graphql(
+                      `query($owner:String!, $repo:String!, $number:Int!) {
+                        repository(owner:$owner, name:$repo) {
+                          pullRequest(number:$number) {
+                            id
+                            autoMergeRequest { enabledAt }
+                          }
                         }
                       }`,
-                      { pullRequestId: prId }
+                      { owner, repo, number: prNumber }
                     );
-                    autoMergeDisabled = true;
+
+                    const prId = q?.repository?.pullRequest?.id;
+                    const autoMergeEnabled = !!q?.repository?.pullRequest?.autoMergeRequest;
+
+                    if (prId && autoMergeEnabled) {
+                      await github.graphql(
+                        `mutation($pullRequestId: ID!) {
+                          disablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId }) {
+                            pullRequest { number }
+                          }
+                        }`,
+                        { pullRequestId: prId }
+                      );
+                      autoMergeDisabled = true;
+                    }
+                  } catch (err) {
+                    console.error('⚠️ Unable to disable auto-merge (continuing):', err);
+                    autoMergeDisabled = false;
                   }
                 }
 
