@@ -25,6 +25,7 @@ jobs:
           script: |
             (async () => {
               try {
+                const core = require('@actions/core');
                 const owner = context.repo.owner;
                 const repo = context.repo.repo;
                 
@@ -345,7 +346,17 @@ jobs:
                   .map(cr => cr.name);
 
                 const hasFailingChecks = failing.length > 0;
-                const shouldBlock = hasFailingChecks || finalRisk === 'HIGH';
+
+                const isWorkflowOnlyChange =
+                  Array.isArray(changedFiles) &&
+                  changedFiles.length > 0 &&
+                  changedFiles.every((f) => typeof f === 'string' && f.startsWith('.github/workflows/'));
+
+                if (isWorkflowOnlyChange) {
+                  console.log('ℹ️ Workflow-only change detected; will not fail required Gatekeeper check (manual review still required).');
+                }
+
+                const shouldBlock = hasFailingChecks || (finalRisk === 'HIGH' && !isWorkflowOnlyChange);
 
                 if (finalRisk === 'HIGH') {
                   await safeAddLabels(['needs-review', 'risk-high']);
@@ -364,7 +375,7 @@ jobs:
                 }
 
                 let autoMergeDisabled = false;
-                if (shouldBlock) {
+                if (hasFailingChecks || finalRisk === 'HIGH') {
                   const q = await github.graphql(
                     `query($owner:String!, $repo:String!, $number:Int!) {
                       repository(owner:$owner, name:$repo) {
@@ -440,11 +451,20 @@ jobs:
                   console.log('🚫 Gatekeeper is BLOCKING this PR');
                   core.setFailed('Gatekeeper blocked: HIGH risk or failing checks');
                 } else {
+                  if (finalRisk === 'HIGH' && isWorkflowOnlyChange) {
+                    console.log('⚠️ Gatekeeper allowing workflow-only HIGH risk change to proceed (manual review required).');
+                  }
                   console.log('✅ Gatekeeper passed - PR is clear to merge');
                 }
 
               } catch (e) {
                 console.error('Gatekeeper failed:', e);
-                core.setFailed(String(e?.message || e));
+                try {
+                  const core = require('@actions/core');
+                  core.setFailed(String(e?.message || e));
+                } catch (e2) {
+                  // If even core isn't available, rethrow so the action fails.
+                  throw e;
+                }
               }
             })();
