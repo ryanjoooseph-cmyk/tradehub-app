@@ -1,0 +1,401 @@
+name: Gatekeeper Required
+
+# STABLE WORKFLOW - DO NOT FREQUENTLY EDIT
+# This workflow uses pull_request_target to ensure the gatekeeper check always runs,
+# even on PRs that modify workflow files. This prevents the deadlock where a PR
+# changing workflow files can never merge because the required check doesn't appear.
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: read
+
+jobs:
+  gatekeeper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR Gatekeeper
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.payload.pull_request.number;
+            const sha = context.payload.pull_request.head.sha;
+
+            console.log(`Processing PR #${prNumber}, SHA: ${sha}`);
+
+            // Fetch PR labels to check for override
+            let prLabels = [];
+            try {
+              const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+                owner,
+                repo,
+                issue_number: prNumber,
+                per_page: 100,
+              });
+              prLabels = (labels || []).map(l => l.name).filter(Boolean);
+            } catch (err) {
+              console.error('Unable to load PR labels:', err);
+            }
+
+            const OVERRIDE_LABEL = 'override-gatekeeper';
+            const isOverride = prLabels.includes(OVERRIDE_LABEL);
+            console.log(`PR labels: ${prLabels.join(', ') || '(none)'}`);
+            console.log(`Override label present: ${isOverride}`);
+
+            const RM_MARKER = '<!-- AGENT_RELEASE_MANAGER -->';
+            const RG_MARKER = '<!-- AGENT_REGRESSION_GUARD -->';
+            const GK_MARKER = '<!-- AGENT_PR_GATEKEEPER -->';
+
+            const riskRank = { LOW: 1, MEDIUM: 2, HIGH: 3 };
+
+            function extractRisk(body) {
+              if (!body) return null;
+              const jsonMatch = body.match(/"risk"\s*:\s*"(LOW|MEDIUM|HIGH)"/i);
+              if (jsonMatch) return jsonMatch[1].toUpperCase();
+              const nearRisk = body.match(/risk[\s\S]{0,80}?(LOW|MEDIUM|HIGH)/i);
+              if (nearRisk) return nearRisk[1].toUpperCase();
+              if (body.includes('🔴')) return 'HIGH';
+              if (body.includes('🟡')) return 'MEDIUM';
+              if (body.includes('🟢')) return 'LOW';
+              if (/\bHIGH\b/i.test(body)) return 'HIGH';
+              if (/\bMEDIUM\b/i.test(body)) return 'MEDIUM';
+              if (/\bLOW\b/i.test(body)) return 'LOW';
+              return null;
+            }
+
+            async function safeAddLabels(labels) {
+              if (!labels || labels.length === 0) return;
+              await github.rest.issues.addLabels({ owner, repo, issue_number: prNumber, labels });
+            }
+
+            async function safeRemoveLabel(name) {
+              try {
+                await github.rest.issues.removeLabel({ owner, repo, issue_number: prNumber, name });
+              } catch (e) {}
+            }
+
+            function isGatekeeperComment(body) {
+              return typeof body === 'string' && body.includes(GK_MARKER);
+            }
+
+            // Load all comments with retry for eventual consistency
+            async function loadCommentsWithRetry(maxRetries = 5) {
+              for (let attempt = 0; attempt < maxRetries; attempt++) {
+                let allComments = [];
+                let page = 1;
+                let hasMore = true;
+
+                while (hasMore && page <= 20) {
+                  const { data: pageComments } = await github.rest.issues.listComments({
+                    owner,
+                    repo,
+                    issue_number: prNumber,
+                    per_page: 100,
+                    page,
+                  });
+
+                  allComments = allComments.concat(pageComments);
+                  hasMore = pageComments.length === 100;
+                  page++;
+                }
+
+                console.log(`Attempt ${attempt + 1}: Loaded ${allComments.length} comments`);
+
+                const hasRM = allComments.some(c => c.body && c.body.includes(RM_MARKER));
+                const hasRG = allComments.some(c => c.body && c.body.includes(RG_MARKER));
+
+                if (hasRM || hasRG || attempt === maxRetries - 1) {
+                  return allComments;
+                }
+
+                console.log('Agent markers not found yet, retrying in 2s...');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+              }
+              return [];
+            }
+
+            // Load comments and extract risk from agent markers
+            const comments = await loadCommentsWithRetry(5);
+            let rmRisk = null;
+            let rgRisk = null;
+
+            for (let i = comments.length - 1; i >= 0; i--) {
+              const body = comments[i]?.body || '';
+              if (isGatekeeperComment(body)) continue;
+
+              if (rmRisk === null && body.includes(RM_MARKER)) {
+                rmRisk = extractRisk(body);
+                console.log(`Found RM_MARKER, risk: ${rmRisk}`);
+              }
+              if (rgRisk === null && body.includes(RG_MARKER)) {
+                rgRisk = extractRisk(body);
+                console.log(`Found RG_MARKER, risk: ${rgRisk}`);
+              }
+              if (rmRisk !== null && rgRisk !== null) break;
+            }
+
+            // Fallback: scan latest comments for "Risk Level:"
+            if (rmRisk === null || rgRisk === null) {
+              console.log('Scanning latest comments for risk indicators...');
+              const latest30 = comments.slice(-30).reverse();
+
+              for (const comment of latest30) {
+                const body = comment.body || '';
+                if (isGatekeeperComment(body)) continue;
+
+                if (body.includes('Risk Level:') || body.includes('**Risk Level:**') ||
+                    body.includes('🔴') || body.includes('🟡') || body.includes('🟢')) {
+                  const foundRisk = extractRisk(body);
+                  if (foundRisk) {
+                    if (rmRisk === null) rmRisk = foundRisk;
+                    else if (rgRisk === null) rgRisk = foundRisk;
+                    if (rmRisk !== null && rgRisk !== null) break;
+                  }
+                }
+              }
+            }
+
+            // Final risk determination with conservative default
+            const RM = rmRisk || 'MEDIUM';
+            const RG = rgRisk || 'MEDIUM';
+            let finalRisk = (riskRank[RM] >= riskRank[RG]) ? RM : RG;
+
+            console.log(`Risk from agents: RM=${RM}, RG=${RG}, Combined=${finalRisk}`);
+
+            // Fetch changed files and apply critical-file override
+            let changedFiles = [];
+            let filePage = 1;
+            let hasMoreFiles = true;
+
+            while (hasMoreFiles && filePage <= 10) {
+              const { data: files } = await github.rest.pulls.listFiles({
+                owner,
+                repo,
+                pull_number: prNumber,
+                per_page: 100,
+                page: filePage,
+              });
+
+              changedFiles = changedFiles.concat(files.map(f => f.filename));
+              hasMoreFiles = files.length === 100;
+              filePage++;
+            }
+
+            console.log(`Changed files: ${changedFiles.length} total`);
+
+            // Critical file patterns that escalate to HIGH risk
+            const criticalPatterns = [
+              { type: 'exact', value: 'web/src/app/layout.tsx', reason: 'root layout' },
+              { type: 'exact', value: 'web/src/components/app/AppShell.tsx', reason: 'app shell' },
+              { type: 'startsWith', value: 'web/src/styles/', reason: 'global styles' },
+              { type: 'startsWith', value: 'web/src/app/api/agent/', reason: 'agent infrastructure' },
+              { type: 'includes', value: '/escrow', reason: 'escrow logic' },
+            ];
+
+            const criticalMatches = [];
+            for (const file of changedFiles) {
+              for (const pattern of criticalPatterns) {
+                let matches = false;
+                if (pattern.type === 'exact') matches = file === pattern.value;
+                else if (pattern.type === 'startsWith') matches = file.startsWith(pattern.value);
+                else if (pattern.type === 'includes') matches = file.includes(pattern.value);
+
+                if (matches) {
+                  criticalMatches.push({ file, reason: pattern.reason });
+                  break;
+                }
+              }
+            }
+
+            // Apply critical-file override
+            let criticalOverride = false;
+            if (criticalMatches.length > 0) {
+              console.log(`🚨 Critical files detected (${criticalMatches.length}):`);
+              criticalMatches.forEach(m => console.log(`  - ${m.file} (${m.reason})`));
+
+              if (finalRisk !== 'HIGH') {
+                console.log(`Overriding risk from ${finalRisk} to HIGH due to critical files`);
+                finalRisk = 'HIGH';
+                criticalOverride = true;
+              }
+            }
+
+            console.log(`Final risk: ${finalRisk}`);
+
+            // Check for failing check-runs
+            let failing = [];
+            let hasFailingChecks = false;
+
+            try {
+              const { data: checkRuns } = await github.rest.checks.listForRef({
+                owner,
+                repo,
+                ref: sha,
+                per_page: 100,
+              });
+
+              const badConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required']);
+              failing = (checkRuns.check_runs || [])
+                .filter(cr => cr.name !== 'gatekeeper' && cr.conclusion && badConclusions.has(cr.conclusion))
+                .map(cr => cr.name);
+
+              hasFailingChecks = failing.length > 0;
+            } catch (err) {
+              console.error('Unable to read check-runs:', err);
+            }
+
+            // Workflow-only changes get special treatment
+            const isWorkflowOnlyChange =
+              changedFiles.length > 0 &&
+              changedFiles.every(f => f.startsWith('.github/workflows/'));
+
+            if (isWorkflowOnlyChange) {
+              console.log('Workflow-only change detected');
+            }
+
+            // Determine if PR should be blocked
+            // HIGH risk can proceed ONLY if override label is present
+            const shouldBlock = hasFailingChecks || (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride);
+
+            console.log(`shouldBlock=${shouldBlock} (failing=${hasFailingChecks}, HIGH=${finalRisk === 'HIGH'}, override=${isOverride}, workflowOnly=${isWorkflowOnlyChange})`);
+
+            // Apply risk labels
+            if (finalRisk === 'HIGH') {
+              await safeAddLabels(['needs-review', 'risk-high']);
+              await safeRemoveLabel('risk-med');
+              await safeRemoveLabel('risk-low');
+            } else if (finalRisk === 'MEDIUM') {
+              await safeAddLabels(['risk-med']);
+              await safeRemoveLabel('needs-review');
+              await safeRemoveLabel('risk-high');
+              await safeRemoveLabel('risk-low');
+            } else {
+              await safeAddLabels(['risk-low']);
+              await safeRemoveLabel('needs-review');
+              await safeRemoveLabel('risk-high');
+              await safeRemoveLabel('risk-med');
+            }
+
+            // Disable auto-merge for blocked PRs
+            let autoMergeDisabled = false;
+            if (shouldBlock) {
+              try {
+                const q = await github.graphql(
+                  `query($owner:String!, $repo:String!, $number:Int!) {
+                    repository(owner:$owner, name:$repo) {
+                      pullRequest(number:$number) {
+                        id
+                        autoMergeRequest { enabledAt }
+                      }
+                    }
+                  }`,
+                  { owner, repo, number: prNumber }
+                );
+
+                const prId = q?.repository?.pullRequest?.id;
+                const autoMergeEnabled = !!q?.repository?.pullRequest?.autoMergeRequest;
+
+                if (prId && autoMergeEnabled) {
+                  await github.graphql(
+                    `mutation($pullRequestId: ID!) {
+                      disablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId }) {
+                        pullRequest { number }
+                      }
+                    }`,
+                    { pullRequestId: prId }
+                  );
+                  autoMergeDisabled = true;
+                }
+              } catch (err) {
+                console.error('Unable to disable auto-merge:', err);
+              }
+            }
+
+            // Build status comment
+            const emoji = finalRisk === 'HIGH' ? '🔴' : (finalRisk === 'MEDIUM' ? '🟡' : '🟢');
+            const statusLine = shouldBlock ? '**Status:** ⛔ BLOCKED' : '**Status:** ✅ CLEAR';
+
+            let out = `${GK_MARKER}\n## 🚦 PR Gatekeeper\n\n`;
+            out += `${statusLine}\n`;
+            out += `**Risk Level:** ${emoji} ${finalRisk}\n`;
+            out += `**Checks:** ${hasFailingChecks ? '❌ FAILING' : '✅ PASSING'}\n`;
+
+            if (finalRisk === 'HIGH') {
+              if (isOverride) {
+                out += `**Override:** ⚠️ ENABLED via label \`override-gatekeeper\`\n`;
+              } else if (isWorkflowOnlyChange) {
+                out += `**Override:** ℹ️ Workflow-only change (manual review required)\n`;
+              } else {
+                out += `**Override:** ❌ Required (add label \`override-gatekeeper\` to proceed)\n`;
+              }
+            }
+
+            out += `\n`;
+
+            if (criticalOverride && criticalMatches.length > 0) {
+              out += `### 🚨 Critical Files Changed\n`;
+              out += `Risk escalated to HIGH due to changes in critical files:\n`;
+              criticalMatches.forEach(m => out += `- \`${m.file}\` (${m.reason})\n`);
+              out += `\n`;
+            }
+
+            if (hasFailingChecks) {
+              out += `### ❌ Failing Checks\n`;
+              for (const name of failing) out += `- ${name}\n`;
+              out += `\n`;
+            }
+
+            out += `### ✅ Verification Checklist\n`;
+            out += `- Confirm no console errors\n`;
+            out += `- Smoke test touched flows\n`;
+            out += `- pnpm lint / typecheck / build are green\n\n`;
+
+            if (finalRisk === 'HIGH' && !isOverride && !isWorkflowOnlyChange) {
+              out += `### ⚠️ HIGH Risk Override Required\n`;
+              out += `This PR is **HIGH risk** and cannot be merged without explicit approval.\n\n`;
+              out += `**To merge this PR:**\n`;
+              out += `1. Review all changes carefully\n`;
+              out += `2. Add the label \`override-gatekeeper\` to this PR\n`;
+              out += `3. The Gatekeeper check will re-run and pass with override enabled\n\n`;
+            } else if (finalRisk === 'HIGH' && isOverride) {
+              out += `### ⚠️ HIGH Risk - Override Active\n`;
+              out += `This PR was allowed to proceed via the \`override-gatekeeper\` label.\n`;
+              out += `Extra care has been taken to review these critical changes.\n\n`;
+            }
+
+            out += autoMergeDisabled
+              ? `---\nAuto-merge was disabled because this PR is BLOCKED.\n`
+              : `---\nAuto-merge unchanged.\n`;
+
+            // Post or update gatekeeper comment
+            const existing = comments.find(c => (c.body || '').includes(GK_MARKER));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: out });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number: prNumber, body: out });
+            }
+
+            console.log('PR Gatekeeper complete');
+
+            // Fail the check if blocked
+            if (shouldBlock) {
+              console.log('🚫 Gatekeeper is BLOCKING this PR');
+              if (finalRisk === 'HIGH' && !isOverride) {
+                throw new Error(`Gatekeeper blocked: HIGH risk. Add label "${OVERRIDE_LABEL}" to proceed.`);
+              }
+              throw new Error('Gatekeeper blocked: failing checks');
+            }
+
+            if (finalRisk === 'HIGH' && isOverride) {
+              console.log('✅ Gatekeeper passed - HIGH risk override active');
+            } else {
+              console.log('✅ Gatekeeper passed - PR is clear to merge');
+            }
