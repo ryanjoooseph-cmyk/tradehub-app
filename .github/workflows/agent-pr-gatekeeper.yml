@@ -18,239 +18,166 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            try {
-              const pr = context.payload.pull_request;
-              const prNumber = pr.number;
-              const headSha = pr.head.sha;
-              const owner = context.repo.owner;
-              const repo = context.repo.repo;
-              
-              console.log(`Processing PR #${prNumber} (${headSha})`);
-              
-              function extractRisk(body) {
-                if (!body) return null;
+            (async () => {
+              try {
+                const owner = context.repo.owner;
+                const repo = context.repo.repo;
+                const prNumber = context.payload.pull_request.number;
+                const sha = context.payload.pull_request.head.sha;
 
-                // Prefer explicit JSON-style risk fields
-                const jsonMatch = body.match(/"risk"\s*:\s*"(LOW|MEDIUM|HIGH)"/i);
-                if (jsonMatch) return jsonMatch[1].toUpperCase();
+                const RM_MARKER = '<!-- AGENT_RELEASE_MANAGER -->';
+                const RG_MARKER = '<!-- AGENT_REGRESSION_GUARD -->';
+                const GK_MARKER = '<!-- AGENT_PR_GATEKEEPER -->';
 
-                // Prefer lines that mention risk
-                const nearRisk = body.match(/risk[^A-Z]*(LOW|MEDIUM|HIGH)/i);
-                if (nearRisk) return nearRisk[1].toUpperCase();
+                const riskRank = { LOW: 1, MEDIUM: 2, HIGH: 3 };
 
-                // Emoji fallback
-                if (body.includes('🔴')) return 'HIGH';
-                if (body.includes('🟡')) return 'MEDIUM';
-                if (body.includes('🟢')) return 'LOW';
-
-                // Last resort: any standalone tokens
-                if (/\bHIGH\b/i.test(body)) return 'HIGH';
-                if (/\bMEDIUM\b/i.test(body)) return 'MEDIUM';
-                if (/\bLOW\b/i.test(body)) return 'LOW';
-
-                return null;
-              }
-              
-              // Step 1: Read PR comments and find latest agent comments
-              const { data: comments } = await github.rest.issues.listComments({
-                owner,
-                repo,
-                issue_number: prNumber,
-              });
-              
-              let releaseManagerRisk = null;
-              let regressionGuardRisk = null;
-              
-              // Find latest Release Manager comment
-              for (let i = comments.length - 1; i >= 0; i--) {
-                if (comments[i].body && comments[i].body.includes('<!-- AGENT_RELEASE_MANAGER -->')) {
-                  const r = extractRisk(comments[i].body);
-                  if (r) {
-                    releaseManagerRisk = r;
-                    console.log(`Found Release Manager risk: ${releaseManagerRisk}`);
-                    break;
-                  }
+                function extractRisk(body) {
+                  if (!body) return null;
+                  const jsonMatch = body.match(/"risk"\s*:\s*"(LOW|MEDIUM|HIGH)"/i);
+                  if (jsonMatch) return jsonMatch[1].toUpperCase();
+                  const nearRisk = body.match(/risk[^A-Z]*(LOW|MEDIUM|HIGH)/i);
+                  if (nearRisk) return nearRisk[1].toUpperCase();
+                  if (body.includes('🔴')) return 'HIGH';
+                  if (body.includes('🟡')) return 'MEDIUM';
+                  if (body.includes('🟢')) return 'LOW';
+                  if (/\bHIGH\b/i.test(body)) return 'HIGH';
+                  if (/\bMEDIUM\b/i.test(body)) return 'MEDIUM';
+                  if (/\bLOW\b/i.test(body)) return 'LOW';
+                  return null;
                 }
-              }
-              
-              // Find latest Regression Guard comment
-              for (let i = comments.length - 1; i >= 0; i--) {
-                if (comments[i].body && comments[i].body.includes('<!-- AGENT_REGRESSION_GUARD -->')) {
-                  const r = extractRisk(comments[i].body);
-                  if (r) {
-                    regressionGuardRisk = r;
-                    console.log(`Found Regression Guard risk: ${regressionGuardRisk}`);
-                    break;
-                  }
-                }
-              }
-              
-              // Determine highest risk (default to MEDIUM if not found)
-              const riskLevels = { 'LOW': 1, 'MEDIUM': 2, 'HIGH': 3 };
-              const risks = [releaseManagerRisk, regressionGuardRisk].filter(Boolean);
-              let overallRisk = 'MEDIUM';
-              
-              if (risks.length > 0) {
-                overallRisk = risks.reduce((highest, current) => {
-                  return riskLevels[current] > riskLevels[highest] ? current : highest;
-                });
-              }
-              
-              console.log(`Overall risk: ${overallRisk}`);
-              
-              // Step 2: Check for failing checks
-              const { data: checkRuns } = await github.rest.checks.listForRef({
-                owner,
-                repo,
-                ref: headSha,
-              });
-              
-              const failingChecks = checkRuns.check_runs.filter(run => 
-                ['failure', 'cancelled', 'timed_out', 'action_required'].includes(run.conclusion)
-              );
-              
-              const hasFailingChecks = failingChecks.length > 0;
-              const shouldBlock = hasFailingChecks || overallRisk === 'HIGH';
-              
-              console.log(`Failing checks: ${failingChecks.length}, Should block: ${shouldBlock}`);
-              
-              // Step 3: Determine labels to add/remove
-              let labelsToAdd = [];
-              let labelsToRemove = [];
-              
-              if (shouldBlock) {
-                labelsToAdd = ['needs-review', 'risk-high'];
-                labelsToRemove = ['risk-med', 'risk-low'];
-              } else if (overallRisk === 'MEDIUM') {
-                labelsToAdd = ['risk-med'];
-                labelsToRemove = ['needs-review', 'risk-high', 'risk-low'];
-              } else {
-                labelsToAdd = ['risk-low'];
-                labelsToRemove = ['needs-review', 'risk-high', 'risk-med'];
-              }
-              
-              // Get current labels
-              const currentLabels = pr.labels.map(l => l.name);
-              
-              // Add labels that don't exist
-              for (const label of labelsToAdd) {
-                if (!currentLabels.includes(label)) {
-                  console.log(`Adding label: ${label}`);
-                  await github.rest.issues.addLabels({
-                    owner,
-                    repo,
-                    issue_number: prNumber,
-                    labels: [label]
-                  });
-                }
-              }
-              
-              // Remove labels that exist
-              for (const label of labelsToRemove) {
-                if (currentLabels.includes(label)) {
-                  console.log(`Removing label: ${label}`);
-                  await github.rest.issues.removeLabel({
-                    owner,
-                    repo,
-                    issue_number: prNumber,
-                    name: label
-                  }).catch(err => console.log(`Label ${label} not found or already removed`));
-                }
-              }
-              
-              // Step 4: Disable auto-merge if blocking
-              if (shouldBlock) {
-                console.log('Checking and disabling auto-merge via GraphQL');
 
-                const q = await github.graphql(
-                  `query($owner:String!, $repo:String!, $number:Int!) {
-                    repository(owner:$owner, name:$repo) {
-                      pullRequest(number:$number) {
-                        id
-                        autoMergeRequest { enabledAt }
-                      }
-                    }
-                  }`,
-                  { owner, repo, number: prNumber }
-                );
+                async function safeAddLabels(labels) {
+                  if (!labels || labels.length === 0) return;
+                  await github.rest.issues.addLabels({ owner, repo, issue_number: prNumber, labels });
+                }
 
-                const prId = q?.repository?.pullRequest?.id;
-                const autoMergeEnabled = !!q?.repository?.pullRequest?.autoMergeRequest;
+                async function safeRemoveLabel(name) {
+                  try {
+                    await github.rest.issues.removeLabel({ owner, repo, issue_number: prNumber, name });
+                  } catch (e) {}
+                }
 
-                if (prId && autoMergeEnabled) {
-                  await github.graphql(
-                    `mutation($pullRequestId: ID!) {
-                      disablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId }) {
-                        pullRequest { number }
-                      }
-                    }`,
-                    { pullRequestId: prId }
-                  );
-                  console.log('Auto-merge disabled');
-                } else {
-                  console.log('Auto-merge not enabled or PR id missing; nothing to disable');
-                }
-              }
-              
-              // Step 5: Create or update gatekeeper comment
-              const marker = '<!-- AGENT_PR_GATEKEEPER -->';
-              let commentBody = `${marker}\n## 🚦 PR Gatekeeper\n\n`;
-              
-              const riskEmoji = overallRisk === 'HIGH' ? '🔴' : overallRisk === 'MEDIUM' ? '🟡' : '🟢';
-              commentBody += `**Risk Level:** ${riskEmoji} ${overallRisk}\n\n`;
-              
-              if (hasFailingChecks) {
-                commentBody += `### ❌ Failing Checks (${failingChecks.length})\n`;
-                failingChecks.forEach(check => {
-                  commentBody += `- ${check.name} (${check.conclusion})\n`;
-                });
-                commentBody += `\n`;
-              }
-              
-              if (shouldBlock) {
-                commentBody = commentBody.replace('## 🚦 PR Gatekeeper\n\n', '## 🚦 PR Gatekeeper\n\n**Status:** ⛔ BLOCKED\n\n');
-                commentBody += `### ✅ Required Actions\n`;
-                commentBody += `- [ ] All CI checks must pass\n`;
-                if (overallRisk === 'HIGH') {
-                  commentBody += `- [ ] High-risk changes reviewed by senior engineer\n`;
-                  commentBody += `- [ ] Manual testing completed\n`;
-                }
-                if (hasFailingChecks) {
-                  commentBody += `- [ ] Fix failing checks listed above\n`;
-                }
-                commentBody += `- [ ] All review comments addressed\n\n`;
-                commentBody += `---\n*Auto-merge has been disabled. Manual approval required.*`;
-              } else {
-                commentBody = commentBody.replace('## 🚦 PR Gatekeeper\n\n', '## 🚦 PR Gatekeeper\n\n**Status:** ✅ CLEAR\n\n');
-                commentBody += `### ✅ Recommended Actions\n`;
-                commentBody += `- [ ] No failing checks\n`;
-                commentBody += `- [ ] Core flow smoke tests passed\n\n`;
-              }
-              
-              // Find existing gatekeeper comment
-              const existingComment = comments.find(c => c.body && c.body.includes(marker));
-              
-              if (existingComment) {
-                console.log(`Updating existing gatekeeper comment ${existingComment.id}`);
-                await github.rest.issues.updateComment({
-                  owner,
-                  repo,
-                  comment_id: existingComment.id,
-                  body: commentBody
-                });
-              } else {
-                console.log('Creating new gatekeeper comment');
-                await github.rest.issues.createComment({
+                const { data: comments } = await github.rest.issues.listComments({
                   owner,
                   repo,
                   issue_number: prNumber,
-                  body: commentBody
+                  per_page: 100,
                 });
+
+                function isGatekeeperComment(body) {
+                  return typeof body === 'string' && body.includes(GK_MARKER);
+                }
+
+                let rmRisk = null;
+                let rgRisk = null;
+
+                for (let i = comments.length - 1; i >= 0; i--) {
+                  const body = comments[i]?.body || '';
+                  if (isGatekeeperComment(body)) continue;
+                  if (body.includes(RM_MARKER)) { rmRisk = extractRisk(body); break; }
+                }
+
+                for (let i = comments.length - 1; i >= 0; i--) {
+                  const body = comments[i]?.body || '';
+                  if (isGatekeeperComment(body)) continue;
+                  if (body.includes(RG_MARKER)) { rgRisk = extractRisk(body); break; }
+                }
+
+                const RM = (rmRisk || 'MEDIUM').toUpperCase();
+                const RG = (rgRisk || 'MEDIUM').toUpperCase();
+                const finalRisk = (riskRank[RM] >= riskRank[RG]) ? RM : RG;
+
+                const { data: checkRuns } = await github.rest.checks.listForRef({
+                  owner,
+                  repo,
+                  ref: sha,
+                  per_page: 100,
+                });
+
+                const badConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required']);
+                const failing = (checkRuns.check_runs || [])
+                  .filter(cr => cr.conclusion && badConclusions.has(cr.conclusion))
+                  .map(cr => cr.name);
+
+                const hasFailingChecks = failing.length > 0;
+                const shouldBlock = hasFailingChecks || finalRisk === 'HIGH';
+
+                if (finalRisk === 'HIGH') {
+                  await safeAddLabels(['needs-review', 'risk-high']);
+                  await safeRemoveLabel('risk-med');
+                  await safeRemoveLabel('risk-low');
+                } else if (finalRisk === 'MEDIUM') {
+                  await safeAddLabels(['risk-med']);
+                  await safeRemoveLabel('needs-review');
+                  await safeRemoveLabel('risk-high');
+                  await safeRemoveLabel('risk-low');
+                } else {
+                  await safeAddLabels(['risk-low']);
+                  await safeRemoveLabel('needs-review');
+                  await safeRemoveLabel('risk-high');
+                  await safeRemoveLabel('risk-med');
+                }
+
+                let autoMergeDisabled = false;
+                if (shouldBlock) {
+                  const q = await github.graphql(
+                    `query($owner:String!, $repo:String!, $number:Int!) {
+                      repository(owner:$owner, name:$repo) {
+                        pullRequest(number:$number) {
+                          id
+                          autoMergeRequest { enabledAt }
+                        }
+                      }
+                    }`,
+                    { owner, repo, number: prNumber }
+                  );
+
+                  const prId = q?.repository?.pullRequest?.id;
+                  const autoMergeEnabled = !!q?.repository?.pullRequest?.autoMergeRequest;
+
+                  if (prId && autoMergeEnabled) {
+                    await github.graphql(
+                      `mutation($pullRequestId: ID!) {
+                        disablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId }) {
+                          pullRequest { number }
+                        }
+                      }`,
+                      { pullRequestId: prId }
+                    );
+                    autoMergeDisabled = true;
+                  }
+                }
+
+                const emoji = finalRisk === 'HIGH' ? '🔴' : (finalRisk === 'MEDIUM' ? '🟡' : '🟢');
+                const statusLine = shouldBlock ? '**Status:** ⛔ BLOCKED' : '**Status:** ✅ CLEAR';
+
+                let out = `${GK_MARKER}\n## 🚦 PR Gatekeeper\n\n`;
+                out += `${statusLine}\n`;
+                out += `**Risk Level:** ${emoji} ${finalRisk}\n`;
+                out += `**Checks:** ${hasFailingChecks ? '❌ FAILING' : '✅ PASSING'}\n\n`;
+
+                if (hasFailingChecks) {
+                  out += `### ❌ Failing Checks\n`;
+                  for (const name of failing) out += `- ${name}\n`;
+                  out += `\n`;
+                }
+
+                out += `### ✅ Verification Checklist\n`;
+                out += `- Confirm no console errors\n`;
+                out += `- Smoke test touched flows\n`;
+                out += `- pnpm lint / typecheck / build are green\n\n`;
+                out += autoMergeDisabled
+                  ? `---\nAuto-merge was disabled because this PR is BLOCKED or HIGH risk.\n`
+                  : `---\nAuto-merge unchanged.\n`;
+
+                const existing = comments.find(c => (c.body || '').includes(GK_MARKER));
+                if (existing) {
+                  await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: out });
+                } else {
+                  await github.rest.issues.createComment({ owner, repo, issue_number: prNumber, body: out });
+                }
+
+              } catch (e) {
+                console.error('Gatekeeper failed (non-blocking):', e);
               }
-              
-              console.log('PR Gatekeeper complete');
-              
-            } catch (error) {
-              console.error('PR Gatekeeper error:', error);
-              // Never fail the workflow
-            }
+            })();
