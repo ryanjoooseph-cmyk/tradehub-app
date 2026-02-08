@@ -444,6 +444,7 @@ jobs:
                 }
 
               } catch (e) {
-                console.error('Gatekeeper failed (non-blocking):', e);
+                console.error('Gatekeeper failed:', e);
+                core.setFailed(String(e?.message || e));
               }
             })();
