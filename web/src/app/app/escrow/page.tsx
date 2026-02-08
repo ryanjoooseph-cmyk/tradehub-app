@@ -10,9 +10,10 @@ import {
   PrimaryButton,
   StatGrid,
 } from "@/components/app/filled/page";
-import { Search, CheckCircle, AlertTriangle, FileText, User, Clock, Shield } from 'lucide-react';
-
-type MilestoneState = 'DRAFT' | 'FUNDED' | 'WORK_SUBMITTED' | 'EVIDENCE_REVIEW' | 'RELEASED' | 'DISPUTED' | 'INSPECTOR_ASSIGNED' | 'RESOLVED';
+import { Search, CheckCircle, AlertTriangle, FileText, User, Clock, Shield, Play, Upload } from 'lucide-react';
+import type { Milestone, MilestoneState, AuditEvent, Actor } from '@/lib/escrow/types';
+import { transition } from '@/lib/escrow/stateMachine';
+import { calcRiskScore, evidencePolicyForRisk } from '@/lib/escrow/risk';
 
 type Evidence = {
   type: 'photo' | 'checklist' | 'notes';
@@ -20,19 +21,10 @@ type Evidence = {
   uploadedAt: string;
 };
 
-type EscrowMilestone = {
-  id: string;
-  jobId: string;
+type EscrowMilestone = Milestone & {
   jobTitle: string;
   client: string;
-  title: string;
-  amount: number;
-  state: MilestoneState;
-  riskScore: number;
-  evidenceRequired: boolean;
-  evidenceCount: number;
-  evidenceNeeded: number;
-  evidence: Evidence[];
+  evidence_items: Evidence[];
   fundedAt: string;
   releasedAt?: string;
   disputeReason?: string;
@@ -42,7 +34,7 @@ type EscrowMilestone = {
 };
 
 // Seeded escrow milestones with state machine
-const seededMilestones: EscrowMilestone[] = [
+const initialSeededMilestones: EscrowMilestone[] = [
   {
     id: 'MS-001',
     jobId: 'J-1402',
@@ -51,11 +43,9 @@ const seededMilestones: EscrowMilestone[] = [
     title: 'Initial deposit',
     amount: 6450,
     state: 'RELEASED',
-    riskScore: 1,
-    evidenceRequired: false,
-    evidenceCount: 0,
-    evidenceNeeded: 0,
-    evidence: [],
+    risk: { score: 0, level: 'LOW' },
+    evidence: { required: false, count: 0, needed: 0 },
+    evidence_items: [],
     fundedAt: '2026-01-29',
     releasedAt: '2026-02-01',
     nextAction: 'Completed',
@@ -68,11 +58,9 @@ const seededMilestones: EscrowMilestone[] = [
     title: 'Progress claim #1',
     amount: 9450,
     state: 'EVIDENCE_REVIEW',
-    riskScore: 2,
-    evidenceRequired: true,
-    evidenceCount: 2,
-    evidenceNeeded: 2,
-    evidence: [
+    risk: { score: 0, level: 'LOW' },
+    evidence: { required: true, count: 2, needed: 2 },
+    evidence_items: [
       { type: 'photo', url: 'url1', uploadedAt: '2026-02-01' },
       { type: 'photo', url: 'url2', uploadedAt: '2026-02-01' }
     ],
@@ -87,11 +75,9 @@ const seededMilestones: EscrowMilestone[] = [
     title: 'Completion payment',
     amount: 1860,
     state: 'DISPUTED',
-    riskScore: 4,
-    evidenceRequired: true,
-    evidenceCount: 1,
-    evidenceNeeded: 5,
-    evidence: [{ type: 'photo', url: 'url1', uploadedAt: '2026-01-28' }],
+    risk: { score: 0, level: 'LOW' },
+    evidence: { required: true, count: 1, needed: 5 },
+    evidence_items: [{ type: 'photo', url: 'url1', uploadedAt: '2026-01-28' }],
     fundedAt: '2026-01-28',
     disputeReason: 'Quality concerns - incomplete work',
     disputeOpenedAt: '2026-02-01',
@@ -106,11 +92,9 @@ const seededMilestones: EscrowMilestone[] = [
     title: 'Initial deposit',
     amount: 4870,
     state: 'FUNDED',
-    riskScore: 1,
-    evidenceRequired: false,
-    evidenceCount: 0,
-    evidenceNeeded: 0,
-    evidence: [],
+    risk: { score: 0, level: 'LOW' },
+    evidence: { required: false, count: 0, needed: 0 },
+    evidence_items: [],
     fundedAt: '2026-02-01',
     nextAction: 'Work in Progress',
   },
@@ -122,11 +106,9 @@ const seededMilestones: EscrowMilestone[] = [
     title: 'Milestone 1',
     amount: 2980,
     state: 'WORK_SUBMITTED',
-    riskScore: 3,
-    evidenceRequired: true,
-    evidenceCount: 4,
-    evidenceNeeded: 5,
-    evidence: [
+    risk: { score: 0, level: 'LOW' },
+    evidence: { required: true, count: 4, needed: 5 },
+    evidence_items: [
       { type: 'photo', uploadedAt: '2026-02-01' },
       { type: 'photo', uploadedAt: '2026-02-01' },
       { type: 'photo', uploadedAt: '2026-02-01' },
@@ -143,11 +125,9 @@ const seededMilestones: EscrowMilestone[] = [
     title: 'Progress claim',
     amount: 8900,
     state: 'FUNDED',
-    riskScore: 2,
-    evidenceRequired: true,
-    evidenceCount: 0,
-    evidenceNeeded: 2,
-    evidence: [],
+    risk: { score: 0, level: 'LOW' },
+    evidence: { required: true, count: 0, needed: 2 },
+    evidence_items: [],
     fundedAt: '2026-01-26',
     nextAction: 'Awaiting Evidence',
   },
@@ -159,11 +139,9 @@ const seededMilestones: EscrowMilestone[] = [
     title: 'Final payment',
     amount: 12300,
     state: 'EVIDENCE_REVIEW',
-    riskScore: 3,
-    evidenceRequired: true,
-    evidenceCount: 5,
-    evidenceNeeded: 5,
-    evidence: [
+    risk: { score: 0, level: 'LOW' },
+    evidence: { required: true, count: 5, needed: 5 },
+    evidence_items: [
       { type: 'photo', uploadedAt: '2026-02-01' },
       { type: 'photo', uploadedAt: '2026-02-01' },
       { type: 'photo', uploadedAt: '2026-02-01' },
@@ -183,30 +161,105 @@ const seededMilestones: EscrowMilestone[] = [
     title: 'Deposit',
     amount: 5600,
     state: 'RELEASED',
-    riskScore: 1,
-    evidenceRequired: false,
-    evidenceCount: 0,
-    evidenceNeeded: 0,
-    evidence: [],
+    risk: { score: 0, level: 'LOW' },
+    evidence: { required: false, count: 0, needed: 0 },
+    evidence_items: [],
     fundedAt: '2026-01-25',
     releasedAt: '2026-01-28',
     nextAction: 'Completed',
   },
+  {
+    id: 'MS-009',
+    jobId: 'J-1412',
+    jobTitle: 'New high-value project',
+    client: 'Big Corp Ltd',
+    title: 'Initial milestone',
+    amount: 18500,
+    state: 'DRAFT',
+    risk: { score: 30, level: 'MEDIUM' },
+    evidence: { required: true, count: 0, needed: 2 },
+    evidence_items: [],
+    fundedAt: '',
+    nextAction: 'Awaiting funding',
+  },
 ];
 
+// Initialize risk on seeded data
+function initializeMilestones(): EscrowMilestone[] {
+  return initialSeededMilestones.map(m => {
+    // Calculate risk using the engine
+    const riskFactors = {
+      jobValue: m.amount * 3, // proxy for full job value
+      isNewClient: false,
+      isNewProvider: false,
+      disputeHistoryCount: 0,
+      isHighRiskCategory: false,
+    };
+    const riskResult = calcRiskScore(riskFactors);
+    const evidencePolicy = evidencePolicyForRisk(riskResult.level);
+    
+    // For milestones that already have evidence requirements set, keep them
+    // For new ones (like DRAFT), use the policy
+    const evidence = m.state === 'DRAFT' || !m.evidence.needed
+      ? { required: evidencePolicy.required, count: 0, needed: evidencePolicy.needed }
+      : m.evidence;
+    
+    return {
+      ...m,
+      risk: riskResult,
+      evidence,
+    };
+  });
+}
+
 export default function EscrowPage() {
+  const [milestones, setMilestones] = useState<EscrowMilestone[]>(initializeMilestones());
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'funds_held' | 'ready_to_release' | 'on_hold' | 'disputes'>('all');
 
+  const handleTransition = (milestoneId: string, to: MilestoneState, actor: Actor, note?: string, payload?: Record<string, unknown>) => {
+    try {
+      const milestone = milestones.find(m => m.id === milestoneId);
+      if (!milestone) {
+        alert('Milestone not found');
+        return;
+      }
+
+      const result = transition({ milestone, to, actor, note, payload });
+      
+      // Update milestones
+      setMilestones(prev => prev.map(m => 
+        m.id === milestoneId 
+          ? { ...m, ...result.milestone }
+          : m
+      ));
+      
+      // Prepend audit event (newest first)
+      setAuditEvents(prev => [result.event, ...prev]);
+      
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Transition failed');
+    }
+  };
+
+  const handleAddEvidence = (milestoneId: string) => {
+    setMilestones(prev => prev.map(m => 
+      m.id === milestoneId && m.evidence.required
+        ? { ...m, evidence: { ...m.evidence, count: m.evidence.count + 1 } }
+        : m
+    ));
+  };
+
   const filtered = useMemo(() => {
-    let result = seededMilestones;
+    let result = milestones;
 
     // Status filter
     if (statusFilter !== 'all') {
       if (statusFilter === 'funds_held') {
         result = result.filter(m => m.state === 'FUNDED');
       } else if (statusFilter === 'ready_to_release') {
-        result = result.filter(m => m.state === 'EVIDENCE_REVIEW' && m.evidenceCount >= m.evidenceNeeded);
+        result = result.filter(m => m.state === 'EVIDENCE_REVIEW' && m.evidence.count >= m.evidence.needed);
       } else if (statusFilter === 'on_hold') {
         result = result.filter(m => m.state === 'WORK_SUBMITTED' || m.state === 'FUNDED');
       } else if (statusFilter === 'disputes') {
@@ -227,26 +280,26 @@ export default function EscrowPage() {
     }
 
     return result;
-  }, [search, statusFilter]);
+  }, [milestones, search, statusFilter]);
 
   const stats = useMemo(() => {
-    const fundsHeld = seededMilestones.filter(m => m.state !== 'RELEASED').reduce((sum, m) => sum + m.amount, 0);
-    const readyToRelease = seededMilestones.filter(m => m.state === 'EVIDENCE_REVIEW' && m.evidenceCount >= m.evidenceNeeded).reduce((sum, m) => sum + m.amount, 0);
-    const onHold = seededMilestones.filter(m => m.state === 'FUNDED' || m.state === 'WORK_SUBMITTED').reduce((sum, m) => sum + m.amount, 0);
-    const disputes = seededMilestones.filter(m => m.state === 'DISPUTED' || m.state === 'INSPECTOR_ASSIGNED').length;
-    const releasedCount = seededMilestones.filter(m => m.state === 'RELEASED').length;
-    const totalReleased = seededMilestones.filter(m => m.state === 'RELEASED').reduce((sum, m) => sum + m.amount, 0);
+    const fundsHeld = milestones.filter(m => m.state !== 'RELEASED').reduce((sum, m) => sum + m.amount, 0);
+    const readyToRelease = milestones.filter(m => m.state === 'EVIDENCE_REVIEW' && m.evidence.count >= m.evidence.needed).reduce((sum, m) => sum + m.amount, 0);
+    const onHold = milestones.filter(m => m.state === 'FUNDED' || m.state === 'WORK_SUBMITTED').reduce((sum, m) => sum + m.amount, 0);
+    const disputes = milestones.filter(m => m.state === 'DISPUTED' || m.state === 'INSPECTOR_ASSIGNED').length;
+    const releasedCount = milestones.filter(m => m.state === 'RELEASED').length;
+    const totalReleased = milestones.filter(m => m.state === 'RELEASED').reduce((sum, m) => sum + m.amount, 0);
     const avgTimeToRelease = 2.4; // Mock average days
-    const fundsInDispute = seededMilestones.filter(m => m.state === 'DISPUTED').reduce((sum, m) => sum + m.amount, 0);
+    const fundsInDispute = milestones.filter(m => m.state === 'DISPUTED').reduce((sum, m) => sum + m.amount, 0);
     
     return { fundsHeld, readyToRelease, onHold, disputes, releasedCount, totalReleased, avgTimeToRelease, fundsInDispute };
-  }, []);
+  }, [milestones]);
 
   const releaseQueue = useMemo(() => {
-    return seededMilestones
-      .filter(m => m.state === 'EVIDENCE_REVIEW' && m.evidenceCount >= m.evidenceNeeded)
+    return milestones
+      .filter(m => m.state === 'EVIDENCE_REVIEW' && m.evidence.count >= m.evidence.needed)
       .sort((a, b) => new Date(a.fundedAt).getTime() - new Date(b.fundedAt).getTime());
-  }, []);
+  }, [milestones]);
 
   const getStateColor = (state: MilestoneState): 'good' | 'warn' | 'bad' | 'neutral' => {
     switch (state) {
@@ -265,37 +318,15 @@ export default function EscrowPage() {
   };
 
   const getRiskColor = (score: number): string => {
-    if (score <= 1) return 'text-green-600 dark:text-green-400';
-    if (score <= 3) return 'text-yellow-600 dark:text-yellow-400';
+    if (score < 25) return 'text-green-600 dark:text-green-400';
+    if (score < 60) return 'text-yellow-600 dark:text-yellow-400';
     return 'text-red-600 dark:text-red-400';
   };
 
   const getEvidenceStatus = (m: EscrowMilestone): { label: string; color: string } => {
-    if (!m.evidenceRequired) return { label: 'Not Required', color: 'text-muted-foreground' };
-    if (m.evidenceCount >= m.evidenceNeeded) return { label: 'Complete', color: 'text-green-600 dark:text-green-400' };
-    return { label: `${m.evidenceCount}/${m.evidenceNeeded}`, color: 'text-yellow-600 dark:text-yellow-400' };
-  };
-
-  const getQuickActions = (m: EscrowMilestone) => {
-    switch (m.state) {
-      case 'FUNDED':
-        return [{ label: 'Track Progress', icon: Clock }];
-      case 'WORK_SUBMITTED':
-        return [{ label: 'Request Evidence', icon: FileText }];
-      case 'EVIDENCE_REVIEW':
-        if (m.evidenceCount >= m.evidenceNeeded) {
-          return [{ label: 'Release Funds', icon: CheckCircle }];
-        }
-        return [{ label: 'Mark QA Complete', icon: CheckCircle }];
-      case 'DISPUTED':
-        return [{ label: 'Assign Inspector', icon: User }, { label: 'View Dispute', icon: AlertTriangle }];
-      case 'INSPECTOR_ASSIGNED':
-        return [{ label: 'View Report', icon: FileText }];
-      case 'RELEASED':
-        return [{ label: 'View Receipt', icon: CheckCircle }];
-      default:
-        return [];
-    }
+    if (!m.evidence.required) return { label: 'Not Required', color: 'text-muted-foreground' };
+    if (m.evidence.count >= m.evidence.needed) return { label: 'Complete', color: 'text-green-600 dark:text-green-400' };
+    return { label: `${m.evidence.count}/${m.evidence.needed}`, color: 'text-yellow-600 dark:text-yellow-400' };
   };
 
   return (
@@ -373,7 +404,10 @@ export default function EscrowPage() {
                     <div className="text-xl font-bold">${m.amount.toLocaleString()}</div>
                     <div className="text-xs text-muted-foreground">Funded {m.fundedAt}</div>
                   </div>
-                  <button className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700">
+                  <button 
+                    onClick={() => handleTransition(m.id, 'RELEASED', { type: 'BUYER', name: 'Client' }, 'Approved for release')}
+                    className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+                  >
                     <CheckCircle className="h-4 w-4" />
                     Release Now
                   </button>
@@ -390,35 +424,35 @@ export default function EscrowPage() {
           <div className="rounded-2xl border bg-muted/10 p-4">
             <div className="text-xs text-muted-foreground">Funded</div>
             <div className="mt-1 text-2xl font-bold">
-              {seededMilestones.filter(m => m.state === 'FUNDED').length}
+              {milestones.filter(m => m.state === 'FUNDED').length}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">Work in progress</div>
           </div>
           <div className="rounded-2xl border bg-muted/10 p-4">
             <div className="text-xs text-muted-foreground">Work Submitted</div>
             <div className="mt-1 text-2xl font-bold">
-              {seededMilestones.filter(m => m.state === 'WORK_SUBMITTED').length}
+              {milestones.filter(m => m.state === 'WORK_SUBMITTED').length}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">Evidence pending</div>
           </div>
           <div className="rounded-2xl border bg-muted/10 p-4">
             <div className="text-xs text-muted-foreground">Evidence Review</div>
             <div className="mt-1 text-2xl font-bold">
-              {seededMilestones.filter(m => m.state === 'EVIDENCE_REVIEW').length}
+              {milestones.filter(m => m.state === 'EVIDENCE_REVIEW').length}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">QA in progress</div>
           </div>
           <div className="rounded-2xl border bg-red-50 p-4 dark:bg-red-950/30">
             <div className="text-xs text-muted-foreground">Disputed</div>
             <div className="mt-1 text-2xl font-bold text-red-600 dark:text-red-400">
-              {seededMilestones.filter(m => m.state === 'DISPUTED' || m.state === 'INSPECTOR_ASSIGNED').length}
+              {milestones.filter(m => m.state === 'DISPUTED' || m.state === 'INSPECTOR_ASSIGNED').length}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">Needs resolution</div>
           </div>
           <div className="rounded-2xl border bg-green-50 p-4 dark:bg-green-950/30">
             <div className="text-xs text-muted-foreground">Released</div>
             <div className="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">
-              {seededMilestones.filter(m => m.state === 'RELEASED').length}
+              {milestones.filter(m => m.state === 'RELEASED').length}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">Completed</div>
           </div>
@@ -426,10 +460,10 @@ export default function EscrowPage() {
       </Card>
 
       {/* Main Escrow Table */}
-      <Card title="All Escrow Transactions" subtitle={`${filtered.length} of ${seededMilestones.length} milestones`}>
+      <Card title="All Escrow Transactions" subtitle={`${filtered.length} of ${milestones.length} milestones`}>
         {filtered.length > 0 ? (
           <div className="overflow-x-auto rounded-xl border">
-            <table className="w-full min-w-[1000px] text-sm">
+            <table className="w-full min-w-[1200px] text-sm">
               <thead className="bg-muted/20 text-xs text-muted-foreground">
                 <tr>
                   <th className="px-3 py-2 text-left font-semibold">Job</th>
@@ -438,7 +472,6 @@ export default function EscrowPage() {
                   <th className="px-3 py-2 text-left font-semibold">Status</th>
                   <th className="px-3 py-2 text-center font-semibold">Risk</th>
                   <th className="px-3 py-2 text-center font-semibold">Evidence</th>
-                  <th className="px-3 py-2 text-left font-semibold">Next Action</th>
                   <th className="px-3 py-2 text-right font-semibold">Amount</th>
                   <th className="px-3 py-2 text-left font-semibold">Actions</th>
                 </tr>
@@ -446,7 +479,6 @@ export default function EscrowPage() {
               <tbody>
                 {filtered.map((m) => {
                   const evidenceStatus = getEvidenceStatus(m);
-                  const actions = getQuickActions(m);
                   
                   return (
                     <tr key={m.id} className="border-t hover:bg-muted/10">
@@ -467,32 +499,148 @@ export default function EscrowPage() {
                         </Pill>
                       </td>
                       <td className="px-3 py-3 text-center">
-                        <span className={`text-lg font-bold ${getRiskColor(m.riskScore)}`}>
-                          {m.riskScore}
-                        </span>
+                        <div className={`text-lg font-bold ${getRiskColor(m.risk.score)}`}>
+                          {m.risk.score}
+                        </div>
+                        <div className="text-xs text-muted-foreground">{m.risk.level}</div>
                       </td>
                       <td className="px-3 py-3 text-center">
                         <span className={`text-sm font-semibold ${evidenceStatus.color}`}>
                           {evidenceStatus.label}
                         </span>
                       </td>
-                      <td className="px-3 py-3 text-muted-foreground">
-                        {m.nextAction}
-                      </td>
                       <td className="px-3 py-3 text-right">
                         <div className="font-semibold">${m.amount.toLocaleString()}</div>
                       </td>
                       <td className="px-3 py-3">
-                        <div className="flex gap-1">
-                          {actions.map((action, i) => (
+                        <div className="flex flex-wrap gap-1">
+                          {m.state === 'DRAFT' && (
                             <button
-                              key={i}
+                              onClick={() => handleTransition(m.id, 'FUNDED', { type: 'OPS', name: 'System' }, 'Escrow funded')}
                               className="inline-flex items-center gap-1 rounded-lg border bg-background px-2 py-1.5 text-xs hover:bg-muted/40"
-                              title={action.label}
+                              title="Fund Escrow"
                             >
-                              <action.icon className="h-3 w-3" />
+                              <Play className="h-3 w-3" />
+                              Fund
                             </button>
-                          ))}
+                          )}
+                          {m.state === 'FUNDED' && (
+                            <>
+                              <button
+                                onClick={() => handleTransition(m.id, 'WORK_SUBMITTED', { type: 'PROVIDER', name: 'Provider' }, 'Work completed')}
+                                className="inline-flex items-center gap-1 rounded-lg border bg-background px-2 py-1.5 text-xs hover:bg-muted/40"
+                                title="Submit Work"
+                              >
+                                <FileText className="h-3 w-3" />
+                                Submit
+                              </button>
+                              <button
+                                onClick={() => handleTransition(m.id, 'DISPUTED', { type: 'BUYER', name: 'Client' }, 'Quality issue raised')}
+                                className="inline-flex items-center gap-1 rounded-lg border bg-red-50 px-2 py-1.5 text-xs hover:bg-red-100 dark:bg-red-950/30"
+                                title="Dispute"
+                              >
+                                <AlertTriangle className="h-3 w-3" />
+                              </button>
+                            </>
+                          )}
+                          {m.state === 'WORK_SUBMITTED' && (
+                            <>
+                              <button
+                                onClick={() => handleTransition(m.id, 'EVIDENCE_REVIEW', { type: 'OPS', name: 'Ops' }, 'QA started')}
+                                className="inline-flex items-center gap-1 rounded-lg border bg-background px-2 py-1.5 text-xs hover:bg-muted/40"
+                                title="Start Review"
+                              >
+                                <CheckCircle className="h-3 w-3" />
+                                Review
+                              </button>
+                              {m.evidence.required && (
+                                <button
+                                  onClick={() => handleAddEvidence(m.id)}
+                                  className="inline-flex items-center gap-1 rounded-lg border bg-blue-50 px-2 py-1.5 text-xs hover:bg-blue-100 dark:bg-blue-950/30"
+                                  title="Add Evidence"
+                                >
+                                  <Upload className="h-3 w-3" />
+                                  +1
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleTransition(m.id, 'DISPUTED', { type: 'BUYER', name: 'Client' }, 'Issue raised')}
+                                className="inline-flex items-center gap-1 rounded-lg border bg-red-50 px-2 py-1.5 text-xs hover:bg-red-100 dark:bg-red-950/30"
+                                title="Dispute"
+                              >
+                                <AlertTriangle className="h-3 w-3" />
+                              </button>
+                            </>
+                          )}
+                          {m.state === 'EVIDENCE_REVIEW' && (
+                            <>
+                              {m.evidence.required && (
+                                <button
+                                  onClick={() => handleAddEvidence(m.id)}
+                                  className="inline-flex items-center gap-1 rounded-lg border bg-blue-50 px-2 py-1.5 text-xs hover:bg-blue-100 dark:bg-blue-950/30"
+                                  title="Add Evidence"
+                                >
+                                  <Upload className="h-3 w-3" />
+                                  +1
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleTransition(m.id, 'RELEASED', { type: 'BUYER', name: 'Client' }, 'QA approved')}
+                                className="inline-flex items-center gap-1 rounded-lg border bg-green-50 px-2 py-1.5 text-xs hover:bg-green-100 dark:bg-green-950/30"
+                                title="Release Funds"
+                              >
+                                <CheckCircle className="h-3 w-3" />
+                                Release
+                              </button>
+                              <button
+                                onClick={() => handleTransition(m.id, 'DISPUTED', { type: 'BUYER', name: 'Client' }, 'Failed QA')}
+                                className="inline-flex items-center gap-1 rounded-lg border bg-red-50 px-2 py-1.5 text-xs hover:bg-red-100 dark:bg-red-950/30"
+                                title="Dispute"
+                              >
+                                <AlertTriangle className="h-3 w-3" />
+                              </button>
+                            </>
+                          )}
+                          {m.state === 'DISPUTED' && (
+                            <button
+                              onClick={() => handleTransition(m.id, 'INSPECTOR_ASSIGNED', { type: 'OPS', name: 'Ops' }, 'Inspector assigned', { inspectorId: 'INSP-' + Date.now() })}
+                              className="inline-flex items-center gap-1 rounded-lg border bg-background px-2 py-1.5 text-xs hover:bg-muted/40"
+                              title="Assign Inspector"
+                            >
+                              <User className="h-3 w-3" />
+                              Assign
+                            </button>
+                          )}
+                          {m.state === 'INSPECTOR_ASSIGNED' && (
+                            <>
+                              <button
+                                onClick={() => handleTransition(m.id, 'RESOLVED', { type: 'INSPECTOR', name: 'Inspector' }, 'Approved', { resolution: 'RELEASE_APPROVED' })}
+                                className="inline-flex items-center gap-1 rounded-lg border bg-green-50 px-2 py-1.5 text-xs hover:bg-green-100 dark:bg-green-950/30"
+                                title="Resolve & Approve"
+                              >
+                                <CheckCircle className="h-3 w-3" />
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => handleTransition(m.id, 'RESOLVED', { type: 'INSPECTOR', name: 'Inspector' }, 'Hold funds', { resolution: 'HOLD' })}
+                                className="inline-flex items-center gap-1 rounded-lg border bg-red-50 px-2 py-1.5 text-xs hover:bg-red-100 dark:bg-red-950/30"
+                                title="Resolve & Hold"
+                              >
+                                <AlertTriangle className="h-3 w-3" />
+                                Hold
+                              </button>
+                            </>
+                          )}
+                          {m.state === 'RESOLVED' && (
+                            <button
+                              onClick={() => handleTransition(m.id, 'RELEASED', { type: 'OPS', name: 'Ops' }, 'Final release', { resolution: 'RELEASE_APPROVED' })}
+                              className="inline-flex items-center gap-1 rounded-lg border bg-green-50 px-2 py-1.5 text-xs hover:bg-green-100 dark:bg-green-950/30"
+                              title="Release Funds"
+                            >
+                              <CheckCircle className="h-3 w-3" />
+                              Release
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -512,11 +660,44 @@ export default function EscrowPage() {
         )}
       </Card>
 
+      {/* Audit Timeline */}
+      {auditEvents.length > 0 && (
+        <Card title="Audit Timeline" subtitle={`${auditEvents.length} state transition${auditEvents.length > 1 ? 's' : ''} recorded`}>
+          <div className="space-y-2">
+            {auditEvents.map((event) => {
+              const milestone = milestones.find(m => m.id === event.milestoneId);
+              return (
+                <div key={event.id} className="rounded-xl border bg-muted/10 p-3 text-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="font-semibold">
+                        {milestone?.title || event.milestoneId} ({event.jobId})
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        <span className="font-medium">{event.from}</span> → <span className="font-medium">{event.to}</span>
+                        {' '} by {event.actor.type} ({event.actor.name})
+                      </div>
+                      {event.note && (
+                        <div className="mt-1 text-xs text-muted-foreground italic">{event.note}</div>
+                      )}
+                    </div>
+                    <div className="text-right text-xs text-muted-foreground">
+                      <div>{new Date(event.ts).toLocaleTimeString()}</div>
+                      <div>{new Date(event.ts).toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
+
       {/* Dispute Cases */}
-      {seededMilestones.filter(m => m.state === 'DISPUTED' || m.state === 'INSPECTOR_ASSIGNED').length > 0 && (
+      {milestones.filter(m => m.state === 'DISPUTED' || m.state === 'INSPECTOR_ASSIGNED').length > 0 && (
         <Card title="Active Disputes" subtitle="Escalated cases requiring resolution">
           <div className="space-y-3">
-            {seededMilestones
+            {milestones
               .filter(m => m.state === 'DISPUTED' || m.state === 'INSPECTOR_ASSIGNED')
               .map((m) => {
                 const hoursSinceDispute = m.disputeOpenedAt 
@@ -549,15 +730,30 @@ export default function EscrowPage() {
                       <div className="text-right">
                         <div className="text-xl font-bold">${m.amount.toLocaleString()}</div>
                         {m.state === 'DISPUTED' ? (
-                          <button className="mt-3 inline-flex items-center gap-2 rounded-xl border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted">
+                          <button 
+                            onClick={() => handleTransition(m.id, 'INSPECTOR_ASSIGNED', { type: 'OPS', name: 'Ops' }, 'Inspector booked', { inspectorId: 'INSP-' + Date.now() })}
+                            className="mt-3 inline-flex items-center gap-2 rounded-xl border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
+                          >
                             <User className="h-4 w-4" />
                             Book Inspector
                           </button>
                         ) : (
-                          <button className="mt-3 inline-flex items-center gap-2 rounded-xl border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted">
-                            <FileText className="h-4 w-4" />
-                            View Report
-                          </button>
+                          <div className="mt-3 space-y-1">
+                            <button
+                              onClick={() => handleTransition(m.id, 'RESOLVED', { type: 'INSPECTOR', name: 'Inspector' }, 'Inspection complete - approved', { resolution: 'RELEASE_APPROVED' })}
+                              className="flex w-full items-center gap-2 rounded-xl border bg-green-50 px-4 py-2 text-sm font-semibold hover:bg-green-100 dark:bg-green-950/30"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                              Approve Release
+                            </button>
+                            <button
+                              onClick={() => handleTransition(m.id, 'RESOLVED', { type: 'INSPECTOR', name: 'Inspector' }, 'Inspection complete - hold', { resolution: 'HOLD' })}
+                              className="flex w-full items-center gap-2 rounded-xl border bg-red-50 px-4 py-2 text-sm font-semibold hover:bg-red-100 dark:bg-red-950/30"
+                            >
+                              <AlertTriangle className="h-4 w-4" />
+                              Hold Funds
+                            </button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -575,8 +771,8 @@ export default function EscrowPage() {
             <div className="rounded-2xl border bg-muted/10 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-semibold">Low Risk (Score 0-1)</div>
-                  <div className="mt-1 text-xs text-muted-foreground">Buyer approval only</div>
+                  <div className="font-semibold">Low Risk (Score 0-24)</div>
+                  <div className="mt-1 text-xs text-muted-foreground">No evidence required</div>
                 </div>
                 <Pill tone="good">Simple</Pill>
               </div>
@@ -584,8 +780,8 @@ export default function EscrowPage() {
             <div className="rounded-2xl border bg-muted/10 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-semibold">Medium Risk (Score 2-3)</div>
-                  <div className="mt-1 text-xs text-muted-foreground">2 photos + checklist</div>
+                  <div className="font-semibold">Medium Risk (Score 25-59)</div>
+                  <div className="mt-1 text-xs text-muted-foreground">2 photos required</div>
                 </div>
                 <Pill tone="warn">Standard</Pill>
               </div>
@@ -593,8 +789,8 @@ export default function EscrowPage() {
             <div className="rounded-2xl border bg-muted/10 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="font-semibold">High Risk (Score 4+)</div>
-                  <div className="mt-1 text-xs text-muted-foreground">5 photos + checklist + completion notes</div>
+                  <div className="font-semibold">High Risk (Score 60+)</div>
+                  <div className="mt-1 text-xs text-muted-foreground">5 photos + checklist required</div>
                 </div>
                 <Pill tone="bad">Strict</Pill>
               </div>
@@ -639,31 +835,30 @@ export default function EscrowPage() {
       </div>
 
       {/* Risk Scoring */}
-      <Card title="Risk Scoring Model" subtitle="Automated risk calculation">
+      <Card title="Risk Scoring Model" subtitle="Automated risk calculation (v1 engine)">
         <div className="grid gap-3 md:grid-cols-5">
           <div className="rounded-2xl border bg-muted/10 p-3 text-center">
-            <div className="text-xs text-muted-foreground">Job value &gt; $10k</div>
-            <div className="mt-1 text-lg font-bold">+1</div>
+            <div className="text-xs text-muted-foreground">Job value ≥ $15k</div>
+            <div className="mt-1 text-lg font-bold">+30</div>
           </div>
           <div className="rounded-2xl border bg-muted/10 p-3 text-center">
             <div className="text-xs text-muted-foreground">New client</div>
-            <div className="mt-1 text-lg font-bold">+1</div>
+            <div className="mt-1 text-lg font-bold">+15</div>
           </div>
           <div className="rounded-2xl border bg-muted/10 p-3 text-center">
             <div className="text-xs text-muted-foreground">New provider</div>
-            <div className="mt-1 text-lg font-bold">+1</div>
+            <div className="mt-1 text-lg font-bold">+15</div>
           </div>
           <div className="rounded-2xl border bg-muted/10 p-3 text-center">
-            <div className="text-xs text-muted-foreground">Dispute history</div>
-            <div className="mt-1 text-lg font-bold">+2</div>
+            <div className="text-xs text-muted-foreground">Dispute history (per)</div>
+            <div className="mt-1 text-lg font-bold">+10</div>
           </div>
           <div className="rounded-2xl border bg-muted/10 p-3 text-center">
             <div className="text-xs text-muted-foreground">High-risk category</div>
-            <div className="mt-1 text-lg font-bold">+1</div>
+            <div className="mt-1 text-lg font-bold">+20</div>
           </div>
         </div>
       </Card>
     </PageWrap>
   );
 }
-
