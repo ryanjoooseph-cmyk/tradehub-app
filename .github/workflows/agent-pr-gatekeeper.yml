@@ -252,9 +252,76 @@ jobs:
                 // Final risk determination with conservative default
                 const RM = rmRisk || 'MEDIUM';
                 const RG = rgRisk || 'MEDIUM';
-                const finalRisk = (riskRank[RM] >= riskRank[RG]) ? RM : RG;
+                let finalRisk = (riskRank[RM] >= riskRank[RG]) ? RM : RG;
                 
-                console.log(`Risk assessment: RM=${RM}, RG=${RG}, Final=${finalRisk}`);
+                console.log(`Risk from agents: RM=${RM}, RG=${RG}, Combined=${finalRisk}`);
+
+                // Step 4: Fetch changed files and apply critical-file override
+                let changedFiles = [];
+                let filePage = 1;
+                let hasMoreFiles = true;
+                
+                while (hasMoreFiles && filePage <= 10) {
+                  const { data: files } = await github.rest.pulls.listFiles({
+                    owner,
+                    repo,
+                    pull_number: prNumber,
+                    per_page: 100,
+                    page: filePage,
+                  });
+                  
+                  changedFiles = changedFiles.concat(files.map(f => f.filename));
+                  hasMoreFiles = files.length === 100;
+                  filePage++;
+                }
+                
+                console.log(`Changed files: ${changedFiles.length} total`);
+                
+                // Define critical patterns
+                const criticalPatterns = [
+                  { type: 'exact', value: 'web/src/app/layout.tsx', reason: 'root layout' },
+                  { type: 'exact', value: 'web/src/components/app/AppShell.tsx', reason: 'app shell' },
+                  { type: 'startsWith', value: 'web/src/styles/', reason: 'global styles' },
+                  { type: 'startsWith', value: '.github/workflows/', reason: 'CI workflows' },
+                  { type: 'startsWith', value: 'web/src/app/api/agent/', reason: 'agent infrastructure' },
+                  { type: 'includes', value: '/escrow', reason: 'escrow logic' },
+                ];
+                
+                const criticalMatches = [];
+                for (const file of changedFiles) {
+                  for (const pattern of criticalPatterns) {
+                    let matches = false;
+                    if (pattern.type === 'exact') {
+                      matches = file === pattern.value;
+                    } else if (pattern.type === 'startsWith') {
+                      matches = file.startsWith(pattern.value);
+                    } else if (pattern.type === 'includes') {
+                      matches = file.includes(pattern.value);
+                    }
+                    
+                    if (matches) {
+                      criticalMatches.push({ file, reason: pattern.reason });
+                      break;
+                    }
+                  }
+                }
+                
+                // Apply critical-file override
+                let criticalOverride = false;
+                if (criticalMatches.length > 0) {
+                  console.log(`🚨 Critical files detected (${criticalMatches.length}):`);
+                  criticalMatches.forEach(m => console.log(`  - ${m.file} (${m.reason})`));
+                  
+                  if (finalRisk !== 'HIGH') {
+                    console.log(`⚠️  Overriding risk from ${finalRisk} to HIGH due to critical files`);
+                    finalRisk = 'HIGH';
+                    criticalOverride = true;
+                  }
+                } else {
+                  console.log('No critical files detected');
+                }
+                
+                console.log(`Final risk after override: ${finalRisk}`);
 
                 const { data: checkRuns } = await github.rest.checks.listForRef({
                   owner,
@@ -324,6 +391,13 @@ jobs:
                 out += `${statusLine}\n`;
                 out += `**Risk Level:** ${emoji} ${finalRisk}\n`;
                 out += `**Checks:** ${hasFailingChecks ? '❌ FAILING' : '✅ PASSING'}\n\n`;
+
+                if (criticalOverride && criticalMatches.length > 0) {
+                  out += `### 🚨 Critical Files Changed\n`;
+                  out += `Risk escalated to HIGH due to changes in critical files:\n`;
+                  criticalMatches.forEach(m => out += `- \`${m.file}\` (${m.reason})\n`);
+                  out += `\n`;
+                }
 
                 if (hasFailingChecks) {
                   out += `### ❌ Failing Checks\n`;
