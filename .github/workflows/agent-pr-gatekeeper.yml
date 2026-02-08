@@ -1,0 +1,211 @@
+name: Agent - PR Gatekeeper
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  gatekeeper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR Gatekeeper
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              const pr = context.payload.pull_request;
+              const prNumber = pr.number;
+              const headSha = pr.head.sha;
+              const owner = context.repo.owner;
+              const repo = context.repo.repo;
+              
+              console.log(`Processing PR #${prNumber} (${headSha})`);
+              
+              // Step 1: Read PR comments and find latest agent comments
+              const { data: comments } = await github.rest.issues.listComments({
+                owner,
+                repo,
+                issue_number: prNumber,
+              });
+              
+              let releaseManagerRisk = null;
+              let regressionGuardRisk = null;
+              
+              // Find latest Release Manager comment
+              for (let i = comments.length - 1; i >= 0; i--) {
+                if (comments[i].body && comments[i].body.includes('<!-- AGENT_RELEASE_MANAGER -->')) {
+                  const riskMatch = comments[i].body.match(/\*\*Risk Level:\*\*[^]*?(LOW|MEDIUM|HIGH)/);
+                  if (riskMatch) {
+                    releaseManagerRisk = riskMatch[1];
+                    console.log(`Found Release Manager risk: ${releaseManagerRisk}`);
+                    break;
+                  }
+                }
+              }
+              
+              // Find latest Regression Guard comment
+              for (let i = comments.length - 1; i >= 0; i--) {
+                if (comments[i].body && comments[i].body.includes('<!-- AGENT_REGRESSION_GUARD -->')) {
+                  const riskMatch = comments[i].body.match(/\*\*Risk Level:\*\*[^]*?(LOW|MEDIUM|HIGH)/);
+                  if (riskMatch) {
+                    regressionGuardRisk = riskMatch[1];
+                    console.log(`Found Regression Guard risk: ${regressionGuardRisk}`);
+                    break;
+                  }
+                }
+              }
+              
+              // Determine highest risk (default to MEDIUM if not found)
+              const riskLevels = { 'LOW': 1, 'MEDIUM': 2, 'HIGH': 3 };
+              const risks = [releaseManagerRisk, regressionGuardRisk].filter(Boolean);
+              let overallRisk = 'MEDIUM';
+              
+              if (risks.length > 0) {
+                overallRisk = risks.reduce((highest, current) => {
+                  return riskLevels[current] > riskLevels[highest] ? current : highest;
+                });
+              }
+              
+              console.log(`Overall risk: ${overallRisk}`);
+              
+              // Step 2: Check for failing checks
+              const { data: checkRuns } = await github.rest.checks.listForRef({
+                owner,
+                repo,
+                ref: headSha,
+              });
+              
+              const failingChecks = checkRuns.check_runs.filter(run => 
+                ['failure', 'cancelled', 'timed_out', 'action_required'].includes(run.conclusion)
+              );
+              
+              const hasFailingChecks = failingChecks.length > 0;
+              const shouldBlock = hasFailingChecks || overallRisk === 'HIGH';
+              
+              console.log(`Failing checks: ${failingChecks.length}, Should block: ${shouldBlock}`);
+              
+              // Step 3: Determine labels to add/remove
+              let labelsToAdd = [];
+              let labelsToRemove = [];
+              
+              if (shouldBlock) {
+                labelsToAdd = ['needs-review', 'risk-high'];
+                labelsToRemove = ['risk-med', 'risk-low'];
+              } else if (overallRisk === 'MEDIUM') {
+                labelsToAdd = ['risk-med'];
+                labelsToRemove = ['needs-review', 'risk-high', 'risk-low'];
+              } else {
+                labelsToAdd = ['risk-low'];
+                labelsToRemove = ['needs-review', 'risk-high', 'risk-med'];
+              }
+              
+              // Get current labels
+              const currentLabels = pr.labels.map(l => l.name);
+              
+              // Add labels that don't exist
+              for (const label of labelsToAdd) {
+                if (!currentLabels.includes(label)) {
+                  console.log(`Adding label: ${label}`);
+                  await github.rest.issues.addLabels({
+                    owner,
+                    repo,
+                    issue_number: prNumber,
+                    labels: [label]
+                  });
+                }
+              }
+              
+              // Remove labels that exist
+              for (const label of labelsToRemove) {
+                if (currentLabels.includes(label)) {
+                  console.log(`Removing label: ${label}`);
+                  await github.rest.issues.removeLabel({
+                    owner,
+                    repo,
+                    issue_number: prNumber,
+                    name: label
+                  }).catch(err => console.log(`Label ${label} not found or already removed`));
+                }
+              }
+              
+              // Step 4: Disable auto-merge if blocking
+              if (shouldBlock && pr.auto_merge) {
+                console.log('Disabling auto-merge via GraphQL');
+                await github.graphql(`
+                  mutation($pullRequestId: ID!) {
+                    disablePullRequestAutoMerge(input: {pullRequestId: $pullRequestId}) {
+                      pullRequest {
+                        id
+                      }
+                    }
+                  }
+                `, {
+                  pullRequestId: pr.node_id
+                });
+              }
+              
+              // Step 5: Create or update gatekeeper comment
+              if (shouldBlock) {
+                const marker = '<!-- AGENT_PR_GATEKEEPER -->';
+                let commentBody = `${marker}\n## 🚦 PR Gatekeeper\n\n`;
+                
+                if (hasFailingChecks) {
+                  commentBody += `**Status:** ⛔ BLOCKED - Failing checks detected\n\n`;
+                  commentBody += `### ❌ Failing Checks (${failingChecks.length})\n`;
+                  failingChecks.forEach(check => {
+                    commentBody += `- ${check.name} (${check.conclusion})\n`;
+                  });
+                  commentBody += `\n`;
+                } else {
+                  commentBody += `**Status:** ⛔ BLOCKED - High risk changes\n\n`;
+                }
+                
+                commentBody += `**Risk Level:** ${overallRisk === 'HIGH' ? '🔴' : '🟡'} ${overallRisk}\n\n`;
+                
+                commentBody += `### ✅ Required Actions\n`;
+                commentBody += `- [ ] All CI checks must pass\n`;
+                if (overallRisk === 'HIGH') {
+                  commentBody += `- [ ] High-risk changes reviewed by senior engineer\n`;
+                  commentBody += `- [ ] Manual testing completed\n`;
+                }
+                if (hasFailingChecks) {
+                  commentBody += `- [ ] Fix failing checks listed above\n`;
+                }
+                commentBody += `- [ ] All review comments addressed\n\n`;
+                
+                commentBody += `---\n*Auto-merge has been disabled. Manual approval required.*`;
+                
+                // Find existing gatekeeper comment
+                const existingComment = comments.find(c => c.body && c.body.includes(marker));
+                
+                if (existingComment) {
+                  console.log(`Updating existing gatekeeper comment ${existingComment.id}`);
+                  await github.rest.issues.updateComment({
+                    owner,
+                    repo,
+                    comment_id: existingComment.id,
+                    body: commentBody
+                  });
+                } else {
+                  console.log('Creating new gatekeeper comment');
+                  await github.rest.issues.createComment({
+                    owner,
+                    repo,
+                    issue_number: prNumber,
+                    body: commentBody
+                  });
+                }
+              }
+              
+              console.log('PR Gatekeeper complete');
+              
+            } catch (error) {
+              console.error('PR Gatekeeper error:', error);
+              // Never fail the workflow
+            }
