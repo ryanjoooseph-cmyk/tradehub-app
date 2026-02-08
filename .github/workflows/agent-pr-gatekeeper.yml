@@ -106,49 +106,135 @@ jobs:
                   } catch (e) {}
                 }
 
-                // Paginate comments (don't assume 100 is enough)
-                let comments = [];
-                let page = 1;
-                let hasMore = true;
-                
-                while (hasMore && page <= 20) {
-                  const { data: pageComments } = await github.rest.issues.listComments({
-                    owner,
-                    repo,
-                    issue_number: prNumber,
-                    per_page: 100,
-                    page,
-                  });
-                  
-                  comments = comments.concat(pageComments);
-                  hasMore = pageComments.length === 100;
-                  page++;
-                }
-                
-                console.log(`Loaded ${comments.length} comments across ${page - 1} page(s)`);
-
                 function isGatekeeperComment(body) {
                   return typeof body === 'string' && body.includes(GK_MARKER);
                 }
 
+                async function loadCommentsWithRetry(maxRetries = 5) {
+                  for (let attempt = 0; attempt < maxRetries; attempt++) {
+                    let allComments = [];
+                    let page = 1;
+                    let hasMore = true;
+                    
+                    while (hasMore && page <= 20) {
+                      const { data: pageComments } = await github.rest.issues.listComments({
+                        owner,
+                        repo,
+                        issue_number: prNumber,
+                        per_page: 100,
+                        page,
+                      });
+                      
+                      allComments = allComments.concat(pageComments);
+                      hasMore = pageComments.length === 100;
+                      page++;
+                    }
+                    
+                    console.log(`Attempt ${attempt + 1}: Loaded ${allComments.length} comments`);
+                    
+                    // Check if we found at least one agent marker
+                    const hasRM = allComments.some(c => c.body && c.body.includes(RM_MARKER));
+                    const hasRG = allComments.some(c => c.body && c.body.includes(RG_MARKER));
+                    
+                    if (hasRM || hasRG || attempt === maxRetries - 1) {
+                      return allComments;
+                    }
+                    
+                    // Wait 2s before retry (eventual consistency)
+                    console.log('Agent markers not found yet, retrying in 2s...');
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                  }
+                  
+                  return [];
+                }
+
+                // Step 1: If triggered by issue_comment, extract risk from triggering comment
                 let rmRisk = null;
                 let rgRisk = null;
-
-                for (let i = comments.length - 1; i >= 0; i--) {
-                  const body = comments[i]?.body || '';
-                  if (isGatekeeperComment(body)) continue;
-                  if (body.includes(RM_MARKER)) { rmRisk = extractRisk(body); break; }
+                
+                if (context.eventName === 'issue_comment') {
+                  const triggerBody = context.payload.comment.body || '';
+                  
+                  console.log('Checking triggering comment for markers...');
+                  if (triggerBody.includes(RM_MARKER)) {
+                    rmRisk = extractRisk(triggerBody);
+                    console.log(`✓ Triggering comment has RM_MARKER, risk: ${rmRisk}`);
+                  }
+                  if (triggerBody.includes(RG_MARKER)) {
+                    rgRisk = extractRisk(triggerBody);
+                    console.log(`✓ Triggering comment has RG_MARKER, risk: ${rgRisk}`);
+                  }
                 }
 
-                for (let i = comments.length - 1; i >= 0; i--) {
-                  const body = comments[i]?.body || '';
-                  if (isGatekeeperComment(body)) continue;
-                  if (body.includes(RG_MARKER)) { rgRisk = extractRisk(body); break; }
+                // Step 2: Load comments (with retry) if we still need to find markers
+                const needsRM = rmRisk === null;
+                const needsRG = rgRisk === null;
+                
+                let comments = [];
+                if (needsRM || needsRG) {
+                  console.log(`Need to fetch comments (needsRM: ${needsRM}, needsRG: ${needsRG})`);
+                  comments = await loadCommentsWithRetry(5);
+                  
+                  // Search paginated comments for missing risks
+                  if (needsRM) {
+                    for (let i = comments.length - 1; i >= 0; i--) {
+                      const body = comments[i]?.body || '';
+                      if (isGatekeeperComment(body)) continue;
+                      if (body.includes(RM_MARKER)) {
+                        rmRisk = extractRisk(body);
+                        console.log(`✓ Found RM_MARKER in comments, risk: ${rmRisk}`);
+                        break;
+                      }
+                    }
+                  }
+                  
+                  if (needsRG) {
+                    for (let i = comments.length - 1; i >= 0; i--) {
+                      const body = comments[i]?.body || '';
+                      if (isGatekeeperComment(body)) continue;
+                      if (body.includes(RG_MARKER)) {
+                        rgRisk = extractRisk(body);
+                        console.log(`✓ Found RG_MARKER in comments, risk: ${rgRisk}`);
+                        break;
+                      }
+                    }
+                  }
                 }
 
-                const RM = (rmRisk || 'MEDIUM').toUpperCase();
-                const RG = (rgRisk || 'MEDIUM').toUpperCase();
+                // Step 3: Fallback - scan latest 30 comments for "Risk Level:" without markers
+                if (rmRisk === null || rgRisk === null) {
+                  console.log('Markers not found, scanning latest comments for "Risk Level:"...');
+                  
+                  if (comments.length === 0) {
+                    comments = await loadCommentsWithRetry(1);
+                  }
+                  
+                  const latest30 = comments.slice(-30).reverse();
+                  
+                  for (const comment of latest30) {
+                    const body = comment.body || '';
+                    if (isGatekeeperComment(body)) continue;
+                    
+                    if (body.includes('Risk Level:') || body.includes('**Risk Level:**')) {
+                      const foundRisk = extractRisk(body);
+                      if (foundRisk) {
+                        console.log(`✓ Found risk via "Risk Level:" scan: ${foundRisk}`);
+                        // Assign to whichever is still null
+                        if (rmRisk === null) rmRisk = foundRisk;
+                        else if (rgRisk === null) rgRisk = foundRisk;
+                        
+                        if (rmRisk !== null && rgRisk !== null) break;
+                      }
+                    }
+                  }
+                }
+
+                // Final risk determination with conservative default
+                const RM = rmRisk || 'MEDIUM';
+                const RG = rgRisk || 'MEDIUM';
                 const finalRisk = (riskRank[RM] >= riskRank[RG]) ? RM : RG;
+                
+                console.log(`Risk assessment: RM=${RM}, RG=${RG}, Final=${finalRisk}`);
 
                 const { data: checkRuns } = await github.rest.checks.listForRef({
                   owner,
