@@ -23,9 +23,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            (async () => {
-              try {
-                const core = require('@actions/core');
+            try {
                 const owner = context.repo.owner;
                 const repo = context.repo.repo;
                 
@@ -449,22 +447,12 @@ jobs:
                 // Block the workflow if shouldBlock is true
                 if (shouldBlock) {
                   console.log('🚫 Gatekeeper is BLOCKING this PR');
-                  core.setFailed('Gatekeeper blocked: HIGH risk or failing checks');
+                  throw new Error('Gatekeeper blocked: HIGH risk or failing checks');
                 } else {
-                  if (finalRisk === 'HIGH' && isWorkflowOnlyChange) {
-                    console.log('⚠️ Gatekeeper allowing workflow-only HIGH risk change to proceed (manual review required).');
-                  }
                   console.log('✅ Gatekeeper passed - PR is clear to merge');
                 }
 
-              } catch (e) {
-                console.error('Gatekeeper failed:', e);
-                try {
-                  const core = require('@actions/core');
-                  core.setFailed(String(e?.message || e));
-                } catch (e2) {
-                  // If even core isn't available, rethrow so the action fails.
-                  throw e;
-                }
-              }
-            })();
+            } catch (e) {
+              console.error('Gatekeeper failed:', e);
+              throw e;
+            }
