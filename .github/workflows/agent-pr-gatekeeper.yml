@@ -424,6 +424,16 @@ jobs:
                   await github.rest.issues.createComment({ owner, repo, issue_number: prNumber, body: out });
                 }
 
+                console.log('PR Gatekeeper complete');
+                
+                // Block the workflow if shouldBlock is true
+                if (shouldBlock) {
+                  console.log('🚫 Gatekeeper is BLOCKING this PR');
+                  core.setFailed('Gatekeeper blocked: HIGH risk or failing checks');
+                } else {
+                  console.log('✅ Gatekeeper passed - PR is clear to merge');
+                }
+
               } catch (e) {
                 console.error('Gatekeeper failed (non-blocking):', e);
               }
