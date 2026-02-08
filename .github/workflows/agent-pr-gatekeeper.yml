@@ -5,6 +5,9 @@ on:
     types: [opened, synchronize, reopened]
   issue_comment:
     types: [created]
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,6 +27,12 @@ jobs:
               try {
                 const owner = context.repo.owner;
                 const repo = context.repo.repo;
+                
+                // Early exit for push/workflow_dispatch - no PR context
+                if (context.eventName === 'push' || context.eventName === 'workflow_dispatch') {
+                  console.log(`${context.eventName} event: no PR context, exiting successfully`);
+                  return;
+                }
                 
                 // Early exit for issue_comment events
                 if (context.eventName === 'issue_comment') {
