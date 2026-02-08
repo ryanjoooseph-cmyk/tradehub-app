@@ -88,22 +88,6 @@ jobs:
                 
                 console.log(`Processing PR #${prNumber}, SHA: ${sha}`);
                 
-                // Fetch PR labels to check for override
-                let prLabels = [];
-                try {
-                  const { data: prData } = await github.rest.pulls.get({
-                    owner,
-                    repo,
-                    pull_number: prNumber,
-                  });
-                  prLabels = (prData.labels || []).map(l => l.name);
-                  console.log(`PR labels: ${prLabels.join(', ')}`);
-                } catch (err) {
-                  console.error('Unable to fetch PR labels:', err);
-                }
-                
-                const hasOverrideLabel = prLabels.includes('override-gatekeeper');
-                console.log(`Override label present: ${hasOverrideLabel}`);
 
                 // Fetch PR labels (used for explicit override)
                 let prLabels = [];
@@ -401,16 +385,7 @@ jobs:
                   console.log('ℹ️ Workflow-only change detected; will not fail required Gatekeeper check (manual review still required).');
                 }
 
-<<<<<<< Updated upstream
-                // Determine if PR should be blocked
-                // HIGH risk can proceed ONLY if override label is present
-                const isHighRiskBlocked = finalRisk === 'HIGH' && !hasOverrideLabel && !isWorkflowOnlyChange;
-                const shouldBlock = hasFailingChecks || isHighRiskBlocked;
-                
-                console.log(`shouldBlock = ${shouldBlock} (hasFailingChecks: ${hasFailingChecks}, isHighRiskBlocked: ${isHighRiskBlocked}, hasOverride: ${hasOverrideLabel})`);
-=======
                 const shouldBlock = hasFailingChecks || (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride);
->>>>>>> Stashed changes
 
                 if (finalRisk === 'HIGH') {
                   await safeAddLabels(['needs-review', 'risk-high']);
@@ -469,24 +444,9 @@ jobs:
                 let out = `${GK_MARKER}\n## 🚦 PR Gatekeeper\n\n`;
                 out += `${statusLine}\n`;
                 out += `**Risk Level:** ${emoji} ${finalRisk}\n`;
-<<<<<<< Updated upstream
-                out += `**Checks:** ${hasFailingChecks ? '❌ FAILING' : '✅ PASSING'}\n`;
-                
-                // Show override status for HIGH risk PRs
-                if (finalRisk === 'HIGH') {
-                  if (hasOverrideLabel) {
-                    out += `**Override:** ⚠️ ENABLED via label \`override-gatekeeper\`\n`;
-                  } else {
-                    out += `**Override:** ❌ Required (add label \`override-gatekeeper\` to proceed)\n`;
-                  }
-                }
-                
-                out += `\n`;
-=======
                 out += `**Checks:** ${hasFailingChecks ? '❌ FAILING' : '✅ PASSING'}\n\n`;
                 out += `**Override:** ${isOverride ? '✅ override-gatekeeper present (Gatekeeper will PASS)'
                   : `❌ none (Add label \`${OVERRIDE_LABEL}\` to allow merging HIGH risk PRs)`}\n\n`;
->>>>>>> Stashed changes
 
                 if (criticalOverride && criticalMatches.length > 0) {
                   out += `### 🚨 Critical Files Changed\n`;
@@ -507,14 +467,14 @@ jobs:
                 out += `- pnpm lint / typecheck / build are green\n\n`;
                 
                 // Add HIGH risk override instructions
-                if (finalRisk === 'HIGH' && !hasOverrideLabel) {
+                if (finalRisk === 'HIGH' && !isOverride) {
                   out += `### ⚠️ HIGH Risk Override Required\n`;
                   out += `This PR is **HIGH risk** and cannot be merged without explicit approval.\n\n`;
                   out += `**To merge this PR:**\n`;
                   out += `1. Review all changes carefully\n`;
                   out += `2. Add the label \`override-gatekeeper\` to this PR\n`;
                   out += `3. The Gatekeeper check will re-run and pass with override enabled\n\n`;
-                } else if (finalRisk === 'HIGH' && hasOverrideLabel) {
+                } else if (finalRisk === 'HIGH' && isOverride) {
                   out += `### ⚠️ HIGH Risk - Override Active\n`;
                   out += `This PR was allowed to proceed via the \`override-gatekeeper\` label.\n`;
                   out += `Extra care has been taken to review these critical changes.\n\n`;
@@ -540,21 +500,12 @@ jobs:
                 // Block the workflow if shouldBlock is true
                 if (shouldBlock) {
                   console.log('🚫 Gatekeeper is BLOCKING this PR');
-<<<<<<< Updated upstream
-                  
-                  if (isHighRiskBlocked) {
-                    throw new Error('Gatekeeper blocked: HIGH risk. Add label "override-gatekeeper" to proceed.');
-                  } else {
-                    throw new Error('Gatekeeper blocked: failing checks');
-                  }
-=======
                   if (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride) {
                     throw new Error(`Gatekeeper blocked: HIGH risk. Add label ${OVERRIDE_LABEL} to proceed.`);
                   }
                   throw new Error('Gatekeeper blocked: HIGH risk or failing checks');
->>>>>>> Stashed changes
                 } else {
-                  if (finalRisk === 'HIGH' && hasOverrideLabel) {
+                  if (finalRisk === 'HIGH' && isOverride) {
                     console.log('✅ Gatekeeper passed - HIGH risk override active');
                   } else {
                     console.log('✅ Gatekeeper passed - PR is clear to merge');
