@@ -3,6 +3,8 @@ name: Agent - PR Gatekeeper
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
@@ -22,8 +24,54 @@ jobs:
               try {
                 const owner = context.repo.owner;
                 const repo = context.repo.repo;
-                const prNumber = context.payload.pull_request.number;
-                const sha = context.payload.pull_request.head.sha;
+                
+                // Early exit for issue_comment events
+                if (context.eventName === 'issue_comment') {
+                  const issue = context.payload.issue;
+                  const comment = context.payload.comment;
+                  
+                  // Only proceed if this is a PR
+                  if (!issue.pull_request) {
+                    console.log('Comment on non-PR issue, skipping');
+                    return;
+                  }
+                  
+                  // Only proceed if comment is from an agent
+                  const commentBody = comment.body || '';
+                  const isAgentComment = commentBody.includes('<!-- AGENT_RELEASE_MANAGER -->') || 
+                                        commentBody.includes('<!-- AGENT_REGRESSION_GUARD -->');
+                  
+                  if (!isAgentComment) {
+                    console.log('Comment is not from Release Manager or Regression Guard, skipping');
+                    return;
+                  }
+                  
+                  console.log('Agent comment detected, proceeding with gatekeeper logic');
+                }
+                
+                // Determine PR number and head SHA for both event types
+                let prNumber;
+                let sha;
+                
+                if (context.eventName === 'issue_comment') {
+                  // For issue_comment, fetch PR details
+                  prNumber = context.payload.issue.number;
+                  console.log(`Fetching PR #${prNumber} details from issue_comment event`);
+                  
+                  const { data: prData } = await github.rest.pulls.get({
+                    owner,
+                    repo,
+                    pull_number: prNumber,
+                  });
+                  
+                  sha = prData.head.sha;
+                } else {
+                  // For pull_request event, use payload directly
+                  prNumber = context.payload.pull_request.number;
+                  sha = context.payload.pull_request.head.sha;
+                }
+                
+                console.log(`Processing PR #${prNumber}, SHA: ${sha}`);
 
                 const RM_MARKER = '<!-- AGENT_RELEASE_MANAGER -->';
                 const RG_MARKER = '<!-- AGENT_REGRESSION_GUARD -->';
@@ -35,7 +83,8 @@ jobs:
                   if (!body) return null;
                   const jsonMatch = body.match(/"risk"\s*:\s*"(LOW|MEDIUM|HIGH)"/i);
                   if (jsonMatch) return jsonMatch[1].toUpperCase();
-                  const nearRisk = body.match(/risk[^A-Z]*(LOW|MEDIUM|HIGH)/i);
+                  // Allow any characters (including emojis) between "risk" and risk level
+                  const nearRisk = body.match(/risk[\s\S]{0,80}?(LOW|MEDIUM|HIGH)/i);
                   if (nearRisk) return nearRisk[1].toUpperCase();
                   if (body.includes('🔴')) return 'HIGH';
                   if (body.includes('🟡')) return 'MEDIUM';
@@ -57,12 +106,26 @@ jobs:
                   } catch (e) {}
                 }
 
-                const { data: comments } = await github.rest.issues.listComments({
-                  owner,
-                  repo,
-                  issue_number: prNumber,
-                  per_page: 100,
-                });
+                // Paginate comments (don't assume 100 is enough)
+                let comments = [];
+                let page = 1;
+                let hasMore = true;
+                
+                while (hasMore && page <= 20) {
+                  const { data: pageComments } = await github.rest.issues.listComments({
+                    owner,
+                    repo,
+                    issue_number: prNumber,
+                    per_page: 100,
+                    page,
+                  });
+                  
+                  comments = comments.concat(pageComments);
+                  hasMore = pageComments.length === 100;
+                  page++;
+                }
+                
+                console.log(`Loaded ${comments.length} comments across ${page - 1} page(s)`);
 
                 function isGatekeeperComment(body) {
                   return typeof body === 'string' && body.includes(GK_MARKER);
