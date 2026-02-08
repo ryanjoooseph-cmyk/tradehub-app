@@ -18,18 +18,16 @@ jobs:
           script: |
             const issue = context.payload.issue;
             const comment = context.payload.comment;
-            
-            // Check if issue has "support" label
-            const hasLabel = issue.labels && issue.labels.some(label => 
+
+            const hasLabel = issue.labels && issue.labels.some(label =>
               label.name.toLowerCase() === 'support'
             );
-            
-            // Check if comment contains "/triage" command
+
             const hasCommand = comment && comment.body && comment.body.includes('/triage');
-            
+
             const shouldRun = hasLabel || hasCommand;
             console.log(`Should run: ${shouldRun} (hasLabel: ${hasLabel}, hasCommand: ${hasCommand})`);
-            
+
             core.setOutput('should_run', shouldRun ? 'true' : 'false');
             core.setOutput('issue_number', issue.number.toString());
             core.setOutput('issue_url', issue.html_url);
@@ -50,14 +48,12 @@ jobs:
           LABELS='${{ steps.should-run.outputs.labels }}'
           COMMENTER='${{ steps.should-run.outputs.commenter }}'
           COMMENT_BODY='${{ steps.should-run.outputs.comment_body }}'
-          
-          # Safely encode fields
+
           ISSUE_BODY_JSON=$(echo "$ISSUE_BODY" | jq -Rs .)
           ISSUE_TITLE_JSON=$(echo "$ISSUE_TITLE" | jq -Rs .)
           COMMENT_BODY_JSON=$(echo "$COMMENT_BODY" | jq -Rs .)
           COMMENTER_JSON=$(echo "$COMMENTER" | jq -Rs .)
-          
-          # Build payload
+
           PAYLOAD=$(jq -n \
             --arg issueUrl "$ISSUE_URL" \
             --argjson issueNumber "$ISSUE_NUMBER" \
@@ -67,31 +63,24 @@ jobs:
             --argjson commenter "$COMMENTER_JSON" \
             --argjson commentBody "$COMMENT_BODY_JSON" \
             '{issueUrl:$issueUrl,issueNumber:$issueNumber,title:$title,body:$body,labels:$labels,commenter:$commenter,commentBody:$commentBody}')
-          
-          # Capture HTTP status code and body separately
+
           HTTP_CODE=$(curl -s -S -o /tmp/st_response.json -w "%{http_code}" -X POST "${{ secrets.AGENT_ENDPOINT_URL }}/api/agent/support-triage" \
             -H "Content-Type: application/json" \
             -H "x-agent-secret: ${{ secrets.AGENT_SECRET }}" \
             -d "$PAYLOAD" 2>/dev/null || echo "000")
-          
-          # Read response from file
+
           RESPONSE=$(cat /tmp/st_response.json 2>/dev/null || echo '{"ok":false,"error":"failed to read response"}')
-          
-          # If HTTP status is not 200, use safe fallback
+
           if [[ "$HTTP_CODE" != "200" ]]; then
             echo "Support Triage endpoint returned HTTP $HTTP_CODE"
             RESPONSE="{\"ok\":false,\"error\":\"support-triage endpoint unavailable (HTTP $HTTP_CODE)\",\"priority\":\"P2\",\"category\":\"OTHER\",\"summary\":\"Unable to triage\",\"nextActions\":[\"Manual review required\"],\"suggestedReply\":\"Thank you for your report. Our team will review this shortly.\"}"
           fi
-          
-          # Write to GITHUB_OUTPUT using multiline syntax
+
           echo "response<<EOF" >> $GITHUB_OUTPUT
           echo "$RESPONSE" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          
-          # Best-effort jq output (never fail)
+
           echo "$RESPONSE" | jq . >/dev/null 2>&1 && echo "$RESPONSE" | jq . || echo "$RESPONSE"
-          
-          # Always exit 0 to not fail the workflow
           exit 0
 
       - name: Post Triage Comment
@@ -104,77 +93,52 @@ jobs:
           script: |
             try {
               const responseStr = process.env.AGENT_RESPONSE || '';
-              if (!responseStr) {
-                console.log('No response from agent');
-                return;
-              }
+              if (!responseStr) return;
 
               const response = JSON.parse(responseStr);
-              
-              if (!response || !response.ok) {
-                console.log('Agent call failed or returned error:', response);
-                return;
-              }
+              if (!response || !response.ok) return;
 
               const { priority, category, summary, nextActions, suggestedReply } = response;
               const issueNumber = parseInt('${{ steps.should-run.outputs.issue_number }}');
-              
-              const priorityEmoji = {
-                'P0': '🔴',
-                'P1': '🟠',
-                'P2': '🟡',
-                'P3': '🟢'
-              };
-              
-              const categoryEmoji = {
-                'BUG': '🐛',
-                'UX': '🎨',
-                'BILLING': '💰',
-                'ESCROW': '🔒',
-                'MARKETPLACE': '🏪',
-                'PERFORMANCE': '⚡',
-                'OTHER': '📝'
-              };
-              
+
+              const priorityEmoji = { P0:'🔴', P1:'🟠', P2:'🟡', P3:'🟢' };
+              const categoryEmoji = { BUG:'🐛', UX:'🎨', BILLING:'💰', ESCROW:'🔒', MARKETPLACE:'🏪', PERFORMANCE:'⚡', OTHER:'📝' };
+
               const marker = '<!-- AGENT_SUPPORT_TRIAGE -->';
-              
+
               let comment = `${marker}\n## 🎯 Support Triage\n\n`;
               comment += `**Priority:** ${priorityEmoji[priority] || '⚪'} ${priority}\n`;
               comment += `**Category:** ${categoryEmoji[category] || '📝'} ${category}\n`;
               comment += `**Summary:** ${summary}\n\n`;
-              
+
               if (nextActions && nextActions.length > 0) {
                 comment += `### 📋 Next Actions\n`;
-                nextActions.forEach(action => comment += `- ${action}\n`);
+                nextActions.forEach(a => comment += `- ${a}\n`);
                 comment += `\n`;
               }
-              
+
               if (suggestedReply) {
-                comment += `### 💬 Suggested Reply\n\n`;
-                comment += `${suggestedReply}\n\n`;
+                comment += `### 💬 Suggested Reply\n\n${suggestedReply}\n\n`;
               }
-              
+
               comment += `---\n*Automated triage by Support Agent. Human review recommended.*`;
 
-              // Check if a previous Support Triage comment exists
               const { data: comments } = await github.rest.issues.listComments({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issueNumber,
               });
 
-              const existingComment = comments.find(c => c.body && c.body.includes(marker));
+              const existing = comments.find(c => c.body && c.body.includes(marker));
 
-              if (existingComment) {
-                console.log(`Updating existing comment ${existingComment.id}`);
+              if (existing) {
                 await github.rest.issues.updateComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  comment_id: existingComment.id,
+                  comment_id: existing.id,
                   body: comment
                 });
               } else {
-                console.log('Creating new comment');
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -182,7 +146,6 @@ jobs:
                   body: comment
                 });
               }
-            } catch (error) {
-              console.error('Failed to post/update comment:', error);
-              // Don't fail the workflow
+            } catch (e) {
+              console.error(e);
             }
