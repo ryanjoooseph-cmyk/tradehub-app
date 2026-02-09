@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Card, GhostButton, PageHeader, PageWrap, Pill, PrimaryButton, cx } from "@/components/app/filled/page";
-import { ChevronLeft, ChevronRight, GripVertical, Calendar as CalendarIcon, Sparkles, Clock, MapPin, Users, AlertTriangle } from "lucide-react";
+import { ChevronLeft, ChevronRight, GripVertical, Calendar as CalendarIcon, Sparkles, Clock, MapPin, Users, AlertTriangle, X, Search, Filter, CheckCircle } from "lucide-react";
 
 type EventStatus = "scheduled" | "in-progress" | "completed";
 type EventPriority = "normal" | "high" | "urgent";
@@ -42,15 +42,62 @@ function minutesToShort(min: number) {
   return `${displayH}${suffix}`;
 }
 
-// Enhanced seeded scheduled jobs with status and priority
+function minutesToFull(min: number) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  const suffix = h >= 12 ? "PM" : "AM";
+  const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${displayH}:${String(m).padStart(2, '0')} ${suffix}`;
+}
+
+// Enhanced seeded data with 30+ events
 const initialEvents: EventItem[] = [
-  { id: 'J-1402', title: 'Tower A repaint', client: 'Acme Body Corp', site: 'Southbank', day: 3, startMin: 8 * 60, durMin: 480, crew: ['Ryan J', 'Crew A'], status: 'in-progress', priority: 'high' },
+  // Monday
   { id: 'J-1403', title: 'High-rise touch-up', client: 'Carlton Strata', site: 'CBD', day: 0, startMin: 9 * 60, durMin: 360, crew: ['Crew B'], status: 'scheduled', priority: 'normal' },
+  { id: 'J-1420', title: 'Window sealing', client: 'Port Melbourne', site: 'Port', day: 0, startMin: 13 * 60, durMin: 180, crew: ['Crew A'], status: 'scheduled', priority: 'normal' },
+  { id: 'J-1421', title: 'Balcony inspection', client: 'Richmond Owners', site: 'Richmond', day: 0, startMin: 16 * 60, durMin: 120, crew: ['QA'], status: 'scheduled', priority: 'high' },
+  
+  // Tuesday
   { id: 'J-1404', title: 'Balcony sealing', client: 'Bayside Strata', site: 'St Kilda', day: 1, startMin: 10 * 60, durMin: 240, crew: ['Crew A'], status: 'completed', priority: 'normal' },
+  { id: 'J-1422', title: 'Roof repairs', client: 'South Yarra', site: 'South Yarra', day: 1, startMin: 8 * 60, durMin: 300, crew: ['Crew C'], status: 'in-progress', priority: 'high' },
+  { id: 'J-1423', title: 'Paint touch-up', client: 'Malvern Corp', site: 'Malvern', day: 1, startMin: 14 * 60, durMin: 180, crew: ['Crew B'], status: 'scheduled', priority: 'normal' },
+  { id: 'J-1424', title: 'QA walkthrough', client: 'Prahran Mgmt', site: 'Prahran', day: 1, startMin: 17 * 60, durMin: 90, crew: ['QA', 'Ryan J'], status: 'scheduled', priority: 'urgent' },
+  
+  // Wednesday
   { id: 'J-1406', title: 'Heritage restoration', client: 'South Yarra Owners', site: 'South Yarra', day: 2, startMin: 8 * 60, durMin: 420, crew: ['Ryan J', 'Crew C'], status: 'scheduled', priority: 'urgent' },
+  { id: 'J-1425', title: 'Facade cleaning', client: 'Brighton Towers', site: 'Brighton', day: 2, startMin: 13 * 60, durMin: 240, crew: ['Crew A', 'Crew B'], status: 'scheduled', priority: 'normal' },
+  { id: 'J-1426', title: 'Concrete repair', client: 'Elwood Strata', site: 'Elwood', day: 2, startMin: 16 * 60 + 30, durMin: 150, crew: ['Crew C'], status: 'scheduled', priority: 'high' },
+  
+  // Thursday
+  { id: 'J-1402', title: 'Tower A repaint', client: 'Acme Body Corp', site: 'Southbank', day: 3, startMin: 8 * 60, durMin: 480, crew: ['Ryan J', 'Crew A'], status: 'in-progress', priority: 'high' },
+  { id: 'J-1427', title: 'Safety inspection', client: 'Docklands Tower', site: 'Docklands', day: 3, startMin: 15 * 60, durMin: 120, crew: ['QA'], status: 'scheduled', priority: 'urgent' },
+  { id: 'J-1428', title: 'Minor repairs', client: 'Collingwood', site: 'Collingwood', day: 3, startMin: 17 * 60 + 30, durMin: 90, crew: ['Crew B'], status: 'completed', priority: 'normal' },
+  
+  // Friday
   { id: 'J-1408', title: 'Roof deck repair', client: 'Docklands Mgmt', site: 'Docklands', day: 4, startMin: 14 * 60, durMin: 180, crew: ['QA', 'Crew B'], status: 'scheduled', priority: 'normal' },
+  { id: 'J-1429', title: 'Waterproofing', client: 'Brunswick Dev', site: 'Brunswick', day: 4, startMin: 8 * 60, durMin: 360, crew: ['Crew A', 'Crew C'], status: 'in-progress', priority: 'high' },
+  { id: 'J-1430', title: 'Balcony fix', client: 'Carlton Corp', site: 'Carlton', day: 4, startMin: 16 * 60 + 30, durMin: 120, crew: ['Crew B'], status: 'scheduled', priority: 'normal' },
+  
+  // Saturday
   { id: 'J-1409', title: 'Façade inspection', client: 'Melbourne Property', site: 'Richmond', day: 5, startMin: 9 * 60, durMin: 240, crew: ['Ryan J'], status: 'scheduled', priority: 'high' },
+  { id: 'J-1431', title: 'Emergency repair', client: 'CBD Strata', site: 'CBD', day: 5, startMin: 13 * 60, durMin: 180, crew: ['Crew A', 'Ryan J'], status: 'scheduled', priority: 'urgent' },
+  { id: 'J-1432', title: 'Routine maintenance', client: 'Fitzroy Group', site: 'Fitzroy', day: 5, startMin: 16 * 60, durMin: 120, crew: ['Crew C'], status: 'completed', priority: 'normal' },
+  
+  // Sunday
   { id: 'J-1411', title: 'Strata QA check', client: 'Brunswick Estates', site: 'Brunswick', day: 6, startMin: 11 * 60, durMin: 180, crew: ['QA'], status: 'completed', priority: 'normal' },
+  { id: 'J-1433', title: 'Final walkthrough', client: 'Northcote Owners', site: 'Northcote', day: 6, startMin: 14 * 60, durMin: 150, crew: ['Ryan J', 'QA'], status: 'scheduled', priority: 'high' },
+  
+  // Additional events across the week
+  { id: 'J-1434', title: 'Prep work', client: 'Kew Property', site: 'Kew', day: 0, startMin: 7 * 60, durMin: 120, crew: ['Crew C'], status: 'completed', priority: 'normal' },
+  { id: 'J-1435', title: 'Surface prep', client: 'Hawthorn Strata', site: 'Hawthorn', day: 1, startMin: 7 * 60 + 30, durMin: 90, crew: ['Crew A'], status: 'completed', priority: 'normal' },
+  { id: 'J-1436', title: 'Structural check', client: 'Toorak Mgmt', site: 'Toorak', day: 2, startMin: 7 * 60, durMin: 150, crew: ['QA', 'Crew B'], status: 'in-progress', priority: 'urgent' },
+  { id: 'J-1437', title: 'Paint job', client: 'Windsor Corp', site: 'Windsor', day: 3, startMin: 17 * 60, durMin: 120, crew: ['Crew C'], status: 'scheduled', priority: 'normal' },
+  { id: 'J-1438', title: 'Roof access setup', client: 'Footscray Dev', site: 'Footscray', day: 4, startMin: 7 * 60, durMin: 120, crew: ['Crew C'], status: 'completed', priority: 'high' },
+  { id: 'J-1439', title: 'Safety audit', client: 'Preston Strata', site: 'Preston', day: 5, startMin: 7 * 60 + 30, durMin: 90, crew: ['QA'], status: 'completed', priority: 'normal' },
+  { id: 'J-1440', title: 'Material delivery', client: 'Coburg Prop', site: 'Coburg', day: 6, startMin: 8 * 60, durMin: 60, crew: ['Crew B'], status: 'completed', priority: 'normal' },
+  { id: 'J-1441', title: 'Site cleanup', client: 'Thornbury Owners', site: 'Thornbury', day: 0, startMin: 17 * 60, durMin: 90, crew: ['Crew A', 'Crew B'], status: 'scheduled', priority: 'normal' },
+  { id: 'J-1442', title: 'Final inspection', client: 'Reservoir Mgmt', site: 'Reservoir', day: 4, startMin: 17 * 60 + 30, durMin: 90, crew: ['QA', 'Ryan J'], status: 'scheduled', priority: 'high' },
+  { id: 'J-1443', title: 'Touch-up work', client: 'Ivanhoe Corp', site: 'Ivanhoe', day: 6, startMin: 17 * 60, durMin: 120, crew: ['Crew A'], status: 'scheduled', priority: 'normal' },
 ];
 
 // Seeded backlog (unscheduled)
@@ -104,12 +151,25 @@ export default function CalendarPage() {
 
   const [events, setEvents] = React.useState<EventItem[]>(initialEvents);
   const [backlog] = React.useState<BacklogItem[]>(initialBacklog);
+  
+  const [selectedEvent, setSelectedEvent] = React.useState<EventItem | null>(null);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [statusFilter, setStatusFilter] = React.useState<EventStatus | 'all'>('all');
+  const [crewFilter, setCrewFilter] = React.useState<string | 'all'>('all');
+  const [toast, setToast] = React.useState<string | null>(null);
 
   const gridDays = view === "day" ? [focusDay] : view === "week" ? days.map((_, i) => i) : [];
 
   const rows = Math.ceil((endDayMin - startDayMin) / stepMin);
-  const pxPerStep = 28; // Increased for better readability
+  const pxPerStep = 28;
   const gridHeight = rows * pxPerStep;
+
+  // Get all unique crews
+  const allCrews = React.useMemo(() => {
+    const crewSet = new Set<string>();
+    events.forEach(e => e.crew.forEach(c => crewSet.add(c)));
+    return Array.from(crewSet).sort();
+  }, [events]);
 
   // Detect conflicts (overlapping jobs for same crew)
   const hasConflict = (event: EventItem): boolean => {
@@ -121,6 +181,39 @@ export default function CalendarPage() {
       const crewOverlap = event.crew.some(c => other.crew.includes(c));
       return timeOverlap && crewOverlap;
     });
+  };
+
+  // Filter events
+  const filteredEvents = React.useMemo(() => {
+    let result = events;
+    
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(e => 
+        e.id.toLowerCase().includes(q) ||
+        e.title.toLowerCase().includes(q) ||
+        e.client.toLowerCase().includes(q) ||
+        e.site.toLowerCase().includes(q)
+      );
+    }
+    
+    // Status filter
+    if (statusFilter !== 'all') {
+      result = result.filter(e => e.status === statusFilter);
+    }
+    
+    // Crew filter
+    if (crewFilter !== 'all') {
+      result = result.filter(e => e.crew.includes(crewFilter));
+    }
+    
+    return result;
+  }, [events, searchQuery, statusFilter, crewFilter]);
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
   };
 
   const onDragStart = (e: React.DragEvent, id: string) => {
@@ -137,6 +230,14 @@ export default function CalendarPage() {
     e.preventDefault();
     const id = e.dataTransfer.getData("text/plain");
     if (!id) return;
+    
+    const event = events.find(ev => ev.id === id);
+    if (!event) return;
+    
+    const oldDay = days[event.day];
+    const newDay = days[day];
+    const newTime = minutesToFull(startMin);
+    
     setEvents((prev) =>
       prev.map((x) =>
         x.id === id
@@ -144,6 +245,8 @@ export default function CalendarPage() {
           : x
       )
     );
+    
+    showToast(`${event.id} rescheduled from ${oldDay} to ${newDay} at ${newTime}`);
   };
 
   const goToToday = () => {
@@ -152,7 +255,7 @@ export default function CalendarPage() {
   };
 
   const slots = Array.from({ length: rows + 1 }, (_, i) => startDayMin + i * stepMin);
-  const visibleEvents = events.filter((ev) => gridDays.includes(ev.day));
+  const visibleEvents = filteredEvents.filter((ev) => gridDays.includes(ev.day));
   const conflictCount = events.filter(hasConflict).length;
   const inProgressCount = events.filter(e => e.status === 'in-progress').length;
   const highPriorityCount = events.filter(e => e.priority === 'high' || e.priority === 'urgent').length;
@@ -161,7 +264,7 @@ export default function CalendarPage() {
     <PageWrap>
       <PageHeader
         title="Calendar"
-        subtitle="Drag-and-drop scheduling • Real-time conflict detection"
+        subtitle="Enterprise scheduler • Real-time conflict detection"
         right={
           <div className="flex items-center gap-2">
             <GhostButton onClick={goToToday}>
@@ -173,7 +276,17 @@ export default function CalendarPage() {
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+      {/* Toast Notification */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 animate-in slide-in-from-bottom-5 fade-in">
+          <div className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3 shadow-lg">
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            <span className="text-sm font-medium">{toast}</span>
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)_340px]">
         {/* Left Panel */}
         <div className="space-y-4">
           {/* Week Controls */}
@@ -220,6 +333,18 @@ export default function CalendarPage() {
                 ))}
               </div>
 
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search jobs..."
+                  className="w-full rounded-lg border bg-background py-2 pl-10 pr-3 text-sm outline-none focus:border-foreground"
+                />
+              </div>
+
               {/* Quick Stats */}
               <div className="grid grid-cols-2 gap-2">
                 <div className="rounded-xl bg-muted/20 p-3">
@@ -238,6 +363,67 @@ export default function CalendarPage() {
                   <div className="text-[11px] uppercase tracking-wide text-muted-foreground/70">Conflicts</div>
                   <div className={cx("mt-1 text-xl font-bold", conflictCount > 0 ? "text-red-600 dark:text-red-400" : "")}>
                     {conflictCount}
+                  </div>
+                </div>
+              </div>
+
+              {/* Filters */}
+              <div>
+                <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-wide text-muted-foreground/70">
+                  <Filter className="h-3 w-3" />
+                  Filters
+                </div>
+                
+                {/* Status Filter */}
+                <div className="mb-3">
+                  <div className="mb-1.5 text-xs font-semibold">Status</div>
+                  <div className="flex flex-wrap gap-1">
+                    {(['all', 'scheduled', 'in-progress', 'completed'] as const).map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => setStatusFilter(s)}
+                        className={cx(
+                          "rounded-md px-2 py-1 text-[11px] font-semibold transition-all",
+                          statusFilter === s
+                            ? "bg-foreground text-background"
+                            : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                        )}
+                      >
+                        {s === 'all' ? 'All' : s === 'in-progress' ? 'In Progress' : s.charAt(0).toUpperCase() + s.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Crew Filter */}
+                <div>
+                  <div className="mb-1.5 text-xs font-semibold">Crew</div>
+                  <div className="flex flex-wrap gap-1">
+                    <button
+                      onClick={() => setCrewFilter('all')}
+                      className={cx(
+                        "rounded-md px-2 py-1 text-[11px] font-semibold transition-all",
+                        crewFilter === 'all'
+                          ? "bg-foreground text-background"
+                          : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      All
+                    </button>
+                    {allCrews.map((crew) => (
+                      <button
+                        key={crew}
+                        onClick={() => setCrewFilter(crew)}
+                        className={cx(
+                          "rounded-md px-2 py-1 text-[11px] font-semibold transition-all",
+                          crewFilter === crew
+                            ? "bg-foreground text-background"
+                            : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                        )}
+                      >
+                        {crew}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -265,6 +451,33 @@ export default function CalendarPage() {
                   </div>
                 </div>
               )}
+
+              {/* Color Legend */}
+              <div>
+                <div className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground/70">Legend</div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="h-3 w-3 rounded border border-blue-400/50 bg-blue-50 dark:bg-blue-950/30" />
+                    <span className="text-muted-foreground">In Progress</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="h-3 w-3 rounded border border-emerald-400/50 bg-emerald-50 dark:bg-emerald-950/30" />
+                    <span className="text-muted-foreground">Completed</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="h-3 w-3 rounded border border-amber-400/50 bg-amber-50 dark:bg-amber-950/30" />
+                    <span className="text-muted-foreground">High Priority</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="h-3 w-3 rounded border border-rose-400/50 bg-rose-50 dark:bg-rose-950/30" />
+                    <span className="text-muted-foreground">Urgent</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="h-3 w-3 rounded border border-red-500/50 bg-red-50 dark:bg-red-950/40" />
+                    <span className="text-muted-foreground">Conflict</span>
+                  </div>
+                </div>
+              </div>
 
               {/* Smart Scheduling */}
               <div className="flex items-center justify-between rounded-xl bg-gradient-to-r from-violet-500/10 to-indigo-500/10 p-3 ring-1 ring-violet-500/20">
@@ -459,7 +672,8 @@ export default function CalendarPage() {
                               key={e.id}
                               draggable
                               onDragStart={(ev) => onDragStart(ev, e.id)}
-                              className="absolute left-1 right-1 cursor-grab active:cursor-grabbing"
+                              onClick={() => setSelectedEvent(e)}
+                              className="absolute left-1 right-1 cursor-grab active:cursor-grabbing hover:z-10"
                               style={{ top, height: h }}
                             >
                               <div className={cx(
@@ -527,60 +741,203 @@ export default function CalendarPage() {
               </div>
             </div>
           )}
+        </div>
 
-          {/* Bottom Cards */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card title="Conflict Engine" subtitle="Real-time overlap detection">
-              <div className="space-y-3">
-                <div className={cx(
-                  "flex items-center justify-between rounded-xl p-3",
-                  conflictCount > 0 ? "bg-red-500/10 ring-1 ring-red-500/20" : "bg-muted/20"
-                )}>
-                  <div className="flex items-center gap-3">
-                    <div className={cx(
-                      "flex h-8 w-8 items-center justify-center rounded-lg",
-                      conflictCount > 0 ? "bg-red-500/20" : "bg-emerald-500/20"
-                    )}>
-                      <AlertTriangle className={cx(
-                        "h-4 w-4",
-                        conflictCount > 0 ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"
-                      )} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold">Crew Overlaps</div>
-                      <div className="text-xs text-muted-foreground">
-                        {conflictCount > 0 ? `${conflictCount} conflict${conflictCount > 1 ? 's' : ''} detected` : 'All clear'}
-                      </div>
-                    </div>
+        {/* Right Panel - Event Details */}
+        <div className="space-y-4">
+          {selectedEvent ? (
+            <div className="rounded-2xl border bg-card/50 overflow-hidden">
+              <div className="flex items-center justify-between border-b bg-muted/20 px-4 py-3">
+                <div className="text-sm font-semibold">Event Details</div>
+                <button
+                  onClick={() => setSelectedEvent(null)}
+                  className="rounded-lg p-1 hover:bg-muted"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="p-4 space-y-4">
+                {/* Job Reference */}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold">{selectedEvent.id}</span>
+                    <Pill tone={
+                      selectedEvent.status === 'completed' ? 'good' :
+                      selectedEvent.status === 'in-progress' ? 'warn' :
+                      'neutral'
+                    }>
+                      {selectedEvent.status === 'in-progress' ? 'In Progress' : 
+                       selectedEvent.status === 'completed' ? 'Done' : 'Scheduled'}
+                    </Pill>
                   </div>
-                  <Pill tone={conflictCount > 0 ? 'bad' : 'good'}>
-                    {conflictCount > 0 ? 'Review' : 'OK'}
-                  </Pill>
+                  <h3 className="mt-2 text-base font-bold">{selectedEvent.title}</h3>
+                </div>
+
+                {/* Client & Site */}
+                <div className="rounded-xl bg-muted/20 p-3 space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Client</span>
+                    <span className="font-semibold">{selectedEvent.client}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Site</span>
+                    <span className="font-semibold">{selectedEvent.site}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Day</span>
+                    <span className="font-semibold">{fullDays[selectedEvent.day]}</span>
+                  </div>
+                </div>
+
+                {/* Timing */}
+                <div className="rounded-xl bg-muted/20 p-3 space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Start</span>
+                    <span className="font-semibold">{minutesToFull(selectedEvent.startMin)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">End</span>
+                    <span className="font-semibold">{minutesToFull(selectedEvent.startMin + selectedEvent.durMin)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Duration</span>
+                    <span className="font-semibold">{(selectedEvent.durMin / 60).toFixed(1)}h</span>
+                  </div>
+                </div>
+
+                {/* Crew */}
+                <div>
+                  <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Assigned Crew</div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedEvent.crew.map((c, i) => (
+                      <span key={i} className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-2.5 py-1.5 text-xs font-semibold">
+                        <Users className="h-3.5 w-3.5" />
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Conflict Warning */}
+                {hasConflict(selectedEvent) && (
+                  <div className="rounded-xl bg-red-50 p-3 dark:bg-red-950/30">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-red-900 dark:text-red-100">
+                      <AlertTriangle className="h-4 w-4" />
+                      Crew Conflict Detected
+                    </div>
+                    <p className="mt-1 text-xs text-red-800 dark:text-red-200">
+                      One or more crew members are double-booked at this time.
+                    </p>
+                  </div>
+                )}
+
+                {/* Priority Badge */}
+                {(selectedEvent.priority === 'high' || selectedEvent.priority === 'urgent') && (
+                  <div className={cx(
+                    "rounded-xl p-3",
+                    selectedEvent.priority === 'urgent' ? "bg-rose-50 dark:bg-rose-950/30" : "bg-amber-50 dark:bg-amber-950/30"
+                  )}>
+                    <div className={cx(
+                      "text-sm font-semibold",
+                      selectedEvent.priority === 'urgent' ? "text-rose-900 dark:text-rose-100" : "text-amber-900 dark:text-amber-100"
+                    )}>
+                      {selectedEvent.priority === 'urgent' ? '🔴 Urgent Priority' : '⚠️ High Priority'}
+                    </div>
+                    <p className={cx(
+                      "mt-1 text-xs",
+                      selectedEvent.priority === 'urgent' ? "text-rose-800 dark:text-rose-200" : "text-amber-800 dark:text-amber-200"
+                    )}>
+                      {selectedEvent.priority === 'urgent' ? 'Requires immediate attention' : 'Elevated priority job'}
+                    </p>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="space-y-2">
+                  <button className="w-full rounded-xl border bg-background px-4 py-2.5 text-sm font-semibold hover:bg-muted">
+                    View Job Details
+                  </button>
+                  <button className="w-full rounded-xl border bg-background px-4 py-2.5 text-sm font-semibold hover:bg-muted">
+                    Update Status
+                  </button>
+                  <button className="w-full rounded-xl border bg-background px-4 py-2.5 text-sm font-semibold hover:bg-muted">
+                    Assign Crew
+                  </button>
+                  <button className="w-full rounded-xl border border-red-500/30 bg-background px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20">
+                    Cancel Booking
+                  </button>
                 </div>
               </div>
-            </Card>
-
-            <Card title="Quick Actions" subtitle="Scheduling shortcuts" right={<GhostButton>Configure</GhostButton>}>
-              <div className="space-y-2">
-                {[
-                  { title: 'Auto-fill week', desc: 'AI-optimized slot suggestions' },
-                  { title: 'Export schedule', desc: 'PDF for crews & clients' },
-                  { title: 'Lock schedule', desc: 'Prevent accidental edits' },
-                ].map((action, i) => (
-                  <button
-                    key={i}
-                    className="flex w-full items-center justify-between rounded-xl border bg-background px-3 py-2.5 text-left transition-all hover:bg-muted/30"
-                  >
-                    <div>
-                      <div className="text-sm font-medium">{action.title}</div>
-                      <div className="text-[11px] text-muted-foreground">{action.desc}</div>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-                  </button>
-                ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border bg-card/50 overflow-hidden">
+              <div className="border-b bg-muted/20 px-4 py-3">
+                <div className="text-sm font-semibold">Event Details</div>
+                <div className="text-xs text-muted-foreground">Click an event to view details</div>
               </div>
-            </Card>
-          </div>
+              <div className="flex flex-col items-center justify-center p-8 py-16">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted/30">
+                  <CalendarIcon className="h-6 w-6 text-muted-foreground/50" />
+                </div>
+                <div className="mt-3 text-sm font-semibold">No event selected</div>
+                <div className="mt-1 text-xs text-muted-foreground">Click on a calendar event to see details</div>
+              </div>
+            </div>
+          )}
+
+          {/* Conflict Engine */}
+          <Card title="Conflict Engine" subtitle="Real-time overlap detection">
+            <div className="space-y-3">
+              <div className={cx(
+                "flex items-center justify-between rounded-xl p-3",
+                conflictCount > 0 ? "bg-red-500/10 ring-1 ring-red-500/20" : "bg-muted/20"
+              )}>
+                <div className="flex items-center gap-3">
+                  <div className={cx(
+                    "flex h-8 w-8 items-center justify-center rounded-lg",
+                    conflictCount > 0 ? "bg-red-500/20" : "bg-emerald-500/20"
+                  )}>
+                    <AlertTriangle className={cx(
+                      "h-4 w-4",
+                      conflictCount > 0 ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"
+                    )} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold">Crew Overlaps</div>
+                    <div className="text-xs text-muted-foreground">
+                      {conflictCount > 0 ? `${conflictCount} conflict${conflictCount > 1 ? 's' : ''} detected` : 'All clear'}
+                    </div>
+                  </div>
+                </div>
+                <Pill tone={conflictCount > 0 ? 'bad' : 'good'}>
+                  {conflictCount > 0 ? 'Review' : 'OK'}
+                </Pill>
+              </div>
+            </div>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card title="Quick Actions" subtitle="Scheduling shortcuts">
+            <div className="space-y-2">
+              {[
+                { title: 'Auto-fill week', desc: 'AI-optimized slot suggestions' },
+                { title: 'Export schedule', desc: 'PDF for crews & clients' },
+                { title: 'Lock schedule', desc: 'Prevent accidental edits' },
+              ].map((action, i) => (
+                <button
+                  key={i}
+                  className="flex w-full items-center justify-between rounded-xl border bg-background px-3 py-2.5 text-left transition-all hover:bg-muted/30"
+                >
+                  <div>
+                    <div className="text-sm font-medium">{action.title}</div>
+                    <div className="text-[11px] text-muted-foreground">{action.desc}</div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                </button>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
     </PageWrap>
