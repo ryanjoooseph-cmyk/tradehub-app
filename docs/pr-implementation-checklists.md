@@ -11,7 +11,7 @@
 | PR4 | Job Detail with Escrow Preview | ⚪ UNKNOWN | `feature/pr4-job-detail` |
 | PR5 | Clients, Invoices, Calendar | ⚪ UNKNOWN | `feature/pr5-core-pages` |
 | PR6 | Marketplace MVP | ⚪ UNKNOWN | `feature/pr6-marketplace` |
-| PR7 | Escrow v1 | ⚪ UNKNOWN | `feature/pr7-escrow-v1` |
+| PR7 | Escrow UI surfaces (ops + buyer) | ✅ MERGED (#18889) | `feature/pr7-escrow-ui` |
 | PR8 | Automation Agents v1 | ⚪ UNKNOWN | `feature/pr8-agents-v1` |
 | PR10 | Shell Aesthetics v1 (100M SaaS upgrade) | ✅ MERGED (#18882) | `feature/pr10-shell-aesthetics-v2` |
 | PR11 | Calendar Upgrade v2 (Premium Scheduler) | ✅ MERGED (#18883) | `feature/pr11-calendar-v2` |
