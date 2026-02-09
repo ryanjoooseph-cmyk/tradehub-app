@@ -217,6 +217,7 @@ export default function EscrowPage() {
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'funds_held' | 'ready_to_release' | 'on_hold' | 'disputes'>('all');
+  const [selectedMilestoneIds, setSelectedMilestoneIds] = useState<Set<string>>(new Set());
 
   const handleTransition = (milestoneId: string, to: MilestoneState, actor: Actor, note?: string, payload?: Record<string, unknown>) => {
     try {
@@ -389,6 +390,36 @@ export default function EscrowPage() {
         </div>
       </div>
 
+      {/* Bulk Operations Toolbar */}
+      {selectedMilestoneIds.size > 0 && (
+        <div className="flex items-center justify-between rounded-2xl border border-blue-500/30 bg-blue-50 dark:bg-blue-950/30 p-4 ring-1 ring-blue-500/20">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500 text-sm font-bold text-white">
+              {selectedMilestoneIds.size}
+            </div>
+            <span className="font-semibold">milestone{selectedMilestoneIds.size > 1 ? 's' : ''} selected</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                alert(`Bulk release ${selectedMilestoneIds.size} milestone(s). In production, this would validate evidence and release funds.`);
+                setSelectedMilestoneIds(new Set());
+              }}
+              className="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+            >
+              <CheckCircle className="h-4 w-4" />
+              Bulk Release
+            </button>
+            <button
+              onClick={() => setSelectedMilestoneIds(new Set())}
+              className="rounded-xl border bg-background px-4 py-2 text-sm font-semibold hover:bg-muted"
+            >
+              Clear Selection
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Release Queue - Priority Section */}
       {releaseQueue.length > 0 && (
         <Card title="Release Queue" subtitle={`${releaseQueue.length} milestone${releaseQueue.length > 1 ? 's' : ''} ready for release`}>
@@ -466,6 +497,20 @@ export default function EscrowPage() {
             <table className="w-full min-w-[1200px] text-sm">
               <thead className="bg-muted/20 text-xs text-muted-foreground">
                 <tr>
+                  <th className="w-12 px-3 py-2">
+                    <input
+                      type="checkbox"
+                      checked={filtered.length > 0 && filtered.every(m => selectedMilestoneIds.has(m.id))}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedMilestoneIds(new Set(filtered.map(m => m.id)));
+                        } else {
+                          setSelectedMilestoneIds(new Set());
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-border"
+                    />
+                  </th>
                   <th className="px-3 py-2 text-left font-semibold">Job</th>
                   <th className="px-3 py-2 text-left font-semibold">Client</th>
                   <th className="px-3 py-2 text-left font-semibold">Milestone</th>
@@ -479,9 +524,26 @@ export default function EscrowPage() {
               <tbody>
                 {filtered.map((m) => {
                   const evidenceStatus = getEvidenceStatus(m);
+                  const isSelected = selectedMilestoneIds.has(m.id);
                   
                   return (
-                    <tr key={m.id} className="border-t hover:bg-muted/10">
+                    <tr key={m.id} className={`border-t hover:bg-muted/10 ${isSelected ? 'bg-blue-50 dark:bg-blue-950/20' : ''}`}>
+                      <td className="px-3 py-3">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            const newSet = new Set(selectedMilestoneIds);
+                            if (e.target.checked) {
+                              newSet.add(m.id);
+                            } else {
+                              newSet.delete(m.id);
+                            }
+                            setSelectedMilestoneIds(newSet);
+                          }}
+                          className="h-4 w-4 rounded border-border"
+                        />
+                      </td>
                       <td className="px-3 py-3">
                         <div className="font-semibold">{m.jobId}</div>
                         <div className="text-xs text-muted-foreground">{m.jobTitle}</div>
