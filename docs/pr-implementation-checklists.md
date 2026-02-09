@@ -14,8 +14,7 @@
 | PR7 | Escrow v1 | ⚪ UNKNOWN | `feature/pr7-escrow-v1` |
 | PR8 | Automation Agents v1 | ⚪ UNKNOWN | `feature/pr8-agents-v1` |
 
-If a PR is missing here, it means the checklist doc doesn’t contain a PR section for it yet.
-<!-- AUTO-STATUS:END -->
+If a PR is missing here, it means the checklist doc doesn’t contain a PR section for it yet.<!-- AUTO-STATUS:END -->
 
 This document contains detailed, actionable checklists for each PR in the development roadmap.
 
