@@ -1,4 +1,21 @@
 # TradeHub PR Implementation Checklists
+<!-- AUTO-STATUS:START -->
+### AUTO-STATUS (generated)
+
+| PR | Title | Status | Branch |
+|---:|---|---|---|
+| PR1 | Shell Stability Hardening | ⚪ UNKNOWN | `feature/pr1-shell-hardening` |
+| PR2 | Dashboard Density + Actions | ⚪ UNKNOWN | `feature/pr2-dashboard-density` |
+| PR3 | Jobs List Enhancement | ⚪ UNKNOWN | `feature/pr3-jobs-list` |
+| PR4 | Job Detail with Escrow Preview | ⚪ UNKNOWN | `feature/pr4-job-detail` |
+| PR5 | Clients, Invoices, Calendar | ⚪ UNKNOWN | `feature/pr5-core-pages` |
+| PR6 | Marketplace MVP | ⚪ UNKNOWN | `feature/pr6-marketplace` |
+| PR7 | Escrow v1 | ⚪ UNKNOWN | `feature/pr7-escrow-v1` |
+| PR8 | Automation Agents v1 | ⚪ UNKNOWN | `feature/pr8-agents-v1` |
+
+If a PR is missing here, it means the checklist doc doesn’t contain a PR section for it yet.
+<!-- AUTO-STATUS:END -->
+
 
 This document contains detailed, actionable checklists for each PR in the development roadmap.
 
