@@ -58,6 +58,13 @@ export default function CheckoutPage() {
             <p className="mt-4 text-lg text-muted-foreground">
               Your payment of <span className="font-semibold">${totalAmount.toLocaleString()}</span> has been securely held in escrow
             </p>
+            
+            <div className="mt-6 rounded-xl bg-blue-50 dark:bg-blue-950/30 p-4 ring-1 ring-blue-500/20">
+              <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                ✓ Job {jobId} is now visible in your Dashboard Jobs
+              </p>
+            </div>
+
             <div className="mt-8 rounded-xl bg-muted/50 p-6 text-left">
               <h3 className="font-semibold">What happens next?</h3>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
@@ -80,10 +87,10 @@ export default function CheckoutPage() {
               </ul>
             </div>
             <Link
-              href="/app/jobs"
+              href={`/app/jobs?source=market&job=${jobId}&quote=${quoteId}`}
               className="mt-8 inline-flex items-center gap-2 rounded-xl bg-foreground px-8 py-4 text-lg font-semibold text-background hover:opacity-90"
             >
-              View in Dashboard
+              Go to Dashboard
             </Link>
           </div>
         </div>

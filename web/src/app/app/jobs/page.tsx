@@ -1,6 +1,19 @@
+'use client';
+
+import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card, GhostButton, PageHeader, PageWrap, Pill, PrimaryButton, SearchBar, SimpleTable, StatGrid } from "@/components/app/filled/page";
+import { X, Sparkles, CheckCircle } from 'lucide-react';
 
 export default function JobsPage() {
+  const searchParams = useSearchParams();
+  const source = searchParams?.get('source');
+  const marketJob = searchParams?.get('job');
+  const marketQuote = searchParams?.get('quote');
+  const isFromMarketplace = source === 'market' && marketJob && marketQuote;
+  
+  const [showBanner, setShowBanner] = useState(isFromMarketplace);
+
   return (
     <PageWrap>
       <PageHeader
@@ -13,12 +26,54 @@ export default function JobsPage() {
           </>
         }
       />
+      
+      {/* Marketplace Import Banner */}
+      {showBanner && (
+        <div className="relative rounded-2xl border border-blue-500/30 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 p-6 ring-1 ring-blue-500/20">
+          <button
+            onClick={() => setShowBanner(false)}
+            className="absolute right-4 top-4 rounded-lg p-1 hover:bg-background/50"
+            aria-label="Dismiss"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 ring-1 ring-blue-500/20">
+              <Sparkles className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-bold">Marketplace Job Imported</h3>
+                <Pill tone="good">Active</Pill>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Job <span className="font-mono font-semibold">{marketJob}</span> from the marketplace has been successfully imported with quote <span className="font-mono font-semibold">{marketQuote}</span>. Escrow is funded and the provider has been notified.
+              </p>
+              <div className="mt-4 flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="font-medium">Escrow Funded</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="font-medium">Provider Notified</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="font-medium">Ready to Start</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <StatGrid
         items={[
-          { label: "Active Jobs", value: "18", hint: "On-site or scheduled" },
+          { label: "Active Jobs", value: isFromMarketplace ? "19" : "18", hint: "On-site or scheduled" },
           { label: "Quotes Pending", value: "6", hint: "Awaiting approval" },
           { label: "At Risk", value: "2", hint: "Overdue or blocked" },
-          { label: "This Week Revenue", value: "$42,180", hint: "Projected" },
+          { label: "This Week Revenue", value: isFromMarketplace ? "$50,630" : "$42,180", hint: "Projected" },
         ]}
       />
       <SearchBar placeholder="Search by job, site, client, strata plan, address…" />
@@ -28,6 +83,32 @@ export default function JobsPage() {
             <SimpleTable
               cols={["Job", "Site", "Client", "Status", "Next", "Value"]}
               rows={[
+                // Marketplace job (if imported)
+                ...(isFromMarketplace ? [[
+                  <div key="a">
+                    <div className="flex items-center gap-2">
+                      <div className="font-semibold">{marketJob}</div>
+                      <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20">
+                        MARKETPLACE
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">Commercial painting — Marketplace quote {marketQuote}</div>
+                  </div>,
+                  <div key="b">
+                    <div className="font-medium">CBD</div>
+                    <div className="text-xs text-muted-foreground">High-rise building</div>
+                  </div>,
+                  <div key="c">
+                    <div className="font-medium">Marketplace Client</div>
+                    <div className="text-xs text-muted-foreground">Via marketplace</div>
+                  </div>,
+                  <Pill key="d" tone="good">Escrow Funded</Pill>,
+                  <div key="e">
+                    <div className="font-medium">Provider to start</div>
+                    <div className="text-xs text-muted-foreground">Scheduled this week</div>
+                  </div>,
+                  <div key="f" className="font-semibold">$8,450</div>,
+                ]] : []),
                 [
                   <div key="a">
                     <div className="font-semibold">J-1402</div>
