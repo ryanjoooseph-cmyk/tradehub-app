@@ -17,6 +17,29 @@ If a PR is missing here, it means the checklist doc doesn’t contain a PR secti
 <!-- AUTO-STATUS:END -->
 
 
+
+<!-- AUTO-STATUS:START -->
+### AUTO-STATUS (generated)
+
+| PR | Title | Status | Branch |
+|---:|---|---|---|
+| PR1 | Shell Stability Hardening | ⚪ UNKNOWN | `feature/pr1-shell-hardening` |
+| PR2 | Dashboard Density + Actions | ⚪ UNKNOWN | `feature/pr2-dashboard-density` |
+| PR3 | Jobs List Enhancement | ⚪ UNKNOWN | `feature/pr3-jobs-list` |
+| PR4 | Job Detail with Escrow Preview | ⚪ UNKNOWN | `feature/pr4-job-detail` |
+| PR5 | Clients, Invoices, Calendar | ⚪ UNKNOWN | `feature/pr5-core-pages` |
+| PR6 | Marketplace MVP | ⚪ UNKNOWN | `feature/pr6-marketplace` |
+| PR7 | Escrow v1 | ⚪ UNKNOWN | `feature/pr7-escrow-v1` |
+| PR8 | Automation Agents v1 | ⚪ UNKNOWN | `feature/pr8-agents-v1` |
+| PR10 | Shell Aesthetics v1 (100M SaaS upgrade) | ⚪ UNKNOWN | `feature/pr10-shell-aesthetics` |
+| PR11 | Calendar Upgrade v2 (Premium Scheduler) | 🟡 OPEN | `feature/pr11-calendar-v2` |
+| PR12 | Marketplace Link in Topbar | ⚪ UNKNOWN | `feature/pr12-topbar-marketplace-link` |
+| PR13 | Marketplace ↔ App Integration v1 (optional) | ⚪ UNKNOWN | `feature/pr13-marketplace-app-integration` |
+
+If a PR is missing here, add a PR section below so it can be tracked.
+<!-- AUTO-STATUS:END -->
+
+
 This document contains detailed, actionable checklists for each PR in the development roadmap.
 
 ---
