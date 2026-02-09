@@ -2,9 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body { height: 100%; }
-body { margin: 0; }
+@layer base {
+  :root {
+    /* Surface & Background */
+    --app-surface: 0 0% 100%;
+    --app-surface-elevated: 0 0% 98%;
+    --app-border-subtle: 240 6% 90%;
+    
+    /* Typography */
+    --app-text-primary: 240 10% 3.9%;
+    --app-text-secondary: 240 4% 46%;
+    --app-text-muted: 240 5% 64.9%;
+    
+    /* Accent Colors */
+    --app-accent-primary: 243 75% 59%;
+    --app-accent-hover: 243 75% 54%;
+    --app-success: 142 76% 36%;
+    --app-warning: 38 92% 50%;
+    --app-danger: 0 84% 60%;
+  }
 
+  .dark {
+    --app-surface: 240 10% 3.9%;
+    --app-surface-elevated: 240 7% 6%;
+    --app-border-subtle: 240 4% 16%;
+    
+    --app-text-primary: 0 0% 98%;
+    --app-text-secondary: 240 5% 64.9%;
+    --app-text-muted: 240 4% 46%;
+    
+    --app-accent-primary: 243 75% 65%;
+    --app-accent-hover: 243 75% 70%;
+    --app-success: 142 70% 45%;
+    --app-warning: 38 95% 55%;
+    --app-danger: 0 84% 65%;
+  }
+}
+
+html, body { 
+  height: 100%; 
+  font-feature-settings: "rlig" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body { 
+  margin: 0;
+  background: hsl(var(--app-surface));
+  color: hsl(var(--app-text-primary));
+}
 
 /* Premium calendar styling */
 .calendar-premium .fc {
@@ -47,8 +94,6 @@ body { margin: 0; }
   color: hsl(var(--muted-foreground));
 }
 
-
-
 /* Calendar v3: status/priority */
 .calendar-premium .fc .fc-day-today { background: hsl(var(--foreground) / 0.03); }
 .calendar-premium .fc .fc-timegrid-now-indicator-line { border-color: hsl(var(--foreground) / 0.35); }
@@ -58,3 +103,27 @@ body { margin: 0; }
 .calendar-premium .fc .fc-event.ev-done { border-color: hsl(142 76% 36% / .35); opacity: .92; }
 .calendar-premium .fc .fc-event.ev-high { box-shadow: 0 10px 30px hsl(0 0% 0% / .12); }
 
+/* Sidebar nav tooltip */
+.nav-tooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 8px;
+  padding: 6px 12px;
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 50;
+  box-shadow: 0 4px 12px hsl(0 0% 0% / 0.1);
+}
+
+.nav-item:hover .nav-tooltip {
+  opacity: 1;
+}
