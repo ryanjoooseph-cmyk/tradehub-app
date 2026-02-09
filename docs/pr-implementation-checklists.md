@@ -13,6 +13,10 @@
 | PR6 | Marketplace MVP | ⚪ UNKNOWN | `feature/pr6-marketplace` |
 | PR7 | Escrow v1 | ⚪ UNKNOWN | `feature/pr7-escrow-v1` |
 | PR8 | Automation Agents v1 | ⚪ UNKNOWN | `feature/pr8-agents-v1` |
+| PR10 | Shell Aesthetics v1 (100M SaaS upgrade) | ✅ MERGED (#18882) | `feature/pr10-shell-aesthetics-v2` |
+| PR11 | Calendar Upgrade v2 (Premium Scheduler) | ✅ MERGED (#18883) | `feature/pr11-calendar-v2` |
+| PR12 | Marketplace Link in Topbar | ✅ DONE (part of PR10) | `—` |
+| PR13 | Marketplace ↔ App Integration v1 (optional) | ⚪ UNKNOWN | `feature/pr13-marketplace-app-integration` |
 
 If a PR is missing here, it means the checklist doc doesn’t contain a PR section for it yet.<!-- AUTO-STATUS:END -->
 
