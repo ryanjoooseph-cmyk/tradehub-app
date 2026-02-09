@@ -35,15 +35,6 @@ function clamp(n: number, a: number, b: number) {
   return Math.max(a, Math.min(b, n));
 }
 
-function _minutesToLabel(min: number) {
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  const suffix = h >= 12 ? "PM" : "AM";
-  const displayH = h === 0 ? 12 : h > 12 ? h - 12 : h;
-  const mm = String(m).padStart(2, "0");
-  return `${displayH}:${mm} ${suffix}`;
-}
-
 function minutesToShort(min: number) {
   const h = Math.floor(min / 60);
   const suffix = h >= 12 ? "p" : "a";
@@ -90,17 +81,6 @@ function getEventStyles(status: EventStatus, priority: EventPriority, isConflict
       return "border-emerald-400/50 bg-emerald-50 dark:bg-emerald-950/30 ring-1 ring-emerald-400/20";
     default:
       return "border-border/50 bg-card dark:bg-card/80 ring-1 ring-border/20";
-  }
-}
-
-function _getStatusPill(status: EventStatus) {
-  switch (status) {
-    case 'in-progress':
-      return <Pill tone="warn">In Progress</Pill>;
-    case 'completed':
-      return <Pill tone="good">Done</Pill>;
-    default:
-      return <Pill tone="neutral">Scheduled</Pill>;
   }
 }
 
