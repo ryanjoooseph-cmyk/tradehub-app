@@ -502,8 +502,11 @@ jobs:
                   console.log('🚫 Gatekeeper is BLOCKING this PR');
                   if (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride) {
                     throw new Error(`Gatekeeper blocked: HIGH risk. Add label ${OVERRIDE_LABEL} to proceed.`);
+                  } else if (hasFailingChecks) {
+                    throw new Error('Gatekeeper blocked: failing checks');
+                  } else {
+                    throw new Error('Gatekeeper blocked');
                   }
-                  throw new Error('Gatekeeper blocked: HIGH risk or failing checks');
                 } else {
                   if (finalRisk === 'HIGH' && isOverride) {
                     console.log('✅ Gatekeeper passed - HIGH risk override active');
