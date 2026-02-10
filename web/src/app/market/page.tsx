@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle, Shield, Star, Users } from "lucide-react";
+import { ArrowRight, CheckCircle, Shield, Star, Users } from "lucide-react";
 
 // Seeded providers
 const providers = [
@@ -27,6 +27,22 @@ const categories = [
 export default function MarketLandingPage() {
   return (
     <div className="min-h-screen">
+      {/* Dashboard Callout Banner */}
+      <div className="border-b bg-gradient-to-r from-violet-600/10 to-indigo-600/10 dark:from-violet-950/50 dark:to-indigo-950/50">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
+          <p className="text-sm text-muted-foreground">
+            Want the full dashboard experience with KPIs, activity tracking, and escrow management?
+          </p>
+          <Link
+            href="/app/market"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2 text-sm font-medium text-white transition-all hover:from-violet-700 hover:to-indigo-700"
+          >
+            Open Dashboard
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b bg-gradient-to-b from-muted/30 to-background py-20">
         <div className="mx-auto max-w-7xl px-4">
