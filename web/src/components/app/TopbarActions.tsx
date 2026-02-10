@@ -20,7 +20,7 @@ export default function TopbarActions() {
       { label: "Settings", href: "/app/settings", keywords: ["config"] },
       { label: "Dispatch", href: "/dispatch", keywords: ["ops"] },
       { label: "Escrow Ops", href: "/escrow", keywords: ["admin"] },
-      { label: "Marketplace", href: "/market", keywords: ["store", "shop", "buy"] },
+      { label: "Marketplace", href: "/app/market", keywords: ["store", "shop", "buy"] },
     ],
     []
   );
@@ -29,7 +29,7 @@ export default function TopbarActions() {
     <div className="ml-auto flex items-center gap-2">
       {/* Marketplace Link - Premium CTA */}
       <Link
-        href="/market"
+        href="/app/market"
         className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-3.5 py-2 text-sm font-medium text-white shadow-sm transition-all hover:from-violet-700 hover:to-indigo-700 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
       >
         <Store className="h-4 w-4" />
@@ -38,7 +38,7 @@ export default function TopbarActions() {
 
       {/* Mobile Marketplace Icon */}
       <Link
-        href="/market"
+        href="/app/market"
         className="sm:hidden inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-sm transition-all hover:from-violet-700 hover:to-indigo-700"
         aria-label="Marketplace"
       >
