@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Card, GhostButton, PageHeader, PageWrap, Pill, PrimaryButton, cx } from "@/components/app/filled/page";
-import { ChevronLeft, ChevronRight, GripVertical, Calendar as CalendarIcon, Sparkles, Clock, MapPin, Users, AlertTriangle, X, Search, Filter, CheckCircle, ExternalLink, Edit3, Copy, Check, Save } from "lucide-react";
+import { ChevronLeft, ChevronRight, GripVertical, Calendar as CalendarIcon, Sparkles, Clock, MapPin, Users, AlertTriangle, X, Search, Filter, CheckCircle, Edit3, Copy, Check, Save, ExternalLink } from "lucide-react";
 
 type EventStatus = "scheduled" | "in-progress" | "completed";
 type EventPriority = "normal" | "high" | "urgent";
@@ -19,7 +19,6 @@ type EventItem = {
   crew: string[];
   status: EventStatus;
   priority: EventPriority;
-  notes?: string;
 };
 
 type BacklogItem = {
@@ -55,35 +54,35 @@ function minutesToFull(min: number) {
 // Professional seeded data - optimized for readability and spacing
 const initialEvents: EventItem[] = [
   // Monday
-  { id: 'J-1403', title: 'High-rise touch-up', client: 'Carlton Strata', site: 'CBD', day: 0, startMin: 9 * 60, durMin: 240, crew: ['Crew B'], status: 'scheduled', priority: 'normal', notes: 'Access via loading dock. Contact building manager on arrival.' },
-  { id: 'J-1421', title: 'Balcony inspection', client: 'Richmond Owners', site: 'Richmond', day: 0, startMin: 14 * 60, durMin: 180, crew: ['QA'], status: 'scheduled', priority: 'high', notes: 'Photo documentation required for all balconies.' },
-
+  { id: 'J-1403', title: 'High-rise touch-up', client: 'Carlton Strata', site: 'CBD', day: 0, startMin: 9 * 60, durMin: 240, crew: ['Crew B'], status: 'scheduled', priority: 'normal' },
+  { id: 'J-1421', title: 'Balcony inspection', client: 'Richmond Owners', site: 'Richmond', day: 0, startMin: 14 * 60, durMin: 180, crew: ['QA'], status: 'scheduled', priority: 'high' },
+  
   // Tuesday
-  { id: 'J-1404', title: 'Balcony sealing', client: 'Bayside Strata', site: 'St Kilda', day: 1, startMin: 9 * 60, durMin: 240, crew: ['Crew A'], status: 'completed', priority: 'normal', notes: 'Weather permitting. Reschedule if rain forecast.' },
-  { id: 'J-1422', title: 'Roof repairs', client: 'South Yarra', site: 'South Yarra', day: 1, startMin: 13 * 60 + 30, durMin: 210, crew: ['Crew C'], status: 'in-progress', priority: 'high', notes: 'Safety harnesses mandatory. Check equipment before starting.' },
-  { id: 'J-1424', title: 'QA walkthrough', client: 'Prahran Mgmt', site: 'Prahran', day: 1, startMin: 17 * 60, durMin: 90, crew: ['QA', 'Ryan J'], status: 'scheduled', priority: 'urgent', notes: 'Final sign-off required for milestone release.' },
-
-  // Wednesday
-  { id: 'J-1406', title: 'Heritage restoration', client: 'South Yarra Owners', site: 'South Yarra', day: 2, startMin: 8 * 60, durMin: 360, crew: ['Ryan J', 'Crew C'], status: 'scheduled', priority: 'urgent', notes: 'Heritage overlay requirements. Use approved materials only.' },
+  { id: 'J-1404', title: 'Balcony sealing', client: 'Bayside Strata', site: 'St Kilda', day: 1, startMin: 9 * 60, durMin: 240, crew: ['Crew A'], status: 'completed', priority: 'normal' },
+  { id: 'J-1422', title: 'Roof repairs', client: 'South Yarra', site: 'South Yarra', day: 1, startMin: 13 * 60 + 30, durMin: 210, crew: ['Crew C'], status: 'in-progress', priority: 'high' },
+  { id: 'J-1424', title: 'QA walkthrough', client: 'Prahran Mgmt', site: 'Prahran', day: 1, startMin: 17 * 60, durMin: 90, crew: ['QA', 'Ryan J'], status: 'scheduled', priority: 'urgent' },
+  
+  // Wednesday  
+  { id: 'J-1406', title: 'Heritage restoration', client: 'South Yarra Owners', site: 'South Yarra', day: 2, startMin: 8 * 60, durMin: 360, crew: ['Ryan J', 'Crew C'], status: 'scheduled', priority: 'urgent' },
   { id: 'J-1425', title: 'Facade cleaning', client: 'Brighton Towers', site: 'Brighton', day: 2, startMin: 15 * 60, durMin: 180, crew: ['Crew A'], status: 'scheduled', priority: 'normal' },
-
+  
   // Thursday
-  { id: 'J-1402', title: 'Tower A repaint', client: 'Acme Body Corp', site: 'Southbank', day: 3, startMin: 8 * 60, durMin: 300, crew: ['Ryan J', 'Crew A'], status: 'in-progress', priority: 'high', notes: 'Multi-day job. Progress photos at end of each day.' },
-  { id: 'J-1427', title: 'Safety inspection', client: 'Docklands Tower', site: 'Docklands', day: 3, startMin: 14 * 60, durMin: 180, crew: ['QA'], status: 'scheduled', priority: 'urgent', notes: 'Compliance audit. All documentation ready.' },
-
+  { id: 'J-1402', title: 'Tower A repaint', client: 'Acme Body Corp', site: 'Southbank', day: 3, startMin: 8 * 60, durMin: 300, crew: ['Ryan J', 'Crew A'], status: 'in-progress', priority: 'high' },
+  { id: 'J-1427', title: 'Safety inspection', client: 'Docklands Tower', site: 'Docklands', day: 3, startMin: 14 * 60, durMin: 180, crew: ['QA'], status: 'scheduled', priority: 'urgent' },
+  
   // Friday
   { id: 'J-1429', title: 'Waterproofing', client: 'Brunswick Dev', site: 'Brunswick', day: 4, startMin: 8 * 60, durMin: 300, crew: ['Crew A', 'Crew C'], status: 'in-progress', priority: 'high' },
   { id: 'J-1408', title: 'Roof deck repair', client: 'Docklands Mgmt', site: 'Docklands', day: 4, startMin: 14 * 60, durMin: 180, crew: ['QA', 'Crew B'], status: 'scheduled', priority: 'normal' },
   { id: 'J-1442', title: 'Final inspection', client: 'Reservoir Mgmt', site: 'Reservoir', day: 4, startMin: 17 * 60, durMin: 90, crew: ['Ryan J'], status: 'scheduled', priority: 'high' },
-
+  
   // Saturday
   { id: 'J-1409', title: 'Façade inspection', client: 'Melbourne Property', site: 'Richmond', day: 5, startMin: 9 * 60, durMin: 240, crew: ['Ryan J'], status: 'scheduled', priority: 'high' },
-  { id: 'J-1431', title: 'Emergency repair', client: 'CBD Strata', site: 'CBD', day: 5, startMin: 14 * 60, durMin: 180, crew: ['Crew A', 'QA'], status: 'scheduled', priority: 'urgent', notes: 'Water ingress reported. Immediate response required.' },
-
+  { id: 'J-1431', title: 'Emergency repair', client: 'CBD Strata', site: 'CBD', day: 5, startMin: 14 * 60, durMin: 180, crew: ['Crew A', 'QA'], status: 'scheduled', priority: 'urgent' },
+  
   // Sunday
   { id: 'J-1411', title: 'Strata QA check', client: 'Brunswick Estates', site: 'Brunswick', day: 6, startMin: 10 * 60, durMin: 180, crew: ['QA'], status: 'completed', priority: 'normal' },
   { id: 'J-1433', title: 'Final walkthrough', client: 'Northcote Owners', site: 'Northcote', day: 6, startMin: 14 * 60, durMin: 150, crew: ['Ryan J', 'QA'], status: 'scheduled', priority: 'high' },
-
+  
   // Early morning slots for completeness
   { id: 'J-1434', title: 'Site prep', client: 'Kew Property', site: 'Kew', day: 0, startMin: 7 * 60, durMin: 120, crew: ['Crew C'], status: 'completed', priority: 'normal' },
   { id: 'J-1435', title: 'Material setup', client: 'Hawthorn Strata', site: 'Hawthorn', day: 2, startMin: 7 * 60, durMin: 60, crew: ['Crew B'], status: 'completed', priority: 'normal' },
@@ -153,7 +152,6 @@ function EventDetailOverlay({
   const [editCrew, setEditCrew] = React.useState<string[]>(event.crew);
   const [editStartMin, setEditStartMin] = React.useState(event.startMin);
   const [editDurMin, setEditDurMin] = React.useState(event.durMin);
-  const [editNotes, setEditNotes] = React.useState(event.notes || '');
   const [editDay, setEditDay] = React.useState(event.day);
 
   const handleSave = () => {
@@ -162,7 +160,6 @@ function EventDetailOverlay({
       crew: editCrew,
       startMin: editStartMin,
       durMin: editDurMin,
-      notes: editNotes,
       day: editDay,
     });
     setIsEditing(false);
@@ -172,12 +169,10 @@ function EventDetailOverlay({
     setEditCrew(event.crew);
     setEditStartMin(event.startMin);
     setEditDurMin(event.durMin);
-    setEditNotes(event.notes || '');
     setEditDay(event.day);
     setIsEditing(false);
   };
 
-  // Generate time options (every 30 min from 6am to 8pm)
   const timeOptions = React.useMemo(() => {
     const options: { value: number; label: string }[] = [];
     for (let m = 6 * 60; m <= 20 * 60; m += 30) {
@@ -186,7 +181,6 @@ function EventDetailOverlay({
     return options;
   }, []);
 
-  // Duration options
   const durationOptions = [
     { value: 60, label: '1 hour' },
     { value: 90, label: '1.5 hours' },
@@ -200,15 +194,8 @@ function EventDetailOverlay({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border bg-card shadow-2xl">
-        {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-card px-5 py-4">
           <div className="flex items-center gap-3">
             <span className="text-lg font-bold">{event.id}</span>
@@ -221,17 +208,12 @@ function EventDetailOverlay({
                event.status === 'completed' ? 'Done' : 'Scheduled'}
             </Pill>
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-2 hover:bg-muted transition-colors"
-          >
+          <button onClick={onClose} className="rounded-lg p-2 hover:bg-muted transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-5 space-y-5">
-          {/* Title */}
           <div>
             <h3 className="text-xl font-bold leading-tight">{event.title}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{event.client}</p>
@@ -248,7 +230,7 @@ function EventDetailOverlay({
               )}
             >
               <Edit3 className="h-3.5 w-3.5" />
-              Reschedule
+              Edit Booking
             </button>
             <button
               onClick={onDuplicate}
@@ -268,7 +250,6 @@ function EventDetailOverlay({
             )}
           </div>
 
-          {/* Details Grid */}
           {!isEditing ? (
             <>
               <div className="rounded-xl bg-muted/30 p-4 space-y-3">
@@ -290,7 +271,6 @@ function EventDetailOverlay({
                 </div>
               </div>
 
-              {/* Crew */}
               <div>
                 <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Assigned Crew</div>
                 <div className="flex flex-wrap gap-2">
@@ -302,17 +282,8 @@ function EventDetailOverlay({
                   ))}
                 </div>
               </div>
-
-              {/* Notes */}
-              {event.notes && (
-                <div>
-                  <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notes</div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{event.notes}</p>
-                </div>
-              )}
             </>
           ) : (
-            /* Edit Mode */
             <div className="space-y-4">
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Day</label>
@@ -381,17 +352,6 @@ function EventDetailOverlay({
                 </div>
               </div>
 
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notes</label>
-                <textarea
-                  value={editNotes}
-                  onChange={(e) => setEditNotes(e.target.value)}
-                  rows={3}
-                  className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground focus:ring-2 focus:ring-ring/20 resize-none"
-                  placeholder="Add notes..."
-                />
-              </div>
-
               <div className="flex gap-2">
                 <button
                   onClick={handleSave}
@@ -410,7 +370,6 @@ function EventDetailOverlay({
             </div>
           )}
 
-          {/* Conflict Warning */}
           {hasConflict && (
             <div className="rounded-xl bg-red-50 p-4 dark:bg-red-950/30 ring-1 ring-red-500/20">
               <div className="flex items-center gap-2 text-sm font-semibold text-red-900 dark:text-red-100">
@@ -423,7 +382,6 @@ function EventDetailOverlay({
             </div>
           )}
 
-          {/* Priority Badge */}
           {(event.priority === 'high' || event.priority === 'urgent') && (
             <div className={cx(
               "rounded-xl p-4 ring-1",
@@ -451,7 +409,6 @@ function EventDetailOverlay({
           )}
         </div>
 
-        {/* Footer Actions */}
         <div className="sticky bottom-0 border-t bg-card p-4">
           <Link
             href={`/app/jobs/${event.id}`}
@@ -476,8 +433,9 @@ export default function CalendarPage() {
 
   const [events, setEvents] = React.useState<EventItem[]>(initialEvents);
   const [backlog] = React.useState<BacklogItem[]>(initialBacklog);
-
+  
   const [selectedEvent, setSelectedEvent] = React.useState<EventItem | null>(null);
+  const [showOverlay, setShowOverlay] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState<EventStatus | 'all'>('all');
   const [crewFilter, setCrewFilter] = React.useState<string | 'all'>('all');
@@ -511,67 +469,34 @@ export default function CalendarPage() {
   // Filter events
   const filteredEvents = React.useMemo(() => {
     let result = events;
-
+    
     // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(e =>
+      result = result.filter(e => 
         e.id.toLowerCase().includes(q) ||
         e.title.toLowerCase().includes(q) ||
         e.client.toLowerCase().includes(q) ||
         e.site.toLowerCase().includes(q)
       );
     }
-
+    
     // Status filter
     if (statusFilter !== 'all') {
       result = result.filter(e => e.status === statusFilter);
     }
-
+    
     // Crew filter
     if (crewFilter !== 'all') {
       result = result.filter(e => e.crew.includes(crewFilter));
     }
-
+    
     return result;
   }, [events, searchQuery, statusFilter, crewFilter]);
 
   const showToast = (message: string) => {
     setToast(message);
     setTimeout(() => setToast(null), 3500);
-  };
-
-  const onDragStart = (e: React.DragEvent, id: string) => {
-    e.dataTransfer.setData("text/plain", id);
-    e.dataTransfer.effectAllowed = "move";
-  };
-
-  const allowDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
-
-  const onDrop = (e: React.DragEvent, day: number, startMin: number) => {
-    e.preventDefault();
-    const id = e.dataTransfer.getData("text/plain");
-    if (!id) return;
-
-    const event = events.find(ev => ev.id === id);
-    if (!event) return;
-
-    const oldDay = days[event.day];
-    const newDay = days[day];
-    const newTime = minutesToFull(startMin);
-
-    setEvents((prev) =>
-      prev.map((x) =>
-        x.id === id
-          ? { ...x, day, startMin: clamp(Math.round(startMin / stepMin) * stepMin, startDayMin, endDayMin - stepMin) }
-          : x
-      )
-    );
-
-    showToast(`${event.id} rescheduled from ${oldDay} to ${newDay} at ${newTime}`);
   };
 
   const handleUpdateEvent = (updated: EventItem) => {
@@ -598,6 +523,39 @@ export default function CalendarPage() {
     };
     setEvents(prev => [...prev, duplicated]);
     showToast(`Created duplicate: ${newId}`);
+  };
+
+  const onDragStart = (e: React.DragEvent, id: string) => {
+    e.dataTransfer.setData("text/plain", id);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const allowDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  const onDrop = (e: React.DragEvent, day: number, startMin: number) => {
+    e.preventDefault();
+    const id = e.dataTransfer.getData("text/plain");
+    if (!id) return;
+    
+    const event = events.find(ev => ev.id === id);
+    if (!event) return;
+    
+    const oldDay = days[event.day];
+    const newDay = days[day];
+    const newTime = minutesToFull(startMin);
+    
+    setEvents((prev) =>
+      prev.map((x) =>
+        x.id === id
+          ? { ...x, day, startMin: clamp(Math.round(startMin / stepMin) * stepMin, startDayMin, endDayMin - stepMin) }
+          : x
+      )
+    );
+    
+    showToast(`${event.id} rescheduled from ${oldDay} to ${newDay} at ${newTime}`);
   };
 
   const goToToday = () => {
@@ -638,10 +596,13 @@ export default function CalendarPage() {
       )}
 
       {/* Event Detail Overlay */}
-      {selectedEvent && (
+      {selectedEvent && showOverlay && (
         <EventDetailOverlay
           event={selectedEvent}
-          onClose={() => setSelectedEvent(null)}
+          onClose={() => {
+            setShowOverlay(false);
+            setSelectedEvent(null);
+          }}
           onUpdate={handleUpdateEvent}
           onMarkComplete={handleMarkComplete}
           onDuplicate={handleDuplicate}
@@ -737,7 +698,7 @@ export default function CalendarPage() {
                   <Filter className="h-3 w-3" />
                   Filters
                 </div>
-
+                
                 {/* Status Filter */}
                 <div className="mb-3">
                   <div className="mb-1.5 text-xs font-semibold text-muted-foreground">Status</div>
@@ -1036,7 +997,10 @@ export default function CalendarPage() {
                               key={e.id}
                               draggable
                               onDragStart={(ev) => onDragStart(ev, e.id)}
-                              onClick={() => setSelectedEvent(e)}
+                              onClick={() => {
+                                setSelectedEvent(e);
+                                setShowOverlay(true);
+                              }}
                               className="absolute left-1.5 right-1.5 cursor-pointer hover:z-10"
                               style={{ top, height: h }}
                             >
@@ -1104,8 +1068,8 @@ export default function CalendarPage() {
             </div>
           )}
 
-          {/* Conflict Engine Card - Below Calendar on smaller screens */}
-          <div className="grid gap-4 lg:grid-cols-2">
+          {/* Bottom Cards */}
+          <div className="grid gap-4 md:grid-cols-2">
             <Card title="Conflict Engine" subtitle="Real-time overlap detection">
               <div className="space-y-3">
                 <div className={cx(

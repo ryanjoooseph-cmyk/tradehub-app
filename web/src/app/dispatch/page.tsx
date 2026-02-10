@@ -713,8 +713,16 @@ export default function DispatchPage() {
             ))}
 
             {backlog.length === 0 && (
-              <div className="py-12 text-center text-sm text-muted-foreground">
-                No unscheduled jobs
+              <div className="rounded-xl border-2 border-dashed border-border/30 bg-muted/10 p-8 text-center">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted/50">
+                    <CheckCircle className="h-6 w-6 text-muted-foreground/50" />
+                  </div>
+                  <div>
+                    <div className="font-semibold">All caught up!</div>
+                    <div className="mt-1 text-sm text-muted-foreground">No unscheduled jobs in backlog</div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

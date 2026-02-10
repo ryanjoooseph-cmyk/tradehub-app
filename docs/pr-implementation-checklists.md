@@ -1,5 +1,8 @@
 # TradeHub PR Implementation Checklists
 
+
+This document contains detailed, actionable checklists for each PR in the development roadmap.
+
 <!-- AUTO-STATUS:START -->
 ### AUTO-STATUS (generated)
 
@@ -11,16 +14,15 @@
 | PR4 | Job Detail with Escrow Preview | ⚪ UNKNOWN | `feature/pr4-job-detail` |
 | PR5 | Clients, Invoices, Calendar | ⚪ UNKNOWN | `feature/pr5-core-pages` |
 | PR6 | Marketplace MVP | ⚪ UNKNOWN | `feature/pr6-marketplace` |
-| PR7 | Escrow UI surfaces (ops + buyer) | ✅ MERGED (#18889) | `feature/pr7-escrow-ui` |
+| PR7 | Escrow v1 | ⚪ UNKNOWN | `feature/pr7-escrow-v1` |
 | PR8 | Automation Agents v1 | ⚪ UNKNOWN | `feature/pr8-agents-v1` |
-| PR10 | Shell Aesthetics v1 (100M SaaS upgrade) | ✅ MERGED (#18882) | `feature/pr10-shell-aesthetics-v2` |
-| PR11 | Calendar Upgrade v2 (Premium Scheduler) | ✅ MERGED (#18883) | `feature/pr11-calendar-v2` |
-| PR12 | Marketplace Link in Topbar | ✅ DONE (part of PR10) | `—` |
+| PR10 | Shell Aesthetics v1 (100M SaaS upgrade) | ⚪ UNKNOWN | `feature/pr10-shell-aesthetics` |
+| PR11 | Calendar Upgrade v2 (Premium Scheduler) | 🟡 OPEN | `feature/pr11-calendar-v2` |
+| PR12 | Marketplace Link in Topbar | ⚪ UNKNOWN | `feature/pr12-topbar-marketplace-link` |
 | PR13 | Marketplace ↔ App Integration v1 (optional) | ⚪ UNKNOWN | `feature/pr13-marketplace-app-integration` |
 
-If a PR is missing here, it means the checklist doc doesn’t contain a PR section for it yet.<!-- AUTO-STATUS:END -->
-
-This document contains detailed, actionable checklists for each PR in the development roadmap.
+If a PR is missing here, add a PR section below so it can be tracked.
+<!-- AUTO-STATUS:END -->
 
 ---
 
@@ -1231,90 +1233,196 @@ Track these for each PR:
   - All empty states designed
   - All error states handled
 
+
 ---
 
-## PR18: Calendar Job Click Actions + Dispatch UI Upgrade
+## PR10: Shell Aesthetics v1 (100M SaaS upgrade)
 
-**Branch:** `feature/pr18-calendar-dispatch-upgrade`
-**Allowed Files:**
-- `web/src/app/app/calendar/page.tsx`
-- `web/src/app/dispatch/page.tsx`
-- `docs/pr-implementation-checklists.md`
+**Branch:** `feature/pr10-shell-aesthetics`
 
-### Summary
+### Allowed Files
+- web/src/components/app/AppShell.tsx
+- web/src/components/app/TopbarActions.tsx
+- web/src/app/app/layout.tsx (only if required)
+- web/src/app/globals.css (only if required)
 
-This PR adds clickable event overlays to the Calendar page and completely upgrades the Dispatch page to match the premium calendar visual system.
+### Done Criteria
+- Sidebar redesigned to premium standard: spacing, hierarchy, active/hover/focus states
+- Icon + label alignment refined; collapse rail feels intentional
+- Topbar matches shell design and includes a first-class primary nav action slot
+- No regressions across /app routes
+- `pnpm lint`, `pnpm typecheck`, `pnpm build` all pass
 
-### Calendar Enhancements
+---
 
-#### Event Click → Overlay
-- [x] Events are now clickable (not just draggable)
-- [x] Click opens a modal overlay with full event details
-- [x] Overlay works on all screen sizes (mobile-friendly modal)
-- [x] Shows: Job ID, title, client, site, assigned crew, time range, status badge
+## PR11: Calendar Upgrade v2 (Premium Scheduler)
 
-#### Overlay Quick Actions Row
-- [x] **Reschedule**: Opens inline edit mode for day, start time, duration, crew, and notes
-- [x] **Duplicate**: Creates a copy of the event with a new ID
-- [x] **Mark Complete**: Changes event status to "completed"
+**Branch:** `feature/pr11-calendar-v2`
 
-#### Overlay Edit Mode
-- [x] Day selector dropdown
-- [x] Start time dropdown (30-min intervals from 6am to 8pm)
-- [x] Duration dropdown (1h to 8h options)
-- [x] Crew multi-select toggle buttons
-- [x] Notes textarea
-- [x] Save Changes button updates local state immediately
-- [x] Cancel button reverts to view mode
+### Allowed Files
+- web/src/app/app/calendar/page.tsx
 
-#### View Job Action
-- [x] "View Full Job Details" button at bottom links to `/app/jobs/[id]`
+### Done Criteria
+- Week/day/month views usable with premium UI
+- Backlog sidebar present and drag-drop scheduling feels clean
+- Event cards have proper status/priority visuals and conflict warnings
+- No console errors
+- `pnpm lint`, `pnpm typecheck`, `pnpm build` all pass
 
-### Dispatch Page Upgrade
+---
 
-#### Visual System Match
-- [x] Removed FullCalendar dependency usage
-- [x] Uses same custom grid calendar as `/app/calendar`
-- [x] Same spacing (56px per 30-min slot)
-- [x] Same event card styling (borders, colors, typography)
-- [x] Same priority indicators (pulsing dots for urgent/high)
-- [x] Same status colors (blue=in-progress, emerald=completed, amber=high, rose=urgent)
+## PR12: Marketplace Link in Topbar
 
-#### Layout
-- [x] Backlog panel on left (300px width)
-- [x] Calendar grid on right (7-day week view)
-- [x] Stats row at top: Scheduled Jobs, Scheduled Value, Backlog Value, Conflicts
+**Branch:** `feature/pr12-topbar-marketplace-link`
 
-#### Backlog Cards
-- [x] Draggable with grip icon affordance
-- [x] Shows job ID, title, client, site, value
-- [x] Priority indicators (color-coded borders + dots)
-- [x] Drag from backlog to calendar schedules the job
+### Allowed Files
+- web/src/components/app/TopbarActions.tsx
+- web/src/components/app/AppShell.tsx (only if required)
 
-#### Event Click → Same Overlay
-- [x] Clicking a scheduled event opens the same overlay as Calendar page
-- [x] Same quick actions (Reschedule, Duplicate, Mark Complete)
-- [x] Same edit mode with crew/time/notes editing
-- [x] Same "View Full Job Details" navigation
-- [x] Includes job value display in the overlay
+### Done Criteria
+- Topbar includes “Marketplace” as a first-class nav action
+- Navigates to `/market` in the same tab
+- Styling matches the premium shell
+- `pnpm lint`, `pnpm typecheck`, `pnpm build` all pass
 
-### Quality Checklist
-- [x] No hydration warnings (all components use "use client")
-- [x] Mobile: Overlay uses modal with 90vh max-height and scrollable content
-- [x] Deterministic: All data is seeded, state updates are local-only
-- [x] Event cards remain spacious and readable
-- [x] Toast notifications for all actions (schedule, move, update, complete, duplicate)
+---
 
-### Testing Checklist
-- [ ] Click calendar event → overlay opens
-- [ ] Click Reschedule → edit mode activates
-- [ ] Edit crew/time/notes → Save → event updates on grid
-- [ ] Click Duplicate → new event appears
-- [ ] Click Mark Complete → event turns green
-- [ ] Click "View Full Job Details" → navigates to job page
-- [ ] Click backdrop or X → overlay closes
-- [ ] Dispatch backlog drag → schedules job on calendar
-- [ ] Dispatch event click → same overlay behavior
-- [ ] Mobile viewport → overlay is full-screen modal
-- [ ] `pnpm lint` passes
-- [ ] `pnpm build` passes
+## PR13: Marketplace ↔ App Integration v1 (optional)
+
+**Branch:** `feature/pr13-marketplace-app-integration`
+
+### Allowed Files
+- web/src/app/market/checkout/page.tsx
+- web/src/app/app/jobs/page.tsx (only if required)
+
+### Done Criteria
+- Checkout success routes clearly into `/app/jobs`
+- Jobs list shows the seeded created job and status
+- No broken links between /market and /app
+- `pnpm lint`, `pnpm typecheck`, `pnpm build` all pass
+
+---
+
+## PR14: Calendar 100M SaaS Upgrade
+
+**Branch:** `feature/pr14-calendar-upgrade`
+**Status:** ✅ Complete
+
+### Allowed Files
+- web/src/app/app/calendar/page.tsx
+
+### Done Criteria
+- ✅ Enterprise calendar UI with Month/Week/Day views
+- ✅ 30+ seeded events, color-coded by status/priority
+- ✅ Search and filters (Status, Crew)
+- ✅ Event details panel on click
+- ✅ Drag & drop with toast notifications
+- ✅ Color legend for event types
+- ✅ Conflict detection with visual warnings
+- ✅ Premium spacing and typography
+- ✅ `pnpm lint`, `pnpm typecheck`, `pnpm build` all pass
+
+---
+
+## PR15: Shell 100M SaaS Theme + Sidebar Upgrade
+
+**Branch:** `feature/pr15-shell-theme-upgrade`
+**Status:** ✅ Complete
+
+### Allowed Files
+- web/src/components/app/AppShell.tsx
+- web/src/components/app/TopbarActions.tsx
+- web/src/app/globals.css
+
+### Done Criteria
+- ✅ Grouped navigation with real SVG icons
+- ✅ Premium active states with gradients
+- ✅ Improved collapsed sidebar with tooltips
+- ✅ Profile section at bottom
+- ✅ CSS variables for consistent theming
+- ✅ Enhanced typography and spacing
+- ✅ `pnpm lint`, `pnpm typecheck`, `pnpm build` all pass
+
+---
+
+## PR16: Calendar Spacing + Readability Polish
+
+**Branch:** `feature/pr16-calendar-spacing`
+**Status:** ✅ Complete
+
+### Allowed Files
+- web/src/app/app/calendar/page.tsx
+
+### Done Criteria
+- ✅ Increased vertical spacing (56px per step)
+- ✅ Enhanced event card styling with better borders and rings
+- ✅ Responsive layout (2-col on lg, 3-col on 2xl)
+- ✅ Curated event data for optimal display
+- ✅ Professional spacing throughout
+- ✅ `pnpm lint`, `pnpm typecheck`, `pnpm build` all pass
+
+---
+
+## PR17: Escrow Ops Admin Page
+
+**Branch:** `feature/pr17-escrow-ops`
+**Status:** ✅ Complete
+
+### Allowed Files
+- web/src/app/app/escrow/page.tsx
+
+### Done Criteria
+- ✅ Ops admin dashboard with pipeline view
+- ✅ Evidence gating indicators
+- ✅ Dispute workflow UI
+- ✅ Bulk operations toolbar
+- ✅ Professional styling matching shell
+- ✅ `pnpm lint`, `pnpm typecheck`, `pnpm build` all pass
+
+---
+
+## PR18: Escrow Buyer Portal
+
+**Branch:** `feature/pr18-escrow-buyer`
+**Status:** ✅ Complete
+
+### Allowed Files
+- web/src/app/escrow/page.tsx
+
+### Done Criteria
+- ✅ Buyer-facing escrow portal
+- ✅ Milestone cards with progress
+- ✅ Evidence upload UI
+- ✅ Approve/Dispute actions
+- ✅ Payment history and audit timeline
+- ✅ Professional styling and empty states
+- ✅ `pnpm lint`, `pnpm typecheck`, `pnpm build` all pass
+
+---
+
+## PR19: Calendar + Dispatch Finish Polish
+
+**Branch:** `feature/pr19-calendar-dispatch-polish`
+
+### Allowed Files
+- web/src/app/app/calendar/page.tsx
+- web/src/app/dispatch/page.tsx
+- docs/pr-implementation-checklists.md
+
+### Done Criteria
+- Premium overlay modal for event details with:
+  - Job information display (id/title/client/site/crew/time/status)
+  - Quick actions: Edit Booking, Duplicate, Mark Complete
+  - Inline edit mode with dropdowns for day/time/duration/crew
+  - Conflict warnings and priority badges
+  - "View Full Job Details" link to `/app/jobs/[id]`
+  - 90vh max-height, scrollable, readable spacing
+- Dispatch page matches Calendar visual style:
+  - Same grid spacing (56px per step)
+  - Same event card styling
+  - Backlog panel with drag affordance
+  - Same overlay modal for scheduled items
+  - Empty state card when backlog is empty
+- Documentation updated with PR19 section
+- PR18 marked as complete
+- `pnpm lint`, `pnpm typecheck`, `pnpm build` all pass
