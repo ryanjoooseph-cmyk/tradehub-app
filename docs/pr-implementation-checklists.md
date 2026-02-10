@@ -1230,3 +1230,91 @@ Track these for each PR:
   - All seeded data present
   - All empty states designed
   - All error states handled
+
+---
+
+## PR18: Calendar Job Click Actions + Dispatch UI Upgrade
+
+**Branch:** `feature/pr18-calendar-dispatch-upgrade`
+**Allowed Files:**
+- `web/src/app/app/calendar/page.tsx`
+- `web/src/app/dispatch/page.tsx`
+- `docs/pr-implementation-checklists.md`
+
+### Summary
+
+This PR adds clickable event overlays to the Calendar page and completely upgrades the Dispatch page to match the premium calendar visual system.
+
+### Calendar Enhancements
+
+#### Event Click → Overlay
+- [x] Events are now clickable (not just draggable)
+- [x] Click opens a modal overlay with full event details
+- [x] Overlay works on all screen sizes (mobile-friendly modal)
+- [x] Shows: Job ID, title, client, site, assigned crew, time range, status badge
+
+#### Overlay Quick Actions Row
+- [x] **Reschedule**: Opens inline edit mode for day, start time, duration, crew, and notes
+- [x] **Duplicate**: Creates a copy of the event with a new ID
+- [x] **Mark Complete**: Changes event status to "completed"
+
+#### Overlay Edit Mode
+- [x] Day selector dropdown
+- [x] Start time dropdown (30-min intervals from 6am to 8pm)
+- [x] Duration dropdown (1h to 8h options)
+- [x] Crew multi-select toggle buttons
+- [x] Notes textarea
+- [x] Save Changes button updates local state immediately
+- [x] Cancel button reverts to view mode
+
+#### View Job Action
+- [x] "View Full Job Details" button at bottom links to `/app/jobs/[id]`
+
+### Dispatch Page Upgrade
+
+#### Visual System Match
+- [x] Removed FullCalendar dependency usage
+- [x] Uses same custom grid calendar as `/app/calendar`
+- [x] Same spacing (56px per 30-min slot)
+- [x] Same event card styling (borders, colors, typography)
+- [x] Same priority indicators (pulsing dots for urgent/high)
+- [x] Same status colors (blue=in-progress, emerald=completed, amber=high, rose=urgent)
+
+#### Layout
+- [x] Backlog panel on left (300px width)
+- [x] Calendar grid on right (7-day week view)
+- [x] Stats row at top: Scheduled Jobs, Scheduled Value, Backlog Value, Conflicts
+
+#### Backlog Cards
+- [x] Draggable with grip icon affordance
+- [x] Shows job ID, title, client, site, value
+- [x] Priority indicators (color-coded borders + dots)
+- [x] Drag from backlog to calendar schedules the job
+
+#### Event Click → Same Overlay
+- [x] Clicking a scheduled event opens the same overlay as Calendar page
+- [x] Same quick actions (Reschedule, Duplicate, Mark Complete)
+- [x] Same edit mode with crew/time/notes editing
+- [x] Same "View Full Job Details" navigation
+- [x] Includes job value display in the overlay
+
+### Quality Checklist
+- [x] No hydration warnings (all components use "use client")
+- [x] Mobile: Overlay uses modal with 90vh max-height and scrollable content
+- [x] Deterministic: All data is seeded, state updates are local-only
+- [x] Event cards remain spacious and readable
+- [x] Toast notifications for all actions (schedule, move, update, complete, duplicate)
+
+### Testing Checklist
+- [ ] Click calendar event → overlay opens
+- [ ] Click Reschedule → edit mode activates
+- [ ] Edit crew/time/notes → Save → event updates on grid
+- [ ] Click Duplicate → new event appears
+- [ ] Click Mark Complete → event turns green
+- [ ] Click "View Full Job Details" → navigates to job page
+- [ ] Click backdrop or X → overlay closes
+- [ ] Dispatch backlog drag → schedules job on calendar
+- [ ] Dispatch event click → same overlay behavior
+- [ ] Mobile viewport → overlay is full-screen modal
+- [ ] `pnpm lint` passes
+- [ ] `pnpm build` passes
