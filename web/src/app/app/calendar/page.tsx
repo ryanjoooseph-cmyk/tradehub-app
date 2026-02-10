@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Card, GhostButton, PageHeader, PageWrap, Pill, PrimaryButton, cx } from "@/components/app/filled/page";
-import { ChevronLeft, ChevronRight, GripVertical, Calendar as CalendarIcon, Sparkles, Clock, MapPin, Users, AlertTriangle, X, Search, Filter, CheckCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, GripVertical, Calendar as CalendarIcon, Sparkles, Clock, MapPin, Users, AlertTriangle, X, Search, Filter, CheckCircle, ExternalLink, Edit3, Copy, Check, Save } from "lucide-react";
 
 type EventStatus = "scheduled" | "in-progress" | "completed";
 type EventPriority = "normal" | "high" | "urgent";
@@ -18,6 +19,7 @@ type EventItem = {
   crew: string[];
   status: EventStatus;
   priority: EventPriority;
+  notes?: string;
 };
 
 type BacklogItem = {
@@ -53,35 +55,35 @@ function minutesToFull(min: number) {
 // Professional seeded data - optimized for readability and spacing
 const initialEvents: EventItem[] = [
   // Monday
-  { id: 'J-1403', title: 'High-rise touch-up', client: 'Carlton Strata', site: 'CBD', day: 0, startMin: 9 * 60, durMin: 240, crew: ['Crew B'], status: 'scheduled', priority: 'normal' },
-  { id: 'J-1421', title: 'Balcony inspection', client: 'Richmond Owners', site: 'Richmond', day: 0, startMin: 14 * 60, durMin: 180, crew: ['QA'], status: 'scheduled', priority: 'high' },
-  
+  { id: 'J-1403', title: 'High-rise touch-up', client: 'Carlton Strata', site: 'CBD', day: 0, startMin: 9 * 60, durMin: 240, crew: ['Crew B'], status: 'scheduled', priority: 'normal', notes: 'Access via loading dock. Contact building manager on arrival.' },
+  { id: 'J-1421', title: 'Balcony inspection', client: 'Richmond Owners', site: 'Richmond', day: 0, startMin: 14 * 60, durMin: 180, crew: ['QA'], status: 'scheduled', priority: 'high', notes: 'Photo documentation required for all balconies.' },
+
   // Tuesday
-  { id: 'J-1404', title: 'Balcony sealing', client: 'Bayside Strata', site: 'St Kilda', day: 1, startMin: 9 * 60, durMin: 240, crew: ['Crew A'], status: 'completed', priority: 'normal' },
-  { id: 'J-1422', title: 'Roof repairs', client: 'South Yarra', site: 'South Yarra', day: 1, startMin: 13 * 60 + 30, durMin: 210, crew: ['Crew C'], status: 'in-progress', priority: 'high' },
-  { id: 'J-1424', title: 'QA walkthrough', client: 'Prahran Mgmt', site: 'Prahran', day: 1, startMin: 17 * 60, durMin: 90, crew: ['QA', 'Ryan J'], status: 'scheduled', priority: 'urgent' },
-  
-  // Wednesday  
-  { id: 'J-1406', title: 'Heritage restoration', client: 'South Yarra Owners', site: 'South Yarra', day: 2, startMin: 8 * 60, durMin: 360, crew: ['Ryan J', 'Crew C'], status: 'scheduled', priority: 'urgent' },
+  { id: 'J-1404', title: 'Balcony sealing', client: 'Bayside Strata', site: 'St Kilda', day: 1, startMin: 9 * 60, durMin: 240, crew: ['Crew A'], status: 'completed', priority: 'normal', notes: 'Weather permitting. Reschedule if rain forecast.' },
+  { id: 'J-1422', title: 'Roof repairs', client: 'South Yarra', site: 'South Yarra', day: 1, startMin: 13 * 60 + 30, durMin: 210, crew: ['Crew C'], status: 'in-progress', priority: 'high', notes: 'Safety harnesses mandatory. Check equipment before starting.' },
+  { id: 'J-1424', title: 'QA walkthrough', client: 'Prahran Mgmt', site: 'Prahran', day: 1, startMin: 17 * 60, durMin: 90, crew: ['QA', 'Ryan J'], status: 'scheduled', priority: 'urgent', notes: 'Final sign-off required for milestone release.' },
+
+  // Wednesday
+  { id: 'J-1406', title: 'Heritage restoration', client: 'South Yarra Owners', site: 'South Yarra', day: 2, startMin: 8 * 60, durMin: 360, crew: ['Ryan J', 'Crew C'], status: 'scheduled', priority: 'urgent', notes: 'Heritage overlay requirements. Use approved materials only.' },
   { id: 'J-1425', title: 'Facade cleaning', client: 'Brighton Towers', site: 'Brighton', day: 2, startMin: 15 * 60, durMin: 180, crew: ['Crew A'], status: 'scheduled', priority: 'normal' },
-  
+
   // Thursday
-  { id: 'J-1402', title: 'Tower A repaint', client: 'Acme Body Corp', site: 'Southbank', day: 3, startMin: 8 * 60, durMin: 300, crew: ['Ryan J', 'Crew A'], status: 'in-progress', priority: 'high' },
-  { id: 'J-1427', title: 'Safety inspection', client: 'Docklands Tower', site: 'Docklands', day: 3, startMin: 14 * 60, durMin: 180, crew: ['QA'], status: 'scheduled', priority: 'urgent' },
-  
+  { id: 'J-1402', title: 'Tower A repaint', client: 'Acme Body Corp', site: 'Southbank', day: 3, startMin: 8 * 60, durMin: 300, crew: ['Ryan J', 'Crew A'], status: 'in-progress', priority: 'high', notes: 'Multi-day job. Progress photos at end of each day.' },
+  { id: 'J-1427', title: 'Safety inspection', client: 'Docklands Tower', site: 'Docklands', day: 3, startMin: 14 * 60, durMin: 180, crew: ['QA'], status: 'scheduled', priority: 'urgent', notes: 'Compliance audit. All documentation ready.' },
+
   // Friday
   { id: 'J-1429', title: 'Waterproofing', client: 'Brunswick Dev', site: 'Brunswick', day: 4, startMin: 8 * 60, durMin: 300, crew: ['Crew A', 'Crew C'], status: 'in-progress', priority: 'high' },
   { id: 'J-1408', title: 'Roof deck repair', client: 'Docklands Mgmt', site: 'Docklands', day: 4, startMin: 14 * 60, durMin: 180, crew: ['QA', 'Crew B'], status: 'scheduled', priority: 'normal' },
   { id: 'J-1442', title: 'Final inspection', client: 'Reservoir Mgmt', site: 'Reservoir', day: 4, startMin: 17 * 60, durMin: 90, crew: ['Ryan J'], status: 'scheduled', priority: 'high' },
-  
+
   // Saturday
   { id: 'J-1409', title: 'Façade inspection', client: 'Melbourne Property', site: 'Richmond', day: 5, startMin: 9 * 60, durMin: 240, crew: ['Ryan J'], status: 'scheduled', priority: 'high' },
-  { id: 'J-1431', title: 'Emergency repair', client: 'CBD Strata', site: 'CBD', day: 5, startMin: 14 * 60, durMin: 180, crew: ['Crew A', 'QA'], status: 'scheduled', priority: 'urgent' },
-  
+  { id: 'J-1431', title: 'Emergency repair', client: 'CBD Strata', site: 'CBD', day: 5, startMin: 14 * 60, durMin: 180, crew: ['Crew A', 'QA'], status: 'scheduled', priority: 'urgent', notes: 'Water ingress reported. Immediate response required.' },
+
   // Sunday
   { id: 'J-1411', title: 'Strata QA check', client: 'Brunswick Estates', site: 'Brunswick', day: 6, startMin: 10 * 60, durMin: 180, crew: ['QA'], status: 'completed', priority: 'normal' },
   { id: 'J-1433', title: 'Final walkthrough', client: 'Northcote Owners', site: 'Northcote', day: 6, startMin: 14 * 60, durMin: 150, crew: ['Ryan J', 'QA'], status: 'scheduled', priority: 'high' },
-  
+
   // Early morning slots for completeness
   { id: 'J-1434', title: 'Site prep', client: 'Kew Property', site: 'Kew', day: 0, startMin: 7 * 60, durMin: 120, crew: ['Crew C'], status: 'completed', priority: 'normal' },
   { id: 'J-1435', title: 'Material setup', client: 'Hawthorn Strata', site: 'Hawthorn', day: 2, startMin: 7 * 60, durMin: 60, crew: ['Crew B'], status: 'completed', priority: 'normal' },
@@ -129,6 +131,341 @@ function getPriorityIndicator(priority: EventPriority) {
   return null;
 }
 
+// Event Detail Overlay Component
+function EventDetailOverlay({
+  event,
+  onClose,
+  onUpdate,
+  onMarkComplete,
+  onDuplicate,
+  hasConflict,
+  allCrews,
+}: {
+  event: EventItem;
+  onClose: () => void;
+  onUpdate: (updated: EventItem) => void;
+  onMarkComplete: () => void;
+  onDuplicate: () => void;
+  hasConflict: boolean;
+  allCrews: string[];
+}) {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editCrew, setEditCrew] = React.useState<string[]>(event.crew);
+  const [editStartMin, setEditStartMin] = React.useState(event.startMin);
+  const [editDurMin, setEditDurMin] = React.useState(event.durMin);
+  const [editNotes, setEditNotes] = React.useState(event.notes || '');
+  const [editDay, setEditDay] = React.useState(event.day);
+
+  const handleSave = () => {
+    onUpdate({
+      ...event,
+      crew: editCrew,
+      startMin: editStartMin,
+      durMin: editDurMin,
+      notes: editNotes,
+      day: editDay,
+    });
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditCrew(event.crew);
+    setEditStartMin(event.startMin);
+    setEditDurMin(event.durMin);
+    setEditNotes(event.notes || '');
+    setEditDay(event.day);
+    setIsEditing(false);
+  };
+
+  // Generate time options (every 30 min from 6am to 8pm)
+  const timeOptions = React.useMemo(() => {
+    const options: { value: number; label: string }[] = [];
+    for (let m = 6 * 60; m <= 20 * 60; m += 30) {
+      options.push({ value: m, label: minutesToFull(m) });
+    }
+    return options;
+  }, []);
+
+  // Duration options
+  const durationOptions = [
+    { value: 60, label: '1 hour' },
+    { value: 90, label: '1.5 hours' },
+    { value: 120, label: '2 hours' },
+    { value: 180, label: '3 hours' },
+    { value: 240, label: '4 hours' },
+    { value: 300, label: '5 hours' },
+    { value: 360, label: '6 hours' },
+    { value: 480, label: '8 hours' },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border bg-card shadow-2xl">
+        {/* Header */}
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-card px-5 py-4">
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-bold">{event.id}</span>
+            <Pill tone={
+              event.status === 'completed' ? 'good' :
+              event.status === 'in-progress' ? 'warn' :
+              'neutral'
+            }>
+              {event.status === 'in-progress' ? 'In Progress' :
+               event.status === 'completed' ? 'Done' : 'Scheduled'}
+            </Pill>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-2 hover:bg-muted transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-5 space-y-5">
+          {/* Title */}
+          <div>
+            <h3 className="text-xl font-bold leading-tight">{event.title}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">{event.client}</p>
+          </div>
+
+          {/* Quick Actions Row */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setIsEditing(true)}
+              disabled={isEditing}
+              className={cx(
+                "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+                isEditing ? "opacity-50 cursor-not-allowed" : "hover:bg-muted"
+              )}
+            >
+              <Edit3 className="h-3.5 w-3.5" />
+              Reschedule
+            </button>
+            <button
+              onClick={onDuplicate}
+              className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
+            >
+              <Copy className="h-3.5 w-3.5" />
+              Duplicate
+            </button>
+            {event.status !== 'completed' && (
+              <button
+                onClick={onMarkComplete}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+              >
+                <Check className="h-3.5 w-3.5" />
+                Mark Complete
+              </button>
+            )}
+          </div>
+
+          {/* Details Grid */}
+          {!isEditing ? (
+            <>
+              <div className="rounded-xl bg-muted/30 p-4 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground font-medium">Site</span>
+                  <span className="font-semibold">{event.site}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground font-medium">Day</span>
+                  <span className="font-semibold">{fullDays[event.day]}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground font-medium">Time</span>
+                  <span className="font-semibold">{minutesToFull(event.startMin)} – {minutesToFull(event.startMin + event.durMin)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground font-medium">Duration</span>
+                  <span className="font-semibold">{(event.durMin / 60).toFixed(1)}h</span>
+                </div>
+              </div>
+
+              {/* Crew */}
+              <div>
+                <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Assigned Crew</div>
+                <div className="flex flex-wrap gap-2">
+                  {event.crew.map((c, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-2 text-sm font-semibold">
+                      <Users className="h-3.5 w-3.5" />
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notes */}
+              {event.notes && (
+                <div>
+                  <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notes</div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{event.notes}</p>
+                </div>
+              )}
+            </>
+          ) : (
+            /* Edit Mode */
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Day</label>
+                <select
+                  value={editDay}
+                  onChange={(e) => setEditDay(Number(e.target.value))}
+                  className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground focus:ring-2 focus:ring-ring/20"
+                >
+                  {days.map((d, i) => (
+                    <option key={d} value={i}>{fullDays[i]}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Start Time</label>
+                  <select
+                    value={editStartMin}
+                    onChange={(e) => setEditStartMin(Number(e.target.value))}
+                    className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground focus:ring-2 focus:ring-ring/20"
+                  >
+                    {timeOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Duration</label>
+                  <select
+                    value={editDurMin}
+                    onChange={(e) => setEditDurMin(Number(e.target.value))}
+                    className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground focus:ring-2 focus:ring-ring/20"
+                  >
+                    {durationOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Crew</label>
+                <div className="flex flex-wrap gap-2">
+                  {allCrews.map((crew) => (
+                    <button
+                      key={crew}
+                      type="button"
+                      onClick={() => {
+                        if (editCrew.includes(crew)) {
+                          setEditCrew(editCrew.filter(c => c !== crew));
+                        } else {
+                          setEditCrew([...editCrew, crew]);
+                        }
+                      }}
+                      className={cx(
+                        "rounded-lg px-3 py-2 text-sm font-medium transition-all",
+                        editCrew.includes(crew)
+                          ? "bg-foreground text-background"
+                          : "border bg-background hover:bg-muted"
+                      )}
+                    >
+                      {crew}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Notes</label>
+                <textarea
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm outline-none focus:border-foreground focus:ring-2 focus:ring-ring/20 resize-none"
+                  placeholder="Add notes..."
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSave}
+                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-sm font-semibold text-background hover:opacity-90 transition-opacity"
+                >
+                  <Save className="h-4 w-4" />
+                  Save Changes
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="rounded-lg border px-4 py-2.5 text-sm font-semibold hover:bg-muted transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Conflict Warning */}
+          {hasConflict && (
+            <div className="rounded-xl bg-red-50 p-4 dark:bg-red-950/30 ring-1 ring-red-500/20">
+              <div className="flex items-center gap-2 text-sm font-semibold text-red-900 dark:text-red-100">
+                <AlertTriangle className="h-4 w-4" />
+                Crew Conflict Detected
+              </div>
+              <p className="mt-1.5 text-xs text-red-800 dark:text-red-200 leading-relaxed">
+                One or more crew members are double-booked at this time.
+              </p>
+            </div>
+          )}
+
+          {/* Priority Badge */}
+          {(event.priority === 'high' || event.priority === 'urgent') && (
+            <div className={cx(
+              "rounded-xl p-4 ring-1",
+              event.priority === 'urgent'
+                ? "bg-rose-50 dark:bg-rose-950/30 ring-rose-500/20"
+                : "bg-amber-50 dark:bg-amber-950/30 ring-amber-500/20"
+            )}>
+              <div className={cx(
+                "text-sm font-semibold",
+                event.priority === 'urgent'
+                  ? "text-rose-900 dark:text-rose-100"
+                  : "text-amber-900 dark:text-amber-100"
+              )}>
+                {event.priority === 'urgent' ? 'Urgent Priority' : 'High Priority'}
+              </div>
+              <p className={cx(
+                "mt-1 text-xs leading-relaxed",
+                event.priority === 'urgent'
+                  ? "text-rose-800 dark:text-rose-200"
+                  : "text-amber-800 dark:text-amber-200"
+              )}>
+                {event.priority === 'urgent' ? 'Requires immediate attention' : 'Elevated priority job'}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer Actions */}
+        <div className="sticky bottom-0 border-t bg-card p-4">
+          <Link
+            href={`/app/jobs/${event.id}`}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-3 text-sm font-semibold text-background hover:opacity-90 transition-opacity"
+          >
+            <ExternalLink className="h-4 w-4" />
+            View Full Job Details
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CalendarPage() {
   const startDayMin = 7 * 60;
   const endDayMin = 19 * 60;
@@ -139,7 +476,7 @@ export default function CalendarPage() {
 
   const [events, setEvents] = React.useState<EventItem[]>(initialEvents);
   const [backlog] = React.useState<BacklogItem[]>(initialBacklog);
-  
+
   const [selectedEvent, setSelectedEvent] = React.useState<EventItem | null>(null);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [statusFilter, setStatusFilter] = React.useState<EventStatus | 'all'>('all');
@@ -174,28 +511,28 @@ export default function CalendarPage() {
   // Filter events
   const filteredEvents = React.useMemo(() => {
     let result = events;
-    
+
     // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(e => 
+      result = result.filter(e =>
         e.id.toLowerCase().includes(q) ||
         e.title.toLowerCase().includes(q) ||
         e.client.toLowerCase().includes(q) ||
         e.site.toLowerCase().includes(q)
       );
     }
-    
+
     // Status filter
     if (statusFilter !== 'all') {
       result = result.filter(e => e.status === statusFilter);
     }
-    
+
     // Crew filter
     if (crewFilter !== 'all') {
       result = result.filter(e => e.crew.includes(crewFilter));
     }
-    
+
     return result;
   }, [events, searchQuery, statusFilter, crewFilter]);
 
@@ -218,14 +555,14 @@ export default function CalendarPage() {
     e.preventDefault();
     const id = e.dataTransfer.getData("text/plain");
     if (!id) return;
-    
+
     const event = events.find(ev => ev.id === id);
     if (!event) return;
-    
+
     const oldDay = days[event.day];
     const newDay = days[day];
     const newTime = minutesToFull(startMin);
-    
+
     setEvents((prev) =>
       prev.map((x) =>
         x.id === id
@@ -233,8 +570,34 @@ export default function CalendarPage() {
           : x
       )
     );
-    
+
     showToast(`${event.id} rescheduled from ${oldDay} to ${newDay} at ${newTime}`);
+  };
+
+  const handleUpdateEvent = (updated: EventItem) => {
+    setEvents(prev => prev.map(e => e.id === updated.id ? updated : e));
+    setSelectedEvent(updated);
+    showToast(`${updated.id} updated successfully`);
+  };
+
+  const handleMarkComplete = () => {
+    if (!selectedEvent) return;
+    const updated = { ...selectedEvent, status: 'completed' as EventStatus };
+    setEvents(prev => prev.map(e => e.id === updated.id ? updated : e));
+    setSelectedEvent(updated);
+    showToast(`${updated.id} marked as complete`);
+  };
+
+  const handleDuplicate = () => {
+    if (!selectedEvent) return;
+    const newId = `J-${Date.now().toString().slice(-4)}`;
+    const duplicated: EventItem = {
+      ...selectedEvent,
+      id: newId,
+      status: 'scheduled',
+    };
+    setEvents(prev => [...prev, duplicated]);
+    showToast(`Created duplicate: ${newId}`);
   };
 
   const goToToday = () => {
@@ -274,7 +637,20 @@ export default function CalendarPage() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] 2xl:grid-cols-[280px_minmax(0,1fr)_360px]">
+      {/* Event Detail Overlay */}
+      {selectedEvent && (
+        <EventDetailOverlay
+          event={selectedEvent}
+          onClose={() => setSelectedEvent(null)}
+          onUpdate={handleUpdateEvent}
+          onMarkComplete={handleMarkComplete}
+          onDuplicate={handleDuplicate}
+          hasConflict={hasConflict(selectedEvent)}
+          allCrews={allCrews}
+        />
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
         {/* Left Panel */}
         <div className="space-y-4">
           {/* Week Controls */}
@@ -361,7 +737,7 @@ export default function CalendarPage() {
                   <Filter className="h-3 w-3" />
                   Filters
                 </div>
-                
+
                 {/* Status Filter */}
                 <div className="mb-3">
                   <div className="mb-1.5 text-xs font-semibold text-muted-foreground">Status</div>
@@ -661,11 +1037,11 @@ export default function CalendarPage() {
                               draggable
                               onDragStart={(ev) => onDragStart(ev, e.id)}
                               onClick={() => setSelectedEvent(e)}
-                              className="absolute left-1.5 right-1.5 cursor-grab active:cursor-grabbing hover:z-10"
+                              className="absolute left-1.5 right-1.5 cursor-pointer hover:z-10"
                               style={{ top, height: h }}
                             >
                               <div className={cx(
-                                "group h-full rounded-xl border-2 p-3.5 transition-all hover:shadow-xl overflow-hidden cursor-pointer",
+                                "group h-full rounded-xl border-2 p-3.5 transition-all hover:shadow-xl overflow-hidden",
                                 eventStyles
                               )}>
                                 {/* Header Row */}
@@ -727,209 +1103,60 @@ export default function CalendarPage() {
               </div>
             </div>
           )}
-        </div>
 
-        {/* Right Panel - Event Details */}
-        <div className="hidden 2xl:block space-y-4">
-          {selectedEvent ? (
-            <div className="rounded-2xl border bg-card/50 overflow-hidden shadow-sm">
-              <div className="flex items-center justify-between border-b bg-muted/20 px-4 py-3.5">
-                <div className="text-sm font-semibold">Event Details</div>
-                <button
-                  onClick={() => setSelectedEvent(null)}
-                  className="rounded-lg p-1.5 hover:bg-muted transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="p-4 space-y-4">
-                {/* Job Reference */}
-                <div>
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-lg font-bold">{selectedEvent.id}</span>
-                    <Pill tone={
-                      selectedEvent.status === 'completed' ? 'good' :
-                      selectedEvent.status === 'in-progress' ? 'warn' :
-                      'neutral'
-                    }>
-                      {selectedEvent.status === 'in-progress' ? 'In Progress' : 
-                       selectedEvent.status === 'completed' ? 'Done' : 'Scheduled'}
-                    </Pill>
-                  </div>
-                  <h3 className="mt-2 text-base font-bold leading-tight">{selectedEvent.title}</h3>
-                </div>
-
-                {/* Client & Site */}
-                <div className="rounded-xl bg-muted/20 p-3.5 space-y-2.5 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground font-medium">Client</span>
-                    <span className="font-semibold">{selectedEvent.client}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground font-medium">Site</span>
-                    <span className="font-semibold">{selectedEvent.site}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground font-medium">Day</span>
-                    <span className="font-semibold">{fullDays[selectedEvent.day]}</span>
-                  </div>
-                </div>
-
-                {/* Timing */}
-                <div className="rounded-xl bg-muted/20 p-3.5 space-y-2.5 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground font-medium">Start</span>
-                    <span className="font-semibold">{minutesToFull(selectedEvent.startMin)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground font-medium">End</span>
-                    <span className="font-semibold">{minutesToFull(selectedEvent.startMin + selectedEvent.durMin)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground font-medium">Duration</span>
-                    <span className="font-semibold">{(selectedEvent.durMin / 60).toFixed(1)}h</span>
-                  </div>
-                </div>
-
-                {/* Crew */}
-                <div>
-                  <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Assigned Crew</div>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedEvent.crew.map((c, i) => (
-                      <span key={i} className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-2 text-xs font-semibold">
-                        <Users className="h-3.5 w-3.5" />
-                        {c}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Conflict Warning */}
-                {hasConflict(selectedEvent) && (
-                  <div className="rounded-xl bg-red-50 p-3.5 dark:bg-red-950/30 ring-1 ring-red-500/20">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-red-900 dark:text-red-100">
-                      <AlertTriangle className="h-4 w-4" />
-                      Crew Conflict Detected
-                    </div>
-                    <p className="mt-1.5 text-xs text-red-800 dark:text-red-200 leading-relaxed">
-                      One or more crew members are double-booked at this time.
-                    </p>
-                  </div>
-                )}
-
-                {/* Priority Badge */}
-                {(selectedEvent.priority === 'high' || selectedEvent.priority === 'urgent') && (
-                  <div className={cx(
-                    "rounded-xl p-3.5 ring-1",
-                    selectedEvent.priority === 'urgent' 
-                      ? "bg-rose-50 dark:bg-rose-950/30 ring-rose-500/20" 
-                      : "bg-amber-50 dark:bg-amber-950/30 ring-amber-500/20"
-                  )}>
+          {/* Conflict Engine Card - Below Calendar on smaller screens */}
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card title="Conflict Engine" subtitle="Real-time overlap detection">
+              <div className="space-y-3">
+                <div className={cx(
+                  "flex items-center justify-between rounded-xl p-3.5 ring-1",
+                  conflictCount > 0 ? "bg-red-50 dark:bg-red-950/30 ring-red-500/20" : "bg-emerald-50 dark:bg-emerald-950/30 ring-emerald-500/20"
+                )}>
+                  <div className="flex items-center gap-3">
                     <div className={cx(
-                      "text-sm font-semibold",
-                      selectedEvent.priority === 'urgent' 
-                        ? "text-rose-900 dark:text-rose-100" 
-                        : "text-amber-900 dark:text-amber-100"
+                      "flex h-9 w-9 items-center justify-center rounded-lg",
+                      conflictCount > 0 ? "bg-red-500/20" : "bg-emerald-500/20"
                     )}>
-                      {selectedEvent.priority === 'urgent' ? '🔴 Urgent Priority' : '⚠️ High Priority'}
+                      <AlertTriangle className={cx(
+                        "h-4 w-4",
+                        conflictCount > 0 ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"
+                      )} />
                     </div>
-                    <p className={cx(
-                      "mt-1.5 text-xs leading-relaxed",
-                      selectedEvent.priority === 'urgent' 
-                        ? "text-rose-800 dark:text-rose-200" 
-                        : "text-amber-800 dark:text-amber-200"
-                    )}>
-                      {selectedEvent.priority === 'urgent' ? 'Requires immediate attention' : 'Elevated priority job'}
-                    </p>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="space-y-2">
-                  <button className="w-full rounded-xl border bg-background px-4 py-3 text-sm font-semibold hover:bg-muted transition-colors">
-                    View Job Details
-                  </button>
-                  <button className="w-full rounded-xl border bg-background px-4 py-3 text-sm font-semibold hover:bg-muted transition-colors">
-                    Update Status
-                  </button>
-                  <button className="w-full rounded-xl border bg-background px-4 py-3 text-sm font-semibold hover:bg-muted transition-colors">
-                    Assign Crew
-                  </button>
-                  <button className="w-full rounded-xl border border-red-500/30 bg-background px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors">
-                    Cancel Booking
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-2xl border bg-card/50 overflow-hidden shadow-sm">
-              <div className="border-b bg-muted/20 px-4 py-3.5">
-                <div className="text-sm font-semibold">Event Details</div>
-                <div className="text-xs text-muted-foreground">Click an event to view details</div>
-              </div>
-              <div className="flex flex-col items-center justify-center p-8 py-20">
-                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-muted/30">
-                  <CalendarIcon className="h-7 w-7 text-muted-foreground/50" />
-                </div>
-                <div className="mt-3 text-sm font-semibold">No event selected</div>
-                <div className="mt-1 text-center text-xs text-muted-foreground">Click on a calendar event to see full details and actions</div>
-              </div>
-            </div>
-          )}
-
-          {/* Conflict Engine */}
-          <Card title="Conflict Engine" subtitle="Real-time overlap detection">
-            <div className="space-y-3">
-              <div className={cx(
-                "flex items-center justify-between rounded-xl p-3.5 ring-1",
-                conflictCount > 0 ? "bg-red-50 dark:bg-red-950/30 ring-red-500/20" : "bg-emerald-50 dark:bg-emerald-950/30 ring-emerald-500/20"
-              )}>
-                <div className="flex items-center gap-3">
-                  <div className={cx(
-                    "flex h-9 w-9 items-center justify-center rounded-lg",
-                    conflictCount > 0 ? "bg-red-500/20" : "bg-emerald-500/20"
-                  )}>
-                    <AlertTriangle className={cx(
-                      "h-4 w-4",
-                      conflictCount > 0 ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"
-                    )} />
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold">Crew Overlaps</div>
-                    <div className="text-xs text-muted-foreground">
-                      {conflictCount > 0 ? `${conflictCount} conflict${conflictCount > 1 ? 's' : ''} detected` : 'All clear'}
+                    <div>
+                      <div className="text-sm font-semibold">Crew Overlaps</div>
+                      <div className="text-xs text-muted-foreground">
+                        {conflictCount > 0 ? `${conflictCount} conflict${conflictCount > 1 ? 's' : ''} detected` : 'All clear'}
+                      </div>
                     </div>
                   </div>
+                  <Pill tone={conflictCount > 0 ? 'bad' : 'good'}>
+                    {conflictCount > 0 ? 'Review' : 'OK'}
+                  </Pill>
                 </div>
-                <Pill tone={conflictCount > 0 ? 'bad' : 'good'}>
-                  {conflictCount > 0 ? 'Review' : 'OK'}
-                </Pill>
               </div>
-            </div>
-          </Card>
+            </Card>
 
-          {/* Quick Actions */}
-          <Card title="Quick Actions" subtitle="Scheduling shortcuts">
-            <div className="space-y-2">
-              {[
-                { title: 'Auto-fill week', desc: 'AI-optimized slot suggestions' },
-                { title: 'Export schedule', desc: 'PDF for crews & clients' },
-                { title: 'Lock schedule', desc: 'Prevent accidental edits' },
-              ].map((action, i) => (
-                <button
-                  key={i}
-                  className="flex w-full items-center justify-between rounded-xl border bg-background px-3.5 py-3 text-left transition-all hover:bg-muted/30"
-                >
-                  <div>
-                    <div className="text-sm font-semibold">{action.title}</div>
-                    <div className="text-xs text-muted-foreground">{action.desc}</div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-                </button>
-              ))}
-            </div>
-          </Card>
+            <Card title="Quick Actions" subtitle="Scheduling shortcuts">
+              <div className="space-y-2">
+                {[
+                  { title: 'Auto-fill week', desc: 'AI-optimized slot suggestions' },
+                  { title: 'Export schedule', desc: 'PDF for crews & clients' },
+                  { title: 'Lock schedule', desc: 'Prevent accidental edits' },
+                ].map((action, i) => (
+                  <button
+                    key={i}
+                    className="flex w-full items-center justify-between rounded-xl border bg-background px-3.5 py-3 text-left transition-all hover:bg-muted/30"
+                  >
+                    <div>
+                      <div className="text-sm font-semibold">{action.title}</div>
+                      <div className="text-xs text-muted-foreground">{action.desc}</div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                  </button>
+                ))}
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
     </PageWrap>
