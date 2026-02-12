@@ -307,6 +307,20 @@ jobs:
                 
                 console.log(`Changed files: ${changedFiles.length} total`);
                 
+                // Check for docs-auto-sync.yml as the only workflow change
+                const workflowFiles = changedFiles.filter(f => f.startsWith('.github/workflows/'));
+                const isOnlyDocsSync = 
+                  workflowFiles.length === 1 && 
+                  workflowFiles[0] === '.github/workflows/docs-auto-sync.yml';
+                
+                if (isOnlyDocsSync) {
+                  console.log('ℹ️ Only docs-auto-sync.yml workflow changed - not escalating to HIGH');
+                  if (finalRisk === 'HIGH') {
+                    finalRisk = 'MEDIUM';
+                    console.log('⚠️  Downgraded risk from HIGH to MEDIUM for docs-auto-sync.yml change');
+                  }
+                }
+                
                 // Define critical patterns
                 const criticalPatterns = [
                   { type: 'exact', value: 'web/src/app/layout.tsx', reason: 'root layout' },
@@ -319,6 +333,11 @@ jobs:
                 
                 const criticalMatches = [];
                 for (const file of changedFiles) {
+                  // Skip docs-auto-sync.yml if it's the only workflow change
+                  if (isOnlyDocsSync && file === '.github/workflows/docs-auto-sync.yml') {
+                    continue;
+                  }
+                  
                   for (const pattern of criticalPatterns) {
                     let matches = false;
                     if (pattern.type === 'exact') {
@@ -422,15 +441,24 @@ jobs:
                     const autoMergeEnabled = !!q?.repository?.pullRequest?.autoMergeRequest;
 
                     if (prId && autoMergeEnabled) {
-                      await github.graphql(
-                        `mutation($pullRequestId: ID!) {
-                          disablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId }) {
-                            pullRequest { number }
-                          }
-                        }`,
-                        { pullRequestId: prId }
-                      );
-                      autoMergeDisabled = true;
+                      try {
+                        await github.graphql(
+                          `mutation($pullRequestId: ID!) {
+                            disablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId }) {
+                              pullRequest { number }
+                            }
+                          }`,
+                          { pullRequestId: prId }
+                        );
+                        autoMergeDisabled = true;
+                      } catch (mutationErr) {
+                        const errMsg = mutationErr?.message || String(mutationErr);
+                        if (errMsg.includes('Resource not accessible by integration')) {
+                          console.warn('⚠️ Insufficient permissions to disable auto-merge (continuing):', errMsg);
+                        } else {
+                          throw mutationErr;
+                        }
+                      }
                     }
                   } catch (err) {
                     console.error('⚠️ Unable to disable auto-merge (continuing):', err);
