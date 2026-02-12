@@ -8,18 +8,24 @@ This document contains detailed, actionable checklists for each PR in the develo
 
 | PR | Title | Status | Branch |
 |---:|---|---|---|
-| PR1 | Shell Stability Hardening | ⚪ UNKNOWN | `feature/pr1-shell-hardening` |
-| PR2 | Dashboard Density + Actions | ⚪ UNKNOWN | `feature/pr2-dashboard-density` |
-| PR3 | Jobs List Enhancement | ⚪ UNKNOWN | `feature/pr3-jobs-list` |
-| PR4 | Job Detail with Escrow Preview | ⚪ UNKNOWN | `feature/pr4-job-detail` |
-| PR5 | Clients, Invoices, Calendar | ⚪ UNKNOWN | `feature/pr5-core-pages` |
-| PR6 | Marketplace MVP | ⚪ UNKNOWN | `feature/pr6-marketplace` |
-| PR7 | Escrow v1 | ⚪ UNKNOWN | `feature/pr7-escrow-v1` |
-| PR8 | Automation Agents v1 | ⚪ UNKNOWN | `feature/pr8-agents-v1` |
-| PR10 | Shell Aesthetics v1 (100M SaaS upgrade) | ⚪ UNKNOWN | `feature/pr10-shell-aesthetics` |
-| PR11 | Calendar Upgrade v2 (Premium Scheduler) | 🟡 OPEN | `feature/pr11-calendar-v2` |
-| PR12 | Marketplace Link in Topbar | ⚪ UNKNOWN | `feature/pr12-topbar-marketplace-link` |
-| PR13 | Marketplace ↔ App Integration v1 (optional) | ⚪ UNKNOWN | `feature/pr13-marketplace-app-integration` |
+| PR1 | Shell Stability Hardening | ✅ COMPLETE | `main` |
+| PR2 | Dashboard Density + Actions | ✅ COMPLETE | `main` |
+| PR3 | Jobs List Enhancement | ✅ COMPLETE | `main` |
+| PR4 | Job Detail with Escrow Preview | ✅ COMPLETE | `main` |
+| PR5 | Clients, Invoices, Calendar | ✅ COMPLETE | `main` |
+| PR6 | Marketplace MVP | ✅ COMPLETE | `main` |
+| PR7 | Escrow v1 | ✅ COMPLETE | `main` |
+| PR8 | Automation Agents v1 | ✅ COMPLETE | `main` |
+| PR10 | Shell Aesthetics v1 (100M SaaS upgrade) | ✅ COMPLETE | `main` |
+| PR11 | Calendar Upgrade v2 (Premium Scheduler) | ✅ COMPLETE | `main` |
+| PR12 | Marketplace Link in Topbar | ✅ COMPLETE | `main` |
+| PR13 | Marketplace ↔ App Integration v1 (optional) | ✅ COMPLETE | `main` |
+| PR14 | Calendar 100M SaaS Upgrade | ✅ COMPLETE | `main` |
+| PR15 | Shell 100M SaaS Theme + Sidebar Upgrade | ✅ COMPLETE | `main` |
+| PR16 | Calendar Spacing + Readability Polish | ✅ COMPLETE | `main` |
+| PR17 | Escrow Ops Admin Page | ✅ COMPLETE | `main` |
+| PR18 | Escrow Buyer Portal | ✅ COMPLETE | `main` |
+| PR19 | Calendar + Dispatch Finish Polish | ✅ COMPLETE | `main` |
 
 If a PR is missing here, add a PR section below so it can be tracked.
 <!-- AUTO-STATUS:END -->
@@ -125,17 +131,17 @@ If a PR is missing here, add a PR section below so it can be tracked.
 ### Implementation Checklist
 
 #### KPI Grid Enhancement
-- [ ] Add trend indicators (↑↓) to KPIs
-- [ ] Calculate percentage change
-- [ ] Color-code trends (green/red)
-- [ ] Make KPIs clickable
-- [ ] Link KPIs to relevant pages:
+- [x] Add trend indicators (↑↓) to KPIs
+- [x] Calculate percentage change
+- [x] Color-code trends (green/red)
+- [x] Make KPIs clickable
+- [x] Link KPIs to relevant pages:
   - Open Jobs → /app/jobs?filter=open
   - Revenue → /app/invoices
   - Outstanding Invoices → /app/invoices?filter=overdue
   - Escrow Holds → /app/escrow
-- [ ] Add loading skeletons
-- [ ] Implement error states
+- [x] Add loading skeletons
+- [x] Implement error states
 
 #### Revenue Trend Chart
 - [ ] Install Recharts if needed
@@ -223,13 +229,13 @@ const seededData = {
 - [ ] `pnpm build` succeeds
 
 ### Done Criteria
-- [ ] KPIs show trend arrows
-- [ ] Revenue chart renders with 7-day data
-- [ ] Crew utilization shows 69% with bars
-- [ ] Today's Focus has 3 actionable items
-- [ ] Live Feed shows 3+ recent events
-- [ ] Zero empty sections
-- [ ] All sections link to pages
+- [x] KPIs show trend arrows
+- [x] Revenue chart renders with 7-day data
+- [x] Crew utilization shows 69% with bars
+- [x] Today's Focus has 3 actionable items
+- [x] Live Feed shows 3+ recent events
+- [x] Zero empty sections
+- [x] All sections link to pages
 
 ---
 
