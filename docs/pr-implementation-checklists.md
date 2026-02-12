@@ -246,7 +246,7 @@ const seededData = {
 **Estimated Time:** 2 days
 
 ### Pre-Work Checklist
-- [ ] Merge PR2 to main
+- [x] Merge PR2 to main
 - [ ] Create feature branch
 - [ ] Design job table schema
 - [ ] Prepare seeded data (15+ jobs)
