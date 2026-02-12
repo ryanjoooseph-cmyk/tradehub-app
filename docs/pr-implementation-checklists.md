@@ -123,10 +123,10 @@ If a PR is missing here, add a PR section below so it can be tracked.
 **Estimated Time:** 2 days
 
 ### Pre-Work Checklist
-- [ ] Merge PR1 to main
-- [ ] Create feature branch from main
-- [ ] Design seeded data structure
-- [ ] Identify chart library (Recharts)
+- [x] Merge PR1 to main
+- [x] Create feature branch from main
+- [x] Design seeded data structure
+- [x] Identify chart library
 
 ### Implementation Checklist
 
@@ -144,45 +144,45 @@ If a PR is missing here, add a PR section below so it can be tracked.
 - [x] Implement error states
 
 #### Revenue Trend Chart
-- [ ] Install Recharts if needed
-- [ ] Create seeded revenue data (7 days)
-- [ ] Build LineChart component
-- [ ] Add axis labels (dates, amounts)
-- [ ] Style chart with Tailwind
-- [ ] Add hover tooltips
-- [ ] Make responsive (mobile)
-- [ ] Show $31.2k label
-- [ ] Add "Last 7 days performance curve" subtitle
+- [x] Install chart library if needed
+- [x] Create seeded revenue data (7 days)
+- [x] Build chart component
+- [x] Add axis labels (dates, amounts)
+- [x] Style chart with Tailwind
+- [x] Add hover tooltips
+- [x] Make responsive (mobile)
+- [x] Show $31.2k label
+- [x] Add "Last 7 days performance curve" subtitle
 
 #### Crew Utilization Chart
-- [ ] Create seeded utilization data (weekly)
-- [ ] Build BarChart component
-- [ ] Show 69% circular progress
-- [ ] Add target line at 75%
-- [ ] Color-code: green (good), yellow (tight), red (over)
-- [ ] Add labels for each day
-- [ ] Make responsive
+- [x] Create seeded utilization data (weekly)
+- [x] Build chart component
+- [x] Show 69% circular progress
+- [x] Add target line at 75%
+- [x] Color-code: green (good), yellow (tight), red (over)
+- [x] Add labels for each day
+- [x] Make responsive
 
 #### Today's Focus Section
-- [ ] Create priority list component
-- [ ] Seed with 3 priorities:
+- [x] Create priority list component
+- [x] Seed with 3 priorities:
   - Quote approvals (count: 3)
   - Jobs at risk (count: 1)
   - Payments to reconcile (count: 0)
-- [ ] Add status badges
-- [ ] Make items clickable
-- [ ] Add "auto-generated priorities" label
+- [x] Add status badges
+- [x] Make items clickable
+- [x] Add "auto-generated priorities" label
 
 #### Live Feed Section
-- [ ] Create event feed component
-- [ ] Seed with recent events:
+- [x] Create event feed component
+- [x] Seed with recent events:
   - New job booked (success badge)
   - Invoice sent (default badge)
   - Quote approved (success badge)
-- [ ] Add timestamps (relative time)
-- [ ] Add event type icons
-- [ ] Make scrollable (max 5 items)
-- [ ] Add "Events, updates, agent actions" subtitle
+- [x] Add timestamps (relative time)
+- [x] Add event type icons
+- [x] Make scrollable (max 5 items)
+- [x] Add "Events, updates, agent actions" subtitle
 
 ### Seeded Data Structure
 ```typescript
@@ -216,17 +216,17 @@ const seededData = {
 ```
 
 ### Testing Checklist
-- [ ] All KPIs render correctly
-- [ ] Trends show accurate direction
-- [ ] Charts render without errors
-- [ ] Charts responsive on mobile
-- [ ] All links navigate correctly
-- [ ] No empty sections
-- [ ] Loading states work
-- [ ] Error states styled
-- [ ] `pnpm lint` passes
-- [ ] `pnpm typecheck` passes
-- [ ] `pnpm build` succeeds
+- [x] All KPIs render correctly
+- [x] Trends show accurate direction
+- [x] Charts render without errors
+- [x] Charts responsive on mobile
+- [x] All links navigate correctly
+- [x] No empty sections
+- [x] Loading states work
+- [x] Error states styled
+- [x] `pnpm lint` passes
+- [x] `pnpm typecheck` passes
+- [x] `pnpm build` succeeds
 
 ### Done Criteria
 - [x] KPIs show trend arrows
