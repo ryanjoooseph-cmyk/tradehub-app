@@ -67,26 +67,35 @@ jobs:
                 // Determine PR number and head SHA for both event types
                 let prNumber;
                 let sha;
+                let prData;
                 
                 if (context.eventName === 'issue_comment') {
                   // For issue_comment, fetch PR details
                   prNumber = context.payload.issue.number;
                   console.log(`Fetching PR #${prNumber} details from issue_comment event`);
                   
-                  const { data: prData } = await github.rest.pulls.get({
+                  const response = await github.rest.pulls.get({
                     owner,
                     repo,
                     pull_number: prNumber,
                   });
                   
+                  prData = response.data;
                   sha = prData.head.sha;
                 } else {
                   // For pull_request event, use payload directly
                   prNumber = context.payload.pull_request.number;
                   sha = context.payload.pull_request.head.sha;
+                  prData = context.payload.pull_request;
                 }
                 
                 console.log(`Processing PR #${prNumber}, SHA: ${sha}`);
+                
+                // Early exit if PR is already merged
+                if (prData && prData.merged === true) {
+                  console.log(`✅ PR #${prNumber} is already merged, exiting successfully`);
+                  return;
+                }
                 
 
                 // Fetch PR labels (used for explicit override)
@@ -383,12 +392,27 @@ jobs:
                     per_page: 100,
                   });
 
+                  // Only check required checks for main: web-build and gatekeeper
+                  const REQUIRED_CHECKS = ['web-build', 'gatekeeper'];
                   const badConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required']);
+                  
                   failing = (checkRuns.check_runs || [])
-                    .filter(cr => cr.conclusion && badConclusions.has(cr.conclusion))
+                    .filter(cr => {
+                      if (!cr.conclusion || !badConclusions.has(cr.conclusion)) return false;
+                      // Only include if it's a required check
+                      const checkName = cr.name || '';
+                      // Match exact names or substring for flexibility
+                      return REQUIRED_CHECKS.some(req => checkName.includes(req));
+                    })
                     .map(cr => cr.name);
 
                   hasFailingChecks = failing.length > 0;
+                  
+                  if (hasFailingChecks) {
+                    console.log(`⚠️ Required checks failing: ${failing.join(', ')}`);
+                  } else {
+                    console.log('✅ All required checks passing (web-build, gatekeeper)');
+                  }
                 } catch (err) {
                   console.error('⚠️ Unable to read check-runs for ref (continuing without failing-check detection):', err);
                   failing = [];
@@ -453,7 +477,11 @@ jobs:
                         autoMergeDisabled = true;
                       } catch (mutationErr) {
                         const errMsg = mutationErr?.message || String(mutationErr);
-                        if (errMsg.includes('Resource not accessible by integration')) {
+                        const errType = mutationErr?.type || '';
+                        // Don't fail on permission errors
+                        if (errMsg.includes('Resource not accessible by integration') || 
+                            errType === 'FORBIDDEN' || 
+                            errMsg.includes('FORBIDDEN')) {
                           console.warn('⚠️ Insufficient permissions to disable auto-merge (continuing):', errMsg);
                         } else {
                           throw mutationErr;
