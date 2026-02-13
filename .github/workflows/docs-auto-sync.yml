@@ -11,6 +11,8 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    # Never block main - this is a non-critical automation
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v4
@@ -23,16 +25,24 @@ jobs:
 
       - name: Extract PR info
         id: pr_info
+        shell: bash
         run: |
-          # Extract PR number from merge commit message (format: "Merge pull request #123 from...")
-          PR_NUMBER=$(git log -1 --pretty=%B | grep -oP '(?<=pull request #)\d+|(?<=#)\d+(?= from)' | head -1 || echo "")
+          set +e  # Don't fail on errors
+          # Extract PR number from merge commit message (format: "Merge pull request #123 from..." or squash "(#123)")
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          PR_NUMBER=$(echo "$COMMIT_MSG" | grep -oE '#[0-9]+' | head -1 | tr -d '#' || echo "")
           PR_TITLE=$(git log -1 --pretty=%s)
-          
+
           echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
           echo "pr_title=${PR_TITLE}" >> $GITHUB_OUTPUT
-          
-          echo "Detected PR: #${PR_NUMBER}"
+
+          echo "Detected PR: #${PR_NUMBER:-none}"
           echo "Title: ${PR_TITLE}"
+
+          # If no PR number found, this is not a PR merge - exit gracefully
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No PR number found in commit, skipping docs sync"
+          fi
 
       - name: Sync docs
         if: steps.pr_info.outputs.pr_number != ''
