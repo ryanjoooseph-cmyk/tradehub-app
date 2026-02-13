@@ -9,6 +9,8 @@ jobs:
   update-and-merge:
     if: startsWith(github.head_ref, 'agent-') && contains(github.event.pull_request.labels.*.name, 'automerge')
     runs-on: ubuntu-latest
+    # Never block PRs - this is best-effort automation
+    continue-on-error: true
     permissions:
       pull-requests: write
       contents: write

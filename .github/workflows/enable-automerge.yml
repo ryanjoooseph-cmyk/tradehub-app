@@ -15,6 +15,8 @@ jobs:
       (startsWith(github.event.pull_request.head.ref, 'agent-') ||
        startsWith(github.event.pull_request.head.ref, 'agent/'))
     runs-on: ubuntu-latest
+    # Never block PRs - this is best-effort automation
+    continue-on-error: true
     permissions:
       pull-requests: write
       contents: write
