@@ -13,6 +13,7 @@ jobs:
   enable-auto-merge:
     if: ${{ github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     # Never block PRs - this is best-effort automation
     continue-on-error: true
     steps:
