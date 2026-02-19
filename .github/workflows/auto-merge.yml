@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   disabled:
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     steps:
       - run: echo "Disabled. Use enable-automerge.yml (pull_request_target) instead."
