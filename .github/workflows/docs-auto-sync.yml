@@ -1,39 +1,105 @@
 name: Docs Auto Sync
 
 on:
+  workflow_dispatch:
   pull_request:
     types: [closed]
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   sync:
-    if: github.event.pull_request.merged == true
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout main
+        uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
+          token: ${{ secrets.GH_PAT || github.token }}
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      - name: Extract PR info
+        id: pr_info
+        shell: bash
+        run: |
+          set -euo pipefail
+          PR_NUMBER='${{ github.event.pull_request.number }}'
+          PR_TITLE='${{ github.event.pull_request.title }}'
+          PR_URL='${{ github.event.pull_request.html_url }}'
+          PR_SHA='${{ github.event.pull_request.merge_commit_sha }}'
+
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "pr_title=${PR_TITLE}" >> "$GITHUB_OUTPUT"
+          echo "pr_url=${PR_URL}" >> "$GITHUB_OUTPUT"
+          echo "pr_sha=${PR_SHA}" >> "$GITHUB_OUTPUT"
+
+          echo "PR: #${PR_NUMBER}"
+          echo "Title: ${PR_TITLE}"
+          echo "URL: ${PR_URL}"
+          echo "Merge SHA: ${PR_SHA}"
+
       - name: Sync docs
         env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: node scripts/sync-docs-on-merge.mjs
-
-      - name: Commit changes
+          PR_NUMBER: ${{ steps.pr_info.outputs.pr_number }}
+          PR_TITLE: ${{ steps.pr_info.outputs.pr_title }}
         run: |
+          set -euo pipefail
+          node scripts/sync-docs-on-merge.mjs
+
+      - name: Check for changes
+        id: check_changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add docs/pr-implementation-checklists.md docs/STATUS.md docs/DOCS-AUTO-SYNC-AUDIT.md 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No changes to commit"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "Changes detected"
+          fi
+
+      - name: Create PR with changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
+          PR_NUMBER: ${{ steps.pr_info.outputs.pr_number }}
+          PR_TITLE: ${{ steps.pr_info.outputs.pr_title }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BRANCH_NAME="docs/auto-sync-pr${PR_NUMBER}"
+          BASE_BRANCH="main"
+
           git config user.name "docs-sync-bot"
           git config user.email "docs-sync-bot@users.noreply.github.com"
-          git add docs/pr-implementation-checklists.md docs/STATUS.md || true
-          git diff --cached --quiet || git commit -m "docs: auto-sync after merge"
 
-      - name: Push
-        run: |
-          git push
+          git checkout -B "${BRANCH_NAME}" "origin/${BASE_BRANCH}"
+
+          git commit -m "docs: auto-sync after PR${PR_NUMBER} merge [skip ci]"
+
+          git push -u origin "${BRANCH_NAME}" --force
+
+          EXISTING_PR=$(gh pr list --head "${BRANCH_NAME}" --state open --json number --jq '.[0].number' || true)
+          if [ -n "${EXISTING_PR}" ]; then
+            gh pr edit "${EXISTING_PR}" \
+              --title "Docs auto-sync after PR${PR_NUMBER}" \
+              --body "Auto-generated docs sync after merging PR${PR_NUMBER}: ${PR_TITLE}."
+          else
+            gh pr create \
+              --base "${BASE_BRANCH}" \
+              --head "${BRANCH_NAME}" \
+              --title "Docs auto-sync after PR${PR_NUMBER}" \
+              --body "Auto-generated docs sync after merging PR${PR_NUMBER}: ${PR_TITLE}."
+          fi

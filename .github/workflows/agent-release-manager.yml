@@ -1,90 +1,128 @@
-import { NextRequest, NextResponse } from 'next/server';
+name: Agent - Release Manager
 
-export async function POST(request: NextRequest) {
-  try {
-    const input = await request.json();
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["web-build"]
+    types: [completed]
 
-    // Validate input structure minimally
-    if (typeof input !== 'object' || input === null) {
-      return NextResponse.json({ ok: false, error: 'Invalid input' }, { status: 400 });
-    }
+permissions:
+  contents: read
+  pull-requests: write
 
-    // Normalize checks into array format
-    let checks: Array<{ name: string; status: string }> = [];
-    if (input.checks) {
-      if (Array.isArray(input.checks)) {
-        checks = input.checks
-          .filter((c) => c && typeof c === 'object')
-          .map((c) => ({ name: String((c as any).name || ''), status: String((c as any).status || '') }))
-          .filter((c) => c.name.length > 0);
-      } else if (typeof input.checks === 'object') {
-        // Convert object format { lint: true, build: false } to array format
-        checks = Object.entries(input.checks as Record<string, unknown>).map(([name, passed]) => ({
-          name,
-          status: passed === true ? 'success' : 'failure',
-        }));
-      }
-    }
+jobs:
+  release-manager:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Get PR info
+        id: pr_info
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const runId = context.payload.workflow_run.id;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
 
-    // Analyze checks (STRICT):
-    // - If we don't have any checks, we MUST NOT claim they passed.
-    // - We only consider success if every check status is success.
-    const hasChecks = checks.length > 0;
-    const allChecksPassed = hasChecks && checks.every((c) => c.status === 'success');
+            const { data: run } = await github.rest.actions.getWorkflowRun({
+              owner,
+              repo,
+              run_id: runId,
+            });
 
-    // Require the main CI check (web-build) to be present and successful to APPROVE.
-    const webBuild = checks.find((c) => c.name.toLowerCase().includes('web-build'));
-    const hasWebBuild = Boolean(webBuild);
-    const webBuildPassed = webBuild?.status === 'success';
+            if (!run.pull_requests || run.pull_requests.length === 0) {
+              console.log('No PR associated with this workflow run');
+              core.setOutput('has_pr', 'false');
+              return;
+            }
 
-    // Risk assessment (dummy logic for example)
-    const riskLevels = ['LOW', 'MED', 'HIGH'] as const;
-    let risk: typeof riskLevels[number] = 'LOW';
-    if (input.body && typeof input.body === 'string') {
-      if (input.body.includes('TODO')) {
-        risk = 'MED';
-      }
-      if (input.body.includes('FIXME')) {
-        risk = 'HIGH';
-      }
-    }
+            const prNumber = run.pull_requests[0].number;
+            core.setOutput('has_pr', 'true');
+            core.setOutput('pr_number', prNumber);
+            console.log(`Found PR #${prNumber}`);
 
-    // Build checklist
-    const checklist = { passed: [] as string[], missing: [] as string[] };
+      - name: Post release assessment
+        if: steps.pr_info.outputs.has_pr == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = parseInt('${{ steps.pr_info.outputs.pr_number }}', 10);
 
-    if (!hasChecks) {
-      checklist.missing.push('CI checks unknown (no completed checks found)');
-    } else if (!allChecksPassed) {
-      checklist.missing.push('CI checks failing');
-    } else {
-      checklist.passed.push('All CI checks passed');
-    }
+            if (!prNumber) {
+              console.log('No valid PR number, skipping');
+              return;
+            }
 
-    if (!hasWebBuild) {
-      checklist.missing.push('web-build check missing');
-    } else if (!webBuildPassed) {
-      checklist.missing.push('web-build failing');
-    } else {
-      checklist.passed.push('web-build passed');
-    }
+            try {
+              const { data: pr } = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: prNumber,
+              });
 
-    // Recommendation logic
-    const recommendation: 'APPROVE' | 'BLOCK' =
-      allChecksPassed && webBuildPassed && risk !== 'HIGH' ? 'APPROVE' : 'BLOCK';
+              const { data: files } = await github.rest.pulls.listFiles({
+                owner,
+                repo,
+                pull_number: prNumber,
+                per_page: 100,
+              });
 
-    // Compose changelog and notes (dummy)
-    const changelog = input.changedFiles || [];
-    const notes = `Risk level assessed as ${risk}`;
+              const fileCount = files.length;
+              const hasWorkflowChanges = files.some(f => f.filename.startsWith('.github/'));
+              const hasPackageChanges = files.some(f => f.filename.includes('package.json'));
 
-    return NextResponse.json({
-      ok: true,
-      recommendation,
-      risk,
-      checklist,
-      notes,
-      changelog,
-    });
-  } catch (error) {
-    return NextResponse.json({ ok: false, error: (error as Error).message }, { status: 500 });
-  }
-}
+              let risk = 'LOW';
+              if (hasWorkflowChanges) risk = 'HIGH';
+              else if (hasPackageChanges || fileCount > 20) risk = 'MEDIUM';
+
+              const marker = '<!-- AGENT_RELEASE_MANAGER -->';
+              const { data: comments } = await github.rest.issues.listComments({
+                owner,
+                repo,
+                issue_number: prNumber,
+                per_page: 100,
+              });
+
+              const existingComment = comments.find(c => c.body && c.body.includes(marker));
+
+              const body = `${marker}
+## Release Manager Assessment
+
+**Risk Level:** ${risk === 'HIGH' ? '🔴' : risk === 'MEDIUM' ? '🟡' : '🟢'} ${risk}
+
+### Summary
+- Files changed: ${fileCount}
+- Workflow changes: ${hasWorkflowChanges ? 'Yes' : 'No'}
+- Package changes: ${hasPackageChanges ? 'Yes' : 'No'}
+
+### Recommendation
+${risk === 'HIGH' ? '⚠️ Manual review recommended before merge.' : '✅ Safe to merge after checks pass.'}
+`;
+
+              if (existingComment) {
+                await github.rest.issues.updateComment({
+                  owner,
+                  repo,
+                  comment_id: existingComment.id,
+                  body,
+                });
+                console.log(`Updated existing comment #${existingComment.id}`);
+              } else {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number: prNumber,
+                  body,
+                });
+                console.log('Created new comment');
+              }
+            } catch (error) {
+              console.log(`Release manager error (non-fatal): ${error.message}`);
+            }

@@ -1,18 +1,23 @@
 name: auto-update-and-merge
+
 on:
+  workflow_dispatch:
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review, labeled]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
 concurrency:
   group: pr-${{ github.event.pull_request.number }}-${{ github.workflow }}
   cancel-in-progress: true
+
 jobs:
   update-and-merge:
-    if: startsWith(github.head_ref, 'agent-') && contains(github.event.pull_request.labels.*.name, 'automerge')
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: write
-      issues: read
+    continue-on-error: true
     steps:
       - name: Gatekeeper label check
         id: gate
