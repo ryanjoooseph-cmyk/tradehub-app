@@ -1,54 +1,14 @@
-name: Enable PR Auto-merge (PAT)
+name: Enable PR Auto-merge (DISABLED - manual only)
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
-  enable-auto-merge:
-    if: github.event_name == 'pull_request'
+  disabled:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
-      - name: Gatekeeper label check
-        id: gate
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const prNumber = context.payload.pull_request.number;
-
-            const { data: issue } = await github.rest.issues.get({
-              owner,
-              repo,
-              issue_number: prNumber,
-            });
-
-            const labels = (issue.labels || []).map(l => (l.name || '').toLowerCase());
-            const hasRiskLow = labels.includes('risk-low');
-            const blocked = labels.includes('needs-review') || labels.includes('risk-high') || labels.includes('risk-med');
-
-            console.log('PR labels:', labels);
-            console.log('hasRiskLow:', hasRiskLow, 'blocked:', blocked);
-
-            core.setOutput('should_enable', String(hasRiskLow && !blocked));
-
-      - name: Enable auto-merge via PAT
-        if: steps.gate.outputs.should_enable == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
-        run: |
-          set -euo pipefail
-          gh pr merge "$PR_URL" --auto --squash
-
-      - name: Skip auto-merge
-        if: steps.gate.outputs.should_enable != 'true'
-        run: echo "Auto-merge not enabled: requires label 'risk-low' and no 'needs-review'/'risk-high'/'risk-med'."
+      - run: echo "Disabled. Use enable-automerge.yml (pull_request_target) instead."
