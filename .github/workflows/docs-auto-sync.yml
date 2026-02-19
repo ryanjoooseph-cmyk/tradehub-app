@@ -1,8 +1,9 @@
 name: Docs Auto Sync
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
@@ -10,8 +11,8 @@ permissions:
 
 jobs:
   sync:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    # Never block main - this is a non-critical automation
     continue-on-error: true
 
     steps:
@@ -27,22 +28,15 @@ jobs:
         id: pr_info
         shell: bash
         run: |
-          set +e  # Don't fail on errors
-          # Extract PR number from merge commit message (format: "Merge pull request #123 from..." or squash "(#123)")
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-          PR_NUMBER=$(echo "$COMMIT_MSG" | grep -oE '#[0-9]+' | head -1 | tr -d '#' || echo "")
-          PR_TITLE=$(git log -1 --pretty=%s)
+          set +e
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
 
           echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
           echo "pr_title=${PR_TITLE}" >> $GITHUB_OUTPUT
 
-          echo "Detected PR: #${PR_NUMBER:-none}"
+          echo "PR: #${PR_NUMBER:-none}"
           echo "Title: ${PR_TITLE}"
-
-          # If no PR number found, this is not a PR merge - exit gracefully
-          if [ -z "$PR_NUMBER" ]; then
-            echo "No PR number found in commit, skipping docs sync"
-          fi
 
       - name: Sync docs
         if: steps.pr_info.outputs.pr_number != ''
@@ -67,37 +61,37 @@ jobs:
       - name: Create PR with changes
         if: steps.pr_info.outputs.pr_number != '' && steps.check_changes.outputs.has_changes == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
         run: |
-          set +e  # Don't fail on errors
-          
+          set +e
+
           BRANCH_NAME="docs/auto-sync"
-          
+
           echo "Configuring git..."
           git config user.name "docs-sync-bot"
           git config user.email "docs-sync-bot@users.noreply.github.com"
-          
+
           echo "Committing changes..."
           git commit -m "docs: auto-sync after PR${{ steps.pr_info.outputs.pr_number }} merge"
-          
+
           echo "Checking if branch exists remotely..."
           if git ls-remote --exit-code --heads origin "$BRANCH_NAME" >/dev/null 2>&1; then
             echo "Branch $BRANCH_NAME exists, deleting..."
             git push origin --delete "$BRANCH_NAME" || echo "Failed to delete remote branch (continuing)"
           fi
-          
+
           echo "Creating and pushing to branch $BRANCH_NAME..."
           git checkout -b "$BRANCH_NAME"
           git push -f origin "$BRANCH_NAME"
-          
+
           if [ $? -ne 0 ]; then
-            echo "❌ Failed to push branch (exiting gracefully)"
+            echo "Failed to push branch (exiting gracefully)"
             exit 0
           fi
-          
+
           echo "Checking for existing PR..."
           EXISTING_PR=$(gh pr list --head "$BRANCH_NAME" --base main --json number --jq '.[0].number' 2>/dev/null || echo "")
-          
+
           if [ -n "$EXISTING_PR" ]; then
             echo "PR #$EXISTING_PR already exists, skipping creation"
             PR_NUMBER="$EXISTING_PR"
@@ -111,18 +105,18 @@ This PR was automatically created by the docs-auto-sync workflow." \
               --base main \
               --head "$BRANCH_NAME" \
               --label "documentation" \
-              2>/dev/null | grep -oP '(?<=pull/)\d+' || echo "")
-            
+              2>/dev/null | grep -oE '[0-9]+$' || echo "")
+
             if [ -z "$PR_NUMBER" ]; then
-              echo "❌ Failed to create PR (exiting gracefully)"
+              echo "Failed to create PR (exiting gracefully)"
               exit 0
             fi
-            
-            echo "✅ Created PR #$PR_NUMBER"
+
+            echo "Created PR #$PR_NUMBER"
           fi
-          
+
           echo "Enabling auto-merge..."
-          gh pr merge "$PR_NUMBER" --auto --squash 2>/dev/null || echo "⚠️ Failed to enable auto-merge (PR may require reviews)"
-          
-          echo "✅ Docs sync PR workflow complete"
+          gh pr merge "$PR_NUMBER" --auto --squash 2>/dev/null || echo "Failed to enable auto-merge (PR may require reviews)"
+
+          echo "Docs sync PR workflow complete"
           exit 0

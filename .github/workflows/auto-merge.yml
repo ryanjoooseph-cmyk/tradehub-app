@@ -1,20 +1,18 @@
 name: Enable PR Auto-merge (PAT)
 
 on:
+  workflow_dispatch:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
   pull-requests: write
-  issues: read
 
 jobs:
   enable-auto-merge:
-    if: ${{ github.event.pull_request.draft == false }}
-    runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    # Never block PRs - this is best-effort automation
+    runs-on: ubuntu-latest
     continue-on-error: true
     steps:
       - name: Gatekeeper label check
@@ -45,7 +43,7 @@ jobs:
       - name: Enable auto-merge via PAT
         if: steps.gate.outputs.should_enable == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.GH_PAT || github.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
           set -euo pipefail

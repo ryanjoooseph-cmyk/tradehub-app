@@ -1,6 +1,7 @@
 name: Agent - Release Manager
 
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: ["web-build"]
     types: [completed]
@@ -8,16 +9,14 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  issues: write
 
 jobs:
   release-manager:
-    # Only run on successful web-build for PRs
     if: >
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    continue-on-error: true
     steps:
       - name: Get PR info
         id: pr_info
@@ -25,12 +24,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // Get PR from workflow run
             const runId = context.payload.workflow_run.id;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            // Find associated PR
             const { data: run } = await github.rest.actions.getWorkflowRun({
               owner,
               repo,
@@ -64,14 +61,12 @@ jobs:
             }
 
             try {
-              // Get PR details
               const { data: pr } = await github.rest.pulls.get({
                 owner,
                 repo,
                 pull_number: prNumber,
               });
 
-              // Simple risk assessment based on files changed
               const { data: files } = await github.rest.pulls.listFiles({
                 owner,
                 repo,
@@ -87,7 +82,6 @@ jobs:
               if (hasWorkflowChanges) risk = 'HIGH';
               else if (hasPackageChanges || fileCount > 20) risk = 'MEDIUM';
 
-              // Find existing comment to update
               const marker = '<!-- AGENT_RELEASE_MANAGER -->';
               const { data: comments } = await github.rest.issues.listComments({
                 owner,
@@ -130,6 +124,5 @@ ${risk === 'HIGH' ? '⚠️ Manual review recommended before merge.' : '✅ Safe
                 console.log('Created new comment');
               }
             } catch (error) {
-              // Non-fatal: log and continue
-              console.log(`⚠️ Release manager error (non-fatal): ${error.message}`);
+              console.log(`Release manager error (non-fatal): ${error.message}`);
             }
