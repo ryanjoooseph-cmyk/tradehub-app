@@ -4,11 +4,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   disabled:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Disabled automation. Run manually via workflow_dispatch if needed."
+      - run: echo "Manual only. Disabled to prevent automated failures."
