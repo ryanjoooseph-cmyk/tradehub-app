@@ -1,15 +1,13 @@
-name: Enable PR Auto-merge (DISABLED - manual only)
+name: auto-merge (disabled)
 
 on:
   workflow_dispatch:
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   disabled:
-    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Disabled. Use enable-automerge.yml (pull_request_target) instead."
+      - run: echo "Disabled. Use enable-automerge.yml instead."

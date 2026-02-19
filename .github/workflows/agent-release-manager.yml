@@ -1,133 +1,45 @@
-name: Agent - Release Manager
+name: agent-release-manager
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
-  workflow_run:
-    workflows: ["web-build"]
-    types: [completed]
+    inputs:
+      pr_number:
+        description: "PR number to analyze (manual)"
+        required: true
+        type: string
 
 permissions:
   contents: read
   pull-requests: write
 
-concurrency:
-  group: agent-release-manager-${{ github.event.pull_request.number || github.run_id }}
-  cancel-in-progress: true
-
 jobs:
-  release-manager:
-    if: >
-      github.event_name != 'push' &&
-      github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'pull_request'
+  analyze:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
-      - name: Get PR info
-        id: pr_info
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const runId = context.payload.workflow_run.id;
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
+      - uses: actions/checkout@v4
 
-            const { data: run } = await github.rest.actions.getWorkflowRun({
-              owner,
-              repo,
-              run_id: runId,
-            });
+      - name: Set PR_NUMBER
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> "$GITHUB_ENV"
+          else
+            echo "PR_NUMBER=${{ inputs.pr_number }}" >> "$GITHUB_ENV"
+          fi
 
-            if (!run.pull_requests || run.pull_requests.length === 0) {
-              console.log('No PR associated with this workflow run');
-              core.setOutput('has_pr', 'false');
-              return;
-            }
-
-            const prNumber = run.pull_requests[0].number;
-            core.setOutput('has_pr', 'true');
-            core.setOutput('pr_number', prNumber);
-            console.log(`Found PR #${prNumber}`);
-
-      - name: Post release assessment
-        if: steps.pr_info.outputs.has_pr == 'true'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const prNumber = parseInt('${{ steps.pr_info.outputs.pr_number }}', 10);
-
-            if (!prNumber) {
-              console.log('No valid PR number, skipping');
-              return;
-            }
-
-            try {
-              const { data: pr } = await github.rest.pulls.get({
-                owner,
-                repo,
-                pull_number: prNumber,
-              });
-
-              const { data: files } = await github.rest.pulls.listFiles({
-                owner,
-                repo,
-                pull_number: prNumber,
-                per_page: 100,
-              });
-
-              const fileCount = files.length;
-              const hasWorkflowChanges = files.some(f => f.filename.startsWith('.github/'));
-              const hasPackageChanges = files.some(f => f.filename.includes('package.json'));
-
-              let risk = 'LOW';
-              if (hasWorkflowChanges) risk = 'HIGH';
-              else if (hasPackageChanges || fileCount > 20) risk = 'MEDIUM';
-
-              const marker = '<!-- AGENT_RELEASE_MANAGER -->';
-              const { data: comments } = await github.rest.issues.listComments({
-                owner,
-                repo,
-                issue_number: prNumber,
-                per_page: 100,
-              });
-
-              const existingComment = comments.find(c => c.body && c.body.includes(marker));
-
-              const body = `${marker}
-## Release Manager Assessment
-
-**Risk Level:** ${risk === 'HIGH' ? '🔴' : risk === 'MEDIUM' ? '🟡' : '🟢'} ${risk}
-
-### Summary
-- Files changed: ${fileCount}
-- Workflow changes: ${hasWorkflowChanges ? 'Yes' : 'No'}
-- Package changes: ${hasPackageChanges ? 'Yes' : 'No'}
-
-### Recommendation
-${risk === 'HIGH' ? '⚠️ Manual review recommended before merge.' : '✅ Safe to merge after checks pass.'}
-`;
-
-              if (existingComment) {
-                await github.rest.issues.updateComment({
-                  owner,
-                  repo,
-                  comment_id: existingComment.id,
-                  body,
-                });
-                console.log(`Updated existing comment #${existingComment.id}`);
-              } else {
-                await github.rest.issues.createComment({
-                  owner,
-                  repo,
-                  issue_number: prNumber,
-                  body,
-                });
-                console.log('Created new comment');
-              }
-            } catch (error) {
-              console.log(`Release manager error (non-fatal): ${error.message}`);
-            }
+      - name: Call agent endpoint (best effort)
+        env:
+          AGENT_ENDPOINT_URL: ${{ secrets.AGENT_ENDPOINT_URL }}
+          AGENT_SECRET: ${{ secrets.AGENT_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${AGENT_ENDPOINT_URL:-}" ] || [ -z "${AGENT_SECRET:-}" ]; then
+            echo "Missing AGENT_ENDPOINT_URL or AGENT_SECRET; exiting 0 to avoid spam failures."
+            exit 0
+          fi
+          payload=$(printf '{"prNumber":%s,"repo":"%s"}' "$PR_NUMBER" "${{ github.repository }}")
+          curl -sS -X POST "${AGENT_ENDPOINT_URL%/}/api/agent/release-manager" \
+            -H "content-type: application/json" \
+            -H "x-agent-secret: ${AGENT_SECRET}" \
+            --data "$payload" >/dev/null || true
