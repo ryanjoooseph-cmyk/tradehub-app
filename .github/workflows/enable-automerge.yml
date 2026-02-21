@@ -18,17 +18,23 @@ jobs:
   enable:
     runs-on: ubuntu-latest
     steps:
-      - name: Decide PR number
+      - name: Resolve PR number (never fail)
         id: pr
         uses: actions/github-script@v7
         with:
           script: |
             const isPR = context.eventName === 'pull_request_target';
-            const pr = isPR ? context.payload.pull_request?.number : (core.getInput('pr_number') || '');
-            if (!pr) core.setFailed('No PR number available (need pull_request_target event or workflow_dispatch input pr_number)');
-            core.setOutput('number', String(pr));
+            const n = isPR ? context.payload.pull_request?.number : (core.getInput('pr_number') || '');
+            if (!n) {
+              core.warning('No PR number available; skipping enable-automerge.');
+              core.setOutput('number', '');
+            } else {
+              core.setOutput('number', String(n));
+            }
 
-      - name: Enable auto-merge (squash)
+      - name: Enable auto-merge (best effort)
+        if: ${{ steps.pr.outputs.number != '' }}
+        continue-on-error: true
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
