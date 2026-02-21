@@ -19,8 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Enable auto-merge (best effort, never fail)
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           script: |
             const ev = context.eventName;
             const isPR = ev === 'pull_request_target';
