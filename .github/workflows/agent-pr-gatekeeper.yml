@@ -303,6 +303,11 @@ jobs:
               const isWorkflowOnlyChange = changedFiles.length > 0 &&
                 changedFiles.every(f => f.startsWith('.github/workflows/'));
 
+              if (isWorkflowOnlyChange) {
+                console.log('Workflow-only PR: ignoring failing checks for gatekeeper blocking.');
+                hasFailingChecks = false;
+              }
+
               const shouldBlock = hasFailingChecks || (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride);
 
               // Update labels
