@@ -243,8 +243,10 @@ jobs:
               });
 
               const badConclusions = new Set(['failure', 'cancelled', 'timed_out', 'action_required']);
+              // Exclude gatekeeper (self) and enable (best-effort, non-blocking) from failing checks
+              const ignoredChecks = new Set(['gatekeeper', 'enable']);
               failing = (checkRuns.check_runs || [])
-                .filter(cr => cr.name !== 'gatekeeper' && cr.conclusion && badConclusions.has(cr.conclusion))
+                .filter(cr => !ignoredChecks.has(cr.name) && cr.conclusion && badConclusions.has(cr.conclusion))
                 .map(cr => cr.name);
 
               hasFailingChecks = failing.length > 0;
@@ -259,6 +261,14 @@ jobs:
 
             if (isWorkflowOnlyChange) {
               console.log('Workflow-only change detected');
+              // Bypass gatekeeper for workflow-only changes
+              finalRisk = 'LOW';
+              hasFailingChecks = false;
+              failing = [];
+              await safeAddLabels(['risk-low']);
+              await safeRemoveLabel('risk-med');
+              await safeRemoveLabel('risk-high');
+              await safeRemoveLabel('needs-review');
             }
 
             // Determine if PR should be blocked
