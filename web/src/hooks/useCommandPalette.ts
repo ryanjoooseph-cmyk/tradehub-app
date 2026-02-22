@@ -41,11 +41,6 @@ export function useCommandPalette() {
     return search(query);
   }, [query]);
 
-  // Reset selectedIndex when results change
-  useEffect(() => {
-    setSelectedIndex(0);
-  }, [results.length]);
-
   // Global keyboard shortcut: ⌘K / Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -80,6 +75,11 @@ export function useCommandPalette() {
     },
     [query, router]
   );
+
+  const setQueryAndReset = useCallback((next: string) => {
+    setQuery(next);
+    setSelectedIndex(0);
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -119,6 +119,7 @@ export function useCommandPalette() {
 
   const handleRecentSearchClick = useCallback((recentQuery: string) => {
     setQuery(recentQuery);
+    setSelectedIndex(0);
   }, []);
 
   const open = useCallback(() => setIsOpen(true), []);
@@ -130,7 +131,7 @@ export function useCommandPalette() {
     results,
     selectedIndex,
     recentSearches,
-    setQuery,
+    setQuery: setQueryAndReset,
     setSelectedIndex,
     handleKeyDown,
     handleSelect,
