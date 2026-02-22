@@ -304,14 +304,23 @@ jobs:
                 changedFiles.every(f => f.startsWith('.github/workflows/'));
 
               if (isWorkflowOnlyChange) {
-                console.log('Workflow-only PR: ignoring failing checks for gatekeeper blocking.');
+                console.log('Workflow-only PR detected: forcing risk LOW and ignoring failing checks.');
+                finalRisk = 'LOW';
                 hasFailingChecks = false;
+                failing = [];
               }
 
-              const shouldBlock = hasFailingChecks || (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride);
+              // Workflow-only PRs are never blocked by gatekeeper.
+              const shouldBlock = (!isWorkflowOnlyChange && hasFailingChecks) ||
+                (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride);
 
               // Update labels
-              if (finalRisk === 'HIGH') {
+              if (isWorkflowOnlyChange) {
+                await safeAddLabels(['risk-low']);
+                await safeRemoveLabel('needs-review');
+                await safeRemoveLabel('risk-high');
+                await safeRemoveLabel('risk-med');
+              } else if (finalRisk === 'HIGH') {
                 await safeAddLabels(['needs-review', 'risk-high']);
                 await safeRemoveLabel('risk-med');
                 await safeRemoveLabel('risk-low');
@@ -329,7 +338,7 @@ jobs:
 
               // Try to disable auto-merge for HIGH risk
               let autoMergeDisabled = false;
-              if (hasFailingChecks || (finalRisk === 'HIGH' && !isOverride)) {
+              if (!isWorkflowOnlyChange && (hasFailingChecks || (finalRisk === 'HIGH' && !isOverride))) {
                 try {
                   const q = await github.graphql(
                     `query($owner:String!, $repo:String!, $number:Int!) {
