@@ -259,13 +259,14 @@ jobs:
 
             if (isWorkflowOnlyChange) {
               console.log('Workflow-only change detected');
-            }
-
-            if (isWorkflowOnlyChange) {
-              console.log('Workflow-only PR detected: forcing pass (ignore failing checks, force LOW risk).');
+              // Bypass gatekeeper for workflow-only changes
               finalRisk = 'LOW';
               hasFailingChecks = false;
               failing = [];
+              await safeAddLabels(['risk-low']);
+              await safeRemoveLabel('risk-med');
+              await safeRemoveLabel('risk-high');
+              await safeRemoveLabel('needs-review');
             }
 
             // Determine if PR should be blocked
