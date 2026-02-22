@@ -19,11 +19,11 @@ const days: Day[] = [
   { label: "Sun", key: "Sun" },
 ];
 
-const tone = (status: string): "default" | "success" | "warn" | "danger" => {
+const tone = (status: string): "default" | "success" | "warning" | "danger" => {
   const t = (status || "").toLowerCase();
   if (/(complete|completed|done|paid|success|approved|active)/.test(t)) return "success";
   if (/(dispute|overdue|failed|fail|cancel|cancelled|rejected|error|blocked)/.test(t)) return "danger";
-  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing|draft)/.test(t)) return "warn";
+  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing|draft)/.test(t)) return "warning";
   return "default";
 };
 export function CalendarV2() {
@@ -89,7 +89,7 @@ export function CalendarV2() {
                         <div className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">{j.id}</div>
                       </div>
                       <div className="mt-2 flex items-center justify-between gap-2">
-                        <Badge variant={tone(j.status) as "default" | "success" | "warn" | "danger"} className="rounded-full px-3 py-1 text-xs font-semibold">{j.status}</Badge>
+                        <Badge variant={tone(j.status) as "default" | "success" | "warning" | "danger"} className="rounded-full px-3 py-1 text-xs font-semibold">{j.status}</Badge>
                         <div className="text-xs text-zinc-500 dark:text-zinc-400">{j.assignee}</div>
                       </div>
                     </button>

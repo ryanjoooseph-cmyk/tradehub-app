@@ -4,8 +4,6 @@ import React from "react";
 import Link from "next/link";
 import { Card, GhostButton, PageHeader, PageWrap, Pill, PrimaryButton, cx } from "@/components/app/filled/page";
 import { ChevronLeft, ChevronRight, GripVertical, Calendar as CalendarIcon, Sparkles, Clock, MapPin, Users, AlertTriangle, X, Search, Filter, CheckCircle, Edit3, Copy, Check, Save, ExternalLink } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { TooltipProvider, JobTooltip } from "@/components/ui/tooltip";
 
 type EventStatus = "scheduled" | "in-progress" | "completed";
 type EventPriority = "normal" | "high" | "urgent";
@@ -98,8 +96,29 @@ const initialBacklog: BacklogItem[] = [
   { id: 'J-1412', title: 'Window sealing', crew: null, site: 'Footscray', priority: 'urgent' },
 ];
 
-// Note: Event card colors are now handled via status badges and inline classes
-// This function is no longer used but kept for compatibility
+// Event card colors based on status and priority
+function getEventStyles(status: EventStatus, priority: EventPriority, isConflict: boolean) {
+  if (isConflict) {
+    return "border-red-500/60 bg-red-50 dark:bg-red-950/40 ring-2 ring-red-500/30";
+  }
+
+  if (priority === 'urgent') {
+    return "border-rose-400/60 bg-rose-50 dark:bg-rose-950/30 ring-1 ring-rose-400/30";
+  }
+
+  if (priority === 'high') {
+    return "border-amber-400/60 bg-amber-50 dark:bg-amber-950/30 ring-1 ring-amber-400/30";
+  }
+
+  switch (status) {
+    case 'in-progress':
+      return "border-blue-400/60 bg-blue-50 dark:bg-blue-950/30 ring-1 ring-blue-400/30";
+    case 'completed':
+      return "border-emerald-400/60 bg-emerald-50 dark:bg-emerald-950/30 ring-1 ring-emerald-400/30";
+    default:
+      return "border-border/60 bg-card dark:bg-card/90 ring-1 ring-border/30";
+  }
+}
 
 function getPriorityIndicator(priority: EventPriority) {
   if (priority === 'urgent') {
@@ -421,27 +440,11 @@ export default function CalendarPage() {
   const [statusFilter, setStatusFilter] = React.useState<EventStatus | 'all'>('all');
   const [crewFilter, setCrewFilter] = React.useState<string | 'all'>('all');
   const [toast, setToast] = React.useState<string | null>(null);
-  const [dragOverDay, setDragOverDay] = React.useState<number | null>(null);
-  const [isMobile, setIsMobile] = React.useState(false);
-
-  // Auto-switch to day view on mobile
-  React.useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (mobile && view === 'week') {
-        setView('day');
-      }
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, [view]);
 
   const gridDays = view === "day" ? [focusDay] : view === "week" ? days.map((_, i) => i) : [];
 
   const rows = Math.ceil((endDayMin - startDayMin) / stepMin);
-  const pxPerStep = 90; // Increased from 56px for better readability
+  const pxPerStep = 56; // Premium spacing for professional look
   const gridHeight = rows * pxPerStep;
 
   // Get all unique crews
@@ -670,20 +673,20 @@ export default function CalendarPage() {
               {/* Quick Stats */}
               <div className="grid grid-cols-2 gap-2">
                 <div className="rounded-xl bg-muted/20 p-3">
-                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground/70 font-semibold">Jobs</div>
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground/70 font-semibold">Jobs</div>
                   <div className="mt-1.5 text-xl font-bold">{events.length}</div>
                 </div>
-                <div className="rounded-xl bg-success-50 dark:bg-success-950/30 p-3">
-                  <div className="text-[10px] uppercase tracking-wide text-success-600/70 dark:text-success-400/70 font-semibold">Active</div>
-                  <div className="mt-1.5 text-xl font-bold text-success-600 dark:text-success-400">{inProgressCount}</div>
+                <div className="rounded-xl bg-blue-50 dark:bg-blue-950/30 p-3">
+                  <div className="text-[11px] uppercase tracking-wide text-blue-600/70 dark:text-blue-400/70 font-semibold">Active</div>
+                  <div className="mt-1.5 text-xl font-bold text-blue-600 dark:text-blue-400">{inProgressCount}</div>
                 </div>
-                <div className="rounded-xl bg-warning-50 dark:bg-warning-950/30 p-3">
-                  <div className="text-[10px] uppercase tracking-wide text-warning-600/70 dark:text-warning-400/70 font-semibold">Priority</div>
-                  <div className="mt-1.5 text-xl font-bold text-warning-600 dark:text-warning-400">{highPriorityCount}</div>
+                <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 p-3">
+                  <div className="text-[11px] uppercase tracking-wide text-amber-600/70 dark:text-amber-400/70 font-semibold">Priority</div>
+                  <div className="mt-1.5 text-xl font-bold text-amber-600 dark:text-amber-400">{highPriorityCount}</div>
                 </div>
-                <div className={cx("rounded-xl p-3", conflictCount > 0 ? "bg-danger-50 dark:bg-danger-950/30" : "bg-success-50 dark:bg-success-950/30")}>
-                  <div className={cx("text-[10px] uppercase tracking-wide font-semibold", conflictCount > 0 ? "text-danger-600/70 dark:text-danger-400/70" : "text-success-600/70 dark:text-success-400/70")}>Conflicts</div>
-                  <div className={cx("mt-1.5 text-xl font-bold", conflictCount > 0 ? "text-danger-600 dark:text-danger-400" : "text-success-600 dark:text-success-400")}>
+                <div className={cx("rounded-xl p-3", conflictCount > 0 ? "bg-red-50 dark:bg-red-950/30" : "bg-emerald-50 dark:bg-emerald-950/30")}>
+                  <div className={cx("text-[11px] uppercase tracking-wide font-semibold", conflictCount > 0 ? "text-red-600/70 dark:text-red-400/70" : "text-emerald-600/70 dark:text-emerald-400/70")}>Conflicts</div>
+                  <div className={cx("mt-1.5 text-xl font-bold", conflictCount > 0 ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400")}>
                     {conflictCount}
                   </div>
                 </div>
@@ -691,7 +694,7 @@ export default function CalendarPage() {
 
               {/* Filters */}
               <div>
-                <div className="mb-2 flex items-center gap-2 text-[10px] uppercase tracking-wide text-muted-foreground/70 font-semibold">
+                <div className="mb-2 flex items-center gap-2 text-[11px] uppercase tracking-wide text-muted-foreground/70 font-semibold">
                   <Filter className="h-3 w-3" />
                   Filters
                 </div>
@@ -753,10 +756,7 @@ export default function CalendarPage() {
               {/* Day Selector (Day View) */}
               {view === "day" && (
                 <div>
-                  <div className="mb-2 text-[10px] uppercase tracking-wide text-muted-foreground/70 font-semibold">
-                    {isMobile && <span className="text-primary-500">📱 </span>}
-                    Select Day
-                  </div>
+                  <div className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground/70 font-semibold">Select Day</div>
                   <div className="grid grid-cols-7 gap-1">
                     {days.map((d, i) => (
                       <button
@@ -777,35 +777,29 @@ export default function CalendarPage() {
                 </div>
               )}
 
-              {/* Status Legend - Enhanced for PR20 */}
-              <div className="rounded-xl border bg-card/30 p-4 shadow-sm">
-                <div className="mb-3 text-sm font-bold">Status Legend</div>
-                <div className="space-y-2.5">
-                  <div className="flex items-center gap-3">
-                    <Badge status="in-progress" size="sm">In Progress</Badge>
-                    <span className="text-xs text-muted-foreground">Active jobs</span>
+              {/* Color Legend */}
+              <div>
+                <div className="mb-2 text-[11px] uppercase tracking-wide text-muted-foreground/70 font-semibold">Legend</div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="h-3.5 w-3.5 rounded border-2 border-blue-400/60 bg-blue-50 dark:bg-blue-950/30" />
+                    <span className="text-muted-foreground font-medium">In Progress</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Badge status="scheduled" size="sm">Scheduled</Badge>
-                    <span className="text-xs text-muted-foreground">Upcoming</span>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="h-3.5 w-3.5 rounded border-2 border-emerald-400/60 bg-emerald-50 dark:bg-emerald-950/30" />
+                    <span className="text-muted-foreground font-medium">Completed</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Badge status="pending" size="sm">Pending</Badge>
-                    <span className="text-xs text-muted-foreground">Awaiting start</span>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="h-3.5 w-3.5 rounded border-2 border-amber-400/60 bg-amber-50 dark:bg-amber-950/30" />
+                    <span className="text-muted-foreground font-medium">High Priority</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Badge status="completed" size="sm">Complete</Badge>
-                    <span className="text-xs text-muted-foreground">Finished</span>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="h-3.5 w-3.5 rounded border-2 border-rose-400/60 bg-rose-50 dark:bg-rose-950/30" />
+                    <span className="text-muted-foreground font-medium">Urgent</span>
                   </div>
-                  <div className="pt-2 border-t border-border/40 mt-2">
-                    <div className="flex items-center gap-2 text-xs">
-                      <div className="h-2.5 w-2.5 rounded-full bg-rose-500 animate-pulse ring-2 ring-rose-500/20" />
-                      <span className="text-muted-foreground font-medium">Urgent priority</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs mt-1.5">
-                      <AlertTriangle className="h-3.5 w-3.5 text-danger-500" />
-                      <span className="text-muted-foreground font-medium">Scheduling conflict</span>
-                    </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="h-3.5 w-3.5 rounded border-2 border-red-500/60 bg-red-50 dark:bg-red-950/40" />
+                    <span className="text-muted-foreground font-medium">Conflict</span>
                   </div>
                 </div>
               </div>
@@ -945,7 +939,7 @@ export default function CalendarPage() {
                   {slots.slice(0, -1).map((m) => (
                     <div
                       key={m}
-                      className="flex h-[90px] items-start justify-end pr-4 pt-0"
+                      className="flex h-[56px] items-start justify-end pr-4 pt-0"
                     >
                       {m % 60 === 0 && (
                         <span className="text-sm font-semibold text-muted-foreground/70 -translate-y-2.5">
@@ -963,18 +957,12 @@ export default function CalendarPage() {
                     <div
                       key={d}
                       className={cx(
-                        "relative border-r last:border-r-0 transition-colors",
-                        isToday && "bg-foreground/[0.02]",
-                        dragOverDay === d && "bg-primary-500/5 border-primary-500 border-dashed border-2"
+                        "relative border-r last:border-r-0",
+                        isToday && "bg-foreground/[0.02]"
                       )}
                       style={{ height: gridHeight }}
-                      onDragOver={(ev) => {
-                        allowDrop(ev);
-                        setDragOverDay(d);
-                      }}
-                      onDragLeave={() => setDragOverDay(null)}
+                      onDragOver={allowDrop}
                       onDrop={(ev) => {
-                        setDragOverDay(null);
                         const rect = (ev.currentTarget as HTMLDivElement).getBoundingClientRect();
                         const y = ev.clientY - rect.top;
                         const stepIndex = Math.floor(y / pxPerStep);
@@ -988,7 +976,7 @@ export default function CalendarPage() {
                           <div
                             key={m}
                             className={cx(
-                              "h-[90px] border-b",
+                              "h-[56px] border-b",
                               m % 60 === 0 ? "border-border/40" : "border-border/10"
                             )}
                           />
@@ -996,124 +984,78 @@ export default function CalendarPage() {
                       </div>
 
                       {/* Events */}
-                      {(() => {
-                        const dayEvents = visibleEvents.filter((e) => e.day === d);
-                        const visibleCount = 3;
-                        const hasMore = dayEvents.length > visibleCount;
-                        const displayEvents = dayEvents.slice(0, visibleCount);
+                      {visibleEvents
+                        .filter((e) => e.day === d)
+                        .map((e) => {
+                          const top = ((e.startMin - startDayMin) / stepMin) * pxPerStep + 4;
+                          const h = Math.max(80, (e.durMin / stepMin) * pxPerStep - 8);
+                          const isConflict = hasConflict(e);
+                          const eventStyles = getEventStyles(e.status, e.priority, isConflict);
 
-                        return (
-                          <>
-                            {displayEvents.map((e) => {
-                              const top = ((e.startMin - startDayMin) / stepMin) * pxPerStep + 4;
-                              const h = Math.max(120, (e.durMin / stepMin) * pxPerStep - 8);
-                              const isConflict = hasConflict(e);
+                          return (
+                            <div
+                              key={e.id}
+                              draggable
+                              onDragStart={(ev) => onDragStart(ev, e.id)}
+                              onClick={() => {
+                                setSelectedEvent(e);
+                                setShowOverlay(true);
+                              }}
+                              className="absolute left-1.5 right-1.5 cursor-pointer hover:z-10"
+                              style={{ top, height: h }}
+                            >
+                              <div className={cx(
+                                "group h-full rounded-xl border-2 p-3.5 transition-all hover:shadow-xl overflow-hidden",
+                                eventStyles
+                              )}>
+                                {/* Header Row */}
+                                <div className="flex items-start justify-between gap-2 mb-2">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    {getPriorityIndicator(e.priority)}
+                                    <span className="text-xs font-mono font-bold truncate tracking-wide">{e.id}</span>
+                                  </div>
+                                  {isConflict && (
+                                    <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
+                                  )}
+                                </div>
 
-                              return (
-                                <TooltipProvider key={e.id}>
-                                  <JobTooltip
-                                    title={e.title}
-                                    location={`${e.site} - ${e.client}`}
-                                    time={`${minutesToFull(e.startMin)} – ${minutesToFull(e.startMin + e.durMin)}`}
-                                    crew={e.crew}
-                                    status={e.status}
-                                  >
-                                    <div
-                                      draggable
-                                      onDragStart={(ev) => onDragStart(ev, e.id)}
-                                      onClick={() => {
-                                        setSelectedEvent(e);
-                                        setShowOverlay(true);
-                                      }}
-                                      className="absolute left-1.5 right-1.5 cursor-pointer hover:z-10 transition-transform hover:scale-[1.02]"
-                                      style={{ top, height: h }}
-                                    >
-                                      <div className={cx(
-                                        "group h-full rounded-xl border-2 p-4 transition-all hover:shadow-xl overflow-hidden",
-                                        e.status === 'in-progress' && "bg-success-500/15 border-success-500 hover:bg-success-500/20",
-                                        e.status === 'scheduled' && "bg-info-500/15 border-info-500 hover:bg-info-500/20",
-                                        e.status === 'completed' && "bg-neutral-500/15 border-neutral-500 hover:bg-neutral-500/20",
-                                        e.priority === 'urgent' && "ring-2 ring-danger-500/30",
-                                        isConflict && "ring-2 ring-danger-500 bg-danger-500/15"
-                                      )}>
-                                        {/* Header Row with Status Badge */}
-                                        <div className="flex items-start justify-between gap-2 mb-2.5">
-                                          <div className="flex items-center gap-2 min-w-0">
-                                            <Badge status={e.status} size="sm">
-                                              {e.status === 'in-progress' ? 'In Progress' :
-                                               e.status === 'completed' ? 'Complete' : 'Scheduled'}
-                                            </Badge>
-                                            {getPriorityIndicator(e.priority)}
-                                          </div>
-                                          {isConflict && (
-                                            <AlertTriangle className="h-4 w-4 shrink-0 text-danger-500" />
-                                          )}
-                                        </div>
+                                {/* Title */}
+                                <div className="text-sm font-bold leading-snug line-clamp-2 mb-2.5">
+                                  {e.title}
+                                </div>
 
-                                        {/* Job ID */}
-                                        <div className="text-xs font-mono font-bold text-muted-foreground mb-2">
-                                          {e.id}
-                                        </div>
+                                {/* Details */}
+                                <div className="space-y-1.5">
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="truncate font-medium">{e.site}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Clock className="h-3.5 w-3.5 shrink-0" />
+                                    <span className="font-medium">{minutesToShort(e.startMin)} - {minutesToShort(e.startMin + e.durMin)}</span>
+                                  </div>
+                                </div>
 
-                                        {/* Title - Increased font size */}
-                                        <div className="text-[14px] font-bold leading-tight mb-3 line-clamp-2">
-                                          {e.title}
-                                        </div>
-
-                                        {/* Details - Increased font size */}
-                                        <div className="space-y-2">
-                                          <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
-                                            <MapPin className="h-3.5 w-3.5 shrink-0" />
-                                            <span className="truncate font-medium">{e.site}</span>
-                                          </div>
-                                          <div className="flex items-center gap-2 text-[12px] font-semibold">
-                                            <Clock className="h-3.5 w-3.5 shrink-0" />
-                                            <span>{minutesToShort(e.startMin)} - {minutesToShort(e.startMin + e.durMin)}</span>
-                                          </div>
-                                        </div>
-
-                                        {/* Crew Pills */}
-                                        {h >= 180 && (
-                                          <div className="mt-3 flex flex-wrap gap-1.5">
-                                            {e.crew.slice(0, 2).map((c, i) => (
-                                              <span key={i} className="inline-flex items-center gap-1 rounded-lg bg-background/70 px-2 py-1 text-[11px] font-semibold border border-border/40">
-                                                <Users className="h-3 w-3" />
-                                                {c}
-                                              </span>
-                                            ))}
-                                            {e.crew.length > 2 && (
-                                              <span className="inline-flex items-center rounded-lg bg-background/70 px-2 py-1 text-[11px] font-semibold border border-border/40">
-                                                +{e.crew.length - 2}
-                                              </span>
-                                            )}
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </JobTooltip>
-                                </TooltipProvider>
-                              );
-                            })}
-
-                            {/* +X More indicator */}
-                            {hasMore && (
-                              <div
-                                className="absolute left-1.5 right-1.5 bottom-2 z-20"
-                              >
-                                <button
-                                  className="w-full rounded-lg bg-primary-500/90 hover:bg-primary-600 text-white text-xs font-semibold py-1.5 transition-colors shadow-sm"
-                                  onClick={() => {
-                                    // Could open a modal showing all events for this day
-                                    console.log(`+${dayEvents.length - visibleCount} more events`);
-                                  }}
-                                >
-                                  +{dayEvents.length - visibleCount} more
-                                </button>
+                                {/* Crew Pills */}
+                                {h >= 160 && (
+                                  <div className="mt-3 flex flex-wrap gap-1.5">
+                                    {e.crew.slice(0, 2).map((c, i) => (
+                                      <span key={i} className="inline-flex items-center gap-1 rounded-lg bg-background/70 px-2 py-1 text-xs font-semibold border border-border/40">
+                                        <Users className="h-3 w-3" />
+                                        {c}
+                                      </span>
+                                    ))}
+                                    {e.crew.length > 2 && (
+                                      <span className="inline-flex items-center rounded-lg bg-background/70 px-2 py-1 text-xs font-semibold border border-border/40">
+                                        +{e.crew.length - 2}
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </>
-                        );
-                      })()}
+                            </div>
+                          );
+                        })}
 
                       {/* Drop Zone Indicator */}
                       <div className="absolute inset-x-2 bottom-2 rounded-lg border-2 border-dashed border-border/30 bg-muted/10 py-4 text-center text-xs font-medium text-muted-foreground/50">

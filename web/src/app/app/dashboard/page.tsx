@@ -22,7 +22,7 @@ export default function DashboardPage() {
         <SectionTitle title="Command Center" subtitle="Graphs + risk + feed. Calendar lives under Jobs now." />
         <div className="flex items-center gap-2 text-xs">
           <Badge variant="success">Deploy: Green</Badge>
-          <Badge variant="warn">A/R: $42.9k</Badge>
+          <Badge variant="warning">A/R: $42.9k</Badge>
           <Badge variant="default">Disputes: 0</Badge>
         </div>
       </div>
@@ -86,7 +86,7 @@ export default function DashboardPage() {
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between gap-3">
               <div className="text-sm font-medium">Quote approvals</div>
-              <Badge variant="warn">3</Badge>
+              <Badge variant="warning">3</Badge>
             </div>
             <div className="flex items-center justify-between gap-3">
               <div className="text-sm font-medium">Jobs at risk</div>
@@ -110,7 +110,7 @@ export default function DashboardPage() {
               { t: "New job booked", d: "Strata repaint — Tower A", b: "success" as const },
               { t: "Invoice sent", d: "INV-1042 to Acme Body Corp", b: "default" as const },
               { t: "Escrow funded", d: "$8,500 deposit received", b: "success" as const },
-              { t: "Schedule change", d: "Crew 2 moved to Thu 10:00", b: "warn" as const },
+              { t: "Schedule change", d: "Crew 2 moved to Thu 10:00", b: "warning" as const },
             ].map((e, i) => (
               <div key={i} className="flex items-start justify-between gap-3 rounded-lg border bg-muted/10 p-3">
                 <div>

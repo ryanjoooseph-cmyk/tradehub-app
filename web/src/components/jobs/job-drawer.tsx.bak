@@ -11,12 +11,12 @@ function toneForStatus(s: Job["status"]) {
   if (s === "In Progress") return "default";
   if (s === "Scheduled") return "default";
   if (s === "Disputed") return "danger";
-  return "warning";
+  return "warn";
 }
 
 function toneForPriority(p: Job["priority"]) {
   if (p === "High") return "danger";
-  if (p === "Medium") return "warning";
+  if (p === "Medium") return "warn";
   return "default";
 }
 
