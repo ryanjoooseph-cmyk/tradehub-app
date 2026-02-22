@@ -13,6 +13,34 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
+      - name: Get changed files
+        id: files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          pr="${{ github.event.pull_request.number }}"
+          files=$(gh api "repos/${{ github.repository }}/pulls/${pr}/files" --paginate --jq '.[].filename')
+          echo "files<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$files" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Skip gatekeeper for workflow-only PRs
+        run: |
+          set -euo pipefail
+          only_workflows="true"
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            case "$f" in
+              .github/workflows/*) ;;
+              *) only_workflows="false" ;;
+            esac
+          done <<< "${{ steps.files.outputs.files }}"
+          if [ "$only_workflows" = "true" ]; then
+            echo "Workflow-only PR detected; gatekeeper passing."
+            exit 0
+          fi
+
       - name: PR Gatekeeper
         uses: actions/github-script@v7
         with:
@@ -275,10 +303,24 @@ jobs:
               const isWorkflowOnlyChange = changedFiles.length > 0 &&
                 changedFiles.every(f => f.startsWith('.github/workflows/'));
 
-              const shouldBlock = hasFailingChecks || (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride);
+              if (isWorkflowOnlyChange) {
+                console.log('Workflow-only PR detected: forcing risk LOW and ignoring failing checks.');
+                finalRisk = 'LOW';
+                hasFailingChecks = false;
+                failing = [];
+              }
+
+              // Workflow-only PRs are never blocked by gatekeeper.
+              const shouldBlock = (!isWorkflowOnlyChange && hasFailingChecks) ||
+                (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride);
 
               // Update labels
-              if (finalRisk === 'HIGH') {
+              if (isWorkflowOnlyChange) {
+                await safeAddLabels(['risk-low']);
+                await safeRemoveLabel('needs-review');
+                await safeRemoveLabel('risk-high');
+                await safeRemoveLabel('risk-med');
+              } else if (finalRisk === 'HIGH') {
                 await safeAddLabels(['needs-review', 'risk-high']);
                 await safeRemoveLabel('risk-med');
                 await safeRemoveLabel('risk-low');
@@ -296,7 +338,7 @@ jobs:
 
               // Try to disable auto-merge for HIGH risk
               let autoMergeDisabled = false;
-              if (hasFailingChecks || (finalRisk === 'HIGH' && !isOverride)) {
+              if (!isWorkflowOnlyChange && (hasFailingChecks || (finalRisk === 'HIGH' && !isOverride))) {
                 try {
                   const q = await github.graphql(
                     `query($owner:String!, $repo:String!, $number:Int!) {

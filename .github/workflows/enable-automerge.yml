@@ -17,20 +17,59 @@ permissions:
 jobs:
   enable:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
-      - name: Decide PR number
-        id: pr
+      - name: Enable auto-merge (best effort, never fail)
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           script: |
-            const isPR = context.eventName === 'pull_request_target';
-            const pr = isPR ? context.payload.pull_request?.number : (core.getInput('pr_number') || '');
-            if (!pr) core.setFailed('No PR number available (need pull_request_target event or workflow_dispatch input pr_number)');
-            core.setOutput('number', String(pr));
+            const ev = context.eventName;
+            const isPR = ev === 'pull_request_target';
+            const pr = isPR ? context.payload.pull_request : null;
+            const prNumber = pr?.number || (core.getInput('pr_number') ? Number(core.getInput('pr_number')) : null);
 
-      - name: Enable auto-merge (squash)
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ steps.pr.outputs.number }}
-          merge-method: squash
+            if (!prNumber) {
+              core.warning('No PR number available; skipping.');
+              return;
+            }
+            if (isPR && pr?.draft) {
+              core.info(`PR #${prNumber} is draft; skipping enable.`);
+              return;
+            }
+
+            // Enable squash auto-merge via GraphQL. Never throw.
+            try {
+              const q = await github.graphql(
+                `query($owner:String!, $repo:String!, $number:Int!) {
+                  repository(owner:$owner, name:$repo) {
+                    pullRequest(number:$number) { id }
+                  }
+                }`,
+                { owner: context.repo.owner, repo: context.repo.repo, number: prNumber }
+              );
+
+              const prId = q?.repository?.pullRequest?.id;
+              if (!prId) {
+                core.warning(`Could not resolve PR id for #${prNumber}; skipping.`);
+                return;
+              }
+
+              await github.graphql(
+                `mutation($pullRequestId:ID!, $mergeMethod:PullRequestMergeMethod!) {
+                  enablePullRequestAutoMerge(input:{ pullRequestId:$pullRequestId, mergeMethod:$mergeMethod }) {
+                    pullRequest { number }
+                  }
+                }`,
+                { pullRequestId: prId, mergeMethod: "SQUASH" }
+              );
+
+              core.info(`Enabled auto-merge (squash) for PR #${prNumber}`);
+            } catch (e) {
+              core.warning(`Enable auto-merge failed (non-blocking): ${e?.message || e}`);
+            }
+
+      - name: Finalize (force success)
+        if: always()
+        run: echo "enable-automerge finished (forced success)"

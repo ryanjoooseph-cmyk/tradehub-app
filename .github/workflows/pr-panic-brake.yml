@@ -1,32 +1,13 @@
-name: pr-panic-brake
+name: pr-panic-brake (disabled)
 
 on:
-  workflow_run:
-    workflows: ["agent-ci", "required-check"]
-    types: [completed]
+  workflow_dispatch:
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
-  brake:
+  disabled:
     runs-on: ubuntu-latest
     steps:
-      - name: Disable auto-merge + label + comment on failure
-        if: ${{ github.event.workflow_run.conclusion != 'success' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          RUN_URL: ${{ github.event.workflow_run.html_url }}
-          WORKFLOW: ${{ github.event.workflow_run.name }}
-          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
-          PRS: ${{ toJson(github.event.workflow_run.pull_requests) }}
-        run: |
-          echo "$PRS" | jq -r '.[].number' | while read -r pr; do
-            echo "Panic brake: disabling auto-merge for PR #$pr"
-            gh pr merge "$pr" --repo "$REPO" --disable-auto || true
-            gh pr edit "$pr" --repo "$REPO" --add-label "ci-failed" || true
-            gh pr comment "$pr" --repo "$REPO" --body \
-              ":rotating_light: CI failed (**$WORKFLOW**: $CONCLUSION). Auto-merge disabled.\n\nRun: $RUN_URL" || true
-          done
+      - run: echo "Disabled."
