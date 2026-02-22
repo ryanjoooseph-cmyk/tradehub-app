@@ -1,27 +1,54 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo, startTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { search, addRecentSearch, getRecentSearches, type SearchResult } from '@/lib/search';
 
 export function useCommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  
+  // Lazy initialization for recent searches (SSR-safe)
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => 
+    typeof window !== 'undefined' ? getRecentSearches() : []
+  );
+  
   const router = useRouter();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const debouncedQueryRef = useRef('');
 
-  // Load recent searches on mount
+  // Debounce query updates
   useEffect(() => {
-    setRecentSearches(getRecentSearches());
-  }, []);
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      debouncedQueryRef.current = query;
+    }, 150);
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [query]);
+
+  // Derive results from query using useMemo (no setState in effect)
+  const results = useMemo(() => {
+    if (!query.trim()) return [];
+    return search(query);
+  }, [query]);
+
+  // Reset selectedIndex when results change
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [results.length]);
 
   // Global keyboard shortcut: ⌘K / Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // ⌘K (Mac) or Ctrl+K (Windows/Linux)
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setIsOpen(prev => !prev);
@@ -32,62 +59,28 @@ export function useCommandPalette() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Reset state when opening
+  // Reset state when opening (wrapped in startTransition)
   useEffect(() => {
     if (isOpen) {
-      setQuery('');
-      setResults([]);
-      setSelectedIndex(0);
-      setRecentSearches(getRecentSearches());
+      startTransition(() => {
+        setQuery('');
+        setSelectedIndex(0);
+        setRecentSearches(getRecentSearches());
+      });
     }
   }, [isOpen]);
 
-  // Perform search with debounce
-  useEffect(() => {
-    if (!isOpen) return;
-
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    if (query.trim().length === 0) {
-      setResults([]);
-      setSelectedIndex(0);
-      return;
-    }
-
-    // Debounce search by 150ms for performance
-    searchTimeoutRef.current = setTimeout(() => {
-      const searchResults = search(query);
-      setResults(searchResults);
-      setSelectedIndex(0);
-    }, 150);
-
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [query, isOpen]);
-
   const handleSelect = useCallback(
     (result: SearchResult) => {
-      // Save to recent searches
       addRecentSearch(query);
-      
-      // Navigate to route
       router.push(result.route);
-      
-      // Close palette
       setIsOpen(false);
       setQuery('');
-      setResults([]);
       setSelectedIndex(0);
     },
     [query, router]
   );
 
-  // Keyboard navigation
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (!isOpen) return;
