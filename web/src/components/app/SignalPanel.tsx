@@ -2,11 +2,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const toneFor = (s: string): "default" | "success" | "warn" | "danger" => {
+const toneFor = (s: string): "default" | "success" | "warning" | "danger" => {
   const t = (s || "").toLowerCase();
   if (/(complete|completed|done|paid|success|approved)/.test(t)) return "success";
   if (/(dispute|overdue|failed|cancel|cancelled|rejected|error|blocked)/.test(t)) return "danger";
-  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing)/.test(t)) return "warn";
+  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing)/.test(t)) return "warning";
   return "default";
 };
 export function SignalPanel(props: { title: string; items: Array<{ k: string; v: string; s: string }>; className?: string }) {

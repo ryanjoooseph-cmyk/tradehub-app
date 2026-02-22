@@ -25,18 +25,18 @@ function money(cents: number) {
   return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(cents / 100);
 }
 
-const tone = (status: string): "default" | "success" | "warn" | "danger" => {
+const tone = (status: string): "default" | "success" | "warning" | "danger" => {
   const t = (status || "").toLowerCase();
   if (/(complete|completed|done|paid|success|approved|active)/.test(t)) return "success";
   if (/(dispute|overdue|failed|fail|cancel|cancelled|rejected|error|blocked)/.test(t)) return "danger";
-  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing|draft)/.test(t)) return "warn";
+  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing|draft)/.test(t)) return "warning";
   return "default";
 };
-const toneM = (status: EscrowRow["milestones"][number]["status"]): "default" | "warn" | "success" | "danger" => {
+const toneM = (status: EscrowRow["milestones"][number]["status"]): "default" | "warning" | "success" | "danger" => {
   const t = lower(status);
   if (/(released|paid|complete|completed|success|approved)/.test(t)) return "success";
   if (/(failed|fail|blocked|dispute|cancel|cancelled|rejected|error|bad)/.test(t)) return "danger";
-  if (/(pending|await|awaiting|hold|review|processing|in progress)/.test(t)) return "warn";
+  if (/(pending|await|awaiting|hold|review|processing|in progress)/.test(t)) return "warning";
   return "default";
 };
 export function EscrowDrawer({

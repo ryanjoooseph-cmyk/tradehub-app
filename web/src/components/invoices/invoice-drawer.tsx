@@ -18,11 +18,11 @@ function money(cents: number) {
   return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(cents / 100);
 }
 
-const tone = (status: string): "default" | "success" | "warn" | "danger" => {
+const tone = (status: string): "default" | "success" | "warning" | "danger" => {
   const t = (status || "").toLowerCase();
   if (/(complete|completed|done|paid|success|approved|active)/.test(t)) return "success";
   if (/(dispute|overdue|failed|fail|cancel|cancelled|rejected|error|blocked)/.test(t)) return "danger";
-  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing|draft)/.test(t)) return "warn";
+  if (/(await|awaiting|in progress|scheduled|pending|hold|review|processing|draft)/.test(t)) return "warning";
   return "default";
 };
 export function InvoiceDrawer({

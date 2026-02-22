@@ -9,11 +9,11 @@ import { Button} from "@/components/ui/button";
 import { Input} from "@/components/ui/input";
 import { cn} from "@/lib/utils";
 
-const toneFor = (status: string): "default" | "success" | "warn" | "danger" => {
+const toneFor = (status: string): "default" | "success" | "warning" | "danger" => {
   const t = (status || "").toLowerCase();
   if (/(complete|completed|done|paid|success)/.test(t)) return "success";
   if (/(dispute|overdue|failed|cancel|cancelled|rejected|error)/.test(t)) return "danger";
-  if (/(await|awaiting|in progress|scheduled|pending|hold|review)/.test(t)) return "warn";
+  if (/(await|awaiting|in progress|scheduled|pending|hold|review)/.test(t)) return "warning";
   return "default";
 };
 export function JobsTable(props: { className?: string }) {
