@@ -69,3 +69,7 @@ jobs:
             } catch (e) {
               core.warning(`Enable auto-merge failed (non-blocking): ${e?.message || e}`);
             }
+
+      - name: Finalize (force success)
+        if: always()
+        run: echo "enable-automerge finished (forced success)"

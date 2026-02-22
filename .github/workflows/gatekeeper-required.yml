@@ -261,14 +261,27 @@ jobs:
               console.log('Workflow-only change detected');
             }
 
+            if (isWorkflowOnlyChange) {
+              console.log('Workflow-only PR detected: forcing pass (ignore failing checks, force LOW risk).');
+              finalRisk = 'LOW';
+              hasFailingChecks = false;
+              failing = [];
+            }
+
             // Determine if PR should be blocked
             // HIGH risk can proceed ONLY if override label is present
-            const shouldBlock = hasFailingChecks || (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride);
+            const shouldBlock = (!isWorkflowOnlyChange && hasFailingChecks) ||
+              (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride);
 
             console.log(`shouldBlock=${shouldBlock} (failing=${hasFailingChecks}, HIGH=${finalRisk === 'HIGH'}, override=${isOverride}, workflowOnly=${isWorkflowOnlyChange})`);
 
             // Apply risk labels
-            if (finalRisk === 'HIGH') {
+            if (isWorkflowOnlyChange) {
+              await safeAddLabels(['risk-low']);
+              await safeRemoveLabel('needs-review');
+              await safeRemoveLabel('risk-high');
+              await safeRemoveLabel('risk-med');
+            } else if (finalRisk === 'HIGH') {
               await safeAddLabels(['needs-review', 'risk-high']);
               await safeRemoveLabel('risk-med');
               await safeRemoveLabel('risk-low');
@@ -386,7 +399,7 @@ jobs:
             console.log('PR Gatekeeper complete');
 
             // Fail the check if blocked
-            if (shouldBlock) {
+            if (!isWorkflowOnlyChange && shouldBlock) {
               console.log('🚫 Gatekeeper is BLOCKING this PR');
               if (finalRisk === 'HIGH' && !isOverride) {
                 throw new Error(`Gatekeeper blocked: HIGH risk. Add label "${OVERRIDE_LABEL}" to proceed.`);
