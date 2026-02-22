@@ -17,6 +17,7 @@ permissions:
 jobs:
   enable:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Enable auto-merge (best effort, never fail)
         continue-on-error: true
