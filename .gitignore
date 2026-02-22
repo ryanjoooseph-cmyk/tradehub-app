@@ -43,3 +43,7 @@ next-env.d.ts
 ....
 ...
 supabase/.temp/
+
+# ignore editor/backup files
+*.bak
+*.backup
