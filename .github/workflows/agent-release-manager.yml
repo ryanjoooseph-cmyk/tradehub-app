@@ -32,14 +32,37 @@ jobs:
         env:
           AGENT_ENDPOINT_URL: ${{ secrets.AGENT_ENDPOINT_URL }}
           AGENT_SECRET: ${{ secrets.AGENT_SECRET }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           if [ -z "${AGENT_ENDPOINT_URL:-}" ] || [ -z "${AGENT_SECRET:-}" ]; then
             echo "Missing AGENT_ENDPOINT_URL or AGENT_SECRET; exiting 0 to avoid spam failures."
             exit 0
           fi
-          payload=$(printf '{"prNumber":%s,"repo":"%s"}' "$PR_NUMBER" "${{ github.repository }}")
+          
+          # Fetch PR metadata
+          echo "Fetching PR #${PR_NUMBER} metadata..."
+          pr_data=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}" --jq '{html_url,title,body}')
+          pr_url=$(echo "$pr_data" | jq -r '.html_url')
+          pr_title=$(echo "$pr_data" | jq -r '.title')
+          pr_body=$(echo "$pr_data" | jq -r '.body // ""')
+          
+          # Fetch changed files as JSON array
+          echo "Fetching changed files for PR #${PR_NUMBER}..."
+          changed_files=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/files" --paginate --jq '.[].filename' | jq -R -s -c 'split("\n")[:-1]')
+          
+          # Build payload with all required fields
+          payload=$(jq -n \
+            --arg prUrl "$pr_url" \
+            --arg title "$pr_title" \
+            --arg body "$pr_body" \
+            --argjson changedFiles "$changed_files" \
+            '{prUrl: $prUrl, title: $title, body: $body, changedFiles: $changedFiles, checks: []}')
+          
+          echo "Calling release-manager endpoint..."
           curl -sS -X POST "${AGENT_ENDPOINT_URL%/}/api/agent/release-manager" \
             -H "content-type: application/json" \
             -H "x-agent-secret: ${AGENT_SECRET}" \
             --data "$payload" >/dev/null || true
+          
+          echo "✅ Release manager called successfully"
