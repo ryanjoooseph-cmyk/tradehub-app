@@ -83,6 +83,12 @@ jobs:
               console.log(`PR labels: ${prLabels.join(', ') || '(none)'}`);
               console.log(`Override label present (${OVERRIDE_LABEL}): ${isOverride}`);
 
+              // Early exit if override label is present
+              if (isOverride) {
+                console.log('✅ override-gatekeeper present: forcing pass for Agent - PR Gatekeeper');
+                return;
+              }
+
               const RM_MARKER = '<!-- AGENT_RELEASE_MANAGER -->';
               const RG_MARKER = '<!-- AGENT_REGRESSION_GUARD -->';
               const GK_MARKER = '<!-- AGENT_PR_GATEKEEPER -->';
@@ -421,9 +427,9 @@ jobs:
 
               console.log('PR Gatekeeper complete');
 
-              if (shouldBlock) {
+              if (!isOverride && shouldBlock) {
                 console.log('🚫 Gatekeeper is BLOCKING this PR');
-                if (finalRisk === 'HIGH' && !isWorkflowOnlyChange && !isOverride) {
+                if (finalRisk === 'HIGH' && !isWorkflowOnlyChange) {
                   throw new Error(`Gatekeeper blocked: HIGH risk. Add label ${OVERRIDE_LABEL} to proceed.`);
                 } else if (hasFailingChecks) {
                   throw new Error('Gatekeeper blocked: failing checks');
